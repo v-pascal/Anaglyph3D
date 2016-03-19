@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Anaglyph 3D</string>
+    <string name="find_camera">Searching second camera...</string>
+    <string name="img_desc_devices" translatable="false">Camera devices image</string>
+</resources>
