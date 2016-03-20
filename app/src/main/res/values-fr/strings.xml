@@ -2,4 +2,5 @@
 <resources>
     <string name="app_name">3D Anaglyphe</string>
     <string name="find_camera">Recherche deuxième camera...</string>
+    <string name="no_bluetooth">Bluetooth non disponible!</string>
 </resources>

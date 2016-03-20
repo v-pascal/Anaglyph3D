@@ -5,7 +5,7 @@ android {
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        applicationId "com.example.pascal.anaglyph3d"
+        applicationId "com.studio.artaban.anaglyph3d"
         minSdkVersion 16
         targetSdkVersion 23
         versionCode 1
@@ -15,6 +15,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // buildConfigField "Boolean", "DEBUG_MODE", "false"
         }
     }
 }

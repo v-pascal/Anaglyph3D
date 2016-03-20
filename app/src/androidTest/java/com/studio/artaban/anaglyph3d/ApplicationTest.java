@@ -1,4 +1,4 @@
-package com.example.pascal.anaglyph3d;
+package com.studio.artaban.anaglyph3d;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
