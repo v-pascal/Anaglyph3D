@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.helpers.Constants;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
@@ -33,7 +34,6 @@ public class Bluetooth {
         CONNECTED     // Processing connection
     }
     private BluetoothAdapter mAdapter;
-    //private BroadcastReceiver mReceiver;
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
         @Override public void onReceive(Context context, Intent intent) {
@@ -44,41 +44,13 @@ public class Bluetooth {
                     synchronized (mDevices) {
                         mDevices.add(device.getName() + Constants.CONN_DEVICES_SEPARATOR + device.getAddress());
                     }
-
-                else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(intent.getAction())) {
-
-                    Logs.add(Logs.Type.I, "Connected");
-
-
-
-
-
-
-
-
-
-
-                }
-                else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(intent.getAction())) {
-
-                    Logs.add(Logs.Type.W, "Disconnected");
-
-
-
-
-
-
-
-
-
-
-                }
             }
         }
     };
 
     private final ArrayList<String> mDevices = new ArrayList<String>();
     private Status mStatus = Status.DISABLED;
+    private String mRemoteDevice;
 
     private class ListenThread extends Thread { //////
 
@@ -110,6 +82,8 @@ public class Bluetooth {
                     BluetoothSocket socket = mSocket.accept();
                     if (socket != null) {
 
+                        BluetoothDevice device = socket.getRemoteDevice();
+                        mRemoteDevice = device.getName() + Constants.CONN_DEVICES_SEPARATOR + device.getAddress();
                         if (mProcessing != null) {
 
                             mProcessing.cancel();
@@ -157,6 +131,7 @@ public class Bluetooth {
                 Logs.add(Logs.Type.W, "Failed to create " + ((secure) ? "secure" : "insecure") + " socket: " + e.toString());
             }
             mSocket = socket;
+            mRemoteDevice = device.getName() + Constants.CONN_DEVICES_SEPARATOR + device.getAddress();
         }
 
         @Override public void run() {
@@ -253,6 +228,7 @@ public class Bluetooth {
 
     //////
     public Status getStatus() { return mStatus; }
+    public String getRemoteDevice() { return mRemoteDevice; }
 
     //
     public void discover() {
@@ -387,8 +363,6 @@ public class Bluetooth {
     }
     public void register(Context context) {
         context.registerReceiver(mReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
-        context.registerReceiver(mReceiver, new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED));
-        context.registerReceiver(mReceiver, new IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED));
     }
     public void unregister(Context context) { context.unregisterReceiver(mReceiver); }
     public void release() {

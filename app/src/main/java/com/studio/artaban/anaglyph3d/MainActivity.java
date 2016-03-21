@@ -1,5 +1,6 @@
 package com.studio.artaban.anaglyph3d;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -40,6 +41,17 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        // Get connected device name
+        final String connDevice = getIntent().getStringExtra(ConnActivity.DATA_CONN_DEVICE);
+
+
+
+
+
+
+
+
     }
 
     @Override

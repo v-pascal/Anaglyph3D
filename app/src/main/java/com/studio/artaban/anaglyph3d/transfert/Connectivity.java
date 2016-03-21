@@ -1,8 +1,11 @@
 package com.studio.artaban.anaglyph3d.transfert;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 
+import com.studio.artaban.anaglyph3d.ConnActivity;
+import com.studio.artaban.anaglyph3d.MainActivity;
 import com.studio.artaban.anaglyph3d.helpers.Constants;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
@@ -27,6 +30,20 @@ public class Connectivity {
     private Step mStep = Step.UNDEFINED;
 
     private class StepTask extends AsyncTask<Void, Void, Void> {
+
+        private final Context mContext;
+        public StepTask(Context context) { mContext = context; }
+        private void startActivity() {
+
+            Intent intent = new Intent(mContext, MainActivity.class);
+            intent.putExtra(ConnActivity.DATA_CONN_DEVICE,
+                    mBluetooth.getRemoteDevice().substring(0,
+                            mBluetooth.getRemoteDevice().indexOf(Constants.CONN_DEVICES_SEPARATOR)));
+            mContext.startActivity(intent);
+
+            mStep = Step.UNDEFINED;
+            mAbort = true;
+        }
 
         @Override
         protected Void doInBackground(Void... params) {
@@ -58,8 +75,7 @@ public class Connectivity {
                             case CONNECTED: {
 
                                 Logs.add(Logs.Type.I, "Connected (MASTER)");
-                                mStep = Step.UNDEFINED;
-                                mAbort = true;
+                                startActivity();
                                 break;
                             }
                             case READY: {
@@ -94,8 +110,7 @@ public class Connectivity {
                             case CONNECTED: {
 
                                 Logs.add(Logs.Type.I, "Connected (SLAVE)");
-                                mStep = Step.UNDEFINED;
-                                mAbort = true;
+                                startActivity();
                                 break;
                             }
                         }
@@ -117,7 +132,7 @@ public class Connectivity {
     }
 
     //////
-    public boolean start() {
+    public boolean start(Context context) {
 
         if ((mBluetooth.getStatus() == Bluetooth.Status.DISABLED) && (!mBluetooth.initialize()))
             return false;
@@ -128,7 +143,7 @@ public class Connectivity {
         }
         mAbort = false;
         mStep = Step.RESET;
-        mStepTask = new StepTask();
+        mStepTask = new StepTask(context);
         mStepTask.execute();
         return true;
     }

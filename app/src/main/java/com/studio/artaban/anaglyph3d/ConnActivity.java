@@ -13,12 +13,15 @@ import android.widget.TextView;
 
 import com.studio.artaban.anaglyph3d.transfert.Connectivity;
 
-public class StartActivity extends AppCompatActivity {
+public class ConnActivity extends AppCompatActivity {
 
+    public static final String DATA_CONN_DEVICE = "connDevice";
+
+    //////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_start);
+        setContentView(R.layout.activity_conn);
 
         // Add and set app bar
         final Toolbar appBar = (Toolbar)findViewById(R.id.appBar);
@@ -32,7 +35,7 @@ public class StartActivity extends AppCompatActivity {
             appBar.setBackgroundColor(Color.argb(255,30,30,30)); // Default status bar color
 
         // Start connectivity
-        if (!Connectivity.getInstance().start()) {
+        if (!Connectivity.getInstance().start(this)) {
 
             // Failed to enable Bluetooth connectivity
             final ProgressBar progressBar = (ProgressBar)findViewById(R.id.progressBar);
