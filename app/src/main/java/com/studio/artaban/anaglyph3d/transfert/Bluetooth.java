@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import com.studio.artaban.anaglyph3d.helpers.Constants;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 import java.io.IOException;
@@ -23,50 +24,16 @@ import java.util.UUID;
  * Bluetooth Helpers
  */
 public class Bluetooth {
-    private static Bluetooth ourInstance;
-
-    public static Bluetooth getInstance(Context context) {
-        if (ourInstance == null)
-            ourInstance = new Bluetooth(context);
-        return ourInstance;
-    }
 
     public enum Status {
-        DISABLED,   // Bluetooth not supported or disabled
-        READY,      // Bluetooth ready (enabled)
-        LISTENING,  // Master mode
-        CONNECTING, // Slave mode
-        CONNECTED   // Processing connection
+        DISABLED,     // Bluetooth not supported or disabled
+        READY,        // Bluetooth ready (enabled & registered)
+        LISTENING,    // Master mode
+        CONNECTING,   // Slave mode
+        CONNECTED     // Processing connection
     }
-    private final Context mContext;
     private BluetoothAdapter mAdapter;
-    private final ArrayList<String> mDevices = new ArrayList<String>();
-    private Status mStatus;
-
-    private Bluetooth(Context context) {
-        mContext = context;
-        mStatus = Status.DISABLED;
-
-        mAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (mAdapter == null) {
-            Logs.add(Logs.Type.W, "Bluetooth not supported");
-            return;
-        }
-        if ((!mAdapter.isEnabled()) && (!mAdapter.enable())) {
-            Logs.add(Logs.Type.E, "Failed to enable Bluetooth");
-            return;
-        }
-
-        // Register Bluetooth devices search broadcast receiver
-        context.registerReceiver(mReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
-        Set<BluetoothDevice> devices = mAdapter.getBondedDevices();
-        if (devices.size() > 0)
-            for (BluetoothDevice device : devices)
-                mDevices.add(device.getName() + "\n" + device.getAddress());
-
-        mStatus = Status.READY;
-    }
-
+    //private BroadcastReceiver mReceiver;
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
         @Override public void onReceive(Context context, Intent intent) {
@@ -74,10 +41,45 @@ public class Bluetooth {
 
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) // Not already paired
-                    synchronized (mDevices) { mDevices.add(device.getName() + "\n" + device.getAddress()); }
+                    synchronized (mDevices) {
+                        mDevices.add(device.getName() + Constants.CONN_DEVICES_SEPARATOR + device.getAddress());
+                    }
+
+                else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(intent.getAction())) {
+
+                    Logs.add(Logs.Type.I, "Connected");
+
+
+
+
+
+
+
+
+
+
+                }
+                else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(intent.getAction())) {
+
+                    Logs.add(Logs.Type.W, "Disconnected");
+
+
+
+
+
+
+
+
+
+
+                }
             }
         }
     };
+
+    private final ArrayList<String> mDevices = new ArrayList<String>();
+    private Status mStatus = Status.DISABLED;
+
     private class ListenThread extends Thread { //////
 
         private final boolean mSecure;
@@ -362,13 +364,41 @@ public class Bluetooth {
     }
 
     //
+    public boolean initialize() {
+
+        mAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (mAdapter == null) {
+            Logs.add(Logs.Type.W, "Bluetooth not supported");
+            return false;
+        }
+        if ((!mAdapter.isEnabled()) && (!mAdapter.enable())) {
+            Logs.add(Logs.Type.E, "Failed to enable Bluetooth");
+            return false;
+        }
+        mDevices.clear();
+
+        Set<BluetoothDevice> devices = mAdapter.getBondedDevices();
+        if (devices.size() > 0)
+            for (BluetoothDevice device : devices)
+                mDevices.add(device.getName() + "\n" + device.getAddress());
+
+        mStatus = Status.READY;
+        return true;
+    }
+    public void register(Context context) {
+        context.registerReceiver(mReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
+        context.registerReceiver(mReceiver, new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED));
+        context.registerReceiver(mReceiver, new IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED));
+    }
+    public void unregister(Context context) { context.unregisterReceiver(mReceiver); }
     public void release() {
         if (mStatus == Status.DISABLED)
             return;
 
+        mStatus = Status.DISABLED; // Needed when recreating activity (static)
+
         reset();
         if (mAdapter.isDiscovering())
             mAdapter.cancelDiscovery();
-        mContext.unregisterReceiver(mReceiver);
     }
 }

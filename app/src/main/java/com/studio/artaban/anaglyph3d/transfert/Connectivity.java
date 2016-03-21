@@ -3,6 +3,7 @@ package com.studio.artaban.anaglyph3d.transfert;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.studio.artaban.anaglyph3d.helpers.Constants;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 import java.util.concurrent.ExecutionException;
@@ -12,27 +13,18 @@ import java.util.concurrent.ExecutionException;
  * Connectivity Helpers
  */
 public class Connectivity {
-    private static Connectivity ourInstance;
 
-    public static Connectivity getInstance(Context context) {
-        if (ourInstance == null)
-            ourInstance = new Connectivity(context);
-        return ourInstance;
-    }
+    private static Connectivity ourInstance = new Connectivity();
+    public static Connectivity getInstance() { return ourInstance; }
+    private Connectivity() { }
 
+    //////
     private AsyncTask<Void, Void, Void> mStepTask;
+    private final Bluetooth mBluetooth = new Bluetooth();
+    private boolean mAbort = true;
 
-    private final Bluetooth mBluetooth;
-    private boolean mAbort;
     private enum Step { UNDEFINED, RESET, DISCOVER, CONNECT, LISTEN }
-    private Step mStep;
-
-    private Connectivity(Context context) {
-
-        mBluetooth = Bluetooth.getInstance(context);
-        mStep = Step.UNDEFINED;
-        mAbort = false;
-    }
+    private Step mStep = Step.UNDEFINED;
 
     private class StepTask extends AsyncTask<Void, Void, Void> {
 
@@ -65,22 +57,23 @@ public class Connectivity {
                             case CONNECTING: break; // Still trying to connect
                             case CONNECTED: {
 
-
-
-
-
-
+                                Logs.add(Logs.Type.I, "Connected (MASTER)");
+                                mStep = Step.UNDEFINED;
+                                mAbort = true;
                                 break;
                             }
                             case READY: {
 
                                 final String device = mBluetooth.getDevice(devIndex++);
-                                if (device != null)
-                                    mBluetooth.connect(false, "", "");
+                                if (device != null) {
 
+                                    String devAddress =
+                                            device.substring(device.indexOf(Constants.CONN_DEVICES_SEPARATOR) + 1);
+                                    mBluetooth.connect(true, Constants.CONN_SECURE_UUID, devAddress);
+                                }
                                 else {
 
-                                    mBluetooth.listen(false, "", "");
+                                    mBluetooth.listen(false, Constants.CONN_SECURE_UUID, Constants.CONN_SECURE_NAME);
                                     mStep = Step.LISTEN;
                                     waitListen = 0;
                                 }
@@ -100,20 +93,17 @@ public class Connectivity {
                             }
                             case CONNECTED: {
 
-
-
-
-
-
-
-
-
+                                Logs.add(Logs.Type.I, "Connected (SLAVE)");
+                                mStep = Step.UNDEFINED;
+                                mAbort = true;
                                 break;
                             }
                         }
                         break;
                     }
                 }
+                if (mAbort)
+                    break; // Exit immediately
 
                 // Wait
                 try { Thread.sleep(100, 0); }
@@ -129,27 +119,42 @@ public class Connectivity {
     //////
     public boolean start() {
 
-        if (mBluetooth.getStatus() != Bluetooth.Status.READY)
+        if ((mBluetooth.getStatus() == Bluetooth.Status.DISABLED) && (!mBluetooth.initialize()))
             return false;
 
         if (mStep != Step.UNDEFINED) {
             Logs.add(Logs.Type.W, "Connectivity already started");
             return true;
         }
+        mAbort = false;
         mStep = Step.RESET;
         mStepTask = new StepTask();
         mStepTask.execute();
         return true;
     }
-    public void release() {
+    public void reset() { mBluetooth.reset(); }
 
-        mAbort = true;
-        try { mStepTask.get(); }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        catch (ExecutionException e) {
-            e.printStackTrace();
+    //
+    public void resume(Context context) {
+        mBluetooth.register(context);
+    }
+    public void pause(Context context) {
+        mBluetooth.unregister(context);
+    }
+    public void destroy() {
+
+        if (!mAbort) {
+
+            mAbort = true;
+            try { mStepTask.get(); }
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+            mStepTask = null;
+            mStep = Step.UNDEFINED;
         }
         mBluetooth.release();
     }
