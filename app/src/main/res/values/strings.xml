@@ -1,10 +1,14 @@
 <resources>
     <string name="app_name">Anaglyph 3D</string>
     <string name="find_camera">Searching second camera...</string>
-    <string name="img_desc_devices" translatable="false">Camera devices/Warning image</string>
+    <string name="image_desc_devices" translatable="false">Camera devices/Warning image</string>
     <string name="no_bluetooth">Bluetooth not available!</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="image_desc_icon" translatable="false">Application icon</string>
+    <string name="company_name" translatable="false">STUDIO Artaban</string>
+    <string name="company_email" translatable="false">contact@studio-artaban.com</string>
+    <string name="image_desc_glass" translatable="false">Left/Right glass</string>
 
 </resources>

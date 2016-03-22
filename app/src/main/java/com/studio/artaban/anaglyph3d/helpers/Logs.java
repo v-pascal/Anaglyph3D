@@ -6,7 +6,7 @@ import com.studio.artaban.anaglyph3d.BuildConfig;
 
 /**
  * Created by pascal on 20/03/16.
- * Log Helpers
+ * Log Helper
  */
 public final class Logs {
 

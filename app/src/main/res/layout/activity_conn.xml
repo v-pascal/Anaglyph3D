@@ -36,7 +36,7 @@
             android:id="@+id/imgDevices"
             android:layout_above="@+id/textView"
             android:layout_centerHorizontal="true"
-            android:contentDescription="@string/img_desc_devices"
+            android:contentDescription="@string/image_desc_devices"
             android:adjustViewBounds="true"
             android:scaleType="fitCenter" />
 

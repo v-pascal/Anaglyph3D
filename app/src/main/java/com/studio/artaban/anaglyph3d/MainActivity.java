@@ -1,6 +1,7 @@
 package com.studio.artaban.anaglyph3d;
 
-import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -8,17 +9,19 @@ import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 
+import com.studio.artaban.anaglyph3d.fragments.CamFragment;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    //////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,16 +47,32 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        // Get remote device name
-        final String devName = getIntent().getStringExtra(ConnActivity.DATA_CONN_DEVICE);
+        final Toolbar appBar = (Toolbar)findViewById(R.id.toolbar);
+        if (Build.VERSION.SDK_INT >= 21) {
+            appBar.setBackgroundColor(Color.BLACK);
+            getWindow().setNavigationBarColor(Color.BLACK);
+            getWindow().setStatusBarColor(Color.BLACK);
+        }
+        else
+            appBar.setBackgroundColor(Color.argb(255,30,30,30)); // Default status bar color (API < 21)
 
 
 
 
 
 
-        Logs.add(Logs.Type.I, devName);
+        // Display remote device name into title (subtitle)
+        //final String devName = getIntent().getStringExtra(ConnActivity.DATA_CONN_DEVICE);
+        final String devName = "Camera gauche - testage";
+        appBar.setSubtitle(devName);
 
+
+
+
+
+        FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
+        fragTransaction.add(R.id.mainContainer, new CamFragment(this));
+        fragTransaction.commit();
 
 
 

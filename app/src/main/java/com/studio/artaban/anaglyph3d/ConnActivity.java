@@ -32,7 +32,7 @@ public class ConnActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(Color.BLACK);
         }
         else
-            appBar.setBackgroundColor(Color.argb(255,30,30,30)); // Default status bar color
+            appBar.setBackgroundColor(Color.argb(255,30,30,30)); // Default status bar color (API < 21)
 
         // Start connectivity
         if (!Connectivity.getInstance().start(this)) {
@@ -49,6 +49,7 @@ public class ConnActivity extends AppCompatActivity {
                 imgDevices.setImageDrawable(getResources().getDrawable(R.drawable.warning));
             return;
         }
+
         // Animate wait second devices image
         final ImageView imgDevices = (ImageView)findViewById(R.id.imgDevices);
         if (Build.VERSION.SDK_INT >= 22)
