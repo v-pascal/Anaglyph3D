@@ -369,10 +369,10 @@ public class Bluetooth {
         if (mStatus == Status.DISABLED)
             return;
 
-        mStatus = Status.DISABLED; // Needed when recreating activity (static)
-
         reset();
         if (mAdapter.isDiscovering())
             mAdapter.cancelDiscovery();
+
+        mStatus = Status.DISABLED; // Needed when recreating activity (static)
     }
 }

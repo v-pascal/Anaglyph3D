@@ -1,12 +1,10 @@
 <resources>
     <string name="app_name">Anaglyph 3D</string>
     <string name="find_camera">Searching second camera...</string>
-    <string name="img_desc_devices" translatable="false">Camera devices image</string>
+    <string name="img_desc_devices" translatable="false">Camera devices/Warning image</string>
     <string name="no_bluetooth">Bluetooth not available!</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
-    <string name="title_activity_main">Main activ</string>
 </resources>

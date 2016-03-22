@@ -3,8 +3,8 @@
     <string name="app_name">3D Anaglyphe</string>
     <string name="find_camera">Recherche deuxième camera...</string>
     <string name="no_bluetooth">Bluetooth non disponible!</string>
+
     <string name="navigation_drawer_close">Close nav</string>
     <string name="navigation_drawer_open">Open nav</string>
-    <string name="title_activity_main">Principal activ</string>
-    <string name="action_settings">Params</string>
+
 </resources>
