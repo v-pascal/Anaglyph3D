@@ -16,6 +16,7 @@ import com.studio.artaban.anaglyph3d.transfert.Connectivity;
 public class ConnActivity extends AppCompatActivity {
 
     public static final String DATA_CONN_DEVICE = "connDevice";
+    public static final String DATA_CONN_MASTER = "connMaster";
 
     //////
     @Override
@@ -43,19 +44,13 @@ public class ConnActivity extends AppCompatActivity {
             final TextView textView = (TextView)findViewById(R.id.textView);
             textView.setText(R.string.no_bluetooth);
             final ImageView imgDevices = (ImageView)findViewById(R.id.imgDevices);
-            if (Build.VERSION.SDK_INT >= 22)
-                imgDevices.setImageDrawable(getResources().getDrawable(R.drawable.warning, this.getTheme()));
-            else
-                imgDevices.setImageDrawable(getResources().getDrawable(R.drawable.warning));
+            imgDevices.setImageDrawable(getResources().getDrawable(R.drawable.warning));
             return;
         }
 
         // Animate wait second devices image
         final ImageView imgDevices = (ImageView)findViewById(R.id.imgDevices);
-        if (Build.VERSION.SDK_INT >= 22)
-            imgDevices.setImageDrawable(getResources().getDrawable(R.drawable.devices_anim, this.getTheme()));
-        else
-            imgDevices.setImageDrawable(getResources().getDrawable(R.drawable.devices_anim));
+        imgDevices.setImageDrawable(getResources().getDrawable(R.drawable.devices_anim));
         final AnimationDrawable animDevices = (AnimationDrawable)imgDevices.getDrawable();
         imgDevices.post(new Runnable() {
 

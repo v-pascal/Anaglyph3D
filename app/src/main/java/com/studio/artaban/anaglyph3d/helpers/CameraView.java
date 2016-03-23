@@ -15,21 +15,31 @@ import java.io.IOException;
  */
 public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
-    public static Camera getCamera() {
-        Camera cam = null;
-        try { cam = Camera.open(); } // attempt to get a Camera instance
+    private Camera getCamera() {
+        Camera camera = null;
+        try { camera = Camera.open(); } // Attempt to get a default camera instance
         catch (Exception e) {
             Logs.add(Logs.Type.E, "Camera is not available (in use or does not exist)");
         }
-        return cam;
+        return camera;
     }
 
     private SurfaceHolder mHolder;
     private Camera mCamera;
 
-    public CameraView(Context context, Camera camera) {
+    public void resume() {
+        if (mCamera == null)
+            mCamera = getCamera();
+    }
+    public void pause() {
+        mCamera.release();
+        mCamera = null;
+    }
+
+    //////
+    public CameraView(Context context) {
         super(context);
-        mCamera = camera;
+        mCamera = getCamera();
 
         // Install a SurfaceHolder.Callback so we get notified when the
         // underlying surface is created and destroyed.

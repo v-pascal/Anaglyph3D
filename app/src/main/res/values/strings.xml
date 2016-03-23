@@ -10,5 +10,11 @@
     <string name="company_name" translatable="false">STUDIO Artaban</string>
     <string name="company_email" translatable="false">contact@studio-artaban.com</string>
     <string name="image_desc_glass" translatable="false">Left/Right glass</string>
+    <string name="nav_album">Videos album</string>
+    <string name="nav_settings">Settings</string>
+    <string name="nav_disconnect">Disconnect</string>
+    <string name="nav_quit">Quit</string>
+    <string name="camera_left">Left camera -</string>
+    <string name="camera_right">Right camera -</string>
 
 </resources>

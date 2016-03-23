@@ -8,9 +8,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.widget.Toast;
 
-import com.studio.artaban.anaglyph3d.helpers.Constants;
+import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 import java.io.IOException;
@@ -26,6 +25,7 @@ import java.util.UUID;
  */
 public class Bluetooth {
 
+    public static final String DEVICES_SEPARATOR = "\n";
     public enum Status {
         DISABLED,     // Bluetooth not supported or disabled
         READY,        // Bluetooth ready (enabled & registered)
@@ -33,6 +33,7 @@ public class Bluetooth {
         CONNECTING,   // Slave mode
         CONNECTED     // Processing connection
     }
+
     private BluetoothAdapter mAdapter;
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
@@ -42,7 +43,7 @@ public class Bluetooth {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) // Not already paired
                     synchronized (mDevices) {
-                        mDevices.add(device.getName() + Constants.CONN_DEVICES_SEPARATOR + device.getAddress());
+                        mDevices.add(device.getName() + DEVICES_SEPARATOR + device.getAddress());
                     }
             }
         }
@@ -83,7 +84,7 @@ public class Bluetooth {
                     if (socket != null) {
 
                         BluetoothDevice device = socket.getRemoteDevice();
-                        mRemoteDevice = device.getName() + Constants.CONN_DEVICES_SEPARATOR + device.getAddress();
+                        mRemoteDevice = device.getName() + DEVICES_SEPARATOR + device.getAddress();
                         if (mProcessing != null) {
 
                             mProcessing.cancel();
@@ -131,7 +132,7 @@ public class Bluetooth {
                 Logs.add(Logs.Type.W, "Failed to create " + ((secure) ? "secure" : "insecure") + " socket: " + e.toString());
             }
             mSocket = socket;
-            mRemoteDevice = device.getName() + Constants.CONN_DEVICES_SEPARATOR + device.getAddress();
+            mRemoteDevice = device.getName() + DEVICES_SEPARATOR + device.getAddress();
         }
 
         @Override public void run() {

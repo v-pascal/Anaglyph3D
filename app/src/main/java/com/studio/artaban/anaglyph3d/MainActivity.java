@@ -15,8 +15,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.fragments.CamFragment;
-import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -58,29 +58,23 @@ public class MainActivity extends AppCompatActivity
         else
             appBar.setBackgroundColor(Color.argb(255,30,30,30)); // Default status bar color (API < 21)
 
+        // Display remote device name into subtitle (with initial position)
+        String remoteDevice;
+        if (getIntent().getBooleanExtra(ConnActivity.DATA_CONN_MASTER, true))
+            remoteDevice = getResources().getString(R.string.camera_right);
+            //Settings.mPosition = true; // Default
 
+        else {
+            remoteDevice = getResources().getString(R.string.camera_left);
+            Settings.mPosition = false;
+        }
+        remoteDevice += getIntent().getStringExtra(ConnActivity.DATA_CONN_DEVICE);
+        appBar.setSubtitle(remoteDevice);
 
-
-
-
-        // Display remote device name into title (subtitle)
-        //final String devName = getIntent().getStringExtra(ConnActivity.DATA_CONN_DEVICE);
-        final String devName = "Camera gauche - testage";
-        appBar.setSubtitle(devName);
-
-
-
-
-
-
+        // Add camera fragment (after having set initial position)
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
         fragTransaction.add(R.id.mainContainer, mCamFragment);
         fragTransaction.commit();
-
-
-
-
-
     }
 
     @Override
@@ -89,7 +83,7 @@ public class MainActivity extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            moveTaskToBack(true); // Put application in background (paused)
+            moveTaskToBack(true); // Put application into background (paused)
         }
     }
 
@@ -99,17 +93,16 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        if (id == R.id.navAlbum) {
 
-        } else if (id == R.id.nav_slideshow) {
+        }
+        else if (id == R.id.navSettings) {
 
-        } else if (id == R.id.nav_manage) {
+        }
+        else if (id == R.id.navDisconnect) {
 
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        }
+        else if (id == R.id.navQuit) {
 
         }
 

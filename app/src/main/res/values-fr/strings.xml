@@ -4,7 +4,13 @@
     <string name="find_camera">Recherche deuxième camera...</string>
     <string name="no_bluetooth">Bluetooth non disponible!</string>
 
-    <string name="navigation_drawer_close">Close nav</string>
-    <string name="navigation_drawer_open">Open nav</string>
+    <string name="navigation_drawer_close">Ferme la navigation</string>
+    <string name="navigation_drawer_open">Ouvre la navigation</string>
+    <string name="nav_album">Album vidéos</string>
+    <string name="nav_settings">Paramètres</string>
+    <string name="nav_disconnect">Déconnexion</string>
+    <string name="nav_quit">Quitter</string>
+    <string name="camera_left">Caméra gauche -</string>
+    <string name="camera_right">Caméra droite - </string>
 
 </resources>

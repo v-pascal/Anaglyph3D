@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 
 import com.studio.artaban.anaglyph3d.ConnActivity;
 import com.studio.artaban.anaglyph3d.MainActivity;
-import com.studio.artaban.anaglyph3d.helpers.Constants;
+import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 import java.util.concurrent.ExecutionException;
@@ -33,12 +33,14 @@ public class Connectivity {
 
         private final Context mContext;
         public StepTask(Context context) { mContext = context; }
-        private void startActivity() {
+
+        private void startActivity(boolean master) {
 
             Intent intent = new Intent(mContext, MainActivity.class);
             intent.putExtra(ConnActivity.DATA_CONN_DEVICE,
                     mBluetooth.getRemoteDevice().substring(0,
-                            mBluetooth.getRemoteDevice().indexOf(Constants.CONN_DEVICES_SEPARATOR)));
+                            mBluetooth.getRemoteDevice().indexOf(Bluetooth.DEVICES_SEPARATOR)));
+            intent.putExtra(ConnActivity.DATA_CONN_MASTER, master);
             mContext.startActivity(intent);
 
             mStep = Step.UNDEFINED;
@@ -75,7 +77,7 @@ public class Connectivity {
                             case CONNECTED: {
 
                                 Logs.add(Logs.Type.I, "Connected (MASTER)");
-                                startActivity();
+                                startActivity(true);
                                 break;
                             }
                             case READY: {
@@ -84,7 +86,7 @@ public class Connectivity {
                                 if (device != null) {
 
                                     String devAddress =
-                                            device.substring(device.indexOf(Constants.CONN_DEVICES_SEPARATOR) + 1);
+                                            device.substring(device.indexOf(Bluetooth.DEVICES_SEPARATOR) + 1);
                                     mBluetooth.connect(true, Constants.CONN_SECURE_UUID, devAddress);
                                 }
                                 else {
@@ -110,7 +112,7 @@ public class Connectivity {
                             case CONNECTED: {
 
                                 Logs.add(Logs.Type.I, "Connected (SLAVE)");
-                                startActivity();
+                                startActivity(false);
                                 break;
                             }
                         }
