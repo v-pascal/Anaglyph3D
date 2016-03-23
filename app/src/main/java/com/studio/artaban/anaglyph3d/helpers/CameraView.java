@@ -2,8 +2,10 @@ package com.studio.artaban.anaglyph3d.helpers;
 
 import android.hardware.Camera;
 import android.content.Context;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.WindowManager;
 
 import java.io.IOException;
 
@@ -63,6 +65,27 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
         // set preview size and make any resize, rotate or
         // reformatting changes here
+        switch (((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation()) {
+            case Surface.ROTATION_0:
+
+                // Natural orientation (Portrait)
+                mCamera.setDisplayOrientation(90);
+
+                // TODO: Check if natural orientation is portrait
+                break;
+
+            case Surface.ROTATION_90:
+                mCamera.setDisplayOrientation(0); // Landscape (left)
+                break;
+
+            case Surface.ROTATION_180:
+                mCamera.setDisplayOrientation(270); // Portrait (upside down)
+                break;
+
+            case Surface.ROTATION_270:
+                mCamera.setDisplayOrientation(180); // Landscape (right)
+                break;
+        }
 
         // start preview with new settings
         try {

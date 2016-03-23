@@ -21,6 +21,8 @@ import com.studio.artaban.anaglyph3d.helpers.Logs;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private final CamFragment mCamFragment = new CamFragment(this);
+
     //////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,8 +72,9 @@ public class MainActivity extends AppCompatActivity
 
 
 
+
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
-        fragTransaction.add(R.id.mainContainer, new CamFragment(this));
+        fragTransaction.add(R.id.mainContainer, mCamFragment);
         fragTransaction.commit();
 
 

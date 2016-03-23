@@ -12,6 +12,7 @@ import android.widget.FrameLayout;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.helpers.CameraView;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 /**
  * Created by pascal on 22/03/16.
@@ -40,5 +41,23 @@ public class CamFragment extends Fragment {
         preview.addView(mPreview);
 
         return camLayout;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (mCamera == null)
+            mCamera = CameraView.getCamera();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mCamera != null) {
+            mCamera.release();
+            mCamera = null;
+        }
     }
 }
