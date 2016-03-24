@@ -80,8 +80,9 @@ public class Connectivity {
                         switch (mBluetooth.getStatus()) {
                             case CONNECTING: break; // Still trying to connect
                             case CONNECTED: {
-
                                 Logs.add(Logs.Type.I, "Connected (MASTER)");
+
+                                // Send request to initialize settings
                                 Settings.getInstance().initialize(mBluetooth.getRemoteDevice().substring(0,
                                         mBluetooth.getRemoteDevice().indexOf(Bluetooth.DEVICES_SEPARATOR)), true);
 
@@ -118,8 +119,9 @@ public class Connectivity {
                                 break;
                             }
                             case CONNECTED: {
-
                                 Logs.add(Logs.Type.I, "Connected (SLAVE)");
+
+                                // Send request to initialize settings
                                 Settings.getInstance().initialize(mBluetooth.getRemoteDevice().substring(0,
                                         mBluetooth.getRemoteDevice().indexOf(Bluetooth.DEVICES_SEPARATOR)), false);
 
