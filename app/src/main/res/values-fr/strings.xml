@@ -10,7 +10,8 @@
     <string name="nav_settings">Paramètres</string>
     <string name="nav_disconnect">Déconnexion</string>
     <string name="nav_quit">Quitter</string>
-    <string name="camera_left">Caméra gauche -</string>
-    <string name="camera_right">Caméra droite - </string>
+    <string name="camera_left">Caméra gauche</string>
+    <string name="camera_right">Caméra droite</string>
+    <string name="company_name">Par STUDIO Artaban</string>
 
 </resources>

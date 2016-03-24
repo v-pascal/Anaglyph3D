@@ -22,6 +22,21 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private final CamFragment mCamFragment = new CamFragment(this);
+    ////// Fragments
+
+    private void displayPosition() {
+
+        // Display remote device name into subtitle (with position)
+        String remoteDevice;
+        if (Settings.getInstance().getPosition())
+            remoteDevice = getResources().getString(R.string.camera_right);
+        else
+            remoteDevice = getResources().getString(R.string.camera_left);
+        remoteDevice += " : " + Settings.getInstance().getRemoteDevice();
+
+        final Toolbar appBar = (Toolbar)findViewById(R.id.toolbar);
+        appBar.setSubtitle(remoteDevice);
+    }
 
     //////
     @Override
@@ -59,17 +74,7 @@ public class MainActivity extends AppCompatActivity
             appBar.setBackgroundColor(Color.argb(255,30,30,30)); // Default status bar color (API < 21)
 
         // Display remote device name into subtitle (with initial position)
-        String remoteDevice;
-        if (getIntent().getBooleanExtra(ConnActivity.DATA_CONN_MASTER, true))
-            remoteDevice = getResources().getString(R.string.camera_right);
-            //Settings.mPosition = true; // Default
-
-        else {
-            remoteDevice = getResources().getString(R.string.camera_left);
-            Settings.mPosition = false;
-        }
-        remoteDevice += getIntent().getStringExtra(ConnActivity.DATA_CONN_DEVICE);
-        appBar.setSubtitle(remoteDevice);
+        displayPosition();
 
         // Add camera fragment (after having set initial position)
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();

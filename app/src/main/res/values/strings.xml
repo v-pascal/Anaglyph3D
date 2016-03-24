@@ -7,7 +7,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="image_desc_icon" translatable="false">Application icon</string>
-    <string name="company_name" translatable="false">STUDIO Artaban</string>
+    <string name="company_name">By STUDIO Artaban</string>
     <string name="company_email" translatable="false">contact@studio-artaban.com</string>
     <string name="image_desc_glass" translatable="false">Left/Right glass</string>
     <string name="nav_album">Videos album</string>

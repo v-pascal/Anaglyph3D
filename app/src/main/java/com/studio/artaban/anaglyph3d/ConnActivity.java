@@ -15,10 +15,6 @@ import com.studio.artaban.anaglyph3d.transfert.Connectivity;
 
 public class ConnActivity extends AppCompatActivity {
 
-    public static final String DATA_CONN_DEVICE = "connDevice";
-    public static final String DATA_CONN_MASTER = "connMaster";
-
-    //////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

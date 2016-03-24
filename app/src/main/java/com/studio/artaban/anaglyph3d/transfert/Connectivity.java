@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import com.studio.artaban.anaglyph3d.ConnActivity;
 import com.studio.artaban.anaglyph3d.MainActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;
+import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 import java.util.concurrent.ExecutionException;
@@ -26,7 +27,18 @@ public class Connectivity {
     private final Bluetooth mBluetooth = new Bluetooth();
     private boolean mAbort = true;
 
-    private enum Step { UNDEFINED, RESET, DISCOVER, CONNECT, LISTEN }
+    private enum Step {
+        UNDEFINED,
+
+        // Not connected
+        RESET,
+        DISCOVER,
+        CONNECT,
+        LISTEN,
+
+        // Connected
+        WAIT // Wait request or request reply
+    }
     private Step mStep = Step.UNDEFINED;
 
     private class StepTask extends AsyncTask<Void, Void, Void> {
@@ -34,17 +46,10 @@ public class Connectivity {
         private final Context mContext;
         public StepTask(Context context) { mContext = context; }
 
-        private void startActivity(boolean master) {
+        private void startActivity() { // Start main activity
 
             Intent intent = new Intent(mContext, MainActivity.class);
-            intent.putExtra(ConnActivity.DATA_CONN_DEVICE,
-                    mBluetooth.getRemoteDevice().substring(0,
-                            mBluetooth.getRemoteDevice().indexOf(Bluetooth.DEVICES_SEPARATOR)));
-            intent.putExtra(ConnActivity.DATA_CONN_MASTER, master);
             mContext.startActivity(intent);
-
-            mStep = Step.UNDEFINED;
-            mAbort = true;
         }
 
         @Override
@@ -77,7 +82,10 @@ public class Connectivity {
                             case CONNECTED: {
 
                                 Logs.add(Logs.Type.I, "Connected (MASTER)");
-                                startActivity(true);
+                                Settings.getInstance().initialize(mBluetooth.getRemoteDevice().substring(0,
+                                        mBluetooth.getRemoteDevice().indexOf(Bluetooth.DEVICES_SEPARATOR)), true);
+
+                                mStep = Step.WAIT;
                                 break;
                             }
                             case READY: {
@@ -112,10 +120,29 @@ public class Connectivity {
                             case CONNECTED: {
 
                                 Logs.add(Logs.Type.I, "Connected (SLAVE)");
-                                startActivity(false);
+                                Settings.getInstance().initialize(mBluetooth.getRemoteDevice().substring(0,
+                                        mBluetooth.getRemoteDevice().indexOf(Bluetooth.DEVICES_SEPARATOR)), false);
+
+                                mStep = Step.WAIT;
                                 break;
                             }
                         }
+                        break;
+                    }
+                    case WAIT: {
+
+
+
+
+                        // Request replies...
+
+                        // Update setting(s)
+                        // Start recording
+
+
+
+
+
                         break;
                     }
                 }
