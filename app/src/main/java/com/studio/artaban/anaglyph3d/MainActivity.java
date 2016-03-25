@@ -17,6 +17,7 @@ import android.view.MenuItem;
 
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.fragments.CamFragment;
+import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -80,6 +81,9 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
         fragTransaction.add(R.id.mainContainer, mCamFragment);
         fragTransaction.commit();
+
+        // Set current activity to be able to display message
+        DisplayMessage.getInstance().setActivity(this);
     }
 
     @Override

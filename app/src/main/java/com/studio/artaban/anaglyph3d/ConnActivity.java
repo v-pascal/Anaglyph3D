@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.transfert.Connectivity;
 
 public class ConnActivity extends AppCompatActivity {
@@ -30,6 +31,24 @@ public class ConnActivity extends AppCompatActivity {
         }
         else
             appBar.setBackgroundColor(Color.argb(255,30,30,30)); // Default status bar color (API < 21)
+
+        // Add toolbar album image click listener
+        final ImageView albumMenu = (ImageView)findViewById(R.id.albumMenu);
+        albumMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+
+
+                // Display album activity
+
+
+
+
+
+            }
+        });
 
         // Start connectivity
         if (!Connectivity.getInstance().start(this)) {
@@ -54,6 +73,9 @@ public class ConnActivity extends AppCompatActivity {
                 animDevices.start();
             }
         });
+
+        // Set current activity to be able to display message
+        DisplayMessage.getInstance().setActivity(this);
     }
 
     @Override

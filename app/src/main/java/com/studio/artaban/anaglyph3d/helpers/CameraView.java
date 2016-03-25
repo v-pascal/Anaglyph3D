@@ -15,7 +15,7 @@ import java.io.IOException;
  */
 public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
-    private Camera getCamera() {
+    public static Camera getCamera() {
         Camera camera = null;
         try { camera = Camera.open(); } // Attempt to get a default camera instance
         catch (Exception e) {

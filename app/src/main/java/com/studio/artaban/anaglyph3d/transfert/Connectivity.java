@@ -4,12 +4,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 
 import com.studio.artaban.anaglyph3d.MainActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -37,9 +40,29 @@ public class Connectivity {
         LISTEN,
 
         // Connected
-        CONNECTED
+        STAND_BY,
+        WAIT_REPLY
     }
     private Status mStatus = Status.UNDEFINED;
+
+    private class Request {
+        public ConnRequest mCaller;
+        public String mCommand;
+    }
+    private final List<Request> mRequests = new ArrayList<Request>();
+    public void addRequest(ConnRequest caller, short type, Bundle data) {
+
+        // Get request command from caller
+        String command = caller.getRequestCmd(type, data);
+        if (command == null)
+            return;
+
+        // Add request into request list
+        Request request = new Request();
+        request.mCaller = caller;
+        request.mCommand = command;
+        synchronized (mRequests) { mRequests.add(request); }
+    }
 
     private class ProcessTask extends AsyncTask<Void, Void, Void> {
 
@@ -52,31 +75,58 @@ public class Connectivity {
             mContext.startActivity(intent);
         }
 
-        // Send settings request
-        private void sendSettingsRequest(boolean position) {
+        // Add settings request
+        private void addSettingsRequest(boolean position) {
 
             final Bundle connInfo = new Bundle();
-            connInfo.putString(ConnRequest.KEY_SETTINGS_REMOTE,
+            connInfo.putString(Settings.DATA_KEY_REMOTE_DEVICE,
                     mBluetooth.getRemoteDevice().substring(0,
                             mBluetooth.getRemoteDevice().indexOf(Bluetooth.DEVICES_SEPARATOR)));
-            connInfo.putBoolean(ConnRequest.KEY_SETTINGS_POSITION, true);
-            Settings.getInstance().sendRequest(connInfo);
+            connInfo.putBoolean(Settings.DATA_KEY_POSITION, position);
+            Connectivity.getInstance().addRequest(Settings.getInstance(),
+                    Settings.REQ_TYPE_INITIALIZE, connInfo);
         }
 
-        // Receive data: requests & replies (connected status)
-        private void receiveData() {
+        // Process (connected status):
+        // _ Send requests (from request list)
+        // _ Receive data: requests & replies
+        private void process() {
+
+            if (mStatus == Connectivity.Status.STAND_BY) {
+
+
+
+                // # Receive data
+                // Request
+                // -> sendReply (according request ID)
 
 
 
 
-            //receiveRequest
-            // sendReply
-
-            //receiveReply
-
-
+                // # Send data
+                // synchronized (mRequests) {
+                //     mStatus = WAIT_REPLY;
+                // }
 
 
+
+            }
+            else { // Wait reply
+
+
+
+
+
+
+                // # Receive data
+                // Reply
+                // -> receiveReply (according request ID)
+
+
+
+
+
+            }
         }
 
         @Override
@@ -108,9 +158,9 @@ public class Connectivity {
                             case CONNECTING: break; // Still trying to connect
                             case CONNECTED: {
                                 Logs.add(Logs.Type.I, "Connected (MASTER)");
-                                sendSettingsRequest(true);
+                                addSettingsRequest(true);
 
-                                mStatus = Connectivity.Status.CONNECTED;
+                                mStatus = Connectivity.Status.STAND_BY;
                                 break;
                             }
                             case READY: {
@@ -138,23 +188,23 @@ public class Connectivity {
                         switch (mBluetooth.getStatus()) {
                             case LISTENING: { // Still listening
 
-                                if (++waitListen == 50) // 50 * 100 == 5 seconds
+                                if (++waitListen == 25) // 25 * 200 == 5 seconds
                                     mStatus = Connectivity.Status.RESET;
                                 break;
                             }
                             case CONNECTED: {
                                 Logs.add(Logs.Type.I, "Connected (SLAVE)");
-                                sendSettingsRequest(false);
+                                addSettingsRequest(false);
 
-                                mStatus = Connectivity.Status.CONNECTED;
+                                mStatus = Connectivity.Status.STAND_BY;
                                 break;
                             }
                         }
                         break;
                     }
-                    case CONNECTED: {
+                    default: { // Connected
 
-                        receiveData();
+                        process();
                         break;
                     }
                 }
@@ -162,7 +212,7 @@ public class Connectivity {
                     break; // Exit immediately
 
                 // Sleep
-                try { Thread.sleep(100, 0); }
+                try { Thread.sleep(200, 0); }
                 catch (InterruptedException e) {
                     e.printStackTrace();
                 }

@@ -13,5 +13,8 @@
     <string name="camera_left">Caméra gauche</string>
     <string name="camera_right">Caméra droite</string>
     <string name="company_name">Par STUDIO Artaban</string>
+    <string name="error_title">ERREUR</string>
+    <string name="camera_disabled">Impossible d\'accéder à la caméra. Celle-ci doit être utilisée par une autre application.</string>
+    <string name="close">Fermer</string>
 
 </resources>

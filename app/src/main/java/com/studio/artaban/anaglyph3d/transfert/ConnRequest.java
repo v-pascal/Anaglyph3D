@@ -8,10 +8,12 @@ import android.os.Bundle;
  */
 public interface ConnRequest {
 
-    public static final String KEY_SETTINGS_REMOTE = "remoteDevice";
-    public static final String KEY_SETTINGS_POSITION = "position";
-    // Data keys
+    public static final short REQ_SETTINGS = 1;
+    // Request IDs
 
-    boolean sendRequest(Bundle data);
+    String getRequestCmd(short type, Bundle data);
+    short getRequestId();
+
+    boolean sendReply(String request);
     boolean receiveReply(String reply);
 }
