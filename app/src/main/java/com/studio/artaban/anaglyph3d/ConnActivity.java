@@ -12,7 +12,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
-import com.studio.artaban.anaglyph3d.transfert.Connectivity;
+import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 public class ConnActivity extends AppCompatActivity {
 

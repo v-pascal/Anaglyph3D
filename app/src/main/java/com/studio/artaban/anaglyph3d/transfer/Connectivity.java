@@ -1,23 +1,25 @@
-package com.studio.artaban.anaglyph3d.transfert;
+package com.studio.artaban.anaglyph3d.transfer;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 
 import com.studio.artaban.anaglyph3d.MainActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
  * Created by pascal on 20/03/16.
- * Connectivity Helpers
+ * Connectivity module
  */
 public class Connectivity {
 
@@ -28,56 +30,142 @@ public class Connectivity {
     //////
     private AsyncTask<Void, Void, Void> mProcessTask;
     private final Bluetooth mBluetooth = new Bluetooth();
+    private final ByteArrayOutputStream mRead = new ByteArrayOutputStream();
     private boolean mAbort = true;
 
     private enum Status {
         UNDEFINED,
 
-        // Not connected
-        RESET,
-        DISCOVER,
-        CONNECT,
-        LISTEN,
+        ////// Not connected
+        RESET,    // RAZ
+        DISCOVER, // Discover new device(s)
+        CONNECT,  // Try to connect to each devices found
+        LISTEN,   // Wait devices connection
 
-        // Connected
-        STAND_BY,
-        WAIT_REPLY
+        ////// Connected
+        STAND_BY,  // Send/Receive requests
+        WAIT_REPLY // Receive replies
     }
     private Status mStatus = Status.UNDEFINED;
 
-    private class Request {
-        public ConnRequest mCaller;
-        public String mCommand;
-    }
-    private final List<Request> mRequests = new ArrayList<Request>();
-    public void addRequest(ConnRequest caller, short type, Bundle data) {
+    //
+    private class TransferElement {
 
-        // Get request command from caller
-        String command = caller.getRequestCmd(type, data);
-        if (command == null)
+        public ConnRequest mHandler;
+        public byte mType;
+        public String mMessage;
+    }
+    private final List<TransferElement> mRequests = new ArrayList<TransferElement>();
+
+    public void addRequest(ConnRequest handler, byte type, Bundle data) {
+
+        // Get request message from handler
+        String message = handler.getRequest(type, data);
+        if (message == null)
             return;
 
         // Add request into request list
-        Request request = new Request();
-        request.mCaller = caller;
-        request.mCommand = command;
+        TransferElement request = new TransferElement();
+        request.mHandler = handler;
+        request.mType = type;
+        request.mMessage = message;
+
         synchronized (mRequests) { mRequests.add(request); }
     }
 
+    ////// Request/Reply element format: BBB-A:CC_*
+    // _ BBB -> Digital size of the entire message (in decimal)
+    // _ A -> Request ID
+    // _ CC -> Request type (in hex)
+    // _ * -> Message
+    private static final char SEPARATOR_SIZE_REQUEST_ID = '-';
+    private static final char SEPARATOR_REQUEST_ID_TYPE = ':';
+    private static final char SEPARATOR_TYPE_MESSAGE = '_';
+
+    // Receive request or reply
+    private String receive() {
+
+        int size = mBluetooth.read(mRead);
+        if (size > 0) {
+
+            String message = mRead.toString();
+
+            // Check element format received
+            if ((size > 9) &&
+                    ((message.charAt(3) != SEPARATOR_SIZE_REQUEST_ID) ||
+                            (message.charAt(5) != SEPARATOR_REQUEST_ID_TYPE) ||
+                            (message.charAt(8) != SEPARATOR_TYPE_MESSAGE))) {
+
+                Logs.add(Logs.Type.E, "Wrong request/reply format received");
+
+
+
+
+
+
+
+
+
+
+                return null;
+            }
+            if (size == Integer.parseInt(message)) {
+
+                mRead.reset();
+                return message.substring(4); // Format: A:CC_*
+            }
+        }
+        return null;
+    }
+
+    // Send request or reply
+    private boolean send(TransferElement element) {
+
+        Integer intSize = element.mMessage.length() + 9;
+        ByteBuffer buffer = ByteBuffer.allocate(intSize);
+
+        // Add size of the entire message (BBB)
+        String strSize = intSize.toString();
+        if (intSize < 100) { // ...always > 9
+
+            buffer.putChar('0');
+            buffer.putChar(strSize.charAt(0));
+            buffer.putChar(strSize.charAt(1));
+        }
+        else { // > 100
+
+            buffer.putChar(strSize.charAt(0));
+            buffer.putChar(strSize.charAt(1));
+            buffer.putChar(strSize.charAt(2));
+        }
+        buffer.putChar(SEPARATOR_SIZE_REQUEST_ID);
+
+        // Add request ID (A)
+        buffer.putChar(element.mHandler.getRequestId());
+        buffer.putChar(SEPARATOR_REQUEST_ID_TYPE);
+
+        // Add request type (CC)
+        String strType = Integer.toString(element.mType, 16);
+        buffer.putChar(strType.charAt(0));
+        buffer.putChar(strType.charAt(1));
+        buffer.putChar(SEPARATOR_TYPE_MESSAGE);
+
+        // Add message (*)
+        buffer.put(element.mMessage.getBytes());
+
+        return mBluetooth.write(buffer.array());
+    }
+
+    //
     private class ProcessTask extends AsyncTask<Void, Void, Void> {
 
         private final Context mContext;
         public ProcessTask(Context context) { mContext = context; }
 
-        // Start main activity
-        private void startActivity() {
-            Intent intent = new Intent(mContext, MainActivity.class);
-            mContext.startActivity(intent);
-        }
+        // Initialize connection
+        private void initialize(boolean position) {
 
-        // Add settings request
-        private void addSettingsRequest(boolean position) {
-
+            // Add request to initialize settings
             final Bundle connInfo = new Bundle();
             connInfo.putString(Settings.DATA_KEY_REMOTE_DEVICE,
                     mBluetooth.getRemoteDevice().substring(0,
@@ -87,45 +175,116 @@ public class Connectivity {
                     Settings.REQ_TYPE_INITIALIZE, connInfo);
         }
 
-        // Process (connected status):
+        // Start main activity
+        private void startActivity() {
+            Intent intent = new Intent(mContext, MainActivity.class);
+            mContext.startActivity(intent);
+        }
+
+        ////// Process (connected status):
         // _ Send requests (from request list)
-        // _ Receive data: requests & replies
+        // _ Receive data: requests & replies (from remote device)
         private void process() {
 
             if (mStatus == Connectivity.Status.STAND_BY) {
 
+                // Check if received request
+                String request = receive();
+                if (request != null) {
+
+                    TransferElement reply = new TransferElement();
+                    switch (Integer.parseInt(request)) {
+
+                        case ConnRequest.REQ_SETTINGS:  reply.mHandler = Settings.getInstance(); break;
+                        default: {
+
+                            Logs.add(Logs.Type.E, "Unexpected request received");
 
 
-                // # Receive data
-                // Request
-                // -> sendReply (according request ID)
 
 
 
 
-                // # Send data
-                // synchronized (mRequests) {
-                //     mStatus = WAIT_REPLY;
-                // }
 
 
 
+                            return;
+                        }
+                    }
+                    reply.mType = (byte)Integer.parseInt(request.substring(2), 16);
+                    reply.mMessage = reply.mHandler.getReply(reply.mType, request.substring(5));
+                    if (reply.mMessage == null) {
+
+                        Logs.add(Logs.Type.E, "Failed to reply to request");
+
+
+
+
+
+
+
+
+
+                        return;
+                    }
+
+                    // Send reply
+                    if (!send(reply)) {
+
+                        Logs.add(Logs.Type.E, "Failed to send reply");
+
+
+
+
+
+
+
+                        return;
+                    }
+                }
+
+                // Check if any request to send
+                synchronized (mRequests) {
+                    if (mRequests.isEmpty())
+                        return;
+
+                    // Send request
+                    if (!send(mRequests.get(0))) {
+
+                        Logs.add(Logs.Type.E, "Failed to send request");
+
+
+
+
+
+
+
+                        return;
+                    }
+                    mStatus = Connectivity.Status.WAIT_REPLY;
+                }
             }
             else { // Wait reply
 
+                // Check if received reply
+                String reply = receive();
+                if (reply != null) {
+
+                    if (!mRequests.get(0).mHandler.receiveReply(
+                            (byte)Integer.parseInt(reply.substring(2), 16), reply.substring(5))) {
+
+                        Logs.add(Logs.Type.E, "Unexpected reply received");
 
 
 
 
 
-                // # Receive data
-                // Reply
-                // -> receiveReply (according request ID)
 
 
 
-
-
+                    }
+                    mRequests.remove(0);
+                }
             }
         }
 
@@ -158,7 +317,7 @@ public class Connectivity {
                             case CONNECTING: break; // Still trying to connect
                             case CONNECTED: {
                                 Logs.add(Logs.Type.I, "Connected (MASTER)");
-                                addSettingsRequest(true);
+                                initialize(true);
 
                                 mStatus = Connectivity.Status.STAND_BY;
                                 break;
@@ -194,7 +353,7 @@ public class Connectivity {
                             }
                             case CONNECTED: {
                                 Logs.add(Logs.Type.I, "Connected (SLAVE)");
-                                addSettingsRequest(false);
+                                initialize(false);
 
                                 mStatus = Connectivity.Status.STAND_BY;
                                 break;

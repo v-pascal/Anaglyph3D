@@ -1,13 +1,18 @@
 package com.studio.artaban.anaglyph3d.helpers;
 
 import android.hardware.Camera;
+import android.hardware.Camera.Size;
 import android.content.Context;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.WindowManager;
 
+import com.studio.artaban.anaglyph3d.R;
+
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by pascal on 22/03/16.
@@ -15,15 +20,50 @@ import java.io.IOException;
  */
 public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
-    public static Camera getCamera() {
+    private static Camera getCamera() {
+
+        // Get back facing camera ID
+        int cameraId = -1;
+        int cameraCount = Camera.getNumberOfCameras();
+        for (int i = 0; i < cameraCount; ++i) {
+            Camera.CameraInfo info = new Camera.CameraInfo();
+            Camera.getCameraInfo(i, info);
+            if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
+                cameraId = i;
+                break;
+            }
+        }
         Camera camera = null;
-        try { camera = Camera.open(); } // Attempt to get a default camera instance
+        try {
+            if (cameraId > 0)
+                camera = Camera.open(cameraId);
+            else
+                camera = Camera.open(); // Attempt to get a default camera instance
+        }
         catch (Exception e) {
             Logs.add(Logs.Type.E, "Camera is not available (in use or does not exist)");
         }
         return camera;
     }
+    public static boolean getAvailableResolutions(ArrayList<Size> resolutions) {
 
+        Camera camera = getCamera();
+        if (camera == null) {
+
+            Logs.add(Logs.Type.E, "Failed to get available camera resolutions");
+            DisplayMessage.getInstance().alert(R.string.error_title, R.string.camera_disabled, true);
+            return false;
+        }
+        List<Size> camResolutions = camera.getParameters().getSupportedPreviewSizes();
+        for (final Size camResolution: camResolutions)
+            resolutions.add(camResolution);
+
+        camera.release();
+        camera = null;
+        return true;
+    }
+
+    //////
     private SurfaceHolder mHolder;
     private Camera mCamera;
 
@@ -36,7 +76,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
         mCamera = null;
     }
 
-    //////
+    //
     public CameraView(Context context) {
         super(context);
         mCamera = getCamera();

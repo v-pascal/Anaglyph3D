@@ -1,4 +1,4 @@
-package com.studio.artaban.anaglyph3d.transfert;
+package com.studio.artaban.anaglyph3d.transfer;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,11 +27,11 @@ public class Bluetooth {
 
     public static final String DEVICES_SEPARATOR = "\n";
     public enum Status {
-        DISABLED,     // Bluetooth not supported or disabled
-        READY,        // Bluetooth ready (enabled & registered)
-        LISTENING,    // Master mode
-        CONNECTING,   // Slave mode
-        CONNECTED     // Processing connection
+        DISABLED,   // Bluetooth not supported or disabled
+        READY,      // Bluetooth ready (enabled & registered)
+        LISTENING,  // Master mode
+        CONNECTING, // Slave mode
+        CONNECTED   // Processing connection
     }
 
     private BluetoothAdapter mAdapter;
@@ -49,6 +50,7 @@ public class Bluetooth {
     };
 
     private final ArrayList<String> mDevices = new ArrayList<String>();
+    private final ByteArrayOutputStream mReceived = new ByteArrayOutputStream();
     private Status mStatus = Status.DISABLED;
     private String mRemoteDevice;
 
@@ -197,6 +199,8 @@ public class Bluetooth {
             while (mStatus == Status.CONNECTED) {
                 try {
                     int bytes = mInStream.read(buffer);
+                    if (bytes > 0)
+                        synchronized (mReceived) { mReceived.write(buffer); }
                 }
                 catch (IOException e) {
 
@@ -327,6 +331,7 @@ public class Bluetooth {
         }
     }
 
+    //
     public boolean write(byte[] buffer) {
 
         if (mStatus != Status.CONNECTED) {
@@ -337,6 +342,21 @@ public class Bluetooth {
         synchronized (mProcessing) { process = mProcessing; }
         process.write(buffer);
         return true;
+    }
+    public synchronized int read(ByteArrayOutputStream buffer) {
+
+        int bytes = mReceived.size();
+        if (bytes > 0) {
+
+            try {
+                buffer.write(mReceived.toByteArray());
+                mReceived.reset();
+            }
+            catch (IOException e) {
+                Logs.add(Logs.Type.E, "Failed to read: " + e.toString());
+            }
+        }
+        return bytes;
     }
 
     //
