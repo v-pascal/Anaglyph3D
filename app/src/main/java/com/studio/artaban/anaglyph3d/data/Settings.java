@@ -27,6 +27,9 @@ public class Settings implements ConnRequest {
     public static final String DATA_KEY_REMOTE_DEVICE = "remoteDevice";
     public static final String DATA_KEY_POSITION = "position";
 
+    private static final String DATA_KEY_PERFORMANCE = "performance";
+    // ...to know which device will have to make the video
+
     private static final String DATA_KEY_RESOLUTIONS = "resolutions";
     private static final String DATA_KEY_WIDTH = "width";
     private static final String DATA_KEY_HEIGHT = "height";
@@ -43,6 +46,8 @@ public class Settings implements ConnRequest {
     // Data
     private boolean mMaster; // Master device (false for slave device)
     private String mRemoteDevice; // Remote device name
+    public long mPerformance; // Device performance representation (lowest is best)
+
     private final ArrayList<Size> mResolutions = new ArrayList<Size>(); // Resolutions list
 
     private boolean mPosition; // Left camera position (false for right position)
@@ -65,27 +70,28 @@ public class Settings implements ConnRequest {
 
     @Override
     public String getRequest(byte type, Bundle data) {
+
         if (type == REQ_TYPE_INITIALIZE) {
 
             mMaster = data.getBoolean(DATA_KEY_POSITION);
             mPosition = data.getBoolean(DATA_KEY_POSITION);
             mRemoteDevice = data.getString(DATA_KEY_REMOTE_DEVICE);
 
-            // Only master device send initialize request
-            if (!mMaster)
-                return null;
-
             // Only resolutions may change (all other settings are in default state)
             // -> It should contain only resolutions that are available on both devices (master & slave)
             mResolutions.clear();
 
-            // Get available camera resolutions (master)
+            // Get available camera resolutions
             if (!CameraView.getAvailableResolutions(mResolutions))
+                return null;
+
+            // Only master device send initialize request
+            if (!mMaster)
                 return null;
         }
 
         JSONObject request = new JSONObject();
-        if ((type & REQ_TYPE_INITIALIZE) == REQ_TYPE_INITIALIZE) {
+        if (type == REQ_TYPE_INITIALIZE) { // Initialize settings
 
             JSONArray resolutions = new JSONArray();
             for (Size resolution : mResolutions) {
@@ -109,56 +115,67 @@ public class Settings implements ConnRequest {
                 Logs.add(Logs.Type.E, e.getMessage());
                 return null;
             }
-        }
-        if ((type & REQ_TYPE_RESOLUTION) == REQ_TYPE_RESOLUTION) {
 
-            JSONObject size = new JSONObject();
-            try {
-                size.put(DATA_KEY_WIDTH, mResolution.width);
-                size.put(DATA_KEY_HEIGHT, mResolution.height);
-
-                request.put(DATA_KEY_RESOLUTION, size);
-            }
+            // Add performance
+            try { request.put(DATA_KEY_PERFORMANCE, mPerformance); }
             catch (JSONException e) {
 
                 Logs.add(Logs.Type.E, e.getMessage());
                 return null;
             }
         }
-        if ((type & REQ_TYPE_POSITION) == REQ_TYPE_POSITION) {
+        else { // Update settings
 
-            try { request.put(DATA_KEY_POSITION, mPosition); }
-            catch (JSONException e) {
+            if ((type & REQ_TYPE_RESOLUTION) == REQ_TYPE_RESOLUTION) {
 
-                Logs.add(Logs.Type.E, e.getMessage());
-                return null;
+                JSONObject size = new JSONObject();
+                try {
+                    size.put(DATA_KEY_WIDTH, mResolution.width);
+                    size.put(DATA_KEY_HEIGHT, mResolution.height);
+
+                    request.put(DATA_KEY_RESOLUTION, size);
+                }
+                catch (JSONException e) {
+
+                    Logs.add(Logs.Type.E, e.getMessage());
+                    return null;
+                }
             }
-        }
-        if ((type & REQ_TYPE_ORIENTATION) == REQ_TYPE_ORIENTATION) {
+            if ((type & REQ_TYPE_POSITION) == REQ_TYPE_POSITION) {
 
-            try { request.put(DATA_KEY_ORIENTATION, mOrientation); }
-            catch (JSONException e) {
+                try { request.put(DATA_KEY_POSITION, mPosition); }
+                catch (JSONException e) {
 
-                Logs.add(Logs.Type.E, e.getMessage());
-                return null;
+                    Logs.add(Logs.Type.E, e.getMessage());
+                    return null;
+                }
             }
-        }
-        if ((type & REQ_TYPE_DURATION) == REQ_TYPE_DURATION) {
+            if ((type & REQ_TYPE_ORIENTATION) == REQ_TYPE_ORIENTATION) {
 
-            try { request.put(DATA_KEY_DURATION, mDuration); }
-            catch (JSONException e) {
+                try { request.put(DATA_KEY_ORIENTATION, mOrientation); }
+                catch (JSONException e) {
 
-                Logs.add(Logs.Type.E, e.getMessage());
-                return null;
+                    Logs.add(Logs.Type.E, e.getMessage());
+                    return null;
+                }
             }
-        }
-        if ((type & REQ_TYPE_FPS) == REQ_TYPE_FPS) {
+            if ((type & REQ_TYPE_DURATION) == REQ_TYPE_DURATION) {
 
-            try { request.put(DATA_KEY_FPS, mFps); }
-            catch (JSONException e) {
+                try { request.put(DATA_KEY_DURATION, mDuration); }
+                catch (JSONException e) {
 
-                Logs.add(Logs.Type.E, e.getMessage());
-                return null;
+                    Logs.add(Logs.Type.E, e.getMessage());
+                    return null;
+                }
+            }
+            if ((type & REQ_TYPE_FPS) == REQ_TYPE_FPS) {
+
+                try { request.put(DATA_KEY_FPS, mFps); }
+                catch (JSONException e) {
+
+                    Logs.add(Logs.Type.E, e.getMessage());
+                    return null;
+                }
             }
         }
         return request.toString();

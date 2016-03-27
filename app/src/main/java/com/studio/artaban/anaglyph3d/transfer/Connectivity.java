@@ -295,6 +295,41 @@ public class Connectivity {
             while(!mAbort) {
 
                 switch (mStatus) {
+                    case UNDEFINED: {
+
+                        // Get device performance (representation)
+                        Thread performThread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+
+
+
+
+
+
+
+
+
+
+                                //Settings.getInstance().mPerformance
+
+
+
+
+
+
+
+
+
+
+                            }
+                        });
+                        performThread.setPriority(Thread.MAX_PRIORITY);
+                        performThread.start();
+
+                        mStatus = Connectivity.Status.RESET;
+                        //break;
+                    }
                     case RESET: {
 
                         mBluetooth.reset();
@@ -391,7 +426,7 @@ public class Connectivity {
             return true;
         }
         mAbort = false;
-        mStatus = Status.RESET;
+        mStatus = Status.UNDEFINED;
         mProcessTask = new ProcessTask(context);
         mProcessTask.execute();
         return true;
@@ -414,7 +449,6 @@ public class Connectivity {
                 e.printStackTrace();
             }
             mProcessTask = null;
-            mStatus = Status.UNDEFINED;
         }
         mBluetooth.release();
     }
