@@ -4,8 +4,11 @@ import android.hardware.Camera.Size;
 import android.os.Bundle;
 
 import com.studio.artaban.anaglyph3d.helpers.CameraView;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.transfer.ConnRequest;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -23,6 +26,14 @@ public class Settings implements ConnRequest {
     // Data keys
     public static final String DATA_KEY_REMOTE_DEVICE = "remoteDevice";
     public static final String DATA_KEY_POSITION = "position";
+
+    private static final String DATA_KEY_RESOLUTIONS = "resolutions";
+    private static final String DATA_KEY_WIDTH = "width";
+    private static final String DATA_KEY_HEIGHT = "height";
+    private static final String DATA_KEY_RESOLUTION = "resolution";
+    private static final String DATA_KEY_ORIENTATION = "orientation";
+    private static final String DATA_KEY_DURATION = "duration";
+    private static final String DATA_KEY_FPS = "fps";
 
     // Accessors
     public boolean getMaster() { return mMaster; } // See use...
@@ -73,42 +84,83 @@ public class Settings implements ConnRequest {
                 return null;
         }
 
-
-
-
-
-
-
         JSONObject request = new JSONObject();
         if ((type & REQ_TYPE_INITIALIZE) == REQ_TYPE_INITIALIZE) {
 
+            JSONArray resolutions = new JSONArray();
+            for (Size resolution : mResolutions) {
+
+                JSONObject size = new JSONObject();
+                try {
+                    size.put(DATA_KEY_WIDTH, resolution.width);
+                    size.put(DATA_KEY_HEIGHT, resolution.height);
+
+                    resolutions.put(size);
+                }
+                catch (JSONException e) {
+
+                    Logs.add(Logs.Type.E, e.getMessage());
+                    return null;
+                }
+            }
+            try { request.put(DATA_KEY_RESOLUTIONS, resolutions); }
+            catch (JSONException e) {
+
+                Logs.add(Logs.Type.E, e.getMessage());
+                return null;
+            }
         }
         if ((type & REQ_TYPE_RESOLUTION) == REQ_TYPE_RESOLUTION) {
 
+            JSONObject size = new JSONObject();
+            try {
+                size.put(DATA_KEY_WIDTH, mResolution.width);
+                size.put(DATA_KEY_HEIGHT, mResolution.height);
+
+                request.put(DATA_KEY_RESOLUTION, size);
+            }
+            catch (JSONException e) {
+
+                Logs.add(Logs.Type.E, e.getMessage());
+                return null;
+            }
         }
         if ((type & REQ_TYPE_POSITION) == REQ_TYPE_POSITION) {
 
+            try { request.put(DATA_KEY_POSITION, mPosition); }
+            catch (JSONException e) {
+
+                Logs.add(Logs.Type.E, e.getMessage());
+                return null;
+            }
         }
         if ((type & REQ_TYPE_ORIENTATION) == REQ_TYPE_ORIENTATION) {
 
+            try { request.put(DATA_KEY_ORIENTATION, mOrientation); }
+            catch (JSONException e) {
+
+                Logs.add(Logs.Type.E, e.getMessage());
+                return null;
+            }
         }
         if ((type & REQ_TYPE_DURATION) == REQ_TYPE_DURATION) {
 
+            try { request.put(DATA_KEY_DURATION, mDuration); }
+            catch (JSONException e) {
+
+                Logs.add(Logs.Type.E, e.getMessage());
+                return null;
+            }
         }
         if ((type & REQ_TYPE_FPS) == REQ_TYPE_FPS) {
 
+            try { request.put(DATA_KEY_FPS, mFps); }
+            catch (JSONException e) {
+
+                Logs.add(Logs.Type.E, e.getMessage());
+                return null;
+            }
         }
-
-
-
-
-
-
-
-
-
-
-
         return request.toString();
     }
 

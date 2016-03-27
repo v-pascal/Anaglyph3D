@@ -8,7 +8,7 @@ import android.os.Bundle;
  */
 public interface ConnRequest {
 
-    public static final char REQ_SETTINGS = 'S';
+    char REQ_SETTINGS = 'S';
     // Request IDs
 
     char getRequestId();
