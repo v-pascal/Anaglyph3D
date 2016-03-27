@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.SystemClock;
 
 import com.studio.artaban.anaglyph3d.MainActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;
@@ -297,38 +298,28 @@ public class Connectivity {
                 switch (mStatus) {
                     case UNDEFINED: {
 
+                        mStatus = Connectivity.Status.RESET;
+
                         // Get device performance (representation)
                         Thread performThread = new Thread(new Runnable() {
                             @Override
                             public void run() {
 
+                                double random1 = Math.random();
+                                double random2 = Math.random();
+                                double random3 = Math.random();
 
+                                long performance = System.currentTimeMillis();
+                                double calculate = Math.cosh(Math.hypot(random1, random2));
+                                calculate += Math.exp(random3);
+                                calculate += Math.cbrt(calculate * 10000);
 
-
-
-
-
-
-
-
-                                //Settings.getInstance().mPerformance
-
-
-
-
-
-
-
-
-
-
+                                Settings.getInstance().mPerformance = System.currentTimeMillis() - performance;
                             }
                         });
                         performThread.setPriority(Thread.MAX_PRIORITY);
                         performThread.start();
-
-                        mStatus = Connectivity.Status.RESET;
-                        //break;
+                        break;
                     }
                     case RESET: {
 
@@ -367,7 +358,8 @@ public class Connectivity {
                                 }
                                 else {
 
-                                    mBluetooth.listen(false, Constants.CONN_SECURE_UUID, Constants.CONN_SECURE_NAME);
+                                    mBluetooth.listen(false, Constants.CONN_SECURE_UUID,
+                                            Constants.CONN_SECURE_NAME);
                                     mStatus = Connectivity.Status.LISTEN;
                                     waitListen = 0;
                                 }

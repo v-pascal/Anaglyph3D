@@ -12,6 +12,7 @@ public interface ConnRequest {
     // Request IDs
 
     char getRequestId();
+
     String getRequest(byte type, Bundle data);
     String getReply(byte type, String request);
 

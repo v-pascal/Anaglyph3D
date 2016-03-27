@@ -24,7 +24,7 @@ public class Settings implements ConnRequest {
     private Settings() { }
 
     // Data keys
-    public static final String DATA_KEY_REMOTE_DEVICE = "remoteDevice";
+    public static final String DATA_KEY_REMOTE_DEVICE = "remote";
     public static final String DATA_KEY_POSITION = "position";
 
     private static final String DATA_KEY_PERFORMANCE = "performance";
@@ -46,15 +46,15 @@ public class Settings implements ConnRequest {
     // Data
     private boolean mMaster; // Master device (false for slave device)
     private String mRemoteDevice; // Remote device name
-    public long mPerformance; // Device performance representation (lowest is best)
+    public long mPerformance = 1000; // Device performance representation (lowest is best)
 
     private final ArrayList<Size> mResolutions = new ArrayList<Size>(); // Resolutions list
 
-    private boolean mPosition; // Left camera position (false for right position)
+    private boolean mPosition = true; // Left camera position (false for right position)
     private Size mResolution; // Selected resolution
-    private boolean mOrientation; // Portrait orientation (false for landscape orientation)
-    private int mDuration; // Video duration (in milliseconds)
-    private int mFps; // Frame per second
+    private boolean mOrientation = true; // Portrait orientation (false for landscape orientation)
+    private int mDuration = 10000; // Video duration (in milliseconds)
+    private int mFps = 30; // Frame per second
 
     // Request types (mask)
     public static final byte REQ_TYPE_INITIALIZE = 0x01;
@@ -85,9 +85,11 @@ public class Settings implements ConnRequest {
             if (!CameraView.getAvailableResolutions(mResolutions))
                 return null;
 
-            // Only master device send initialize request
+            // Select default resolution
+            mResolution = mResolutions.get(0);
+
             if (!mMaster)
-                return null;
+                return null; // Only master device send initialize request
         }
 
         JSONObject request = new JSONObject();
@@ -184,10 +186,35 @@ public class Settings implements ConnRequest {
     @Override
     public String getReply(byte type, String request) {
 
+        try { JSONObject settings = new JSONObject(request); }
+        catch (JSONException e) {
 
+            Logs.add(Logs.Type.E, e.getMessage());
+            return null;
+        }
 
+        String reply;
+        if (type == REQ_TYPE_INITIALIZE) { // Initialize settings
 
+        }
+        else { // Update settings
 
+            if ((type & REQ_TYPE_RESOLUTION) == REQ_TYPE_RESOLUTION) {
+
+            }
+            if ((type & REQ_TYPE_POSITION) == REQ_TYPE_POSITION) {
+
+            }
+            if ((type & REQ_TYPE_ORIENTATION) == REQ_TYPE_ORIENTATION) {
+
+            }
+            if ((type & REQ_TYPE_DURATION) == REQ_TYPE_DURATION) {
+
+            }
+            if ((type & REQ_TYPE_FPS) == REQ_TYPE_FPS) {
+
+            }
+        }
         return null;
     }
 

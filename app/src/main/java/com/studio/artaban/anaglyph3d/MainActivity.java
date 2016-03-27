@@ -17,12 +17,14 @@ import android.view.MenuItem;
 
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.fragments.CamFragment;
+import com.studio.artaban.anaglyph3d.fragments.ConfigFragment;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private final CamFragment mCamFragment = new CamFragment(this);
+    private final ConfigFragment mConfigFragment = new ConfigFragment(this);
     ////// Fragments
 
     private void displayPosition() {
@@ -64,6 +66,7 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setItemTextAppearance(R.style.NavDrawerTextStyle);
 
         final Toolbar appBar = (Toolbar)findViewById(R.id.toolbar);
         if (Build.VERSION.SDK_INT >= 21) {
@@ -91,7 +94,8 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        }
+        else {
             moveTaskToBack(true); // Put application into background (paused)
         }
     }

@@ -25,6 +25,7 @@ public class CamFragment extends Fragment {
     private Context mContext;
     public CamFragment(Context context) { mContext = context; }
 
+    //
     private CameraView mPreview;
     private View mCamLayout;
 
