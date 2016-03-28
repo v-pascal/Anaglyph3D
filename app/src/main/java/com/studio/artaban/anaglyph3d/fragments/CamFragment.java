@@ -70,6 +70,9 @@ public class CamFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if (mCamLayout != null)
+            return mCamLayout;
+
         mCamLayout = inflater.inflate(R.layout.fragment_camera, container, false);
 
         // Display glass image according position (initial)
@@ -95,7 +98,6 @@ public class CamFragment extends Fragment {
 
     @Override
     public void onPause() {
-
         super.onPause();
         mPreview.pause();
     }

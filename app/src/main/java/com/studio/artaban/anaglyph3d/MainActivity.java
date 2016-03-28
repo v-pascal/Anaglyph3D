@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.fragments.CamFragment;
 import com.studio.artaban.anaglyph3d.fragments.ConfigFragment;
@@ -26,6 +27,9 @@ public class MainActivity extends AppCompatActivity
     private final CamFragment mCamFragment = new CamFragment();
     private final ConfigFragment mConfigFragment = new ConfigFragment();
     ////// Fragments
+
+    private boolean mSettings = false; // Settings fragment displayed
+    private int mNavItemSelected = Constants.NO_DATA; // Id of the selected navigation item (or -1 if none)
 
     private void displayPosition() {
 
@@ -60,7 +64,64 @@ public class MainActivity extends AppCompatActivity
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+
+            @Override
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+
+                switch (mNavItemSelected) {
+                    case R.id.navAlbum: {
+
+
+
+
+
+                        break;
+                    }
+                    case R.id.navSettings: {
+
+                        if (mSettings)
+                            break;
+
+                        mSettings = true;
+
+                        // Remove camera fragment
+                        FragmentTransaction prevFragTransaction = getSupportFragmentManager().beginTransaction();
+                        prevFragTransaction.remove(mCamFragment);
+                        prevFragTransaction.commit();
+
+                        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+                        fab.setVisibility(View.GONE);
+
+                        // Add settings fragment
+                        android.app.FragmentTransaction fragTransaction = getFragmentManager().beginTransaction();
+                        fragTransaction.add(R.id.mainContainer, mConfigFragment);
+                        fragTransaction.commit();
+                        break;
+                    }
+                    case R.id.navDisconnect: {
+
+
+
+
+
+                        break;
+                    }
+                    case R.id.navQuit: {
+
+
+
+
+
+
+
+                        break;
+                    }
+                }
+                mNavItemSelected = Constants.NO_DATA;
+            }
+        };
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
@@ -97,60 +158,39 @@ public class MainActivity extends AppCompatActivity
         }
         else {
 
+            if (!mSettings)
+                moveTaskToBack(true); // Put application into background (paused)
 
+            else { // Settings opened
 
+                mSettings = false;
 
+                // Remove settings fragment
+                android.app.FragmentTransaction fragTransaction = getFragmentManager().beginTransaction();
+                fragTransaction.remove(mConfigFragment);
+                fragTransaction.commit();
 
-            moveTaskToBack(true); // Put application into background (paused)
+                final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+                fab.setVisibility(View.VISIBLE);
 
-
-
-
+                // Add camera fragment
+                FragmentTransaction prevFragTransaction = getSupportFragmentManager().beginTransaction();
+                prevFragTransaction.add(R.id.mainContainer, mCamFragment);
+                prevFragTransaction.commit();
+            }
         }
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.navAlbum) {
-
-        }
-        else if (id == R.id.navSettings) {
-
-
-
-
-
-
-
-            FragmentTransaction prevFragTransaction = getSupportFragmentManager().beginTransaction();
-            prevFragTransaction.remove(mCamFragment);
-            prevFragTransaction.commit();
-
-            final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-            fab.setVisibility(View.GONE);
-
-
-
-
-
-
-            android.app.FragmentTransaction fragTransaction = getFragmentManager().beginTransaction();
-            fragTransaction.replace(R.id.mainContainer, mConfigFragment);
-            fragTransaction.commit();
-        }
-        else if (id == R.id.navDisconnect) {
-
-        }
-        else if (id == R.id.navQuit) {
-
-        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+
+        mNavItemSelected = item.getItemId();
+        // Let's drawer close event do the job (more efficient)
+
         return true;
     }
 }

@@ -3,14 +3,6 @@ package com.studio.artaban.anaglyph3d.fragments;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 
-
-
-
-//import android.support.v14.preference.PreferenceFragment;
-
-
-
-
 import com.studio.artaban.anaglyph3d.R;
 
 /**
