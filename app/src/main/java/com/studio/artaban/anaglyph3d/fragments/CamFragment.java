@@ -15,6 +15,7 @@ import android.widget.RelativeLayout;
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.CameraView;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 /**
  * Created by pascal on 22/03/16.
@@ -22,22 +23,23 @@ import com.studio.artaban.anaglyph3d.helpers.CameraView;
  */
 public class CamFragment extends Fragment {
 
-    private Context mContext;
-    public CamFragment(Context context) { mContext = context; }
-
-    //
     private CameraView mPreview;
     private View mCamLayout;
 
     private ImageView mImgGlass;
     public void displayPosition() { // According settings position
 
+        if (getActivity() == null) {
+            Logs.add(Logs.Type.F, "No attached activity");
+            return;
+        }
+
         final RelativeLayout cameraLayout = (RelativeLayout)mCamLayout.findViewById(R.id.cameraLayout);
         if (mImgGlass != null)
             cameraLayout.removeView(mImgGlass);
 
         // Create or recreate glass image view cause unable to change parent layout alignment dynamically
-        mImgGlass = new ImageView(mContext);
+        mImgGlass = new ImageView(getContext());
         mImgGlass.setAdjustViewBounds(true);
         RelativeLayout.LayoutParams imgParams = new RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.WRAP_CONTENT,
@@ -83,7 +85,7 @@ public class CamFragment extends Fragment {
         if (mPreview == null) {
 
             // Create our camera view and set it as the content of our activity.
-            mPreview = new CameraView(mContext);
+            mPreview = new CameraView(getContext());
             FrameLayout preview = (FrameLayout) mCamLayout.findViewById(R.id.cameraView);
             preview.addView(mPreview);
         }

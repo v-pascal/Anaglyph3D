@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/device_position">
+
+        <SwitchPreference
+            android:key="position"
+            android:defaultValue="true"
+            android:title="@string/camera_left"
+            android:summary="@string/red_glass"
+            android:switchTextOn="@string/left"
+            android:switchTextOff="@string/right" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -23,8 +23,8 @@ import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private final CamFragment mCamFragment = new CamFragment(this);
-    private final ConfigFragment mConfigFragment = new ConfigFragment(this);
+    private final CamFragment mCamFragment = new CamFragment();
+    private final ConfigFragment mConfigFragment = new ConfigFragment();
     ////// Fragments
 
     private void displayPosition() {
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -96,7 +96,16 @@ public class MainActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         }
         else {
+
+
+
+
+
             moveTaskToBack(true); // Put application into background (paused)
+
+
+
+
         }
     }
 
@@ -111,6 +120,27 @@ public class MainActivity extends AppCompatActivity
         }
         else if (id == R.id.navSettings) {
 
+
+
+
+
+
+
+            FragmentTransaction prevFragTransaction = getSupportFragmentManager().beginTransaction();
+            prevFragTransaction.remove(mCamFragment);
+            prevFragTransaction.commit();
+
+            final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+            fab.setVisibility(View.GONE);
+
+
+
+
+
+
+            android.app.FragmentTransaction fragTransaction = getFragmentManager().beginTransaction();
+            fragTransaction.replace(R.id.mainContainer, mConfigFragment);
+            fragTransaction.commit();
         }
         else if (id == R.id.navDisconnect) {
 

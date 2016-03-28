@@ -14,10 +14,15 @@
     <string name="nav_settings">Settings</string>
     <string name="nav_disconnect">Disconnect</string>
     <string name="nav_quit">Quit</string>
-    <string name="camera_left">Left camera -</string>
-    <string name="camera_right">Right camera -</string>
+    <string name="camera_left">Left camera</string>
+    <string name="camera_right">Right camera</string>
     <string name="error_title">ERROR</string>
     <string name="camera_disabled">Failed to acquire camera feature. It may be used by another application.</string>
     <string name="close">Close</string>
+    <string name="device_position">Device position</string>
+    <string name="red_glass">Red glass</string>
+    <string name="blue_glass">Blue glass</string>
+    <string name="left">Gauche</string>
+    <string name="right">Right</string>
 
 </resources>
