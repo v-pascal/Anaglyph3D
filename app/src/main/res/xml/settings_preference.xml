@@ -6,10 +6,43 @@
         <SwitchPreference
             android:key="position"
             android:defaultValue="true"
-            android:title="@string/camera_left"
-            android:summary="@string/red_glass"
+            android:title="@string/camera"
             android:switchTextOn="@string/left"
             android:switchTextOff="@string/right" />
+
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/video_parameters"
+        android:key="settings">
+
+        <SwitchPreference
+            android:key="orientation"
+            android:defaultValue="true"
+            android:title="@string/orientation"
+            android:switchTextOn="@string/portrait"
+            android:switchTextOff="@string/landscape" />
+
+        <ListPreference
+            android:key="resolution"
+            android:defaultValue=""
+            android:title="@string/resolution" />
+
+        <!--BUG: Not working! Done programmatically...
+        Caused by: android.view.InflateException: Binary XML file line #34: Error inflating class NumberPickerPreference
+        at android.preference.GenericInflater.createItem(GenericInflater.java:386)
+        ...
+
+        <com.studio.artaban.anaglyph3d.fragments.ConfigFragment.NumberPickerPreference
+            android:key="duration"
+            android:defaultValue="60"
+            android:title="@string/duration"
+            android:summary="60" />
+
+        <com.studio.artaban.anaglyph3d.fragments.ConfigFragment.NumberPickerPreference
+            android:key="fps"
+            android:defaultValue="30"
+            android:title="@string/frame_per_second"
+            android:summary="30" /> -->
 
     </PreferenceCategory>
 

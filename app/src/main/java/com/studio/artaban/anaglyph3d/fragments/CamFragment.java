@@ -1,6 +1,5 @@
 package com.studio.artaban.anaglyph3d.fragments;
 
-import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -45,7 +44,7 @@ public class CamFragment extends Fragment {
                 RelativeLayout.LayoutParams.WRAP_CONTENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
 
-        if (Settings.getInstance().getPosition()) {
+        if (Settings.getInstance().mPosition) {
 
             mImgGlass.setImageDrawable(getResources().getDrawable(R.drawable.left_glass));
             if (Build.VERSION.SDK_INT >= 17)

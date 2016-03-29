@@ -17,9 +17,15 @@
     <string name="camera_disabled">Impossible d\'accéder à la caméra. Celle-ci doit être utilisée par une autre application.</string>
     <string name="close">Fermer</string>
     <string name="device_position">Position du périphérique</string>
-    <string name="red_glass">Verre rouge</string>
-    <string name="blue_glass">Verre bleu</string>
     <string name="left">Gauche</string>
     <string name="right">Droite</string>
+    <string name="resolution">Résolution</string>
+    <string name="video_parameters">Paramètres vidéo</string>
+    <string name="camera">Caméra</string>
+    <string name="orientation">Orientation</string>
+    <string name="landscape">Paysage</string>
+    <string name="portrait">Portrait</string>
+    <string name="duration">Durée (en secondes)</string>
+    <string name="frame_per_second">Images par seconde (FPS)</string>
 
 </resources>

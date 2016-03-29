@@ -20,9 +20,15 @@
     <string name="camera_disabled">Failed to acquire camera feature. It may be used by another application.</string>
     <string name="close">Close</string>
     <string name="device_position">Device position</string>
-    <string name="red_glass">Red glass</string>
-    <string name="blue_glass">Blue glass</string>
     <string name="left">Gauche</string>
     <string name="right">Right</string>
+    <string name="resolution">Resolution</string>
+    <string name="video_parameters">Video parameters</string>
+    <string name="camera">Camera</string>
+    <string name="orientation">Orientation</string>
+    <string name="landscape">Landscape</string>
+    <string name="portrait">Portrait</string>
+    <string name="duration">Duration (in seconds)</string>
+    <string name="frame_per_second">Frame per second (FPS)</string>
 
 </resources>

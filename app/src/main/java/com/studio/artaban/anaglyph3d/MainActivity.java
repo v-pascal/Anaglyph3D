@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity
 
         // Display remote device name into subtitle (with position)
         String remoteDevice;
-        if (Settings.getInstance().getPosition())
+        if (Settings.getInstance().mPosition)
             remoteDevice = getResources().getString(R.string.camera_right);
         else
             remoteDevice = getResources().getString(R.string.camera_left);

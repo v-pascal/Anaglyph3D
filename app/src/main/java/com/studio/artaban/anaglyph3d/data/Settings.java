@@ -33,15 +33,36 @@ public class Settings implements ConnRequest {
     private static final String DATA_KEY_RESOLUTIONS = "resolutions";
     private static final String DATA_KEY_WIDTH = "width";
     private static final String DATA_KEY_HEIGHT = "height";
-    private static final String DATA_KEY_RESOLUTION = "resolution";
-    private static final String DATA_KEY_ORIENTATION = "orientation";
-    private static final String DATA_KEY_DURATION = "duration";
-    private static final String DATA_KEY_FPS = "fps";
+    public static final String DATA_KEY_RESOLUTION = "resolution";
+    public static final String DATA_KEY_ORIENTATION = "orientation";
+    public static final String DATA_KEY_DURATION = "duration";
+    public static final String DATA_KEY_FPS = "fps";
 
     // Accessors
     public boolean getMaster() { return mMaster; } // See use...
-    public boolean getPosition() { return mPosition; }
     public String getRemoteDevice() { return mRemoteDevice; }
+    public String[] getResolutions() {
+
+        /*
+        String[] resolutions = new String[mResolutions.size()];
+        for (int i = 0; i < mResolutions.size(); ++i)
+            resolutions[i] = mResolutions.get(i).toString();
+        */
+
+
+
+        String[] resolutions = new String[5];
+        resolutions[0] = "640 x 480";
+        resolutions[1] = "1640 x 480";
+        resolutions[2] = "2640 x 480";
+        resolutions[3] = "640 x 1480";
+        resolutions[4] = "1640 x 1480";
+
+
+
+
+        return resolutions;
+    }
 
     // Data
     private boolean mMaster; // Master device (false for slave device)
@@ -50,11 +71,11 @@ public class Settings implements ConnRequest {
 
     private final ArrayList<Size> mResolutions = new ArrayList<Size>(); // Resolutions list
 
-    private boolean mPosition = true; // Left camera position (false for right position)
-    private Size mResolution; // Selected resolution
-    private boolean mOrientation = true; // Portrait orientation (false for landscape orientation)
-    private int mDuration = 10000; // Video duration (in milliseconds)
-    private int mFps = 30; // Frame per second
+    public boolean mPosition = true; // Left camera position (false for right position)
+    public boolean mOrientation = true; // Portrait orientation (false for landscape orientation)
+    public Size mResolution; // Selected resolution
+    public int mDuration = 10000; // Video duration (in milliseconds)
+    public int mFps = 30; // Frame per second
 
     // Request types (mask)
     public static final byte REQ_TYPE_INITIALIZE = 0x01;
