@@ -38,7 +38,7 @@ public class Settings implements ConnRequest {
     public static final String DATA_KEY_DURATION = "duration";
     public static final String DATA_KEY_FPS = "fps";
 
-    // Accessors
+    // Getters
     public String getRemoteDevice() { return mRemoteDevice; }
     public String[] getResolutions() {
 
@@ -54,6 +54,24 @@ public class Settings implements ConnRequest {
         return (!Settings.getInstance().mOrientation)?
                 mResolution.width + Constants.CONFIG_RESOLUTION_SEPARATOR + mResolution.height:
                 mResolution.height + Constants.CONFIG_RESOLUTION_SEPARATOR + mResolution.width;
+    }
+
+    // Setter
+    public boolean setResolution(String resolution, String[] list) {
+
+        int resolutionIndex = Constants.NO_DATA;
+        for (int i = 0; i < list.length; ++i) {
+            if (list[i].equals(resolution)) {
+
+                resolutionIndex = i;
+                break;
+            }
+        }
+        if (resolutionIndex == Constants.NO_DATA)
+            return false;
+
+        mResolution = mResolutions.get(resolutionIndex);
+        return true;
     }
 
     // Data

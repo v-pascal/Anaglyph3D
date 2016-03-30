@@ -69,10 +69,9 @@ public class ConfigFragment extends PreferenceFragment implements Preference.OnP
                 // Replace 'onPreferenceChange' call here
                 if (getKey().equals(Settings.DATA_KEY_DURATION)) {
 
-
-
-
                     Settings.getInstance().mDuration = mNumberValue;
+
+
 
 
 
@@ -80,9 +79,9 @@ public class ConfigFragment extends PreferenceFragment implements Preference.OnP
                 }
                 else if (getKey().equals(Settings.DATA_KEY_FPS)) {
 
-
-
                     Settings.getInstance().mFps = mNumberValue;
+
+
 
 
 
@@ -90,6 +89,18 @@ public class ConfigFragment extends PreferenceFragment implements Preference.OnP
             }
         }
     };
+
+    // Fill & Set resolution preference list
+    private void updateResolution(ListPreference resolutionList) {
+
+        final String[] resolutions = Settings.getInstance().getResolutions();
+        resolutionList.setEntries(resolutions);
+        resolutionList.setEntryValues(resolutions);
+
+        final String resolution = Settings.getInstance().getResolution();
+        resolutionList.setDefaultValue(resolution);
+        resolutionList.setSummary(resolution);
+    }
 
     //////
     @Override
@@ -127,11 +138,7 @@ public class ConfigFragment extends PreferenceFragment implements Preference.OnP
 
         final ListPreference preferenceList = (ListPreference)findPreference(Settings.DATA_KEY_RESOLUTION);
         preferenceList.setOnPreferenceChangeListener(this);
-
-        final String[] resolutions = Settings.getInstance().getResolutions();
-        preferenceList.setEntries(resolutions);
-        preferenceList.setEntryValues(resolutions);
-        preferenceList.setSummary(Settings.getInstance().getResolution());
+        updateResolution(preferenceList);
 
         // Add number picker dialog preferences programmatically (probably caused by API level 21 requirement)
         // -> Unable to declare 'NumberPickerPreference' constructor with 'context' parameter only
@@ -170,10 +177,11 @@ public class ConfigFragment extends PreferenceFragment implements Preference.OnP
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         if (preference.getKey().equals(Settings.DATA_KEY_POSITION)) {
 
+            Settings.getInstance().mPosition = (boolean)newValue;
 
 
 
-            //Settings.getInstance().mPosition = (boolean)newValue;
+
 
 
 
@@ -182,6 +190,11 @@ public class ConfigFragment extends PreferenceFragment implements Preference.OnP
             return true;
         }
         else if (preference.getKey().equals(Settings.DATA_KEY_ORIENTATION)) {
+
+            Settings.getInstance().mOrientation = (boolean)newValue;
+
+            final ListPreference list = (ListPreference)findPreference(Settings.DATA_KEY_RESOLUTION);
+            updateResolution((ListPreference)list);
 
 
 
@@ -192,10 +205,10 @@ public class ConfigFragment extends PreferenceFragment implements Preference.OnP
         }
         else if (preference.getKey().equals(Settings.DATA_KEY_RESOLUTION)) {
 
+            preference.setSummary((String) newValue);
+            Settings.getInstance().setResolution((String) newValue,
+                    (String[]) ((ListPreference) preference).getEntryValues());
 
-
-
-            preference.setSummary((String)newValue);
 
 
 
