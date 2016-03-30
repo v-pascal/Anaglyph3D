@@ -7,6 +7,7 @@
             android:key="position"
             android:defaultValue="true"
             android:title="@string/camera"
+            android:persistent="false"
             android:switchTextOn="@string/left"
             android:switchTextOff="@string/right" />
 
@@ -24,12 +25,15 @@
 
         <ListPreference
             android:key="resolution"
-            android:defaultValue=""
+            android:persistent="false"
             android:title="@string/resolution" />
 
         <!--BUG: Not working! Done programmatically...
-        Caused by: android.view.InflateException: Binary XML file line #34: Error inflating class NumberPickerPreference
-        at android.preference.GenericInflater.createItem(GenericInflater.java:386)
+        Caused by:
+        android.view.InflateException: Binary XML file line #35: Error inflating class com.studio.artaban.anaglyph3d.fragments.ConfigFragment.NumberPickerPreference
+            at android.preference.GenericInflater.createItemFromTag(GenericInflater.java:441)
+            at android.preference.GenericInflater.rInflate(GenericInflater.java:481)
+            at android.preference.GenericInflater.rInflate(GenericInflater.java:493)
         ...
 
         <com.studio.artaban.anaglyph3d.fragments.ConfigFragment.NumberPickerPreference

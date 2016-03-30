@@ -39,29 +39,21 @@ public class Settings implements ConnRequest {
     public static final String DATA_KEY_FPS = "fps";
 
     // Accessors
-    public boolean getMaster() { return mMaster; } // See use...
     public String getRemoteDevice() { return mRemoteDevice; }
     public String[] getResolutions() {
 
-        /*
         String[] resolutions = new String[mResolutions.size()];
         for (int i = 0; i < mResolutions.size(); ++i)
-            resolutions[i] = mResolutions.get(i).toString();
-        */
-
-
-
-        String[] resolutions = new String[5];
-        resolutions[0] = "640 x 480";
-        resolutions[1] = "1640 x 480";
-        resolutions[2] = "2640 x 480";
-        resolutions[3] = "640 x 1480";
-        resolutions[4] = "1640 x 1480";
-
-
-
+            resolutions[i] = (!Settings.getInstance().mOrientation)?
+                    mResolutions.get(i).width + Constants.CONFIG_RESOLUTION_SEPARATOR + mResolutions.get(i).height:
+                    mResolutions.get(i).height + Constants.CONFIG_RESOLUTION_SEPARATOR + mResolutions.get(i).width;
 
         return resolutions;
+    }
+    public String getResolution() {
+        return (!Settings.getInstance().mOrientation)?
+                mResolution.width + Constants.CONFIG_RESOLUTION_SEPARATOR + mResolution.height:
+                mResolution.height + Constants.CONFIG_RESOLUTION_SEPARATOR + mResolution.width;
     }
 
     // Data
@@ -74,7 +66,7 @@ public class Settings implements ConnRequest {
     public boolean mPosition = true; // Left camera position (false for right position)
     public boolean mOrientation = true; // Portrait orientation (false for landscape orientation)
     public Size mResolution; // Selected resolution
-    public int mDuration = 10000; // Video duration (in milliseconds)
+    public int mDuration = 60000; // Video duration (in milliseconds)
     public int mFps = 30; // Frame per second
 
     // Request types (mask)
@@ -84,6 +76,35 @@ public class Settings implements ConnRequest {
     public static final byte REQ_TYPE_ORIENTATION = 0x08;
     public static final byte REQ_TYPE_DURATION = 0x0f;
     public static final byte REQ_TYPE_FPS = 0x40;
+
+
+
+
+
+
+
+
+
+
+
+
+    public boolean initResolutions() {
+
+        if (!CameraView.getAvailableResolutions(mResolutions))
+            return false;
+
+        mResolution = mResolutions.get(0);
+        return true;
+    }
+
+
+
+
+
+
+
+
+
 
     //////
     @Override

@@ -1,6 +1,7 @@
 package com.studio.artaban.anaglyph3d.fragments;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.preference.DialogPreference;
 import android.preference.ListPreference;
@@ -8,11 +9,15 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.NumberPicker;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 /**
  * Created by pascal on 27/03/16.
@@ -23,11 +28,21 @@ public class ConfigFragment extends PreferenceFragment implements Preference.OnP
     private class NumberPickerPreference extends DialogPreference {
 
         public int mMin, mMax;
+
+        private int mNumberValue;
         private NumberPicker mNumberPicker;
 
         public NumberPickerPreference(Context context, AttributeSet attrs) {
             super(context, attrs);
             setDialogLayoutResource(R.layout.number_dialog);
+            setPersistent(false); // No 'SharedPreference' coz no reference from XML file
+        }
+
+        @Override
+        public void setDefaultValue(Object defaultValue) {
+
+            mNumberValue = (int)defaultValue;
+            persistInt(mNumberValue);
         }
 
         @Override
@@ -37,18 +52,72 @@ public class ConfigFragment extends PreferenceFragment implements Preference.OnP
             mNumberPicker = (NumberPicker)dialogView.findViewById(R.id.numberPicker);
             mNumberPicker.setMinValue(mMin);
             mNumberPicker.setMaxValue(mMax);
+            mNumberPicker.setValue(mNumberValue);
             mNumberPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 
             return dialogView;
         }
+
+        @Override
+        protected void onDialogClosed(boolean positiveResult) {
+            if (positiveResult) {
+
+                mNumberValue = mNumberPicker.getValue();
+                persistInt(mNumberValue);
+                setSummary(String.valueOf(mNumberValue));
+
+                // Replace 'onPreferenceChange' call here
+                if (getKey().equals(Settings.DATA_KEY_DURATION)) {
+
+
+
+
+                    Settings.getInstance().mDuration = mNumberValue;
+
+
+
+
+                }
+                else if (getKey().equals(Settings.DATA_KEY_FPS)) {
+
+
+
+                    Settings.getInstance().mFps = mNumberValue;
+
+
+
+                }
+            }
+        }
     };
 
+    //////
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.settings_preference);
 
-        // Initialize settings preferences (default)
+
+
+
+
+
+
+
+
+        if (!Settings.getInstance().initResolutions())
+            Logs.add(Logs.Type.E, "!initResolutions");
+        else
+            Logs.add(Logs.Type.E, "initResolutions");
+
+
+
+
+
+
+
+
+        // Initialize settings preferences
         Preference preference = findPreference(Settings.DATA_KEY_POSITION);
         preference.setOnPreferenceChangeListener(this);
         if (!Settings.getInstance().mPosition)
@@ -58,31 +127,40 @@ public class ConfigFragment extends PreferenceFragment implements Preference.OnP
 
         final ListPreference preferenceList = (ListPreference)findPreference(Settings.DATA_KEY_RESOLUTION);
         preferenceList.setOnPreferenceChangeListener(this);
-        preferenceList.setEntries(Settings.getInstance().getResolutions());
-        preferenceList.setEntryValues(Settings.getInstance().getResolutions());
-        preferenceList.setSummary(Settings.getInstance().getResolutions()[0]);
 
+        final String[] resolutions = Settings.getInstance().getResolutions();
+        preferenceList.setEntries(resolutions);
+        preferenceList.setEntryValues(resolutions);
+        preferenceList.setSummary(Settings.getInstance().getResolution());
+
+        // Add number picker dialog preferences programmatically (probably caused by API level 21 requirement)
+        // -> Unable to declare 'NumberPickerPreference' constructor with 'context' parameter only
+        // -> See error message in 'res/xml/settings_preference' XML file
         final PreferenceCategory preferenceCat = (PreferenceCategory)findPreference("settings");
 
         final NumberPickerPreference durationPreference = new NumberPickerPreference(getActivity(), null);
         durationPreference.setKey(Settings.DATA_KEY_DURATION);
+        //durationPreference.setOnPreferenceChangeListener(this);
+        // BUG: Not working! 'onPreferenceChange' never called...
         durationPreference.setTitle(R.string.duration);
         durationPreference.setDialogTitle(R.string.duration);
-        durationPreference.setDefaultValue(60);
-        durationPreference.setSummary("60");
+        durationPreference.setDefaultValue(Settings.getInstance().mDuration);
+        durationPreference.setSummary(String.valueOf(Settings.getInstance().mDuration));
 
-        durationPreference.mMin = 10;
-        durationPreference.mMax = 180;
+        durationPreference.mMin = Constants.CONFIG_MIN_DURATION;
+        durationPreference.mMax = Constants.CONFIG_MAX_DURATION;
 
         final NumberPickerPreference fpsPreference = new NumberPickerPreference(getActivity(), null);
         fpsPreference.setKey(Settings.DATA_KEY_FPS);
+        //fpsPreference.setOnPreferenceChangeListener(this);
+        // BUG: Not working! 'onPreferenceChange' never called...
         fpsPreference.setTitle(R.string.frame_per_second);
         fpsPreference.setDialogTitle(R.string.frame_per_second);
-        fpsPreference.setDefaultValue(30);
-        fpsPreference.setSummary("30");
+        fpsPreference.setDefaultValue(Settings.getInstance().mFps);
+        fpsPreference.setSummary(String.valueOf(Settings.getInstance().mFps));
 
-        fpsPreference.mMin = 20;
-        fpsPreference.mMax = 60;
+        fpsPreference.mMin = Constants.CONFIG_MIN_FPS;
+        fpsPreference.mMax = Constants.CONFIG_MAX_FPS;
 
         preferenceCat.addPreference(durationPreference);
         preferenceCat.addPreference(fpsPreference);
@@ -94,7 +172,10 @@ public class ConfigFragment extends PreferenceFragment implements Preference.OnP
 
 
 
+
             //Settings.getInstance().mPosition = (boolean)newValue;
+
+
 
 
 
@@ -102,20 +183,29 @@ public class ConfigFragment extends PreferenceFragment implements Preference.OnP
         }
         else if (preference.getKey().equals(Settings.DATA_KEY_ORIENTATION)) {
 
+
+
+
+
+
             return true;
         }
         else if (preference.getKey().equals(Settings.DATA_KEY_RESOLUTION)) {
 
-            return true;
-        }
-        else if (preference.getKey().equals(Settings.DATA_KEY_DURATION)) {
+
+
+
+            preference.setSummary((String)newValue);
+
+
+
 
             return true;
         }
-        else if (preference.getKey().equals(Settings.DATA_KEY_FPS)) {
+        //else if (preference.getKey().equals(Settings.DATA_KEY_DURATION)) {
+        //else if (preference.getKey().equals(Settings.DATA_KEY_FPS)) {
+        // BUG: Never called! Done in 'NumberPickerPreference.onDialogClosed' method
 
-            return true;
-        }
         return false;
     }
 }

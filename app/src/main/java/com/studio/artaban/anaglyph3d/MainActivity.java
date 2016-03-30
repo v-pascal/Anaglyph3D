@@ -91,13 +91,19 @@ public class MainActivity extends AppCompatActivity
                         prevFragTransaction.remove(mCamFragment);
                         prevFragTransaction.commit();
 
-                        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-                        fab.setVisibility(View.GONE);
-
                         // Add settings fragment
                         android.app.FragmentTransaction fragTransaction = getFragmentManager().beginTransaction();
                         fragTransaction.add(R.id.mainContainer, mConfigFragment);
                         fragTransaction.commit();
+
+                        // BUG: There is no other way to do this coz using both 'android.app.FragmentTransaction'
+                        //      and 'android.support.v4.app.FragmentTransaction' are managed separately. But it is
+                        //      needed coz there is no 'PreferenceFragment' into the Android Support Library v4.
+                        //
+                        // -> Unable to replace camera fragment with settings fragment
+
+                        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+                        fab.setVisibility(View.GONE);
                         break;
                     }
                     case R.id.navDisconnect: {
@@ -170,13 +176,16 @@ public class MainActivity extends AppCompatActivity
                 fragTransaction.remove(mConfigFragment);
                 fragTransaction.commit();
 
-                final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-                fab.setVisibility(View.VISIBLE);
-
                 // Add camera fragment
                 FragmentTransaction prevFragTransaction = getSupportFragmentManager().beginTransaction();
                 prevFragTransaction.add(R.id.mainContainer, mCamFragment);
                 prevFragTransaction.commit();
+
+                // BUG: See 'onDrawerClosed' method above at 'R.id.navSettings' case to
+                //      understand why it has been implemented int that way.
+
+                final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+                fab.setVisibility(View.VISIBLE);
             }
         }
     }
