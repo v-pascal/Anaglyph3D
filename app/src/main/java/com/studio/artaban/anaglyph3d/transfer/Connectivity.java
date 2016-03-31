@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.SystemClock;
 
 import com.studio.artaban.anaglyph3d.MainActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;

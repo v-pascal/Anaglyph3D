@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity
     private boolean mSettings = false; // Settings fragment displayed
     private int mNavItemSelected = Constants.NO_DATA; // Id of the selected navigation item (or -1 if none)
 
-    private void displayPosition() {
+    public void displayPosition() {
 
         // Display remote device name into subtitle (with position)
         String remoteDevice;

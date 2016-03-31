@@ -26,7 +26,7 @@ public class CamFragment extends Fragment {
     private View mCamLayout;
 
     private ImageView mImgGlass;
-    public void displayPosition() { // According settings position
+    public void displayPosition() { // Display glass image according settings position
 
         if (getActivity() == null) {
             Logs.add(Logs.Type.F, "No attached activity");
@@ -69,14 +69,14 @@ public class CamFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (mCamLayout != null)
-            return mCamLayout;
+        if (mCamLayout != null) {
 
+            displayPosition();
+            return mCamLayout;
+        }
         mCamLayout = inflater.inflate(R.layout.fragment_camera, container, false);
 
-        // Display glass image according position (initial)
         displayPosition();
-
         return mCamLayout;
     }
 

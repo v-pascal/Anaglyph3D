@@ -75,7 +75,7 @@ public class Settings implements ConnRequest {
     }
 
     // Data
-    private boolean mMaster; // Master device (false for slave device)
+    private boolean mMaster; // Master device which has settings priority (false for slave device)
     private String mRemoteDevice; // Remote device name
     public long mPerformance = 1000; // Device performance representation (lowest is best)
 
@@ -84,7 +84,7 @@ public class Settings implements ConnRequest {
     public boolean mPosition = true; // Left camera position (false for right position)
     public boolean mOrientation = true; // Portrait orientation (false for landscape orientation)
     public Size mResolution; // Selected resolution
-    public int mDuration = 60000; // Video duration (in milliseconds)
+    public int mDuration = 60; // Video duration (in seconds)
     public int mFps = 30; // Frame per second
 
     // Request types (mask)
@@ -94,35 +94,6 @@ public class Settings implements ConnRequest {
     public static final byte REQ_TYPE_ORIENTATION = 0x08;
     public static final byte REQ_TYPE_DURATION = 0x0f;
     public static final byte REQ_TYPE_FPS = 0x40;
-
-
-
-
-
-
-
-
-
-
-
-
-    public boolean initResolutions() {
-
-        if (!CameraView.getAvailableResolutions(mResolutions))
-            return false;
-
-        mResolution = mResolutions.get(0);
-        return true;
-    }
-
-
-
-
-
-
-
-
-
 
     //////
     @Override
