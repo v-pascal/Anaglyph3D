@@ -11,6 +11,7 @@ import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +88,13 @@ public class Connectivity {
         int size = mBluetooth.read(mRead);
         if (size > 0) {
 
-            String message = mRead.toString();
+            String message;
+            try { message = mRead.toString("UTF-8"); }
+            catch (UnsupportedEncodingException e) {
+
+                Logs.add(Logs.Type.E, "Failed to get request UTF-8 encoded string");
+                return null;
+            }
 
             // Check element format received
             if ((size > 9) &&
@@ -108,7 +115,7 @@ public class Connectivity {
 
                 return null;
             }
-            if (size == Integer.parseInt(message)) {
+            if (size == Integer.parseInt(message.substring(0, 3))) {
 
                 mRead.reset();
                 return message.substring(4); // Format: A:CC_*
@@ -120,39 +127,47 @@ public class Connectivity {
     // Send request or reply
     private boolean send(TransferElement element) {
 
-        Integer intSize = element.mMessage.length() + 9;
-        ByteBuffer buffer = ByteBuffer.allocate(intSize);
+        Integer byteCount = element.mMessage.length() + 9;
+        ByteBuffer buffer = ByteBuffer.allocate(byteCount);
 
         // Add size of the entire message (BBB)
-        String strSize = intSize.toString();
-        if (intSize < 100) { // ...always > 9
+        String strSize = byteCount.toString();
+        if (byteCount < 100) { // ...always > 9
 
-            buffer.putChar('0');
-            buffer.putChar(strSize.charAt(0));
-            buffer.putChar(strSize.charAt(1));
+            buffer.put((byte) '0');
+            buffer.put((byte) strSize.charAt(0));
+            buffer.put((byte) strSize.charAt(1));
         }
         else { // > 100
 
-            buffer.putChar(strSize.charAt(0));
-            buffer.putChar(strSize.charAt(1));
-            buffer.putChar(strSize.charAt(2));
+            buffer.put((byte) strSize.charAt(0));
+            buffer.put((byte) strSize.charAt(1));
+            buffer.put((byte) strSize.charAt(2));
         }
-        buffer.putChar(SEPARATOR_SIZE_REQUEST_ID);
+        buffer.put((byte) SEPARATOR_SIZE_REQUEST_ID);
 
         // Add request ID (A)
-        buffer.putChar(element.mHandler.getRequestId());
-        buffer.putChar(SEPARATOR_REQUEST_ID_TYPE);
+        buffer.put((byte) element.mHandler.getRequestId());
+        buffer.put((byte) SEPARATOR_REQUEST_ID_TYPE);
 
         // Add request type (CC)
         String strType = Integer.toString(element.mType, 16);
-        buffer.putChar(strType.charAt(0));
-        buffer.putChar(strType.charAt(1));
-        buffer.putChar(SEPARATOR_TYPE_MESSAGE);
+        if (strType.length() > 1) {
+
+            buffer.put((byte) strType.charAt(0));
+            buffer.put((byte) strType.charAt(1));
+        }
+        else {
+
+            buffer.put((byte) '0');
+            buffer.put((byte) strType.charAt(0));
+        }
+        buffer.put((byte) SEPARATOR_TYPE_MESSAGE);
 
         // Add message (*)
-        buffer.put(element.mMessage.getBytes());
+        buffer.put(element.mMessage.getBytes()); // Default charset UTF-8
 
-        return mBluetooth.write(buffer.array());
+        return mBluetooth.write(buffer.array(), byteCount);
     }
 
     //
@@ -174,11 +189,29 @@ public class Connectivity {
                     Settings.REQ_TYPE_INITIALIZE, connInfo);
         }
 
+
+
+
+
+
+
+
+
+
         // Start main activity
         private void startActivity() {
             Intent intent = new Intent(mContext, MainActivity.class);
             mContext.startActivity(intent);
         }
+
+
+
+
+
+
+
+
+
 
         ////// Process (connected status):
         // _ Send requests (from request list)
@@ -192,9 +225,9 @@ public class Connectivity {
                 if (request != null) {
 
                     TransferElement reply = new TransferElement();
-                    switch (Integer.parseInt(request)) {
+                    switch (request.charAt(0)) {
 
-                        case ConnRequest.REQ_SETTINGS:  reply.mHandler = Settings.getInstance(); break;
+                        case ConnRequest.REQ_SETTINGS: reply.mHandler = Settings.getInstance(); break;
                         default: {
 
                             Logs.add(Logs.Type.E, "Unexpected request received");
@@ -398,7 +431,7 @@ public class Connectivity {
                 // Sleep
                 try { Thread.sleep(200, 0); }
                 catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Logs.add(Logs.Type.W, "Unable to sleep: " + e.getMessage());
                 }
             }
             Logs.add(Logs.Type.I, "Connectivity thread ended");
@@ -434,10 +467,10 @@ public class Connectivity {
             mAbort = true;
             try { mProcessTask.get(); }
             catch (InterruptedException e) {
-                e.printStackTrace();
+                Logs.add(Logs.Type.E, "Failed to start task: " + e.getMessage());
             }
             catch (ExecutionException e) {
-                e.printStackTrace();
+                Logs.add(Logs.Type.E, "Failed to start task: " + e.getMessage());
             }
             mProcessTask = null;
         }

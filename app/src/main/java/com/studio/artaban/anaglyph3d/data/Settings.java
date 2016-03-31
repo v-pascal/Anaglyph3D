@@ -217,15 +217,42 @@ public class Settings implements ConnRequest {
     @Override
     public String getReply(byte type, String request) {
 
-        try { JSONObject settings = new JSONObject(request); }
+        JSONObject settings;
+        try { settings = new JSONObject(request); }
         catch (JSONException e) {
 
             Logs.add(Logs.Type.E, e.getMessage());
             return null;
         }
 
-        String reply;
+        String reply = null;
         if (type == REQ_TYPE_INITIALIZE) { // Initialize settings
+
+
+
+
+
+
+
+
+
+            try {
+                mMaster = settings.getBoolean(DATA_KEY_POSITION);
+                mPosition = settings.getBoolean(DATA_KEY_POSITION);
+            }
+            catch (JSONException e) {
+
+                Logs.add(Logs.Type.E, e.getMessage());
+                return null;
+            }
+            reply = "OK";
+
+
+
+
+
+
+
 
         }
         else { // Update settings
@@ -246,7 +273,7 @@ public class Settings implements ConnRequest {
 
             }
         }
-        return null;
+        return reply;
     }
 
     @Override
@@ -255,8 +282,11 @@ public class Settings implements ConnRequest {
 
 
 
+        Logs.add(Logs.Type.I, reply);
 
 
-        return false;
+
+
+        return true;
     }
 }

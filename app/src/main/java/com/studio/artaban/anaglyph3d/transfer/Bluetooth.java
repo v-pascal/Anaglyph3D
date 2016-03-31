@@ -200,7 +200,7 @@ public class Bluetooth {
                 try {
                     int bytes = mInStream.read(buffer);
                     if (bytes > 0)
-                        synchronized (mReceived) { mReceived.write(buffer); }
+                        synchronized (mReceived) { mReceived.write(buffer, 0, bytes); }
                 }
                 catch (IOException e) {
 
@@ -218,12 +218,12 @@ public class Bluetooth {
             }
         }
 
-        public void write(byte[] buffer) {
+        public void write(byte[] buffer, int len) {
 
             if (mOutStream == null)
                 return;
 
-            try { mOutStream.write(buffer); }
+            try { mOutStream.write(buffer, 0, len); }
             catch (IOException e) {
                 Logs.add(Logs.Type.E, "Failed to write: " + e.toString());
             }
@@ -332,7 +332,7 @@ public class Bluetooth {
     }
 
     //
-    public boolean write(byte[] buffer) {
+    public boolean write(byte[] buffer, int len) {
 
         if (mStatus != Status.CONNECTED) {
             Logs.add(Logs.Type.W, "Failed to write: Wrong " + mStatus + " status");
@@ -340,7 +340,7 @@ public class Bluetooth {
         }
         ProcessThread process;
         synchronized (mProcessing) { process = mProcessing; }
-        process.write(buffer);
+        process.write(buffer, len);
         return true;
     }
     public synchronized int read(ByteArrayOutputStream buffer) {
