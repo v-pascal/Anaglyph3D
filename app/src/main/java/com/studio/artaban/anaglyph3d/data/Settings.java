@@ -3,7 +3,7 @@ package com.studio.artaban.anaglyph3d.data;
 import android.hardware.Camera.Size;
 import android.os.Bundle;
 
-import com.studio.artaban.anaglyph3d.helpers.CameraView;
+import com.studio.artaban.anaglyph3d.Camera.CameraView;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.transfer.ConnRequest;
 
@@ -239,6 +239,13 @@ public class Settings implements ConnRequest {
             try {
                 mMaster = settings.getBoolean(DATA_KEY_POSITION);
                 mPosition = settings.getBoolean(DATA_KEY_POSITION);
+
+
+
+                //mResolutions
+
+
+
             }
             catch (JSONException e) {
 

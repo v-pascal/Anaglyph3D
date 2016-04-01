@@ -13,7 +13,7 @@ import android.widget.RelativeLayout;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Settings;
-import com.studio.artaban.anaglyph3d.helpers.CameraView;
+import com.studio.artaban.anaglyph3d.Camera.CameraView;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 /**

@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
+import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 public class ConnActivity extends AppCompatActivity {
@@ -51,7 +51,7 @@ public class ConnActivity extends AppCompatActivity {
         });
 
         // Start connectivity
-        if (!Connectivity.getInstance().start(this)) {
+        if (!Connectivity.getInstance().start()) {
 
             // Failed to enable Bluetooth connectivity
             final ProgressBar progressBar = (ProgressBar)findViewById(R.id.progressBar);
@@ -74,8 +74,8 @@ public class ConnActivity extends AppCompatActivity {
             }
         });
 
-        // Set current activity to be able to display message
-        DisplayMessage.getInstance().setActivity(this);
+        // Set current activity
+        ActivityWrapper.set(this);
     }
 
     @Override

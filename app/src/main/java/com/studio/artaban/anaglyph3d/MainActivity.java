@@ -19,6 +19,7 @@ import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.fragments.CamFragment;
 import com.studio.artaban.anaglyph3d.fragments.ConfigFragment;
+import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 
 public class MainActivity extends AppCompatActivity
@@ -152,8 +153,8 @@ public class MainActivity extends AppCompatActivity
         fragTransaction.add(R.id.mainContainer, mCamFragment);
         fragTransaction.commit();
 
-        // Set current activity to be able to display message
-        DisplayMessage.getInstance().setActivity(this);
+        // Set current activity
+        ActivityWrapper.set(this);
     }
 
     @Override

@@ -1,11 +1,9 @@
 package com.studio.artaban.anaglyph3d.transfer;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import com.studio.artaban.anaglyph3d.MainActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
@@ -173,9 +171,6 @@ public class Connectivity {
     //
     private class ProcessTask extends AsyncTask<Void, Void, Void> {
 
-        private final Context mContext;
-        public ProcessTask(Context context) { mContext = context; }
-
         // Initialize connection
         private void initialize(boolean position) {
 
@@ -188,30 +183,6 @@ public class Connectivity {
             Connectivity.getInstance().addRequest(Settings.getInstance(),
                     Settings.REQ_TYPE_INITIALIZE, connInfo);
         }
-
-
-
-
-
-
-
-
-
-
-        // Start main activity
-        private void startActivity() {
-            Intent intent = new Intent(mContext, MainActivity.class);
-            mContext.startActivity(intent);
-        }
-
-
-
-
-
-
-
-
-
 
         ////// Process (connected status):
         // _ Send requests (from request list)
@@ -243,7 +214,7 @@ public class Connectivity {
                             return;
                         }
                     }
-                    reply.mType = (byte)Integer.parseInt(request.substring(2), 16);
+                    reply.mType = (byte)Integer.parseInt(request.substring(2, 4), 16);
                     reply.mMessage = reply.mHandler.getReply(reply.mType, request.substring(5));
                     if (reply.mMessage == null) {
 
@@ -440,7 +411,7 @@ public class Connectivity {
     }
 
     //////
-    public boolean start(Context context) {
+    public boolean start() {
 
         if ((mBluetooth.getStatus() == Bluetooth.Status.DISABLED) && (!mBluetooth.initialize()))
             return false;
@@ -451,7 +422,7 @@ public class Connectivity {
         }
         mAbort = false;
         mStatus = Status.UNDEFINED;
-        mProcessTask = new ProcessTask(context);
+        mProcessTask = new ProcessTask();
         mProcessTask.execute();
         return true;
     }
