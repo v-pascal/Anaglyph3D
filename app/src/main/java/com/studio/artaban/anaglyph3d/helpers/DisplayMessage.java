@@ -27,7 +27,11 @@ public class DisplayMessage {
                 public void run() {
 
                     Activity curActivity;
-                    try { curActivity = ActivityWrapper.get(); }
+                    try {
+                        curActivity = ActivityWrapper.get();
+                        if (curActivity == null)
+                            throw new NullPointerException();
+                    }
                     catch (NullPointerException e) {
 
                         Logs.add(Logs.Type.F, "Failed to display dialog message");

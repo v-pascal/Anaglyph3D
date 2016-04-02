@@ -16,7 +16,7 @@
     <string name="nav_quit">Quit</string>
     <string name="camera_left">Left camera</string>
     <string name="camera_right">Right camera</string>
-    <string name="error_title">ERROR</string>
+    <string name="title_error">ERROR</string>
     <string name="camera_disabled">Failed to acquire camera feature. It may be used by another application.</string>
     <string name="close">Close</string>
     <string name="device_position">Device position</string>
@@ -30,5 +30,7 @@
     <string name="portrait">Portrait</string>
     <string name="duration">Duration (in seconds)</string>
     <string name="frame_per_second">Frame per second (FPS)</string>
+    <string name="title_warning">WARNING</string>
+    <string name="warning_not_matching">The available camera resolutions of the device you attempt to connect are not matching with your own device!\n\nRemote device:</string>
 
 </resources>

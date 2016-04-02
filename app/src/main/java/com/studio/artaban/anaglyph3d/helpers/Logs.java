@@ -14,6 +14,7 @@ public final class Logs {
     private static final String ANAGLYPH_3D_TAG = "Anaglyph3D";
 
     public static void add(Type type, String message) {
+
         if ((!BuildConfig.DEBUG) && (type == Type.V || type == Type.I || type == Type.D))
             return; // Do not add low level log in DEBUG mode
 

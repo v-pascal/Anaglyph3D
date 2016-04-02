@@ -53,7 +53,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
         if (camera == null) {
 
             Logs.add(Logs.Type.E, "Failed to get available camera resolutions");
-            DisplayMessage.getInstance().alert(R.string.error_title, R.string.camera_disabled, true);
+            DisplayMessage.getInstance().alert(R.string.title_error, R.string.camera_disabled, true);
             return false;
         }
         List<Size> camResolutions = camera.getParameters().getSupportedPreviewSizes();

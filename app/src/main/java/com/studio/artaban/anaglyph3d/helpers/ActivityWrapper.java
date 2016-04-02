@@ -14,12 +14,5 @@ public class ActivityWrapper {
 
     //////
     public static void set(Activity activity) { mCurActivity = new WeakReference<Activity>(activity); }
-    public static Activity get() throws NullPointerException {
-
-        if ((mCurActivity != null) && (mCurActivity.get() != null))
-            return mCurActivity.get();
-
-        Logs.add(Logs.Type.F, "Wrong activity reference");
-        throw new NullPointerException();
-    }
+    public static Activity get() throws NullPointerException { return mCurActivity.get(); }
 }

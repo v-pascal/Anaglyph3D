@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 import java.io.ByteArrayOutputStream;
@@ -25,7 +26,6 @@ import java.util.UUID;
  */
 public class Bluetooth {
 
-    public static final String DEVICES_SEPARATOR = "\n";
     public enum Status {
         DISABLED,   // Bluetooth not supported or disabled
         READY,      // Bluetooth ready (enabled & registered)
@@ -43,7 +43,8 @@ public class Bluetooth {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) // Not already paired
                     synchronized (mDevices) {
-                        mDevices.add(device.getName() + DEVICES_SEPARATOR + device.getAddress());
+                        mDevices.add(device.getName() + Constants.BLUETOOTH_DEVICES_SEPARATOR +
+                                device.getAddress());
                     }
             }
         }
@@ -68,7 +69,8 @@ public class Bluetooth {
                 else socket = mAdapter.listenUsingInsecureRfcommWithServiceRecord(name, UUID.fromString(uuid));
             }
             catch (IOException e) {
-                Logs.add(Logs.Type.W, "Failed to listen " + ((secure) ? "secure" : "insecure") + " socket: " + e.toString());
+                Logs.add(Logs.Type.W, "Failed to listen " + ((secure) ? "secure" : "insecure") +
+                        " socket: " + e.toString());
             }
             mSocket = socket;
         }
@@ -85,7 +87,8 @@ public class Bluetooth {
                     if (socket != null) {
 
                         BluetoothDevice device = socket.getRemoteDevice();
-                        mRemoteDevice = device.getName() + DEVICES_SEPARATOR + device.getAddress();
+                        mRemoteDevice = device.getName() + Constants.BLUETOOTH_DEVICES_SEPARATOR +
+                                device.getAddress();
                         if (mProcessing != null) {
 
                             mProcessing.cancel();
@@ -111,8 +114,8 @@ public class Bluetooth {
                     mSocket.close();
             }
             catch (IOException e) {
-                Logs.add(Logs.Type.W, "Failed to close " + ((mSecure) ? "secure" : "insecure") + " socket (listen): " +
-                        e.toString());
+                Logs.add(Logs.Type.W, "Failed to close " + ((mSecure) ? "secure" : "insecure") +
+                        " socket (listen): " + e.toString());
             }
         }
     };
@@ -130,10 +133,11 @@ public class Bluetooth {
                 else socket = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString(uuid));
             }
             catch (IOException e) {
-                Logs.add(Logs.Type.W, "Failed to create " + ((secure) ? "secure" : "insecure") + " socket: " + e.toString());
+                Logs.add(Logs.Type.W, "Failed to create " + ((secure) ? "secure" : "insecure") +
+                        " socket: " + e.toString());
             }
             mSocket = socket;
-            mRemoteDevice = device.getName() + DEVICES_SEPARATOR + device.getAddress();
+            mRemoteDevice = device.getName() + Constants.BLUETOOTH_DEVICES_SEPARATOR + device.getAddress();
         }
 
         @Override public void run() {

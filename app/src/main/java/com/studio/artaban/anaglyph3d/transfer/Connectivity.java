@@ -28,6 +28,7 @@ public class Connectivity {
     //////
     private AsyncTask<Void, Void, Void> mProcessTask;
     private final Bluetooth mBluetooth = new Bluetooth();
+    public final ArrayList<String> mNotMatchingDevices = new ArrayList<String>();
     private final ByteArrayOutputStream mRead = new ByteArrayOutputStream();
     private boolean mAbort = true;
 
@@ -176,12 +177,17 @@ public class Connectivity {
 
             // Add request to initialize settings
             final Bundle connInfo = new Bundle();
-            connInfo.putString(Settings.DATA_KEY_REMOTE_DEVICE,
-                    mBluetooth.getRemoteDevice().substring(0,
-                            mBluetooth.getRemoteDevice().indexOf(Bluetooth.DEVICES_SEPARATOR)));
+            connInfo.putString(Settings.DATA_KEY_REMOTE_DEVICE, mBluetooth.getRemoteDevice());
             connInfo.putBoolean(Settings.DATA_KEY_POSITION, position);
             Connectivity.getInstance().addRequest(Settings.getInstance(),
                     Settings.REQ_TYPE_INITIALIZE, connInfo);
+        }
+
+        // Disconnect
+        private void disconnect() {
+
+            mStatus = Connectivity.Status.RESET;
+            mRequests.clear();
         }
 
         ////// Process (connected status):
@@ -276,15 +282,9 @@ public class Connectivity {
                     if (!mRequests.get(0).mHandler.receiveReply(
                             (byte)Integer.parseInt(reply.substring(2), 16), reply.substring(5))) {
 
-                        Logs.add(Logs.Type.E, "Unexpected reply received");
-
-
-
-
-
-
-
-
+                        Logs.add(Logs.Type.E, "Unexpected reply received (or device not matching)");
+                        disconnect();
+                        return;
                     }
                     mRequests.remove(0);
                 }
@@ -316,6 +316,9 @@ public class Connectivity {
                                 double calculate = Math.cosh(Math.hypot(random1, random2));
                                 calculate += Math.exp(random3);
                                 calculate += Math.cbrt(calculate * 10000);
+                                calculate += Math.cosh(Math.hypot(calculate, random1));
+                                calculate += Math.cosh(Math.hypot(calculate, random2));
+                                calculate *= Math.cosh(Math.hypot(calculate, random3));
 
                                 Settings.getInstance().mPerformance = System.currentTimeMillis() - performance;
                             }
@@ -355,8 +358,14 @@ public class Connectivity {
                                 final String device = mBluetooth.getDevice(devIndex++);
                                 if (device != null) {
 
+                                    // Do not try to connect to device which available camera resolutions
+                                    // do not match with local ones
+                                    if (mNotMatchingDevices.contains(device))
+                                        break;
+
                                     String devAddress =
-                                            device.substring(device.indexOf(Bluetooth.DEVICES_SEPARATOR) + 1);
+                                            device.substring(device.indexOf(
+                                                    Constants.BLUETOOTH_DEVICES_SEPARATOR) + 1);
                                     mBluetooth.connect(true, Constants.CONN_SECURE_UUID, devAddress);
                                 }
                                 else {

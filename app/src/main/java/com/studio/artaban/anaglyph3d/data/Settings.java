@@ -4,8 +4,11 @@ import android.hardware.Camera.Size;
 import android.os.Bundle;
 
 import com.studio.artaban.anaglyph3d.Camera.CameraView;
+import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.transfer.ConnRequest;
+import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,7 +42,9 @@ public class Settings implements ConnRequest {
     public static final String DATA_KEY_FPS = "fps";
 
     // Getters
-    public String getRemoteDevice() { return mRemoteDevice; }
+    public String getRemoteDevice() { // Return remote device name
+        return mRemoteDevice.substring(0, mRemoteDevice.indexOf(Constants.BLUETOOTH_DEVICES_SEPARATOR));
+    }
     public String[] getResolutions() {
 
         String[] resolutions = new String[mResolutions.size()];
@@ -76,7 +81,7 @@ public class Settings implements ConnRequest {
 
     // Data
     private boolean mMaster; // Master device which has settings priority (false for slave device)
-    private String mRemoteDevice; // Remote device name
+    private String mRemoteDevice; // Remote device info
     public long mPerformance = 1000; // Device performance representation (lowest is best)
 
     private final ArrayList<Size> mResolutions = new ArrayList<Size>(); // Resolutions list
@@ -94,6 +99,54 @@ public class Settings implements ConnRequest {
     public static final byte REQ_TYPE_ORIENTATION = 0x08;
     public static final byte REQ_TYPE_DURATION = 0x0f;
     public static final byte REQ_TYPE_FPS = 0x40;
+
+    //
+    private static JSONArray getResolutionsArray(ArrayList<Size> resolutions) {
+
+        JSONArray resolutionsArray = new JSONArray();
+        for (Size resolution : resolutions) {
+
+            JSONObject size = new JSONObject();
+            try {
+                size.put(DATA_KEY_WIDTH, resolution.width);
+                size.put(DATA_KEY_HEIGHT, resolution.height);
+
+                resolutionsArray.put(size);
+            }
+            catch (JSONException e) {
+
+                Logs.add(Logs.Type.E, e.getMessage());
+                return null;
+            }
+        }
+        return resolutionsArray;
+    }
+    private ArrayList<Size> getMergedResolutions(JSONArray resolutions) {
+
+        ArrayList<Size> mergedResolutions = new ArrayList<Size>();
+        try {
+            for (int i = 0; i < resolutions.length(); ++i) {
+
+                JSONObject remoteResolution = resolutions.getJSONObject(i);
+                for (Size localResolution : mResolutions) {
+
+                    if ((remoteResolution.getInt(DATA_KEY_WIDTH) == localResolution.width) &&
+                            (remoteResolution.getInt(DATA_KEY_HEIGHT) == localResolution.height))
+                        mergedResolutions.add(localResolution);
+                }
+            }
+        }
+        catch (JSONException e) {
+            Logs.add(Logs.Type.E, e.getMessage());
+        }
+        if (!mergedResolutions.isEmpty()) { // Do not update available camera resolutions if
+                                            // once merged there is no matched resolution
+            mResolutions.clear();
+            for (Size resolution : mergedResolutions)
+                mResolutions.add(resolution);
+        }
+        return mergedResolutions;
+    }
 
     //////
     @Override
@@ -124,25 +177,10 @@ public class Settings implements ConnRequest {
         }
 
         JSONObject request = new JSONObject();
-        if (type == REQ_TYPE_INITIALIZE) { // Initialize settings
+        if (type == REQ_TYPE_INITIALIZE) { // Initialize settings request
 
-            JSONArray resolutions = new JSONArray();
-            for (Size resolution : mResolutions) {
-
-                JSONObject size = new JSONObject();
-                try {
-                    size.put(DATA_KEY_WIDTH, resolution.width);
-                    size.put(DATA_KEY_HEIGHT, resolution.height);
-
-                    resolutions.put(size);
-                }
-                catch (JSONException e) {
-
-                    Logs.add(Logs.Type.E, e.getMessage());
-                    return null;
-                }
-            }
-            try { request.put(DATA_KEY_RESOLUTIONS, resolutions); }
+            // Add resolutions
+            try { request.put(DATA_KEY_RESOLUTIONS, getResolutionsArray(mResolutions)); }
             catch (JSONException e) {
 
                 Logs.add(Logs.Type.E, e.getMessage());
@@ -157,7 +195,7 @@ public class Settings implements ConnRequest {
                 return null;
             }
         }
-        else { // Update settings
+        else { // Update settings request
 
             if ((type & REQ_TYPE_RESOLUTION) == REQ_TYPE_RESOLUTION) {
 
@@ -225,75 +263,102 @@ public class Settings implements ConnRequest {
             return null;
         }
 
-        String reply = null;
+        JSONObject reply = new JSONObject();
         if (type == REQ_TYPE_INITIALIZE) { // Initialize settings
-
-
-
-
-
-
-
-
 
             try {
                 mMaster = settings.getBoolean(DATA_KEY_POSITION);
                 mPosition = settings.getBoolean(DATA_KEY_POSITION);
 
+                // Update resolutions to merge available camera resolutions of the
+                // remote device with the current ones.
+                final ArrayList<Size> mergedResolutions = getMergedResolutions(
+                        settings.getJSONArray(DATA_KEY_RESOLUTIONS));
 
-
-                //mResolutions
-
-
-
+                // Return merged resolutions array (even if empty)
+                reply.put(DATA_KEY_RESOLUTIONS, getResolutionsArray(mergedResolutions));
             }
             catch (JSONException e) {
 
                 Logs.add(Logs.Type.E, e.getMessage());
                 return null;
             }
-            reply = "OK";
-
-
-
-
-
-
-
-
         }
-        else { // Update settings
+        else { // Update settings (then reply)
 
             if ((type & REQ_TYPE_RESOLUTION) == REQ_TYPE_RESOLUTION) {
+
+
 
             }
             if ((type & REQ_TYPE_POSITION) == REQ_TYPE_POSITION) {
 
+
+
             }
             if ((type & REQ_TYPE_ORIENTATION) == REQ_TYPE_ORIENTATION) {
+
+
 
             }
             if ((type & REQ_TYPE_DURATION) == REQ_TYPE_DURATION) {
 
+
+
             }
             if ((type & REQ_TYPE_FPS) == REQ_TYPE_FPS) {
 
+
+
             }
         }
-        return reply;
+        return reply.toString();
     }
 
     @Override
     public boolean receiveReply(byte type, String reply) {
 
+        JSONObject receive;
+        try { receive = new JSONObject(reply); }
+        catch (JSONException e) {
+
+            Logs.add(Logs.Type.E, e.getMessage());
+            return false;
+        }
+
+        //
+        if (type == REQ_TYPE_INITIALIZE) { // Initialization reply received
+
+            try {
+                JSONArray resolutions = receive.getJSONArray(DATA_KEY_RESOLUTIONS);
+                if (resolutions.length() == 0) {
+
+                    // No available camera resolution is matching between remote and local device
+                    Connectivity.getInstance().mNotMatchingDevices.add(mRemoteDevice);
+                    DisplayMessage.getInstance().alert(R.string.title_warning,
+                            R.string.warning_not_matching, false);
+
+                    return false; // ...will disconnect
+                }
+
+                // Remove resolutions that are not matching with the remote device (from 'mResolutions')
+                getMergedResolutions(resolutions);
+            }
+            catch (JSONException e) {
+
+                Logs.add(Logs.Type.E, e.getMessage());
+                return false;
+            }
+        }
+        else { // Update reply received
 
 
 
-        Logs.add(Logs.Type.I, reply);
 
 
 
 
+        }
         return true;
     }
 }
