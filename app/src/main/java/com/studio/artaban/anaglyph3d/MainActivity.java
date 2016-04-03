@@ -1,5 +1,7 @@
 package com.studio.artaban.anaglyph3d;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,6 +23,8 @@ import com.studio.artaban.anaglyph3d.fragments.CamFragment;
 import com.studio.artaban.anaglyph3d.fragments.ConfigFragment;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
+import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -51,6 +55,10 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Set current activity
+        ActivityWrapper.set(this);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -73,6 +81,10 @@ public class MainActivity extends AppCompatActivity
 
                 switch (mNavItemSelected) {
                     case R.id.navAlbum: {
+
+
+
+
 
 
 
@@ -109,20 +121,32 @@ public class MainActivity extends AppCompatActivity
                     }
                     case R.id.navDisconnect: {
 
+                        DisplayMessage.getInstance().alert(R.string.title_confirm, R.string.confirm_disconnect,
+                                null, true, new DialogInterface.OnClickListener() {
 
-
-
-
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        Connectivity.getInstance().disconnect();
+                                    }
+                                });
                         break;
                     }
                     case R.id.navQuit: {
 
+                        DisplayMessage.getInstance().alert(R.string.title_confirm, R.string.confirm_quit,
+                                null, true, new DialogInterface.OnClickListener() {
 
-
-
-
-
-
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        try {
+                                            ActivityWrapper.get().setResult(Constants.RESULT_QUIT_APPLICATION);
+                                            ActivityWrapper.get().finish();
+                                        }
+                                        catch (NullPointerException e) {
+                                            Logs.add(Logs.Type.F, "Wrong activity reference");
+                                        }
+                                    }
+                                });
                         break;
                     }
                 }
@@ -152,6 +176,11 @@ public class MainActivity extends AppCompatActivity
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
         fragTransaction.add(R.id.mainContainer, mCamFragment);
         fragTransaction.commit();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
         // Set current activity
         ActivityWrapper.set(this);

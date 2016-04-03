@@ -1,5 +1,6 @@
 package com.studio.artaban.anaglyph3d;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Build;
@@ -11,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
@@ -20,6 +22,9 @@ public class ConnActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conn);
+
+        // Set current activity
+        ActivityWrapper.set(this);
 
         // Add and set app bar
         final Toolbar appBar = (Toolbar)findViewById(R.id.appBar);
@@ -32,9 +37,10 @@ public class ConnActivity extends AppCompatActivity {
         else
             appBar.setBackgroundColor(Color.argb(255,30,30,30)); // Default status bar color (API < 21)
 
-        // Add toolbar album image click listener
+        // Add toolbar image menu click listener
         final ImageView albumMenu = (ImageView)findViewById(R.id.albumMenu);
         albumMenu.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
 
@@ -47,6 +53,14 @@ public class ConnActivity extends AppCompatActivity {
 
 
 
+            }
+        });
+        final ImageView closeMenu = (ImageView)findViewById(R.id.closeMenu);
+        closeMenu.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                finish(); // Quit application
             }
         });
 
@@ -73,9 +87,6 @@ public class ConnActivity extends AppCompatActivity {
                 animDevices.start();
             }
         });
-
-        // Set current activity
-        ActivityWrapper.set(this);
     }
 
     @Override
@@ -88,6 +99,22 @@ public class ConnActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         Connectivity.getInstance().pause(this);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Set current activity
+        ActivityWrapper.set(this);
+
+        if ((requestCode == 0) && (resultCode == Constants.RESULT_QUIT_APPLICATION))
+            finish(); // Quit application requested by the user
+    }
+
+    @Override
+    public void onBackPressed() {
+        moveTaskToBack(true); // Put application into background (paused)
     }
 
     @Override

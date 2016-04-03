@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import com.studio.artaban.anaglyph3d.Camera.CameraView;
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.transfer.ConnRequest;
@@ -83,6 +84,7 @@ public class Settings implements ConnRequest {
     private boolean mMaster; // Master device which has settings priority (false for slave device)
     private String mRemoteDevice; // Remote device info
     public long mPerformance = 1000; // Device performance representation (lowest is best)
+    private boolean mMaker = true; // Flag to know which device will have to make the final video (best performance)
 
     private final ArrayList<Size> mResolutions = new ArrayList<Size>(); // Resolutions list
 
@@ -267,16 +269,24 @@ public class Settings implements ConnRequest {
         if (type == REQ_TYPE_INITIALIZE) { // Initialize settings
 
             try {
-                mMaster = settings.getBoolean(DATA_KEY_POSITION);
-                mPosition = settings.getBoolean(DATA_KEY_POSITION);
+                mMaker = mPerformance < settings.getLong(DATA_KEY_PERFORMANCE);
 
                 // Update resolutions to merge available camera resolutions of the
                 // remote device with the current ones.
                 final ArrayList<Size> mergedResolutions = getMergedResolutions(
                         settings.getJSONArray(DATA_KEY_RESOLUTIONS));
 
-                // Return merged resolutions array (even if empty)
+                // Return maker flag & merged resolutions array (even if empty)
+                reply.put(DATA_KEY_PERFORMANCE, mMaker);
                 reply.put(DATA_KEY_RESOLUTIONS, getResolutionsArray(mergedResolutions));
+
+                if (!mergedResolutions.isEmpty()) {
+
+                    mResolution = mResolutions.get(0); // Select resolution (default)
+
+                    // Start main activity
+                    ActivityWrapper.startMainActivity();
+                }
             }
             catch (JSONException e) {
 
@@ -290,8 +300,13 @@ public class Settings implements ConnRequest {
 
 
 
+
+
+
             }
             if ((type & REQ_TYPE_POSITION) == REQ_TYPE_POSITION) {
+
+
 
 
 
@@ -300,13 +315,19 @@ public class Settings implements ConnRequest {
 
 
 
+
+
             }
             if ((type & REQ_TYPE_DURATION) == REQ_TYPE_DURATION) {
 
 
 
+
+
             }
             if ((type & REQ_TYPE_FPS) == REQ_TYPE_FPS) {
+
+
 
 
 
@@ -330,19 +351,28 @@ public class Settings implements ConnRequest {
         if (type == REQ_TYPE_INITIALIZE) { // Initialization reply received
 
             try {
+                mMaker = !receive.getBoolean(DATA_KEY_PERFORMANCE);
+
                 JSONArray resolutions = receive.getJSONArray(DATA_KEY_RESOLUTIONS);
                 if (resolutions.length() == 0) {
 
                     // No available camera resolution is matching between remote and local device
                     Connectivity.getInstance().mNotMatchingDevices.add(mRemoteDevice);
+
                     DisplayMessage.getInstance().alert(R.string.title_warning,
-                            R.string.warning_not_matching, false);
+                            R.string.warning_not_matching,
+                            getRemoteDevice(), false, null);
 
                     return false; // ...will disconnect
                 }
 
                 // Remove resolutions that are not matching with the remote device (from 'mResolutions')
                 getMergedResolutions(resolutions);
+
+                mResolution = mResolutions.get(0); // Select resolution (default)
+
+                // Start main activity
+                ActivityWrapper.startMainActivity();
             }
             catch (JSONException e) {
 

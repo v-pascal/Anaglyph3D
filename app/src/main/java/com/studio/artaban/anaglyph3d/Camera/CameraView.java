@@ -1,5 +1,6 @@
 package com.studio.artaban.anaglyph3d.Camera;
 
+import android.content.DialogInterface;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.content.Context;
@@ -9,6 +10,7 @@ import android.view.SurfaceView;
 import android.view.WindowManager;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
@@ -53,7 +55,17 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
         if (camera == null) {
 
             Logs.add(Logs.Type.E, "Failed to get available camera resolutions");
-            DisplayMessage.getInstance().alert(R.string.title_error, R.string.camera_disabled, true);
+            DisplayMessage.getInstance().alert(R.string.title_error, R.string.camera_disabled,
+                    null, false, new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            try { ActivityWrapper.get().finish(); }
+                            catch (NullPointerException e) {
+                                Logs.add(Logs.Type.F, "Wrong activity reference");
+                            }
+                        }
+                    });
             return false;
         }
         List<Size> camResolutions = camera.getParameters().getSupportedPreviewSizes();

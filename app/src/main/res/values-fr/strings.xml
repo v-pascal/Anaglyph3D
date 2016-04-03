@@ -29,5 +29,9 @@
     <string name="frame_per_second">Images par seconde (FPS)</string>
     <string name="title_warning">ATTENTION</string>
     <string name="warning_not_matching">Aucune des resolutions de la caméra distante ne corresponde à l\'une de vos propres résolutions!\n\nPériphérique distant:</string>
+    <string name="title_confirm">CONFIRMATION</string>
+    <string name="confirm_quit">Etes-vous sûr de vouloir quitter l\'application?</string>
+    <string name="confirm_disconnect">Souhaitez-vous vraiment vous déconnecter?</string>
+    <string name="connection_lost">ATTENTION: Connexion perdu!</string>
 
 </resources>

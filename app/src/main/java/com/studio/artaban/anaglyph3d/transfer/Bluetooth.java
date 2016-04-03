@@ -22,7 +22,7 @@ import java.util.UUID;
 
 /**
  * Created by pascal on 20/03/16.
- * Bluetooth Helpers
+ * Bluetooth Helper
  */
 public class Bluetooth {
 
@@ -349,6 +349,10 @@ public class Bluetooth {
     }
     public synchronized int read(ByteArrayOutputStream buffer) {
 
+        if (mStatus != Status.CONNECTED) {
+            Logs.add(Logs.Type.W, "Failed to read: Wrong " + mStatus + " status");
+            return Constants.NO_DATA;
+        }
         int bytes = mReceived.size();
         if (bytes > 0) {
 

@@ -32,5 +32,11 @@
     <string name="frame_per_second">Frame per second (FPS)</string>
     <string name="title_warning">WARNING</string>
     <string name="warning_not_matching">The available camera resolutions of the device you attempt to connect are not matching with your own device!\n\nRemote device:</string>
+    <string name="title_confirm">CONFIRM</string>
+    <string name="confirm_quit">Do you really want to quit the application?</string>
+    <string name="confirm_disconnect">Do you really want to disconnect from the remote device?</string>
+    <string name="connection_lost">WARNING: Connection lost!</string>
+    <string name="image_desc_album" translatable="false">Album icon</string>
+    <string name="image_desc_close" translatable="false">Close icon</string>
 
 </resources>

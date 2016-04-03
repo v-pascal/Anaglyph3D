@@ -3,9 +3,14 @@ package com.studio.artaban.anaglyph3d.transfer;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.widget.Toast;
 
+import com.studio.artaban.anaglyph3d.ConnActivity;
+import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
+import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 import java.io.ByteArrayOutputStream;
@@ -47,7 +52,6 @@ public class Connectivity {
     }
     private Status mStatus = Status.UNDEFINED;
 
-    //
     private class TransferElement {
 
         public ConnRequest mHandler;
@@ -55,7 +59,9 @@ public class Connectivity {
         public String mMessage;
     }
     private final List<TransferElement> mRequests = new ArrayList<TransferElement>();
+    private boolean mToDisconnect = false;
 
+    //
     public void addRequest(ConnRequest handler, byte type, Bundle data) {
 
         // Get request message from handler
@@ -71,6 +77,7 @@ public class Connectivity {
 
         synchronized (mRequests) { mRequests.add(request); }
     }
+    public void disconnect() { mToDisconnect = true; }
 
     ////// Request/Reply element format: BBB-A:CC_*
     // _ BBB -> Digital size of the entire message (in decimal)
@@ -183,8 +190,22 @@ public class Connectivity {
                     Settings.REQ_TYPE_INITIALIZE, connInfo);
         }
 
-        // Disconnect
-        private void disconnect() {
+        // Close connection
+        private void close() {
+
+            // Close main activity (if active)
+            // TODO: Replace activity from main to connectivity in the activities task
+            try {
+                if (!ActivityWrapper.get().getClass().equals(ConnActivity.class))
+                    ActivityWrapper.get().finish();
+            }
+            catch (NullPointerException e) {
+                Logs.add(Logs.Type.F, "Wrong activity reference");
+            }
+
+            // Display a Toast message to inform user that the connection has been lost (if the case)
+            if (!mToDisconnect)
+                DisplayMessage.getInstance().toast(R.string.connection_lost, Toast.LENGTH_LONG);
 
             mStatus = Connectivity.Status.RESET;
             mRequests.clear();
@@ -195,6 +216,13 @@ public class Connectivity {
         // _ Receive data: requests & replies (from remote device)
         private void process() {
 
+            // Check if need to disconnect or if still connected
+            if ((mToDisconnect) || (mBluetooth.getStatus() != Bluetooth.Status.CONNECTED)) {
+                close();
+                return;
+            }
+
+            //
             if (mStatus == Connectivity.Status.STAND_BY) {
 
                 // Check if received request
@@ -261,13 +289,7 @@ public class Connectivity {
                     if (!send(mRequests.get(0))) {
 
                         Logs.add(Logs.Type.E, "Failed to send request");
-
-
-
-
-
-
-
+                        close();
                         return;
                     }
                     mStatus = Connectivity.Status.WAIT_REPLY;
@@ -280,10 +302,10 @@ public class Connectivity {
                 if (reply != null) {
 
                     if (!mRequests.get(0).mHandler.receiveReply(
-                            (byte)Integer.parseInt(reply.substring(2), 16), reply.substring(5))) {
+                            (byte)Integer.parseInt(reply.substring(2, 4), 16), reply.substring(5))) {
 
                         Logs.add(Logs.Type.E, "Unexpected reply received (or device not matching)");
-                        disconnect();
+                        close();
                         return;
                     }
                     mRequests.remove(0);
@@ -308,19 +330,17 @@ public class Connectivity {
                             @Override
                             public void run() {
 
-                                double random1 = Math.random();
-                                double random2 = Math.random();
-                                double random3 = Math.random();
+                                double[] randoms = new double[1000];
+                                for (int i = 0; i < 1000; ++i)
+                                    randoms[i] = Math.random();
 
                                 long performance = System.currentTimeMillis();
-                                double calculate = Math.cosh(Math.hypot(random1, random2));
-                                calculate += Math.exp(random3);
-                                calculate += Math.cbrt(calculate * 10000);
-                                calculate += Math.cosh(Math.hypot(calculate, random1));
-                                calculate += Math.cosh(Math.hypot(calculate, random2));
-                                calculate *= Math.cosh(Math.hypot(calculate, random3));
+                                double calculate = 0;
+                                for (int i = 0; i < 1000; ++i)
+                                    calculate += Math.cbrt(Math.cos(Math.sin(randoms[i])) * 1000000);
 
-                                Settings.getInstance().mPerformance = System.currentTimeMillis() - performance;
+                                Settings.getInstance().mPerformance =
+                                        System.currentTimeMillis() - performance;
                             }
                         });
                         performThread.setPriority(Thread.MAX_PRIORITY);
@@ -453,6 +473,7 @@ public class Connectivity {
                 Logs.add(Logs.Type.E, "Failed to start task: " + e.getMessage());
             }
             mProcessTask = null;
+            mStatus = Status.UNDEFINED;
         }
         mBluetooth.release();
     }
