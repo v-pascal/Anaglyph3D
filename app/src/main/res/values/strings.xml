@@ -38,5 +38,6 @@
     <string name="connection_lost">WARNING: Connection lost!</string>
     <string name="image_desc_album" translatable="false">Album icon</string>
     <string name="image_desc_close" translatable="false">Close icon</string>
+    <string name="video_album">Video album</string>
 
 </resources>

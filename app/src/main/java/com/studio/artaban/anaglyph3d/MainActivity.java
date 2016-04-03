@@ -82,14 +82,9 @@ public class MainActivity extends AppCompatActivity
                 switch (mNavItemSelected) {
                     case R.id.navAlbum: {
 
-
-
-
-
-
-
-
-
+                        // Display album activity
+                        Intent intent = new Intent(getApplicationContext(), LibActivity.class);
+                        startActivityForResult(intent, 0);
                         break;
                     }
                     case R.id.navSettings: {
@@ -184,6 +179,9 @@ public class MainActivity extends AppCompatActivity
 
         // Set current activity
         ActivityWrapper.set(this);
+
+        if ((requestCode == 0) && (resultCode == Constants.RESULT_LOST_CONNECTION))
+            finish(); // Lost connection (back to connectivity activity)
     }
 
     @Override

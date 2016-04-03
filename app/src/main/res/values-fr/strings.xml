@@ -33,5 +33,6 @@
     <string name="confirm_quit">Etes-vous sûr de vouloir quitter l\'application?</string>
     <string name="confirm_disconnect">Souhaitez-vous vraiment vous déconnecter?</string>
     <string name="connection_lost">ATTENTION: Connexion perdu!</string>
+    <string name="video_album">Album vidéo</string>
 
 </resources>

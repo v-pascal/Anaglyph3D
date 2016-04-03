@@ -10,6 +10,7 @@ public class Constants {
 
     ////// Activity results
     public static final int RESULT_QUIT_APPLICATION = 300;
+    public static final int RESULT_LOST_CONNECTION = 301;
 
     ////// Connectivity
     public static final String CONN_SECURE_UUID = "76d0eb60-a913-11e5-bfd6-0003a5d5c51b";

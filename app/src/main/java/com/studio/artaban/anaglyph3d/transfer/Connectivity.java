@@ -5,8 +5,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.studio.artaban.anaglyph3d.ConnActivity;
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.MainActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
@@ -193,11 +193,13 @@ public class Connectivity {
         // Close connection
         private void close() {
 
-            // Close main activity (if active)
-            // TODO: Replace activity from main to connectivity in the activities task
+            // Remove or close main activity from the activities stack (using activity result)
             try {
-                if (!ActivityWrapper.get().getClass().equals(ConnActivity.class))
+                if (ActivityWrapper.get().getClass().equals(MainActivity.class))
                     ActivityWrapper.get().finish();
+
+                else // ...other activity (back to connectivity activity, if not already the case)
+                    ActivityWrapper.get().setResult(Constants.RESULT_LOST_CONNECTION);
             }
             catch (NullPointerException e) {
                 Logs.add(Logs.Type.F, "Wrong activity reference");

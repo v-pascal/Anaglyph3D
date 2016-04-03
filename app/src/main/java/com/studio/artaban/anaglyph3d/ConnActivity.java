@@ -44,15 +44,9 @@ public class ConnActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-
-
-
                 // Display album activity
-
-
-
-
-
+                Intent intent = new Intent(getApplicationContext(), LibActivity.class);
+                startActivityForResult(intent, 0);
             }
         });
         final ImageView closeMenu = (ImageView)findViewById(R.id.closeMenu);
@@ -83,6 +77,7 @@ public class ConnActivity extends AppCompatActivity {
         final AnimationDrawable animDevices = (AnimationDrawable)imgDevices.getDrawable();
         imgDevices.post(new Runnable() {
 
+            @Override
             public void run() {
                 animDevices.start();
             }
@@ -107,9 +102,6 @@ public class ConnActivity extends AppCompatActivity {
 
         // Set current activity
         ActivityWrapper.set(this);
-
-        if ((requestCode == 0) && (resultCode == Constants.RESULT_QUIT_APPLICATION))
-            finish(); // Quit application requested by the user
     }
 
     @Override
