@@ -30,10 +30,10 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private final CamFragment mCamFragment = new CamFragment();
-    //private final ConfigFragment mConfigFragment = new ConfigFragment();
+    private final ConfigFragment mConfigFragment = new ConfigFragment();
     ////// Fragments
 
-    //private boolean mSettings = false; // Settings fragment displayed
+    private boolean mSettings = false; // Settings fragment displayed
 
     private int mNavItemSelected = Constants.NO_DATA; // Id of the selected navigation item (or -1 if none)
     private void onSelectNavItem() {
@@ -49,14 +49,6 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.navSettings: {
 
-
-
-
-
-
-
-
-                /*
                 if (mSettings)
                     break;
 
@@ -80,14 +72,6 @@ public class MainActivity extends AppCompatActivity
 
                 final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
                 fab.setVisibility(View.GONE);
-                */
-
-
-
-
-
-
-
                 break;
             }
             case R.id.navDisconnect: {
@@ -214,16 +198,6 @@ public class MainActivity extends AppCompatActivity
         }
         else {
 
-
-
-
-            moveTaskToBack(true); // Put application into background (paused)
-
-
-
-
-
-            /*
             if (!mSettings)
                 moveTaskToBack(true); // Put application into background (paused)
 
@@ -247,12 +221,6 @@ public class MainActivity extends AppCompatActivity
                 final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
                 fab.setVisibility(View.VISIBLE);
             }
-            */
-
-
-
-
-
         }
     }
 
