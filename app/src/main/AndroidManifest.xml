@@ -30,7 +30,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
         <activity
-            android:name=".ConnActivity"
+
+
+
+
+            android:name=".MainActivity"
+
+
+
+
             android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,15 +46,34 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!--
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
+            android:theme="@style/Theme.AppCompat.NoActionBar" /> -->
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/nav_settings"
+            android:theme="@style/Theme.AppCompat"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.studio.artaban.anaglyph3d.MainActivity" />
+        </activity>
+        <activity
+            android:name=".album.VideoListActivity"
+            android:label="@string/nav_album"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
         <activity
-            android:name=".LibActivity"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:name=".album.VideoDetailActivity"
+            android:label="@string/title_video_detail"
+            android:parentActivityName=".album.VideoListActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".album.VideoListActivity" />
+        </activity>
     </application>
 
 </manifest>

@@ -8,7 +8,7 @@ import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
-import com.studio.artaban.anaglyph3d.transfer.ConnRequest;
+import com.studio.artaban.anaglyph3d.transfer.ConnectRequest;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 import org.json.JSONArray;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
  * Created by pascal on 23/03/16.
  * Video settings
  */
-public class Settings implements ConnRequest {
+public class Settings implements ConnectRequest {
 
     private static Settings ourInstance = new Settings();
     public static Settings getInstance() { return ourInstance; }
@@ -152,7 +152,7 @@ public class Settings implements ConnRequest {
 
     //////
     @Override
-    public char getRequestId() { return ConnRequest.REQ_SETTINGS; }
+    public char getRequestId() { return ConnectRequest.REQ_SETTINGS; }
 
     @Override
     public String getRequest(byte type, Bundle data) {

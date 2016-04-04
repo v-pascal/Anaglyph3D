@@ -20,7 +20,7 @@ import com.studio.artaban.anaglyph3d.helpers.Logs;
  * Created by pascal on 22/03/16.
  * Camera fragment
  */
-public class CamFragment extends Fragment {
+public class CameraFragment extends Fragment {
 
     private CameraView mPreview;
     private View mCamLayout;

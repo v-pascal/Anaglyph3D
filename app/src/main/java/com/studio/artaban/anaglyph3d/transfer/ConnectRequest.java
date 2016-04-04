@@ -6,7 +6,7 @@ import android.os.Bundle;
  * Created by pascal on 24/03/16.
  * Connection request interface
  */
-public interface ConnRequest {
+public interface ConnectRequest {
 
     char REQ_SETTINGS = 'S';
     // Request IDs

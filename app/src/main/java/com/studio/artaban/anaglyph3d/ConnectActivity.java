@@ -7,18 +7,17 @@ import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
-public class ConnActivity extends AppCompatActivity {
+public class ConnectActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +49,7 @@ public class ConnActivity extends AppCompatActivity {
                 Connectivity.getInstance().stop();
 
                 // Display album activity
-                Intent intent = new Intent(getApplicationContext(), LibActivity.class);
+                Intent intent = new Intent(getApplicationContext(), VideoListActivity.class);
                 intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, false);
                 startActivityForResult(intent, 0);
             }

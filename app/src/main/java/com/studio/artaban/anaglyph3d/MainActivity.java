@@ -17,10 +17,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
+import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
-import com.studio.artaban.anaglyph3d.fragments.CamFragment;
-import com.studio.artaban.anaglyph3d.fragments.ConfigFragment;
+import com.studio.artaban.anaglyph3d.fragments.CameraFragment;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
@@ -29,11 +29,8 @@ import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private final CamFragment mCamFragment = new CamFragment();
-    private final ConfigFragment mConfigFragment = new ConfigFragment();
+    private final CameraFragment mCamFragment = new CameraFragment();
     ////// Fragments
-
-    private boolean mSettings = false; // Settings fragment displayed
 
     private int mNavItemSelected = Constants.NO_DATA; // Id of the selected navigation item (or -1 if none)
     private void onSelectNavItem() {
@@ -42,36 +39,16 @@ public class MainActivity extends AppCompatActivity
             case R.id.navAlbum: {
 
                 // Display album activity
-                Intent intent = new Intent(getApplicationContext(), LibActivity.class);
+                Intent intent = new Intent(getApplicationContext(), VideoListActivity.class);
                 intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, true);
                 startActivityForResult(intent, 0);
                 break;
             }
             case R.id.navSettings: {
 
-                if (mSettings)
-                    break;
-
-                mSettings = true;
-
-                // Remove camera fragment
-                FragmentTransaction prevFragTransaction = getSupportFragmentManager().beginTransaction();
-                prevFragTransaction.remove(mCamFragment);
-                prevFragTransaction.commit();
-
-                // Add settings fragment
-                android.app.FragmentTransaction fragTransaction = getFragmentManager().beginTransaction();
-                fragTransaction.add(R.id.mainContainer, mConfigFragment);
-                fragTransaction.commit();
-
-                // BUG: There is no other way to do this coz using both 'android.app.FragmentTransaction'
-                //      and 'android.support.v4.app.FragmentTransaction' are managed separately. But it is
-                //      needed coz there is no 'PreferenceFragment' into the Android Support Library v4.
-                //
-                // -> Unable to replace camera fragment with settings fragment
-
-                final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-                fab.setVisibility(View.GONE);
+                // Display settings activity
+                Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+                startActivity(intent);
                 break;
             }
             case R.id.navDisconnect: {
@@ -117,7 +94,19 @@ public class MainActivity extends AppCompatActivity
             remoteDevice = getResources().getString(R.string.camera_right);
         else
             remoteDevice = getResources().getString(R.string.camera_left);
-        remoteDevice += " : " + Settings.getInstance().getRemoteDevice();
+
+
+
+
+
+
+        //remoteDevice += " : " + Settings.getInstance().getRemoteDevice();
+
+
+
+
+
+
 
         final Toolbar appBar = (Toolbar)findViewById(R.id.toolbar);
         appBar.setSubtitle(remoteDevice);
@@ -134,6 +123,13 @@ public class MainActivity extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if (Build.VERSION.SDK_INT >= 21) {
+            toolbar.setBackgroundColor(Color.BLACK);
+            getWindow().setNavigationBarColor(Color.BLACK);
+            getWindow().setStatusBarColor(Color.BLACK);
+        }
+        else
+            toolbar.setBackgroundColor(Color.argb(255,30,30,30)); // Default status bar color (API < 21)
 
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -161,15 +157,6 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setItemTextAppearance(R.style.NavDrawerTextStyle);
 
-        final Toolbar appBar = (Toolbar)findViewById(R.id.toolbar);
-        if (Build.VERSION.SDK_INT >= 21) {
-            appBar.setBackgroundColor(Color.BLACK);
-            getWindow().setNavigationBarColor(Color.BLACK);
-            getWindow().setStatusBarColor(Color.BLACK);
-        }
-        else
-            appBar.setBackgroundColor(Color.argb(255,30,30,30)); // Default status bar color (API < 21)
-
         // Display remote device name into subtitle (with initial position)
         displayPosition();
 
@@ -193,35 +180,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
+        if (drawer.isDrawerOpen(GravityCompat.START))
             drawer.closeDrawer(GravityCompat.START);
-        }
-        else {
 
-            if (!mSettings)
-                moveTaskToBack(true); // Put application into background (paused)
-
-            else { // Settings opened
-
-                mSettings = false;
-
-                // Remove settings fragment
-                android.app.FragmentTransaction fragTransaction = getFragmentManager().beginTransaction();
-                fragTransaction.remove(mConfigFragment);
-                fragTransaction.commit();
-
-                // Add camera fragment
-                FragmentTransaction prevFragTransaction = getSupportFragmentManager().beginTransaction();
-                prevFragTransaction.add(R.id.mainContainer, mCamFragment);
-                prevFragTransaction.commit();
-
-                // BUG: See 'onDrawerClosed' method above at 'R.id.navSettings' case to
-                //      understand why it has been implemented int that way.
-
-                final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-                fab.setVisibility(View.VISIBLE);
-            }
-        }
+        else // Put application into background (paused)
+            moveTaskToBack(true);
     }
 
     @Override

@@ -57,14 +57,14 @@ public class Connectivity {
 
     private class TransferElement {
 
-        public ConnRequest mHandler;
+        public ConnectRequest mHandler;
         public byte mType;
         public String mMessage;
     }
     private final List<TransferElement> mRequests = new ArrayList<TransferElement>();
 
     //
-    public void addRequest(ConnRequest handler, byte type, Bundle data) {
+    public void addRequest(ConnectRequest handler, byte type, Bundle data) {
 
         // Get request message from handler
         String message = handler.getRequest(type, data);
@@ -262,7 +262,7 @@ public class Connectivity {
                     TransferElement reply = new TransferElement();
                     switch (request.charAt(0)) {
 
-                        case ConnRequest.REQ_SETTINGS: reply.mHandler = Settings.getInstance(); break;
+                        case ConnectRequest.REQ_SETTINGS: reply.mHandler = Settings.getInstance(); break;
                         default: {
 
                             Logs.add(Logs.Type.E, "Unexpected request received");
