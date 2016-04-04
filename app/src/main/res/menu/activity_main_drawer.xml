@@ -3,19 +3,19 @@
 
     <item
         android:id="@+id/navAlbum"
-        android:icon="@drawable/album"
+        android:icon="@drawable/ic_video_library_white_36dp"
         android:title="@string/nav_album" />
     <item
         android:id="@+id/navSettings"
-        android:icon="@drawable/settings"
+        android:icon="@drawable/ic_build_white_36dp"
         android:title="@string/nav_settings" />
     <item
         android:id="@+id/navDisconnect"
-        android:icon="@drawable/disconnect"
+        android:icon="@drawable/ic_bluetooth_disabled_white_36dp"
         android:title="@string/nav_disconnect" />
     <item
         android:id="@+id/navQuit"
-        android:icon="@drawable/exit"
+        android:icon="@drawable/ic_highlight_off_white_36dp"
         android:title="@string/nav_quit" />
 
 </menu>

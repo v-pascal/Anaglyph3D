@@ -52,6 +52,9 @@ public class Connectivity {
     }
     private Status mStatus = Status.UNDEFINED;
 
+    private boolean mDisconnectRequest = false;
+    private boolean mDisconnectError = false;
+
     private class TransferElement {
 
         public ConnRequest mHandler;
@@ -59,7 +62,6 @@ public class Connectivity {
         public String mMessage;
     }
     private final List<TransferElement> mRequests = new ArrayList<TransferElement>();
-    private boolean mToDisconnect = false;
 
     //
     public void addRequest(ConnRequest handler, byte type, Bundle data) {
@@ -77,7 +79,36 @@ public class Connectivity {
 
         synchronized (mRequests) { mRequests.add(request); }
     }
-    public void disconnect() { mToDisconnect = true; }
+    private boolean mergeRequests() {
+
+        if (mRequests.isEmpty())
+            return false;
+
+        // Merge requests with same request Id that follows
+        char requestId = mRequests.get(0).mHandler.getRequestId();
+        byte requestType = mRequests.get(0).mType;
+
+        int removeCount = 0;
+        for (int i = 1; i < mRequests.size(); ++i) {
+
+            if (requestId == mRequests.get(i).mHandler.getRequestId()) {
+
+                requestType |= mRequests.get(i).mType;
+                mRequests.get(i).mType = requestType;
+                ++removeCount;
+            }
+            else
+                break;
+        }
+
+        // Remove merged request(s)
+        while (removeCount-- != 0)
+            mRequests.remove(0);
+
+        return true; // Send request
+    }
+
+    public void disconnect() { mDisconnectRequest = true; }
 
     ////// Request/Reply element format: BBB-A:CC_*
     // _ BBB -> Digital size of the entire message (in decimal)
@@ -109,20 +140,12 @@ public class Connectivity {
                             (message.charAt(8) != SEPARATOR_TYPE_MESSAGE))) {
 
                 Logs.add(Logs.Type.E, "Wrong request/reply format received");
-
-
-
-
-
-
-
-
-
-
+                mDisconnectError = true;
                 return null;
             }
             if (size == Integer.parseInt(message.substring(0, 3))) {
 
+                // Full message received
                 mRead.reset();
                 return message.substring(4); // Format: A:CC_*
             }
@@ -205,11 +228,16 @@ public class Connectivity {
                 Logs.add(Logs.Type.F, "Wrong activity reference");
             }
 
-            // Display a Toast message to inform user that the connection has been lost (if the case)
-            if (!mToDisconnect)
-                DisplayMessage.getInstance().toast(R.string.connection_lost, Toast.LENGTH_LONG);
+            // Display a Toast message to inform user that the connection has been lost (if not requested)
+            if (!mDisconnectRequest) {
 
+                if (!mDisconnectError)
+                    DisplayMessage.getInstance().toast(R.string.connection_lost, Toast.LENGTH_LONG);
+                else
+                    DisplayMessage.getInstance().toast(R.string.connection_error, Toast.LENGTH_LONG);
+            }
             mStatus = Connectivity.Status.RESET;
+            mDisconnectRequest = mDisconnectError = false;
             mRequests.clear();
         }
 
@@ -219,7 +247,7 @@ public class Connectivity {
         private void process() {
 
             // Check if need to disconnect or if still connected
-            if ((mToDisconnect) || (mBluetooth.getStatus() != Bluetooth.Status.CONNECTED)) {
+            if ((mDisconnectRequest) || (mBluetooth.getStatus() != Bluetooth.Status.CONNECTED)) {
                 close();
                 return;
             }
@@ -238,15 +266,8 @@ public class Connectivity {
                         default: {
 
                             Logs.add(Logs.Type.E, "Unexpected request received");
-
-
-
-
-
-
-
-
-
+                            mDisconnectError = true;
+                            close();
                             return;
                         }
                     }
@@ -255,15 +276,8 @@ public class Connectivity {
                     if (reply.mMessage == null) {
 
                         Logs.add(Logs.Type.E, "Failed to reply to request");
-
-
-
-
-
-
-
-
-
+                        mDisconnectError = true;
+                        close();
                         return;
                     }
 
@@ -271,26 +285,28 @@ public class Connectivity {
                     if (!send(reply)) {
 
                         Logs.add(Logs.Type.E, "Failed to send reply");
-
-
-
-
-
-
-
+                        mDisconnectError = true;
+                        close();
                         return;
                     }
                 }
+                else if (mDisconnectError) { // Check if error during message receive
 
-                // Check if any request to send
+                    close();
+                    return;
+                }
+
+                // Check if existing request to send
                 synchronized (mRequests) {
-                    if (mRequests.isEmpty())
-                        return;
+
+                    if (!mergeRequests())
+                        return; // No request to send
 
                     // Send request
                     if (!send(mRequests.get(0))) {
 
                         Logs.add(Logs.Type.E, "Failed to send request");
+                        mDisconnectError = true;
                         close();
                         return;
                     }
@@ -307,6 +323,7 @@ public class Connectivity {
                             (byte)Integer.parseInt(reply.substring(2, 4), 16), reply.substring(5))) {
 
                         Logs.add(Logs.Type.E, "Unexpected reply received (or device not matching)");
+                        mDisconnectError = true;
                         close();
                         return;
                     }
@@ -392,7 +409,7 @@ public class Connectivity {
                                 }
                                 else {
 
-                                    mBluetooth.listen(false, Constants.CONN_SECURE_UUID,
+                                    mBluetooth.listen(true, Constants.CONN_SECURE_UUID,
                                             Constants.CONN_SECURE_NAME);
                                     mStatus = Connectivity.Status.LISTEN;
                                     waitListen = 0;
@@ -457,26 +474,34 @@ public class Connectivity {
         mProcessTask.execute();
         return true;
     }
-    public void reset() { mBluetooth.reset(); }
+    public void stop() {
+
+        if ((mAbort) || (mBluetooth.getStatus() == Bluetooth.Status.DISABLED))
+            return;
+
+        mAbort = true;
+        try { mProcessTask.get(); }
+        catch (InterruptedException e) {
+            Logs.add(Logs.Type.E, "Failed to interrupt connectivity task: " + e.getMessage());
+        }
+        catch (ExecutionException e) {
+            Logs.add(Logs.Type.E, "Failed to stop connectivity task: " + e.getMessage());
+        }
+        mProcessTask = null;
+        mStatus = Status.UNDEFINED;
+        mBluetooth.reset();
+    }
 
     //
-    public void resume(Context context) { mBluetooth.register(context); }
+    public void resume(Context context) {
+
+        mBluetooth.enable(); // Enable bluetooth (in case it has been disabled during the pause)
+        mBluetooth.register(context);
+    }
     public void pause(Context context) { mBluetooth.unregister(context); }
     public void destroy() {
 
-        if (!mAbort) {
-
-            mAbort = true;
-            try { mProcessTask.get(); }
-            catch (InterruptedException e) {
-                Logs.add(Logs.Type.E, "Failed to start task: " + e.getMessage());
-            }
-            catch (ExecutionException e) {
-                Logs.add(Logs.Type.E, "Failed to start task: " + e.getMessage());
-            }
-            mProcessTask = null;
-            mStatus = Status.UNDEFINED;
-        }
+        stop();
         mBluetooth.release();
     }
 }

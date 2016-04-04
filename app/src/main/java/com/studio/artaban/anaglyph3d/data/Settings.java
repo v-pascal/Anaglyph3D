@@ -310,6 +310,7 @@ public class Settings implements ConnRequest {
 
 
 
+
             }
             if ((type & REQ_TYPE_ORIENTATION) == REQ_TYPE_ORIENTATION) {
 

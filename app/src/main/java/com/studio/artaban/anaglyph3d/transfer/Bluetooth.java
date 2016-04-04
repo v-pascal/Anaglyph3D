@@ -375,10 +375,9 @@ public class Bluetooth {
             Logs.add(Logs.Type.W, "Bluetooth not supported");
             return false;
         }
-        if ((!mAdapter.isEnabled()) && (!mAdapter.enable())) {
-            Logs.add(Logs.Type.E, "Failed to enable Bluetooth");
+        if (!enable())
             return false;
-        }
+
         mDevices.clear();
 
         Set<BluetoothDevice> devices = mAdapter.getBondedDevices();
@@ -387,6 +386,16 @@ public class Bluetooth {
                 mDevices.add(device.getName() + "\n" + device.getAddress());
 
         mStatus = Status.READY;
+        return true;
+    }
+    public boolean enable() {
+        if (mAdapter == null)
+            return false; // Not initialized
+
+        if ((!mAdapter.isEnabled()) && (!mAdapter.enable())) {
+            Logs.add(Logs.Type.E, "Failed to enable Bluetooth");
+            return false;
+        }
         return true;
     }
     public void register(Context context) {

@@ -20,8 +20,6 @@ import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
-import java.util.Set;
-
 /**
  * Created by pascal on 27/03/16.
  * Settings configuration fragment

@@ -7,6 +7,8 @@ import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -44,8 +46,12 @@ public class ConnActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                // Stop connectivity (do not attempt to connect when video album is displayed)
+                Connectivity.getInstance().stop();
+
                 // Display album activity
                 Intent intent = new Intent(getApplicationContext(), LibActivity.class);
+                intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, false);
                 startActivityForResult(intent, 0);
             }
         });
@@ -102,6 +108,9 @@ public class ConnActivity extends AppCompatActivity {
 
         // Set current activity
         ActivityWrapper.set(this);
+
+        if ((requestCode == 0) && (resultCode == Constants.RESULT_RESTART_CONNECTION))
+            Connectivity.getInstance().start(); // Restart connectivity
     }
 
     @Override

@@ -8,9 +8,12 @@ public class Constants {
 
     public static final int NO_DATA = -1;
 
-    ////// Activity results
+    ////// Activity (results & data)
     public static final int RESULT_QUIT_APPLICATION = 300;
     public static final int RESULT_LOST_CONNECTION = 301;
+    public static final int RESULT_RESTART_CONNECTION = 302;
+
+    public static final String DATA_CONNECTION_ESTABLISHED = "connected";
 
     ////// Connectivity
     public static final String CONN_SECURE_UUID = "76d0eb60-a913-11e5-bfd6-0003a5d5c51b";

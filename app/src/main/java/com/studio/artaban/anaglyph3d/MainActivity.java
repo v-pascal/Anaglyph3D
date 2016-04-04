@@ -30,12 +30,101 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private final CamFragment mCamFragment = new CamFragment();
-    private final ConfigFragment mConfigFragment = new ConfigFragment();
+    //private final ConfigFragment mConfigFragment = new ConfigFragment();
     ////// Fragments
 
-    private boolean mSettings = false; // Settings fragment displayed
-    private int mNavItemSelected = Constants.NO_DATA; // Id of the selected navigation item (or -1 if none)
+    //private boolean mSettings = false; // Settings fragment displayed
 
+    private int mNavItemSelected = Constants.NO_DATA; // Id of the selected navigation item (or -1 if none)
+    private void onSelectNavItem() {
+
+        switch (mNavItemSelected) {
+            case R.id.navAlbum: {
+
+                // Display album activity
+                Intent intent = new Intent(getApplicationContext(), LibActivity.class);
+                intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, true);
+                startActivityForResult(intent, 0);
+                break;
+            }
+            case R.id.navSettings: {
+
+
+
+
+
+
+
+
+                /*
+                if (mSettings)
+                    break;
+
+                mSettings = true;
+
+                // Remove camera fragment
+                FragmentTransaction prevFragTransaction = getSupportFragmentManager().beginTransaction();
+                prevFragTransaction.remove(mCamFragment);
+                prevFragTransaction.commit();
+
+                // Add settings fragment
+                android.app.FragmentTransaction fragTransaction = getFragmentManager().beginTransaction();
+                fragTransaction.add(R.id.mainContainer, mConfigFragment);
+                fragTransaction.commit();
+
+                // BUG: There is no other way to do this coz using both 'android.app.FragmentTransaction'
+                //      and 'android.support.v4.app.FragmentTransaction' are managed separately. But it is
+                //      needed coz there is no 'PreferenceFragment' into the Android Support Library v4.
+                //
+                // -> Unable to replace camera fragment with settings fragment
+
+                final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+                fab.setVisibility(View.GONE);
+                */
+
+
+
+
+
+
+
+                break;
+            }
+            case R.id.navDisconnect: {
+
+                DisplayMessage.getInstance().alert(R.string.title_confirm, R.string.confirm_disconnect,
+                        null, true, new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Connectivity.getInstance().disconnect();
+                            }
+                        });
+                break;
+            }
+            case R.id.navQuit: {
+
+                DisplayMessage.getInstance().alert(R.string.title_confirm, R.string.confirm_quit,
+                        null, true, new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                try {
+                                    ActivityWrapper.get().setResult(Constants.RESULT_QUIT_APPLICATION);
+                                    ActivityWrapper.get().finish();
+                                }
+                                catch (NullPointerException e) {
+                                    Logs.add(Logs.Type.F, "Wrong activity reference");
+                                }
+                            }
+                        });
+                break;
+            }
+        }
+        mNavItemSelected = Constants.NO_DATA;
+    }
+
+    //
     public void displayPosition() {
 
         // Display remote device name into subtitle (with position)
@@ -72,80 +161,13 @@ public class MainActivity extends AppCompatActivity
         });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
 
             @Override
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-
-                switch (mNavItemSelected) {
-                    case R.id.navAlbum: {
-
-                        // Display album activity
-                        Intent intent = new Intent(getApplicationContext(), LibActivity.class);
-                        startActivityForResult(intent, 0);
-                        break;
-                    }
-                    case R.id.navSettings: {
-
-                        if (mSettings)
-                            break;
-
-                        mSettings = true;
-
-                        // Remove camera fragment
-                        FragmentTransaction prevFragTransaction = getSupportFragmentManager().beginTransaction();
-                        prevFragTransaction.remove(mCamFragment);
-                        prevFragTransaction.commit();
-
-                        // Add settings fragment
-                        android.app.FragmentTransaction fragTransaction = getFragmentManager().beginTransaction();
-                        fragTransaction.add(R.id.mainContainer, mConfigFragment);
-                        fragTransaction.commit();
-
-                        // BUG: There is no other way to do this coz using both 'android.app.FragmentTransaction'
-                        //      and 'android.support.v4.app.FragmentTransaction' are managed separately. But it is
-                        //      needed coz there is no 'PreferenceFragment' into the Android Support Library v4.
-                        //
-                        // -> Unable to replace camera fragment with settings fragment
-
-                        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-                        fab.setVisibility(View.GONE);
-                        break;
-                    }
-                    case R.id.navDisconnect: {
-
-                        DisplayMessage.getInstance().alert(R.string.title_confirm, R.string.confirm_disconnect,
-                                null, true, new DialogInterface.OnClickListener() {
-
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        Connectivity.getInstance().disconnect();
-                                    }
-                                });
-                        break;
-                    }
-                    case R.id.navQuit: {
-
-                        DisplayMessage.getInstance().alert(R.string.title_confirm, R.string.confirm_quit,
-                                null, true, new DialogInterface.OnClickListener() {
-
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        try {
-                                            ActivityWrapper.get().setResult(Constants.RESULT_QUIT_APPLICATION);
-                                            ActivityWrapper.get().finish();
-                                        }
-                                        catch (NullPointerException e) {
-                                            Logs.add(Logs.Type.F, "Wrong activity reference");
-                                        }
-                                    }
-                                });
-                        break;
-                    }
-                }
-                mNavItemSelected = Constants.NO_DATA;
+                onSelectNavItem();
             }
         };
         drawer.setDrawerListener(toggle);
@@ -192,6 +214,16 @@ public class MainActivity extends AppCompatActivity
         }
         else {
 
+
+
+
+            moveTaskToBack(true); // Put application into background (paused)
+
+
+
+
+
+            /*
             if (!mSettings)
                 moveTaskToBack(true); // Put application into background (paused)
 
@@ -215,10 +247,15 @@ public class MainActivity extends AppCompatActivity
                 final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
                 fab.setVisibility(View.VISIBLE);
             }
+            */
+
+
+
+
+
         }
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 

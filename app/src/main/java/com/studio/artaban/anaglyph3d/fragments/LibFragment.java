@@ -13,8 +13,7 @@ import com.studio.artaban.anaglyph3d.R;
  */
 public class LibFragment extends Fragment {
 
-    public LibFragment() {
-    }
+    public LibFragment() { }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

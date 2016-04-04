@@ -9,5 +9,4 @@
     tools:context=".fragments.LibFragment"
     tools:showIn="@layout/activity_lib">
 
-
 </RelativeLayout>
