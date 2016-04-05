@@ -221,7 +221,7 @@ public class Connectivity {
                 if (ActivityWrapper.get().getClass().equals(MainActivity.class))
                     ActivityWrapper.get().finish();
 
-                else // ...other activity (back to connectivity activity, if not already the case)
+                else // ...other activity (back to connect activity, if not already the case)
                     ActivityWrapper.get().setResult(Constants.RESULT_LOST_CONNECTION);
             }
             catch (NullPointerException e) {
@@ -234,7 +234,8 @@ public class Connectivity {
                 if (!mDisconnectError)
                     DisplayMessage.getInstance().toast(R.string.connection_lost, Toast.LENGTH_LONG);
                 else
-                    DisplayMessage.getInstance().toast(R.string.connection_error, Toast.LENGTH_LONG);
+                    DisplayMessage.getInstance().toast(R.string.connection_error,
+                            Toast.LENGTH_LONG);
             }
             mStatus = Connectivity.Status.RESET;
             mDisconnectRequest = mDisconnectError = false;
@@ -349,13 +350,13 @@ public class Connectivity {
                             @Override
                             public void run() {
 
-                                double[] randoms = new double[1000];
-                                for (int i = 0; i < 1000; ++i)
+                                double[] randoms = new double[Constants.CONFIG_PERFORMANCE_LOOP];
+                                for (int i = 0; i < Constants.CONFIG_PERFORMANCE_LOOP; ++i)
                                     randoms[i] = Math.random();
 
                                 long performance = System.currentTimeMillis();
                                 double calculate = 0;
-                                for (int i = 0; i < 1000; ++i)
+                                for (int i = 0; i < Constants.CONFIG_PERFORMANCE_LOOP; ++i)
                                     calculate += Math.cbrt(Math.cos(Math.sin(randoms[i])) * 1000000);
 
                                 Settings.getInstance().mPerformance =

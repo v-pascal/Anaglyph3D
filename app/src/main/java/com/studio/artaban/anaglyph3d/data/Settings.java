@@ -3,7 +3,7 @@ package com.studio.artaban.anaglyph3d.data;
 import android.hardware.Camera.Size;
 import android.os.Bundle;
 
-import com.studio.artaban.anaglyph3d.Camera.CameraView;
+import com.studio.artaban.anaglyph3d.camera.CameraView;
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 
 /**
  * Created by pascal on 23/03/16.
- * Video settings
+ * Application settings
  */
 public class Settings implements ConnectRequest {
 
@@ -163,7 +163,12 @@ public class Settings implements ConnectRequest {
             mPosition = data.getBoolean(DATA_KEY_POSITION);
             mRemoteDevice = data.getString(DATA_KEY_REMOTE_DEVICE);
 
-            // Only resolutions may change (all other settings are in default state)
+            // Set up default settings
+            mOrientation = true;
+            mDuration = 60;
+            mFps = 30;
+
+            // Only resolutions may change (all other settings are in default state, see just above)
             // -> It should contain only resolutions that are available on both devices (master & slave)
             mResolutions.clear();
 

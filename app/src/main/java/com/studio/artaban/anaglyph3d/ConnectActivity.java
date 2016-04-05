@@ -30,63 +30,73 @@ public class ConnectActivity extends AppCompatActivity {
         // Add and set app bar
         final Toolbar appBar = (Toolbar)findViewById(R.id.appBar);
         setSupportActionBar(appBar);
-        if (Build.VERSION.SDK_INT >= 21) {
-            appBar.setBackgroundColor(Color.BLACK);
-            getWindow().setNavigationBarColor(Color.BLACK);
-            getWindow().setStatusBarColor(Color.BLACK);
+        if (appBar != null) {
+            if (Build.VERSION.SDK_INT >= 21) {
+                appBar.setBackgroundColor(Color.BLACK);
+                getWindow().setNavigationBarColor(Color.BLACK);
+                getWindow().setStatusBarColor(Color.BLACK);
+            } else // Default status bar color (API < 21)
+                appBar.setBackgroundColor(Color.argb(255, 30, 30, 30));
         }
-        else
-            appBar.setBackgroundColor(Color.argb(255,30,30,30)); // Default status bar color (API < 21)
 
         // Add toolbar image menu click listener
         final ImageView albumMenu = (ImageView)findViewById(R.id.albumMenu);
-        albumMenu.setOnClickListener(new View.OnClickListener() {
+        if (albumMenu != null) {
+            albumMenu.setOnClickListener(new View.OnClickListener() {
 
-            @Override
-            public void onClick(View v) {
+                @Override
+                public void onClick(View v) {
 
-                // Stop connectivity (do not attempt to connect when video album is displayed)
-                Connectivity.getInstance().stop();
+                    // Stop connectivity (do not attempt to connect when video album is displayed)
+                    Connectivity.getInstance().stop();
 
-                // Display album activity
-                Intent intent = new Intent(getApplicationContext(), VideoListActivity.class);
-                intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, false);
-                startActivityForResult(intent, 0);
-            }
-        });
+                    // Display album activity
+                    Intent intent = new Intent(getApplicationContext(), VideoListActivity.class);
+                    intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, false);
+                    startActivityForResult(intent, 0);
+                }
+            });
+        }
         final ImageView closeMenu = (ImageView)findViewById(R.id.closeMenu);
-        closeMenu.setOnClickListener(new View.OnClickListener() {
+        if (closeMenu != null) {
+            closeMenu.setOnClickListener(new View.OnClickListener() {
 
-            @Override
-            public void onClick(View v) {
-                finish(); // Quit application
-            }
-        });
+                @Override
+                public void onClick(View v) {
+                    finish(); // Quit application
+                }
+            });
+        }
 
         // Start connectivity
         if (!Connectivity.getInstance().start()) {
 
             // Failed to enable Bluetooth connectivity
             final ProgressBar progressBar = (ProgressBar)findViewById(R.id.progressBar);
-            progressBar.setVisibility(View.GONE);
+            if (progressBar != null)
+                progressBar.setVisibility(View.GONE);
             final TextView textView = (TextView)findViewById(R.id.textView);
-            textView.setText(R.string.no_bluetooth);
+            if (textView != null)
+                textView.setText(R.string.no_bluetooth);
             final ImageView imgDevices = (ImageView)findViewById(R.id.imgDevices);
-            imgDevices.setImageDrawable(getResources().getDrawable(R.drawable.warning));
+            if (imgDevices != null)
+                imgDevices.setImageDrawable(getResources().getDrawable(R.drawable.warning));
             return;
         }
 
         // Animate wait second devices image
         final ImageView imgDevices = (ImageView)findViewById(R.id.imgDevices);
-        imgDevices.setImageDrawable(getResources().getDrawable(R.drawable.devices_anim));
-        final AnimationDrawable animDevices = (AnimationDrawable)imgDevices.getDrawable();
-        imgDevices.post(new Runnable() {
+        if (imgDevices != null) {
+            imgDevices.setImageDrawable(getResources().getDrawable(R.drawable.devices_anim));
+            final AnimationDrawable animDevices = (AnimationDrawable) imgDevices.getDrawable();
+            imgDevices.post(new Runnable() {
 
-            @Override
-            public void run() {
-                animDevices.start();
-            }
-        });
+                @Override
+                public void run() {
+                    animDevices.start();
+                }
+            });
+        }
     }
 
     @Override

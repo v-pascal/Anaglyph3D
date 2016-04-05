@@ -1,4 +1,4 @@
-package com.studio.artaban.anaglyph3d.Camera;
+package com.studio.artaban.anaglyph3d.camera;
 
 import android.content.DialogInterface;
 import android.hardware.Camera;

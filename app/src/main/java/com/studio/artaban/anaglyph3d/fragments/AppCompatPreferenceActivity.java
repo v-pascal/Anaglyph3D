@@ -1,4 +1,4 @@
-package com.studio.artaban.anaglyph3d.album;
+package com.studio.artaban.anaglyph3d.fragments;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

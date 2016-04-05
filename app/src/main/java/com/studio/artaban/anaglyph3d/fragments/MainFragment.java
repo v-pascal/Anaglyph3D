@@ -13,14 +13,14 @@ import android.widget.RelativeLayout;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Settings;
-import com.studio.artaban.anaglyph3d.Camera.CameraView;
+import com.studio.artaban.anaglyph3d.camera.CameraView;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 /**
  * Created by pascal on 22/03/16.
- * Camera fragment
+ * Main fragment (display camera with glass)
  */
-public class CameraFragment extends Fragment {
+public class MainFragment extends Fragment {
 
     private CameraView mPreview;
     private View mCamLayout;

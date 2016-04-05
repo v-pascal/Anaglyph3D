@@ -1,142 +1,132 @@
 package com.studio.artaban.anaglyph3d;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.Intent;
-import android.content.res.Configuration;
+import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.DialogPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.support.v7.app.ActionBar;
-import android.preference.PreferenceFragment;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
-import android.preference.RingtonePreference;
-import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
+import android.preference.SwitchPreference;
+import android.support.v7.app.ActionBar;
+import android.util.AttributeSet;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
+import android.view.View;
+import android.widget.NumberPicker;
 
-import com.studio.artaban.anaglyph3d.album.AppCompatPreferenceActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;
-
-import java.util.List;
+import com.studio.artaban.anaglyph3d.fragments.AppCompatPreferenceActivity;
+import com.studio.artaban.anaglyph3d.data.Settings;
+import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 /**
- * A {@link PreferenceActivity} that presents a set of application settings. On
- * handset devices, settings are presented as a single list. On tablets,
- * settings are split by category, with category headers shown to the left of
- * the list of settings.
- * <p/>
- * See <a href="http://developer.android.com/design/patterns/settings.html">
- * Android Design: Settings</a> for design guidelines and the <a
- * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
- * API Guide</a> for more information on developing a Settings UI.
+ * Created by pascal on 21/03/16.
+ * Settings activity (preference)
  */
-public class SettingsActivity extends AppCompatPreferenceActivity {
-    /**
-     * A preference value change listener that updates the preference's summary
-     * to reflect its new value.
-     */
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener =
-            new Preference.OnPreferenceChangeListener() {
+public class SettingsActivity extends AppCompatPreferenceActivity
+        implements Preference.OnPreferenceChangeListener {
+
+    private class NumberPickerPreference extends DialogPreference {
+
+        public int mMin, mMax;
+
+        private int mNumberValue;
+        private NumberPicker mNumberPicker;
+
+        public NumberPickerPreference(Context context, AttributeSet attrs) {
+            super(context, attrs);
+            setDialogLayoutResource(R.layout.number_dialog);
+            setPersistent(false); // No 'SharedPreference' management coz no reference from XML file
+        }                         // -> Done manually (see 'onResume' and 'onPause' methods)
 
         @Override
-        public boolean onPreferenceChange(Preference preference, Object value) {
-            String stringValue = value.toString();
+        public void setDefaultValue(Object defaultValue) {
 
-            if (preference instanceof ListPreference) {
-                // For list preferences, look up the correct display value in
-                // the preference's 'entries' list.
-                ListPreference listPreference = (ListPreference) preference;
-                int index = listPreference.findIndexOfValue(stringValue);
+            mNumberValue = (int)defaultValue;
+            persistInt(mNumberValue);
+        }
 
-                // Set the summary to reflect the new value.
-                preference.setSummary(
-                        index >= 0
-                                ? listPreference.getEntries()[index]
-                                : null);
+        @Override
+        protected View onCreateDialogView() {
+            View dialogView = super.onCreateDialogView();
 
-            } else if (preference instanceof RingtonePreference) {
-                // For ringtone preferences, look up the correct display value
-                // using RingtoneManager.
-                if (TextUtils.isEmpty(stringValue)) {
-                    // Empty values correspond to 'silent' (no ringtone).
-                    preference.setSummary(R.string.pref_ringtone_silent);
+            mNumberPicker = (NumberPicker)dialogView.findViewById(R.id.numberPicker);
+            mNumberPicker.setMinValue(mMin);
+            mNumberPicker.setMaxValue(mMax);
+            mNumberPicker.setValue(mNumberValue);
+            mNumberPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 
-                } else {
-                    Ringtone ringtone = RingtoneManager.getRingtone(
-                            preference.getContext(), Uri.parse(stringValue));
+            return dialogView;
+        }
 
-                    if (ringtone == null) {
-                        // Clear the summary if there was a lookup error.
-                        preference.setSummary(null);
-                    } else {
-                        // Set the summary to reflect the new ringtone display
-                        // name.
-                        String name = ringtone.getTitle(preference.getContext());
-                        preference.setSummary(name);
-                    }
+        @Override
+        protected void onDialogClosed(boolean positiveResult) {
+            if (positiveResult) {
+
+                mNumberValue = mNumberPicker.getValue();
+                persistInt(mNumberValue);
+                setSummary(String.valueOf(mNumberValue));
+
+                // Replace 'onPreferenceChange' call here
+                if (getKey().equals(Settings.DATA_KEY_DURATION)) {
+
+                    Settings.getInstance().mDuration = mNumberValue;
+                    Connectivity.getInstance().addRequest(Settings.getInstance(),
+                            Settings.REQ_TYPE_DURATION, null);
                 }
+                else if (getKey().equals(Settings.DATA_KEY_FPS)) {
 
-            } else {
-                // For all other preferences, set the summary to the value's
-                // simple string representation.
-                preference.setSummary(stringValue);
+                    Settings.getInstance().mFps = mNumberValue;
+                    Connectivity.getInstance().addRequest(Settings.getInstance(),
+                            Settings.REQ_TYPE_FPS, null);
+                }
             }
-            return true;
         }
     };
 
-    /**
-     * Helper method to determine if the device has an extra-large screen. For
-     * example, 10" tablets are extra-large.
-     */
-    private static boolean isXLargeTablet(Context context) {
-        return (context.getResources().getConfiguration().screenLayout
-                & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
+    // Update settings preferences (used to apply remote device settings update)
+    public void update() {
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
-    /**
-     * Binds a preference's summary to its value. More specifically, when the
-     * preference's value is changed, its summary (line of text below the
-     * preference title) is updated to reflect the value. The summary is also
-     * immediately updated upon calling this method. The exact display format is
-     * dependent on the type of preference.
-     *
-     * @see #sBindPreferenceSummaryToValueListener
-     */
-    private static void bindPreferenceSummaryToValue(Preference preference) {
-        // Set the listener to watch for value changes.
-        preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+    // Fill & Set resolution preference list and value
+    private void updateResolution(ListPreference resolutionList) {
 
-        // Trigger the listener immediately with the preference's
-        // current value.
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+        final String[] resolutions = Settings.getInstance().getResolutions();
+        resolutionList.setEntries(resolutions);
+        resolutionList.setEntryValues(resolutions);
+
+        final String resolution = Settings.getInstance().getResolution();
+        resolutionList.setDefaultValue(resolution);
+        resolutionList.setValue(resolution);
+        resolutionList.setSummary(resolution);
     }
 
+    private NumberPickerPreference mDurationPreference;
+    private NumberPickerPreference mFpsPreference;
+
+    //////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setupActionBar();
+        addPreferencesFromResource(R.xml.settings_preference);
 
-        // Check connection
-        if (!getIntent().getBooleanExtra(Constants.DATA_CONNECTION_ESTABLISHED, false))
-            setResult(Constants.RESULT_RESTART_CONNECTION); // Should restart connection (not connected)
-    }
-
-    /**
-     * Set up the {@link android.app.ActionBar}, if the API is available.
-     */
-    private void setupActionBar() {
+        // Update toolbar
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             if (Build.VERSION.SDK_INT >= 21) {
@@ -144,12 +134,116 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 getWindow().setNavigationBarColor(Color.BLACK);
                 getWindow().setStatusBarColor(Color.BLACK);
             }
-            //else // Default status bar color (API < 21)
-            //    actionBar.setBackgroundDrawable(getResources().getDrawable(R.drawable.black_drawable));
+            else // Default status bar color (API < 21)
+                actionBar.setBackgroundDrawable(getResources().getDrawable(R.color.api_16_black));
 
             // Show the Up button in the action bar.
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+
+        // Initialize settings preferences
+        SwitchPreference preferencePos = (SwitchPreference)findPreference(Settings.DATA_KEY_POSITION);
+        preferencePos.setOnPreferenceChangeListener(this);
+        preferencePos.setChecked(Settings.getInstance().mPosition);
+
+        findPreference(Settings.DATA_KEY_ORIENTATION).setOnPreferenceChangeListener(this);
+
+        final ListPreference preferenceList = (ListPreference)findPreference(Settings.DATA_KEY_RESOLUTION);
+        preferenceList.setOnPreferenceChangeListener(this);
+        updateResolution(preferenceList);
+
+        // Add number picker dialog preferences programmatically (needed coz API level 21 requirement)
+        // -> Unable to declare 'NumberPickerPreference' constructor with 'context' parameter only
+        // -> See error message in 'res/xml/settings_preference' XML file
+        final PreferenceCategory preferenceCat = (PreferenceCategory)findPreference("settings");
+
+        mDurationPreference = new NumberPickerPreference(this, null);
+        mDurationPreference.setKey(Settings.DATA_KEY_DURATION);
+        mDurationPreference.setTitle(R.string.duration);
+        mDurationPreference.setDialogTitle(R.string.duration);
+        mDurationPreference.mMin = Constants.CONFIG_MIN_DURATION;
+        mDurationPreference.mMax = Constants.CONFIG_MAX_DURATION;
+        //mDurationPreference.setOnPreferenceChangeListener(this);
+        // BUG: Not working! 'onPreferenceChange' never called...
+
+        mFpsPreference = new NumberPickerPreference(this, null);
+        mFpsPreference.setKey(Settings.DATA_KEY_FPS);
+        mFpsPreference.setTitle(R.string.frame_per_second);
+        mFpsPreference.setDialogTitle(R.string.frame_per_second);
+        mFpsPreference.mMin = Constants.CONFIG_MIN_FPS;
+        mFpsPreference.mMax = Constants.CONFIG_MAX_FPS;
+        //mFpsPreference.setOnPreferenceChangeListener(this);
+        // BUG: Not working! 'onPreferenceChange' never called...
+
+        preferenceCat.addPreference(mDurationPreference);
+        preferenceCat.addPreference(mFpsPreference);
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Retrieve stored preference values (managed manually)
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        Settings.getInstance().mDuration = settings.getInt(Settings.DATA_KEY_DURATION,
+                Settings.getInstance().mDuration);
+
+        Settings.getInstance().mFps = settings.getInt(Settings.DATA_KEY_FPS,
+                Settings.getInstance().mFps);
+
+        mDurationPreference.setDefaultValue(Settings.getInstance().mDuration);
+        mDurationPreference.setSummary(String.valueOf(Settings.getInstance().mDuration));
+
+        mFpsPreference.setDefaultValue(Settings.getInstance().mFps);
+        mFpsPreference.setSummary(String.valueOf(Settings.getInstance().mFps));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        // Store preference values (managed manually)
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt(Settings.DATA_KEY_DURATION, Settings.getInstance().mDuration)
+                .putInt(Settings.DATA_KEY_FPS, Settings.getInstance().mFps)
+                .apply();
+    }
+
+    @Override
+    public boolean onPreferenceChange(Preference preference, Object newValue) {
+        if (preference.getKey().equals(Settings.DATA_KEY_POSITION)) {
+
+            Settings.getInstance().mPosition = (boolean)newValue;
+            Connectivity.getInstance().addRequest(Settings.getInstance(),
+                    Settings.REQ_TYPE_POSITION, null);
+            return true;
+        }
+        else if (preference.getKey().equals(Settings.DATA_KEY_ORIENTATION)) {
+
+            Settings.getInstance().mOrientation = (boolean)newValue;
+
+            final ListPreference list = (ListPreference)findPreference(Settings.DATA_KEY_RESOLUTION);
+            updateResolution((ListPreference)list);
+            Connectivity.getInstance().addRequest(Settings.getInstance(),
+                    Settings.REQ_TYPE_ORIENTATION, null);
+            return true;
+        }
+        else if (preference.getKey().equals(Settings.DATA_KEY_RESOLUTION)) {
+
+            preference.setSummary((String) newValue);
+            Settings.getInstance().setResolution((String) newValue,
+                    (String[]) ((ListPreference) preference).getEntryValues());
+            Connectivity.getInstance().addRequest(Settings.getInstance(),
+                    Settings.REQ_TYPE_RESOLUTION, null);
+            return true;
+        }
+        //else if (preference.getKey().equals(Settings.DATA_KEY_DURATION)) {
+        //else if (preference.getKey().equals(Settings.DATA_KEY_FPS)) {
+        // BUG: Never called! Done in 'NumberPickerPreference.onDialogClosed' method
+
+        return false;
     }
 
     @Override
@@ -162,124 +256,5 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             return true;
         }
         return super.onMenuItemSelected(featureId, item);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean onIsMultiPane() {
-        return isXLargeTablet(this);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void onBuildHeaders(List<Header> target) {
-        loadHeadersFromResource(R.xml.pref_headers, target);
-    }
-
-    /**
-     * This method stops fragment injection in malicious applications.
-     * Make sure to deny any unknown fragments here.
-     */
-    protected boolean isValidFragment(String fragmentName) {
-        return PreferenceFragment.class.getName().equals(fragmentName)
-                || GeneralPreferenceFragment.class.getName().equals(fragmentName)
-                || DataSyncPreferenceFragment.class.getName().equals(fragmentName)
-                || NotificationPreferenceFragment.class.getName().equals(fragmentName);
-    }
-
-    /**
-     * This fragment shows general preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class GeneralPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_general);
-            setHasOptionsMenu(true);
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference("example_text"));
-            bindPreferenceSummaryToValue(findPreference("example_list"));
-        }
-
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            int id = item.getItemId();
-            if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
-                return true;
-            }
-            return super.onOptionsItemSelected(item);
-        }
-    }
-
-    /**
-     * This fragment shows notification preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class NotificationPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_notification);
-            setHasOptionsMenu(true);
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
-        }
-
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            int id = item.getItemId();
-            if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
-                return true;
-            }
-            return super.onOptionsItemSelected(item);
-        }
-    }
-
-    /**
-     * This fragment shows data and sync preferences only. It is used when the
-     * activity is showing a two-pane settings UI.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class DataSyncPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_data_sync);
-            setHasOptionsMenu(true);
-
-            // Bind the summaries of EditText/List/Dialog/Ringtone preferences
-            // to their values. When their values change, their summaries are
-            // updated to reflect the new value, per the Android Design
-            // guidelines.
-            bindPreferenceSummaryToValue(findPreference("sync_frequency"));
-        }
-
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            int id = item.getItemId();
-            if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
-                return true;
-            }
-            return super.onOptionsItemSelected(item);
-        }
     }
 }

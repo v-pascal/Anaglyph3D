@@ -20,7 +20,7 @@ import android.view.MenuItem;
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
-import com.studio.artaban.anaglyph3d.fragments.CameraFragment;
+import com.studio.artaban.anaglyph3d.fragments.MainFragment;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
@@ -29,7 +29,7 @@ import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private final CameraFragment mCamFragment = new CameraFragment();
+    private final MainFragment mMainFragment = new MainFragment();
     ////// Fragments
 
     private int mNavItemSelected = Constants.NO_DATA; // Id of the selected navigation item (or -1 if none)
@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity
 
                 // Display settings activity
                 Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, 0);
                 break;
             }
             case R.id.navDisconnect: {
@@ -94,22 +94,11 @@ public class MainActivity extends AppCompatActivity
             remoteDevice = getResources().getString(R.string.camera_right);
         else
             remoteDevice = getResources().getString(R.string.camera_left);
-
-
-
-
-
-
-        //remoteDevice += " : " + Settings.getInstance().getRemoteDevice();
-
-
-
-
-
-
+        remoteDevice += " : " + Settings.getInstance().getRemoteDevice();
 
         final Toolbar appBar = (Toolbar)findViewById(R.id.toolbar);
-        appBar.setSubtitle(remoteDevice);
+        if (appBar != null)
+            appBar.setSubtitle(remoteDevice);
     }
 
     //////
@@ -123,66 +112,73 @@ public class MainActivity extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if (Build.VERSION.SDK_INT >= 21) {
-            toolbar.setBackgroundColor(Color.BLACK);
-            getWindow().setNavigationBarColor(Color.BLACK);
-            getWindow().setStatusBarColor(Color.BLACK);
+        if (toolbar != null) {
+            if (Build.VERSION.SDK_INT >= 21) {
+                toolbar.setBackgroundColor(Color.BLACK);
+                getWindow().setNavigationBarColor(Color.BLACK);
+                getWindow().setStatusBarColor(Color.BLACK);
+            } else // Default status bar color (API < 21)
+                toolbar.setBackgroundColor(Color.argb(255, 30, 30, 30));
         }
-        else
-            toolbar.setBackgroundColor(Color.argb(255,30,30,30)); // Default status bar color (API < 21)
 
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        if (fab != null) {
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+            });
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
-                R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+        if (drawer != null) {
+            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar,
+                    R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
 
-            @Override
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-                onSelectNavItem();
-            }
-        };
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
+                @Override
+                public void onDrawerClosed(View view) {
+                    super.onDrawerClosed(view);
+                    onSelectNavItem();
+                }
+            };
+            drawer.setDrawerListener(toggle);
+            toggle.syncState();
+        }
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setItemTextAppearance(R.style.NavDrawerTextStyle);
+        if (navigationView != null) {
+            navigationView.setNavigationItemSelectedListener(this);
+            navigationView.setItemTextAppearance(R.style.NavDrawerTextStyle);
+        }
 
         // Display remote device name into subtitle (with initial position)
         displayPosition();
 
         // Add camera fragment (after having set initial position)
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
-        fragTransaction.add(R.id.mainContainer, mCamFragment);
+        fragTransaction.add(R.id.mainContainer, mMainFragment);
         fragTransaction.commit();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        displayPosition(); // In case it changed
 
         // Set current activity
         ActivityWrapper.set(this);
 
         if ((requestCode == 0) && (resultCode == Constants.RESULT_LOST_CONNECTION))
-            finish(); // Lost connection (back to connectivity activity)
+            finish(); // Lost connection (back to connect activity)
     }
 
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START))
+        if ((drawer != null) && (drawer.isDrawerOpen(GravityCompat.START)))
             drawer.closeDrawer(GravityCompat.START);
-
         else // Put application into background (paused)
             moveTaskToBack(true);
     }
@@ -191,7 +187,8 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+        if (drawer != null)
+            drawer.closeDrawer(GravityCompat.START);
 
         mNavItemSelected = item.getItemId();
         // Let's drawer close event do the job (more efficient)
