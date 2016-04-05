@@ -40,7 +40,7 @@ public class ConnectActivity extends AppCompatActivity {
         }
 
         // Add toolbar image menu click listener
-        final ImageView albumMenu = (ImageView)findViewById(R.id.albumMenu);
+        final ImageView albumMenu = (ImageView)findViewById(R.id.album_menu);
         if (albumMenu != null) {
             albumMenu.setOnClickListener(new View.OnClickListener() {
 
@@ -54,16 +54,6 @@ public class ConnectActivity extends AppCompatActivity {
                     Intent intent = new Intent(getApplicationContext(), VideoListActivity.class);
                     intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, false);
                     startActivityForResult(intent, 0);
-                }
-            });
-        }
-        final ImageView closeMenu = (ImageView)findViewById(R.id.closeMenu);
-        if (closeMenu != null) {
-            closeMenu.setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    finish(); // Quit application
                 }
             });
         }
@@ -118,13 +108,13 @@ public class ConnectActivity extends AppCompatActivity {
         // Set current activity
         ActivityWrapper.set(this);
 
-        if ((requestCode == 0) && (resultCode == Constants.RESULT_RESTART_CONNECTION))
-            Connectivity.getInstance().start(); // Restart connectivity
-    }
+        if (requestCode == 0) {
+            if (resultCode == Constants.RESULT_RESTART_CONNECTION)
+                Connectivity.getInstance().start(); // Restart connectivity
 
-    @Override
-    public void onBackPressed() {
-        moveTaskToBack(true); // Put application into background (paused)
+            else if (resultCode == Constants.RESULT_QUIT_APPLICATION)
+                finish(); // Quit application
+        }
     }
 
     @Override

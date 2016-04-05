@@ -24,7 +24,7 @@ public class Constants {
 
     ////// Settings
     public static final String CONFIG_RESOLUTION_SEPARATOR = " x "; // Separator between with and height
-    public static final int CONFIG_PERFORMANCE_LOOP = 2000; // Loop count for performance calculation
+    public static final int CONFIG_PERFORMANCE_LOOP = 10000; // Loop count for performance calculation
 
     public static final int CONFIG_MIN_DURATION = 10; // Minimum duration (in seconds)
     public static final int CONFIG_MAX_DURATION = 180; // Maximum duration (in seconds)

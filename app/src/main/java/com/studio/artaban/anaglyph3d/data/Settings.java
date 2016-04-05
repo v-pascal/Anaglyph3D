@@ -1,8 +1,10 @@
 package com.studio.artaban.anaglyph3d.data;
 
+import android.app.Activity;
 import android.hardware.Camera.Size;
 import android.os.Bundle;
 
+import com.studio.artaban.anaglyph3d.SettingsActivity;
 import com.studio.artaban.anaglyph3d.camera.CameraView;
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
@@ -323,6 +325,28 @@ public class Settings implements ConnectRequest {
 
 
 
+
+
+
+
+
+
+                try {
+                    mOrientation = settings.getBoolean(DATA_KEY_ORIENTATION);
+                    reply.put(DATA_KEY_ORIENTATION, true); // Ok
+                }
+                catch (JSONException e) {
+
+                    Logs.add(Logs.Type.E, e.getMessage());
+                    return null;
+                }
+
+
+
+
+
+
+
             }
             if ((type & REQ_TYPE_DURATION) == REQ_TYPE_DURATION) {
 
@@ -338,6 +362,34 @@ public class Settings implements ConnectRequest {
 
 
             }
+
+
+
+
+
+
+
+
+            // Update settings activity (if active)
+            try {
+                Activity curActivity = ActivityWrapper.get();
+                if (curActivity == null)
+                    throw new NullPointerException();
+
+                if (curActivity.getClass().equals(SettingsActivity.class))
+                    ((SettingsActivity)curActivity).update();
+            }
+            catch (NullPointerException e) {
+                Logs.add(Logs.Type.F, "Wrong activity reference");
+            }
+
+
+
+
+
+
+
+
         }
         return reply.toString();
     }

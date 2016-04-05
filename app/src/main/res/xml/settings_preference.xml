@@ -5,7 +5,6 @@
 
         <SwitchPreference
             android:key="position"
-            android:defaultValue="true"
             android:title="@string/camera"
             android:persistent="false"
             android:switchTextOn="@string/left"
@@ -18,7 +17,7 @@
 
         <SwitchPreference
             android:key="orientation"
-            android:defaultValue="true"
+            android:persistent="false"
             android:title="@string/orientation"
             android:switchTextOn="@string/portrait"
             android:switchTextOff="@string/landscape" />

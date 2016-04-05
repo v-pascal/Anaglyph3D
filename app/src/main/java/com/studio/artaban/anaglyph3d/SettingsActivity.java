@@ -1,7 +1,6 @@
 package com.studio.artaban.anaglyph3d;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,7 +8,6 @@ import android.preference.DialogPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
-import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
 import android.support.v7.app.ActionBar;
 import android.util.AttributeSet;
@@ -40,8 +38,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity
         public NumberPickerPreference(Context context, AttributeSet attrs) {
             super(context, attrs);
             setDialogLayoutResource(R.layout.number_dialog);
-            setPersistent(false); // No 'SharedPreference' management coz no reference from XML file
-        }                         // -> Done manually (see 'onResume' and 'onPause' methods)
+            setPersistent(false); // Do not store preference (always use default)
+        }
 
         @Override
         public void setDefaultValue(Object defaultValue) {
@@ -98,25 +96,36 @@ public class SettingsActivity extends AppCompatPreferenceActivity
 
 
 
+        mOrientationSwitch.setChecked(Settings.getInstance().mOrientation);
+
+
+
+
 
 
 
 
     }
 
-    // Fill & Set resolution preference list and value
-    private void updateResolution(ListPreference resolutionList) {
+    // Fill & Set resolutions preference list and value
+    private void updateResolutions() {
 
         final String[] resolutions = Settings.getInstance().getResolutions();
-        resolutionList.setEntries(resolutions);
-        resolutionList.setEntryValues(resolutions);
+        mResolutionList.setEntries(resolutions);
+        mResolutionList.setEntryValues(resolutions);
 
         final String resolution = Settings.getInstance().getResolution();
-        resolutionList.setDefaultValue(resolution);
-        resolutionList.setValue(resolution);
-        resolutionList.setSummary(resolution);
+        mResolutionList.setDefaultValue(resolution);
+        mResolutionList.setValue(resolution);
+        mResolutionList.setSummary(resolution);
     }
 
+    private boolean mListLock = false; // Avoid to change resolution when changing orientation
+    private boolean mChangeLock = true; // Avoid to send settings request device during initialization
+    // Preferences
+    private SwitchPreference mPositionSwitch;
+    private SwitchPreference mOrientationSwitch;
+    private ListPreference mResolutionList;
     private NumberPickerPreference mDurationPreference;
     private NumberPickerPreference mFpsPreference;
 
@@ -141,16 +150,18 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        // Initialize settings preferences
-        SwitchPreference preferencePos = (SwitchPreference)findPreference(Settings.DATA_KEY_POSITION);
-        preferencePos.setOnPreferenceChangeListener(this);
-        preferencePos.setChecked(Settings.getInstance().mPosition);
+        // Initialize preferences (according settings)
+        mResolutionList = (ListPreference)findPreference(Settings.DATA_KEY_RESOLUTION);
+        mResolutionList.setOnPreferenceChangeListener(this);
+        updateResolutions();
 
-        findPreference(Settings.DATA_KEY_ORIENTATION).setOnPreferenceChangeListener(this);
+        mPositionSwitch = (SwitchPreference)findPreference(Settings.DATA_KEY_POSITION);
+        mPositionSwitch.setChecked(Settings.getInstance().mPosition);
+        mPositionSwitch.setOnPreferenceChangeListener(this);
 
-        final ListPreference preferenceList = (ListPreference)findPreference(Settings.DATA_KEY_RESOLUTION);
-        preferenceList.setOnPreferenceChangeListener(this);
-        updateResolution(preferenceList);
+        mOrientationSwitch = (SwitchPreference)findPreference(Settings.DATA_KEY_ORIENTATION);
+        mOrientationSwitch.setChecked(Settings.getInstance().mOrientation);
+        mOrientationSwitch.setOnPreferenceChangeListener(this);
 
         // Add number picker dialog preferences programmatically (needed coz API level 21 requirement)
         // -> Unable to declare 'NumberPickerPreference' constructor with 'context' parameter only
@@ -161,6 +172,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity
         mDurationPreference.setKey(Settings.DATA_KEY_DURATION);
         mDurationPreference.setTitle(R.string.duration);
         mDurationPreference.setDialogTitle(R.string.duration);
+        mDurationPreference.setDefaultValue(Settings.getInstance().mDuration);
+        mDurationPreference.setSummary(String.valueOf(Settings.getInstance().mDuration));
         mDurationPreference.mMin = Constants.CONFIG_MIN_DURATION;
         mDurationPreference.mMax = Constants.CONFIG_MAX_DURATION;
         //mDurationPreference.setOnPreferenceChangeListener(this);
@@ -170,6 +183,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity
         mFpsPreference.setKey(Settings.DATA_KEY_FPS);
         mFpsPreference.setTitle(R.string.frame_per_second);
         mFpsPreference.setDialogTitle(R.string.frame_per_second);
+        mFpsPreference.setDefaultValue(Settings.getInstance().mFps);
+        mFpsPreference.setSummary(String.valueOf(Settings.getInstance().mFps));
         mFpsPreference.mMin = Constants.CONFIG_MIN_FPS;
         mFpsPreference.mMax = Constants.CONFIG_MAX_FPS;
         //mFpsPreference.setOnPreferenceChangeListener(this);
@@ -179,40 +194,17 @@ public class SettingsActivity extends AppCompatPreferenceActivity
         preferenceCat.addPreference(mFpsPreference);
     }
 
-
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
-
-        // Retrieve stored preference values (managed manually)
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        Settings.getInstance().mDuration = settings.getInt(Settings.DATA_KEY_DURATION,
-                Settings.getInstance().mDuration);
-
-        Settings.getInstance().mFps = settings.getInt(Settings.DATA_KEY_FPS,
-                Settings.getInstance().mFps);
-
-        mDurationPreference.setDefaultValue(Settings.getInstance().mDuration);
-        mDurationPreference.setSummary(String.valueOf(Settings.getInstance().mDuration));
-
-        mFpsPreference.setDefaultValue(Settings.getInstance().mFps);
-        mFpsPreference.setSummary(String.valueOf(Settings.getInstance().mFps));
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        // Store preference values (managed manually)
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putInt(Settings.DATA_KEY_DURATION, Settings.getInstance().mDuration)
-                .putInt(Settings.DATA_KEY_FPS, Settings.getInstance().mFps)
-                .apply();
+        mChangeLock = false;
     }
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
+        if (mChangeLock)
+            return true;
+
         if (preference.getKey().equals(Settings.DATA_KEY_POSITION)) {
 
             Settings.getInstance().mPosition = (boolean)newValue;
@@ -223,15 +215,18 @@ public class SettingsActivity extends AppCompatPreferenceActivity
         else if (preference.getKey().equals(Settings.DATA_KEY_ORIENTATION)) {
 
             Settings.getInstance().mOrientation = (boolean)newValue;
-
-            final ListPreference list = (ListPreference)findPreference(Settings.DATA_KEY_RESOLUTION);
-            updateResolution((ListPreference)list);
             Connectivity.getInstance().addRequest(Settings.getInstance(),
                     Settings.REQ_TYPE_ORIENTATION, null);
+
+            mListLock = true;
+            updateResolutions();
             return true;
         }
         else if (preference.getKey().equals(Settings.DATA_KEY_RESOLUTION)) {
-
+            if (mListLock) {
+                mListLock = false;
+                return true;
+            }
             preference.setSummary((String) newValue);
             Settings.getInstance().setResolution((String) newValue,
                     (String[]) ((ListPreference) preference).getEntryValues());

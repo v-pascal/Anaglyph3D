@@ -1,5 +1,6 @@
 package com.studio.artaban.anaglyph3d.transfer;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -64,12 +65,26 @@ public class Connectivity {
     private final List<TransferElement> mRequests = new ArrayList<TransferElement>();
 
     //
-    public void addRequest(ConnectRequest handler, byte type, Bundle data) {
+    public boolean addRequest(ConnectRequest handler, byte type, Bundle data) {
+
+        if (!isConnected())
+            return false;
 
         // Get request message from handler
         String message = handler.getRequest(type, data);
         if (message == null)
-            return;
+            return false;
+
+
+
+
+
+        Logs.add(Logs.Type.I, "addRequest: OK - " + type);
+
+
+
+
+
 
         // Add request into request list
         TransferElement request = new TransferElement();
@@ -78,6 +93,8 @@ public class Connectivity {
         request.mMessage = message;
 
         synchronized (mRequests) { mRequests.add(request); }
+
+        return true;
     }
     private boolean mergeRequests() {
 
@@ -109,6 +126,11 @@ public class Connectivity {
     }
 
     public void disconnect() { mDisconnectRequest = true; }
+    private boolean isConnected() {
+
+        return (!mDisconnectRequest) && (!mDisconnectError) &&
+                (mBluetooth.getStatus() == Bluetooth.Status.CONNECTED);
+    }
 
     ////// Request/Reply element format: BBB-A:CC_*
     // _ BBB -> Digital size of the entire message (in decimal)
@@ -218,11 +240,14 @@ public class Connectivity {
 
             // Remove or close main activity from the activities stack (using activity result)
             try {
-                if (ActivityWrapper.get().getClass().equals(MainActivity.class))
-                    ActivityWrapper.get().finish();
+                Activity curActivity = ActivityWrapper.get();
+                if (curActivity == null)
+                    throw new NullPointerException();
 
+                if (curActivity.getClass().equals(MainActivity.class))
+                    curActivity.finish();
                 else // ...other activity (back to connect activity, if not already the case)
-                    ActivityWrapper.get().setResult(Constants.RESULT_LOST_CONNECTION);
+                    curActivity.setResult(Constants.RESULT_LOST_CONNECTION);
             }
             catch (NullPointerException e) {
                 Logs.add(Logs.Type.F, "Wrong activity reference");
@@ -239,7 +264,7 @@ public class Connectivity {
             }
             mStatus = Connectivity.Status.RESET;
             mDisconnectRequest = mDisconnectError = false;
-            mRequests.clear();
+            synchronized (mRequests) { mRequests.clear(); }
         }
 
         ////// Process (connected status):
@@ -248,7 +273,7 @@ public class Connectivity {
         private void process() {
 
             // Check if need to disconnect or if still connected
-            if ((mDisconnectRequest) || (mBluetooth.getStatus() != Bluetooth.Status.CONNECTED)) {
+            if (!isConnected()) {
                 close();
                 return;
             }
@@ -288,20 +313,32 @@ public class Connectivity {
                         Logs.add(Logs.Type.E, "Failed to send reply");
                         mDisconnectError = true;
                         close();
-                        return;
                     }
                 }
-                else if (mDisconnectError) { // Check if error during message receive
-
+                else if (mDisconnectError) // Check if error during message receive
                     close();
-                    return;
-                }
 
-                // Check if existing request to send
-                synchronized (mRequests) {
+                else synchronized (mRequests) { // Check if existing request to send
 
-                    if (!mergeRequests())
-                        return; // No request to send
+
+
+
+
+
+
+                    if (mRequests.isEmpty())
+                        return;
+
+                    //if (!mergeRequests())
+                    //    return; // No request to send
+
+
+
+
+
+
+
+
 
                     // Send request
                     if (!send(mRequests.get(0))) {
@@ -320,15 +357,32 @@ public class Connectivity {
                 String reply = receive();
                 if (reply != null) {
 
-                    if (!mRequests.get(0).mHandler.receiveReply(
-                            (byte)Integer.parseInt(reply.substring(2, 4), 16), reply.substring(5))) {
+                    synchronized (mRequests) {
 
-                        Logs.add(Logs.Type.E, "Unexpected reply received (or device not matching)");
-                        mDisconnectError = true;
-                        close();
-                        return;
+
+
+                        /*
+                        if (mRequests.isEmpty()) {
+
+                            Logs.add(Logs.Type.E, "Reply received without request sent");
+                            mDisconnectError = true;
+                            close();
+                            return;
+                        }
+                        */
+
+
+
+                        if (!mRequests.get(0).mHandler.receiveReply(
+                                (byte) Integer.parseInt(reply.substring(2, 4), 16), reply.substring(5))) {
+
+                            Logs.add(Logs.Type.E, "Unexpected reply received (or device not matching)");
+                            mDisconnectError = true;
+                            close();
+                        }
+                        else
+                            mRequests.remove(0);
                     }
-                    mRequests.remove(0);
                 }
             }
         }

@@ -14,20 +14,7 @@
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar">
 
         <ImageView
-            android:id="@+id/closeMenu"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:src="@drawable/ic_highlight_off_white_36dp"
-            android:adjustViewBounds="true"
-            android:clickable="true"
-            android:maxHeight="48dp"
-            android:maxWidth="48dp"
-            android:contentDescription="@string/image_desc_close"
-            android:paddingLeft="5dp" />
-
-        <ImageView
-            android:id="@+id/albumMenu"
+            android:id="@+id/album_menu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
@@ -36,8 +23,7 @@
             android:clickable="true"
             android:maxHeight="48dp"
             android:maxWidth="48dp"
-            android:contentDescription="@string/image_desc_album"
-            android:paddingRight="5dp" />
+            android:contentDescription="@string/image_desc_album" />
 
     </android.support.v7.widget.Toolbar>
 

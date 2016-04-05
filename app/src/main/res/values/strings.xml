@@ -37,7 +37,6 @@
     <string name="confirm_disconnect">Do you really want to disconnect from the remote device?</string>
     <string name="connection_lost">WARNING: Connection lost!</string>
     <string name="image_desc_album" translatable="false">Album icon</string>
-    <string name="image_desc_close" translatable="false">Close icon</string>
     <string name="connection_error">ERROR: Data transfer error! Connection closed.</string>
 
     <!-- Strings related to Settings -->
