@@ -19,21 +19,20 @@ public class Constants {
     public static final String CONN_SECURE_UUID = "76d0eb60-a913-11e5-bfd6-0003a5d5c51b"; // Bluetooth secure UUID
     public static final String CONN_SECURE_NAME = "ANAGLYPH3D"; // Bluetooth connection name
 
-    public static final short CONN_LISTEN_MIN = 15; // Minimum listen duration = Min * delay below
-    public static final short CONN_LISTEN_MAX = 40; // Maximum listen duration = Max * delay below
-    public static final int CONN_WAIT_DELAY = 200; // Connection loop delay (in milliseconds)
+    public static final short CONN_LISTEN_MIN = 200; // Minimum listen duration = Min * delay below
+    public static final short CONN_LISTEN_MAX = 1500; // Maximum listen duration = Max * delay below
+    public static final int CONN_WAIT_DELAY = 10; // Connection loop delay (in milliseconds)
 
     ////// Bluetooth
     public static final String BLUETOOTH_DEVICES_SEPARATOR = "\n"; // Separator between device name and address
 
     ////// Settings
     public static final String CONFIG_RESOLUTION_SEPARATOR = " x "; // Separator between with and height
-    public static final int CONFIG_PERFORMANCE_LOOP = 10000; // Loop count for performance calculation
+    public static final int CONFIG_PERFORMANCE_LOOP = 100000; // Loop count for performance calculation
 
     public static final int CONFIG_MIN_DURATION = 10; // Minimum duration (in seconds)
     public static final int CONFIG_MAX_DURATION = 180; // Maximum duration (in seconds)
 
     public static final int CONFIG_MIN_FPS = 20; // Minimum frame per seconds
     public static final int CONFIG_MAX_FPS = 60; // Maximum frame per seconds
-
 }

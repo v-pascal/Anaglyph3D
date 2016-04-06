@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.hardware.Camera.Size;
 import android.os.Bundle;
 
+import com.studio.artaban.anaglyph3d.MainActivity;
 import com.studio.artaban.anaglyph3d.SettingsActivity;
 import com.studio.artaban.anaglyph3d.camera.CameraView;
 import com.studio.artaban.anaglyph3d.R;
@@ -310,27 +311,20 @@ public class Settings implements ConnectRequest {
 
 
 
+
             }
             if ((type & REQ_TYPE_POSITION) == REQ_TYPE_POSITION) {
+                try {
+                    mPosition = settings.getBoolean(DATA_KEY_POSITION);
+                    reply.put(DATA_KEY_POSITION, true); // Ok
+                }
+                catch (JSONException e) {
 
-
-
-
-
-
+                    Logs.add(Logs.Type.E, e.getMessage());
+                    return null;
+                }
             }
             if ((type & REQ_TYPE_ORIENTATION) == REQ_TYPE_ORIENTATION) {
-
-
-
-
-
-
-
-
-
-
-
                 try {
                     mOrientation = settings.getBoolean(DATA_KEY_ORIENTATION);
                     reply.put(DATA_KEY_ORIENTATION, true); // Ok
@@ -340,15 +334,10 @@ public class Settings implements ConnectRequest {
                     Logs.add(Logs.Type.E, e.getMessage());
                     return null;
                 }
-
-
-
-
-
-
-
             }
             if ((type & REQ_TYPE_DURATION) == REQ_TYPE_DURATION) {
+
+
 
 
 
@@ -361,35 +350,25 @@ public class Settings implements ConnectRequest {
 
 
 
+
             }
 
-
-
-
-
-
-
-
-            // Update settings activity (if active)
+            // Update active activity
             try {
                 Activity curActivity = ActivityWrapper.get();
                 if (curActivity == null)
                     throw new NullPointerException();
 
-                if (curActivity.getClass().equals(SettingsActivity.class))
+                if (curActivity.getClass().equals(SettingsActivity.class)) // Settings activity
                     ((SettingsActivity)curActivity).update(reply);
+
+                else if (curActivity.getClass().equals(MainActivity.class)) // Main activity
+                    if (reply.has(DATA_KEY_POSITION))
+                        ((MainActivity)curActivity).displayPosition();
             }
             catch (NullPointerException e) {
                 Logs.add(Logs.Type.F, "Wrong activity reference");
             }
-
-
-
-
-
-
-
-
         }
         return reply.toString();
     }

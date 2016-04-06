@@ -76,17 +76,6 @@ public class Connectivity {
         if (message == null)
             return false;
 
-
-
-
-
-        Logs.add(Logs.Type.I, "addRequest: OK - " + type);
-
-
-
-
-
-
         // Add request into request list
         TransferElement request = new TransferElement();
         request.mHandler = handler;
@@ -111,7 +100,7 @@ public class Connectivity {
 
             if (requestId == mRequests.get(i).mHandler.getRequestId()) {
 
-                requestType |= mRequests.get(i).mType;
+                requestType |= mRequests.get(i).mType; // Merge type (mask)
                 mRequests.get(i).mType = requestType;
                 ++removeCount;
             }

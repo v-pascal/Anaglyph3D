@@ -92,35 +92,39 @@ public class SettingsActivity extends AppCompatPreferenceActivity
     // Update settings preferences (used to apply remote device settings update)
     public void update(final JSONObject settings) {
 
-
-
-
-
-
-
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
 
+                if (settings.has(Settings.DATA_KEY_POSITION)) {
+
+                    mPositionLock = true;
+                    mPositionSwitch.setChecked(Settings.getInstance().mPosition);
+                }
                 if (settings.has(Settings.DATA_KEY_ORIENTATION)) {
 
-                    mUpdateLock = true;
+                    mOrientationLock = true;
                     mOrientationSwitch.setChecked(Settings.getInstance().mOrientation);
                 }
+
+
+
+
+
+
+
+
+
+
+
             }
         });
-
-
-
-
-
-
-
-
     }
 
     // Fill & Set resolutions preference list and value
     private void updateResolutions() {
+
+        mResolutionLock = true;
 
         final String[] resolutions = Settings.getInstance().getResolutions();
         mResolutionList.setEntries(resolutions);
@@ -132,8 +136,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity
         mResolutionList.setSummary(resolution);
     }
 
-    private boolean mInitLock = true; // Avoid to send settings request to remote device during initialization
-    private boolean mUpdateLock = true; // Avoid to send settings request to remote device during update
+    private boolean mPositionLock = true;
+    private boolean mOrientationLock = true;
+    private boolean mResolutionLock = true;
+    // Needed to avoid to send settings request to remote device during assignment (init or update)
+    // -> Removing preference change listener to avoid calling 'onPreferenceChange' is not working:
+    //
+    //    mResolutionList.setOnPreferenceChangeListener(null);
+    //    mResolutionList.setValue(resolution); // Call 'onPreferenceChange' anyway!
+    //    mResolutionList.setOnPreferenceChangeListener(this);
 
     // Preferences
     private SwitchPreference mPositionSwitch;
@@ -211,39 +222,32 @@ public class SettingsActivity extends AppCompatPreferenceActivity
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        mInitLock = false;
-    }
-
-    @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        if (mInitLock)
-            return true;
-
         if (preference.getKey().equals(Settings.DATA_KEY_POSITION)) {
-
+            if (mPositionLock) {
+                mPositionLock = false;
+                return true;
+            }
             Settings.getInstance().mPosition = (boolean)newValue;
             Connectivity.getInstance().addRequest(Settings.getInstance(),
                     Settings.REQ_TYPE_POSITION, null);
             return true;
         }
         else if (preference.getKey().equals(Settings.DATA_KEY_ORIENTATION)) {
-            if (mUpdateLock) {
-                mUpdateLock = false;
+            if (mOrientationLock) {
+                mOrientationLock = false;
                 return true;
             }
             Settings.getInstance().mOrientation = (boolean)newValue;
             Connectivity.getInstance().addRequest(Settings.getInstance(),
                     Settings.REQ_TYPE_ORIENTATION, null);
 
-            mUpdateLock = true;
             updateResolutions();
             return true;
         }
         else if (preference.getKey().equals(Settings.DATA_KEY_RESOLUTION)) {
-            if (mUpdateLock) {
-                mUpdateLock = false;
+            if (mResolutionLock) {
+                mResolutionLock = false;
                 return true;
             }
             preference.setSummary((String) newValue);

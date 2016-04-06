@@ -86,7 +86,7 @@ public class MainFragment extends Fragment {
 
         if (mPreview == null) {
 
-            // Create our camera view and set it as the content of our activity.
+            // Create camera view and set it as the content of our activity.
             mPreview = new CameraView(getContext());
             FrameLayout preview = (FrameLayout) mCamLayout.findViewById(R.id.cameraView);
             preview.addView(mPreview);
