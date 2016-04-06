@@ -364,7 +364,7 @@ public class Settings implements ConnectRequest {
 
                 else if (curActivity.getClass().equals(MainActivity.class)) // Main activity
                     if (reply.has(DATA_KEY_POSITION))
-                        ((MainActivity)curActivity).displayPosition(true);
+                        ((MainActivity)curActivity).displayPosition();
             }
             catch (NullPointerException e) {
                 Logs.add(Logs.Type.F, "Wrong activity reference");

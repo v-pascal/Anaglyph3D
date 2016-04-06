@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity
 
     //
     private String mSubTitle;
-    public void displayPosition(final boolean andGlass) {
+    public void displayPosition() {
 
         // Display remote device name into subtitle (with position)
         if (Settings.getInstance().mPosition)
@@ -91,16 +91,13 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
 
-                final Toolbar appBar = (Toolbar)findViewById(R.id.toolbar);
+                final Toolbar appBar = (Toolbar) findViewById(R.id.toolbar);
                 if (appBar != null)
                     appBar.setSubtitle(mSubTitle);
 
-                if (andGlass) {
-                    Fragment mainFragment = getSupportFragmentManager().findFragmentByTag(
-                            MainFragment.TAG_FRAGMENT);
-                    ((MainFragment)mainFragment).displayPosition();
-                }
-                //else // Do not launch code above till 'MainFragment.onCreateView' is not called
+                Fragment mainFragment = getSupportFragmentManager().findFragmentByTag(MainFragment.TAG_FRAGMENT);
+                if (mainFragment != null)
+                    ((MainFragment) mainFragment).displayPosition();
             }
         });
     }
@@ -159,19 +156,18 @@ public class MainActivity extends AppCompatActivity
         }
 
         // Display remote device name into subtitle (with initial position)
-        displayPosition(false);
+        displayPosition();
 
         // Add camera fragment (after having set initial position)
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
-        fragTransaction.add(R.id.main_container, new MainFragment(), MainFragment.TAG_FRAGMENT)
-                .commit();
+        fragTransaction.add(R.id.main_container, new MainFragment(), MainFragment.TAG_FRAGMENT).commit();
         getSupportFragmentManager().executePendingTransactions();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        displayPosition(true); // In case it has changed
+        displayPosition(); // In case it has changed
 
         // Set current activity
         ActivityWrapper.set(this);
