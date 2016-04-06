@@ -19,6 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -273,116 +274,88 @@ public class Connectivity {
         private void process() {
 
             // Check if need to disconnect or if still connected
-            if (!isConnected()) {
+            if (!isConnected())
                 close();
-                return;
-            }
 
             //
-            if (mStatus == Connectivity.Status.STAND_BY) {
+            switch (mStatus) {
+                case STAND_BY: {
 
-                // Check if received request
-                String request = receive();
-                if (request != null) {
+                    // Check if received request
+                    String request = receive();
+                    if (request != null) {
 
-                    TransferElement reply = new TransferElement();
-                    switch (request.charAt(0)) {
+                        TransferElement reply = new TransferElement();
+                        switch (request.charAt(0)) {
 
-                        case ConnectRequest.REQ_SETTINGS: reply.mHandler = Settings.getInstance(); break;
-                        default: {
+                            case ConnectRequest.REQ_SETTINGS: reply.mHandler = Settings.getInstance(); break;
+                            default: {
 
-                            Logs.add(Logs.Type.E, "Unexpected request received");
+                                Logs.add(Logs.Type.E, "Unexpected request received");
+                                mDisconnectError = true;
+                                close();
+                                return;
+                            }
+                        }
+                        reply.mType = (byte)Integer.parseInt(request.substring(2, 4), 16);
+                        reply.mMessage = reply.mHandler.getReply(reply.mType, request.substring(5));
+                        if (reply.mMessage == null) {
+
+                            Logs.add(Logs.Type.E, "Failed to reply to request");
                             mDisconnectError = true;
                             close();
-                            return;
+                            break;
+                        }
+
+                        // Send reply
+                        if (!send(reply)) {
+
+                            Logs.add(Logs.Type.E, "Failed to send reply");
+                            mDisconnectError = true;
+                            close();
                         }
                     }
-                    reply.mType = (byte)Integer.parseInt(request.substring(2, 4), 16);
-                    reply.mMessage = reply.mHandler.getReply(reply.mType, request.substring(5));
-                    if (reply.mMessage == null) {
-
-                        Logs.add(Logs.Type.E, "Failed to reply to request");
-                        mDisconnectError = true;
+                    else if (mDisconnectError) // Check if error during message receive
                         close();
-                        return;
-                    }
 
-                    // Send reply
-                    if (!send(reply)) {
+                    else synchronized (mRequests) { // Check if existing request to send
 
-                        Logs.add(Logs.Type.E, "Failed to send reply");
-                        mDisconnectError = true;
-                        close();
+                        if (!mergeRequests())
+                            break; // No request to send
+
+                        // Send request
+                        if (!send(mRequests.get(0))) {
+
+                            Logs.add(Logs.Type.E, "Failed to send request");
+                            mDisconnectError = true;
+                            close();
+                            break;
+                        }
+                        mStatus = Connectivity.Status.WAIT_REPLY;
                     }
+                    break;
                 }
-                else if (mDisconnectError) // Check if error during message receive
-                    close();
+                case WAIT_REPLY: {
 
-                else synchronized (mRequests) { // Check if existing request to send
+                    // Check if received reply
+                    String reply = receive();
+                    if (reply != null) {
 
+                        synchronized (mRequests) {
 
+                            if (!mRequests.get(0).mHandler.receiveReply(
+                                    (byte) Integer.parseInt(reply.substring(2, 4), 16), reply.substring(5))) {
 
-
-
-
-
-                    if (mRequests.isEmpty())
-                        return;
-
-                    //if (!mergeRequests())
-                    //    return; // No request to send
-
-
-
-
-
-
-
-
-
-                    // Send request
-                    if (!send(mRequests.get(0))) {
-
-                        Logs.add(Logs.Type.E, "Failed to send request");
-                        mDisconnectError = true;
-                        close();
-                        return;
-                    }
-                    mStatus = Connectivity.Status.WAIT_REPLY;
-                }
-            }
-            else { // Wait reply
-
-                // Check if received reply
-                String reply = receive();
-                if (reply != null) {
-
-                    synchronized (mRequests) {
-
-
-
-                        /*
-                        if (mRequests.isEmpty()) {
-
-                            Logs.add(Logs.Type.E, "Reply received without request sent");
-                            mDisconnectError = true;
-                            close();
-                            return;
-                        }
-                        */
-
-
-
-                        if (!mRequests.get(0).mHandler.receiveReply(
-                                (byte) Integer.parseInt(reply.substring(2, 4), 16), reply.substring(5))) {
-
-                            Logs.add(Logs.Type.E, "Unexpected reply received (or device not matching)");
-                            mDisconnectError = true;
-                            close();
-                        }
-                        else
+                                Logs.add(Logs.Type.E, "Unexpected reply received (or device not matching)");
+                                mDisconnectError = true;
+                                close();
+                                break;
+                            }
                             mRequests.remove(0);
+                            mStatus = Connectivity.Status.STAND_BY;
+                        }
                     }
+                    break;
                 }
             }
         }
@@ -391,7 +364,7 @@ public class Connectivity {
         protected Void doInBackground(Void... params) {
             Logs.add(Logs.Type.I, "Connectivity thread started");
 
-            short devIndex = 0, waitListen = 0;
+            short devIndex = 0, waitListen = 0, countListen = 0;
             while(!mAbort) {
 
                 switch (mStatus) {
@@ -467,6 +440,9 @@ public class Connectivity {
                                     mBluetooth.listen(true, Constants.CONN_SECURE_UUID,
                                             Constants.CONN_SECURE_NAME);
                                     mStatus = Connectivity.Status.LISTEN;
+                                    Random rand = new Random();
+                                    countListen = (short)(rand.nextInt(Constants.CONN_LISTEN_MAX -
+                                            Constants.CONN_LISTEN_MIN) + Constants.CONN_LISTEN_MIN);
                                     waitListen = 0;
                                 }
                                 break;
@@ -479,7 +455,7 @@ public class Connectivity {
                         switch (mBluetooth.getStatus()) {
                             case LISTENING: { // Still listening
 
-                                if (++waitListen == 25) // 25 * 200 == 5 seconds
+                                if (++waitListen == countListen)
                                     mStatus = Connectivity.Status.RESET;
                                 break;
                             }
@@ -503,7 +479,7 @@ public class Connectivity {
                     break; // Exit immediately
 
                 // Sleep
-                try { Thread.sleep(200, 0); }
+                try { Thread.sleep(Constants.CONN_WAIT_DELAY, 0); }
                 catch (InterruptedException e) {
                     Logs.add(Logs.Type.W, "Unable to sleep: " + e.getMessage());
                 }

@@ -70,13 +70,7 @@ public class MainActivity extends AppCompatActivity
 
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                try {
-                                    ActivityWrapper.get().setResult(Constants.RESULT_QUIT_APPLICATION);
-                                    ActivityWrapper.get().finish();
-                                }
-                                catch (NullPointerException e) {
-                                    Logs.add(Logs.Type.F, "Wrong activity reference");
-                                }
+                                ActivityWrapper.quitApplication();
                             }
                         });
                 break;

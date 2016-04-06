@@ -377,7 +377,7 @@ public class Settings implements ConnectRequest {
                     throw new NullPointerException();
 
                 if (curActivity.getClass().equals(SettingsActivity.class))
-                    ((SettingsActivity)curActivity).update();
+                    ((SettingsActivity)curActivity).update(reply);
             }
             catch (NullPointerException e) {
                 Logs.add(Logs.Type.F, "Wrong activity reference");

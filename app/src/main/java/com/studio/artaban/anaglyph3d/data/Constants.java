@@ -19,6 +19,10 @@ public class Constants {
     public static final String CONN_SECURE_UUID = "76d0eb60-a913-11e5-bfd6-0003a5d5c51b"; // Bluetooth secure UUID
     public static final String CONN_SECURE_NAME = "ANAGLYPH3D"; // Bluetooth connection name
 
+    public static final short CONN_LISTEN_MIN = 15; // Minimum listen duration = Min * delay below
+    public static final short CONN_LISTEN_MAX = 40; // Maximum listen duration = Max * delay below
+    public static final int CONN_WAIT_DELAY = 200; // Connection loop delay (in milliseconds)
+
     ////// Bluetooth
     public static final String BLUETOOTH_DEVICES_SEPARATOR = "\n"; // Separator between device name and address
 

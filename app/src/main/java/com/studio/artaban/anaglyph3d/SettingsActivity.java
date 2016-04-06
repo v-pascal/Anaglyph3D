@@ -19,7 +19,10 @@ import android.widget.NumberPicker;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.fragments.AppCompatPreferenceActivity;
 import com.studio.artaban.anaglyph3d.data.Settings;
+import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
+
+import org.json.JSONObject;
 
 /**
  * Created by pascal on 21/03/16.
@@ -87,7 +90,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity
     };
 
     // Update settings preferences (used to apply remote device settings update)
-    public void update() {
+    public void update(final JSONObject settings) {
 
 
 
@@ -95,8 +98,17 @@ public class SettingsActivity extends AppCompatPreferenceActivity
 
 
 
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
 
-        mOrientationSwitch.setChecked(Settings.getInstance().mOrientation);
+                if (settings.has(Settings.DATA_KEY_ORIENTATION)) {
+
+                    mUpdateLock = true;
+                    mOrientationSwitch.setChecked(Settings.getInstance().mOrientation);
+                }
+            }
+        });
 
 
 
@@ -120,8 +132,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity
         mResolutionList.setSummary(resolution);
     }
 
-    private boolean mListLock = false; // Avoid to change resolution when changing orientation
-    private boolean mChangeLock = true; // Avoid to send settings request device during initialization
+    private boolean mInitLock = true; // Avoid to send settings request to remote device during initialization
+    private boolean mUpdateLock = true; // Avoid to send settings request to remote device during update
+
     // Preferences
     private SwitchPreference mPositionSwitch;
     private SwitchPreference mOrientationSwitch;
@@ -134,6 +147,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.settings_preference);
+
+        // Set current activity
+        ActivityWrapper.set(this);
 
         // Update toolbar
         ActionBar actionBar = getSupportActionBar();
@@ -197,12 +213,12 @@ public class SettingsActivity extends AppCompatPreferenceActivity
     @Override
     protected void onResume() {
         super.onResume();
-        mChangeLock = false;
+        mInitLock = false;
     }
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        if (mChangeLock)
+        if (mInitLock)
             return true;
 
         if (preference.getKey().equals(Settings.DATA_KEY_POSITION)) {
@@ -213,18 +229,21 @@ public class SettingsActivity extends AppCompatPreferenceActivity
             return true;
         }
         else if (preference.getKey().equals(Settings.DATA_KEY_ORIENTATION)) {
-
+            if (mUpdateLock) {
+                mUpdateLock = false;
+                return true;
+            }
             Settings.getInstance().mOrientation = (boolean)newValue;
             Connectivity.getInstance().addRequest(Settings.getInstance(),
                     Settings.REQ_TYPE_ORIENTATION, null);
 
-            mListLock = true;
+            mUpdateLock = true;
             updateResolutions();
             return true;
         }
         else if (preference.getKey().equals(Settings.DATA_KEY_RESOLUTION)) {
-            if (mListLock) {
-                mListLock = false;
+            if (mUpdateLock) {
+                mUpdateLock = false;
                 return true;
             }
             preference.setSummary((String) newValue);
