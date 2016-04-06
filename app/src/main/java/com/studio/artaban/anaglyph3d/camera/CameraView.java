@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.content.Context;
+import android.util.AttributeSet;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -95,7 +96,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     //
-    public CameraView(Context context) {
+    public CameraView(Context context, AttributeSet attrs) {
         super(context);
         mCamera = getCamera();
 

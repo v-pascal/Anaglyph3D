@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -23,14 +24,10 @@ import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.fragments.MainFragment;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
-import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
-    private final MainFragment mMainFragment = new MainFragment();
-    ////// Fragments
 
     private int mNavItemSelected = Constants.NO_DATA; // Id of the selected navigation item (or -1 if none)
     private void onSelectNavItem() {
@@ -80,19 +77,32 @@ public class MainActivity extends AppCompatActivity
     }
 
     //
-    public void displayPosition() {
+    private String mSubTitle;
+    public void displayPosition(final boolean andGlass) {
 
         // Display remote device name into subtitle (with position)
-        String remoteDevice;
         if (Settings.getInstance().mPosition)
-            remoteDevice = getResources().getString(R.string.camera_right);
+            mSubTitle = getResources().getString(R.string.camera_right);
         else
-            remoteDevice = getResources().getString(R.string.camera_left);
-        remoteDevice += " : " + Settings.getInstance().getRemoteDevice();
+            mSubTitle = getResources().getString(R.string.camera_left);
+        mSubTitle += " : " + Settings.getInstance().getRemoteDevice();
 
-        final Toolbar appBar = (Toolbar)findViewById(R.id.toolbar);
-        if (appBar != null)
-            appBar.setSubtitle(remoteDevice);
+        runOnUiThread(new Runnable() { // Need if called from connectivity thread
+            @Override
+            public void run() {
+
+                final Toolbar appBar = (Toolbar)findViewById(R.id.toolbar);
+                if (appBar != null)
+                    appBar.setSubtitle(mSubTitle);
+
+                if (andGlass) {
+                    Fragment mainFragment = getSupportFragmentManager().findFragmentByTag(
+                            MainFragment.TAG_FRAGMENT);
+                    ((MainFragment)mainFragment).displayPosition();
+                }
+                //else // Do not launch code above till 'MainFragment.onCreateView' is not called
+            }
+        });
     }
 
     //////
@@ -111,7 +121,8 @@ public class MainActivity extends AppCompatActivity
                 toolbar.setBackgroundColor(Color.BLACK);
                 getWindow().setNavigationBarColor(Color.BLACK);
                 getWindow().setStatusBarColor(Color.BLACK);
-            } else // Default status bar color (API < 21)
+            }
+            else // Default status bar color (API < 21)
                 toolbar.setBackgroundColor(Color.argb(255, 30, 30, 30));
         }
 
@@ -148,18 +159,19 @@ public class MainActivity extends AppCompatActivity
         }
 
         // Display remote device name into subtitle (with initial position)
-        displayPosition();
+        displayPosition(false);
 
         // Add camera fragment (after having set initial position)
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
-        fragTransaction.add(R.id.mainContainer, mMainFragment);
-        fragTransaction.commit();
+        fragTransaction.add(R.id.main_container, new MainFragment(), MainFragment.TAG_FRAGMENT)
+                .commit();
+        getSupportFragmentManager().executePendingTransactions();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        displayPosition(); // In case it changed
+        displayPosition(true); // In case it has changed
 
         // Set current activity
         ActivityWrapper.set(this);

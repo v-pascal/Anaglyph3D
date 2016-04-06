@@ -45,7 +45,14 @@ public class ActivityWrapper {
             Logs.add(Logs.Type.F, "Wrong activity reference");
         }
     }
-    public static boolean isQuitAppRequested() { return mQuitApp; }
+    public static boolean isQuitAppRequested() {
+
+        if (mQuitApp) {
+            mQuitApp = false; // Needed coz static variable
+            return true;
+        }
+        return false;
+    }
     public static void quitApplication() {
 
         mQuitApp = true;

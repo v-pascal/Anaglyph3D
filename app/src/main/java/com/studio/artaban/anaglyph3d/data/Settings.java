@@ -315,7 +315,7 @@ public class Settings implements ConnectRequest {
             }
             if ((type & REQ_TYPE_POSITION) == REQ_TYPE_POSITION) {
                 try {
-                    mPosition = settings.getBoolean(DATA_KEY_POSITION);
+                    mPosition = !settings.getBoolean(DATA_KEY_POSITION);
                     reply.put(DATA_KEY_POSITION, true); // Ok
                 }
                 catch (JSONException e) {
@@ -364,7 +364,7 @@ public class Settings implements ConnectRequest {
 
                 else if (curActivity.getClass().equals(MainActivity.class)) // Main activity
                     if (reply.has(DATA_KEY_POSITION))
-                        ((MainActivity)curActivity).displayPosition();
+                        ((MainActivity)curActivity).displayPosition(true);
             }
             catch (NullPointerException e) {
                 Logs.add(Logs.Type.F, "Wrong activity reference");
@@ -418,6 +418,7 @@ public class Settings implements ConnectRequest {
             }
         }
         else { // Update reply received
+
 
 
 

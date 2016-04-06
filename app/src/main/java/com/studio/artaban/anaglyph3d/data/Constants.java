@@ -17,10 +17,10 @@ public class Constants {
 
     ////// Connectivity
     public static final String CONN_SECURE_UUID = "76d0eb60-a913-11e5-bfd6-0003a5d5c51b"; // Bluetooth secure UUID
-    public static final String CONN_SECURE_NAME = "ANAGLYPH3D"; // Bluetooth connection name
+    public static final String CONN_SECURE_NAME = "ANAGLYPH-3D"; // Bluetooth connection name
 
-    public static final short CONN_LISTEN_MIN = 200; // Minimum listen duration = Min * delay below
-    public static final short CONN_LISTEN_MAX = 1500; // Maximum listen duration = Max * delay below
+    public static final short CONN_LISTEN_MIN = 500; // Minimum listen duration = Min * delay below
+    public static final short CONN_LISTEN_MAX = 3100; // Maximum listen duration = Max * delay below
     public static final int CONN_WAIT_DELAY = 10; // Connection loop delay (in milliseconds)
 
     ////// Bluetooth
