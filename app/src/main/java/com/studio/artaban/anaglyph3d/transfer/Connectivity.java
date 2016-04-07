@@ -122,46 +122,27 @@ public class Connectivity {
                 (mBluetooth.getStatus() == Bluetooth.Status.CONNECTED);
     }
 
-
-
-
-    ////// Request/Reply element format: BBB-A:CC_*
-
-
-
     ////// Request/Reply element format: BBB-X#A:CC_*
     // _ BBB -> Digital size of the entire message (in decimal)
-    // _ X -> '0': Request element, '1': Reply element
+    // _ X -> 'Q': Request element, 'R': Reply element
     // _ A -> Request ID
     // _ CC -> Request type (in hex)
     // _ * -> Message
-
-
-
-    //private static final char SEPARATOR_SIZE_REQUEST_ID = '-';
-
-
     private static final char SEPARATOR_SIZE_ELEMENT = '-';
     private static final char SEPARATOR_ELEMENT_REQUEST_ID = '#';
     private static final char SEPARATOR_REQUEST_ID_TYPE = ':';
     private static final char SEPARATOR_TYPE_MESSAGE = '_';
 
+    private static final char ELEMENT_FLAG_REQUEST = 'Q';
+    private static final char ELEMENT_FLAG_REPLY = 'R';
 
-
+    private String mPendingRequest = null; // Pending request received during a reply wait
 
     // Receive request or reply
     private String receive(boolean reply) {
 
-
-
-
-
-        //reply
-
-
-
-
-
+        if ((!reply) && (mPendingRequest != null))
+            return mPendingRequest;
 
         int size = mBluetooth.read(mRead);
         if (size > 0) {
@@ -176,9 +157,10 @@ public class Connectivity {
 
             // Check element format received
             if ((size > 11) &&
-                    ((message.charAt(3) != SEPARATOR_SIZE_REQUEST_ID) ||
-                            (message.charAt(5) != SEPARATOR_REQUEST_ID_TYPE) ||
-                            (message.charAt(8) != SEPARATOR_TYPE_MESSAGE))) {
+                    ((message.charAt(3) != SEPARATOR_SIZE_ELEMENT) ||
+                            (message.charAt(5) != SEPARATOR_ELEMENT_REQUEST_ID) ||
+                            (message.charAt(7) != SEPARATOR_REQUEST_ID_TYPE) ||
+                            (message.charAt(10) != SEPARATOR_TYPE_MESSAGE))) {
 
                 Logs.add(Logs.Type.E, "Wrong request/reply format received");
                 mDisconnectError = true;
@@ -188,7 +170,27 @@ public class Connectivity {
 
                 // Full message received
                 mRead.reset();
-                return message.substring(4); // Format: A:CC_*
+
+                // Return result according what is expected
+                switch (message.charAt(4)) {
+                    case ELEMENT_FLAG_REPLY: {
+                        if (reply)
+                            return message.substring(6); // Format: A:CC_*
+
+                        // Waiting request but received reply
+                        Logs.add(Logs.Type.F, "Received unexpected reply");
+
+                        mDisconnectError = true;
+                        break;
+                    }
+                    case ELEMENT_FLAG_REQUEST: {
+                        if (!reply)
+                            return message.substring(6);
+
+                        mPendingRequest = message.substring(6);
+                        break;
+                    }
+                }
             }
         }
         return null;
@@ -197,20 +199,7 @@ public class Connectivity {
     // Send request or reply
     private boolean send(boolean request, TransferElement element) {
 
-
-
-
-
-
-        //request
-
-
-
-
-
-
-
-        Integer byteCount = element.mMessage.length() + 9;
+        Integer byteCount = element.mMessage.length() + 11;
         ByteBuffer buffer = ByteBuffer.allocate(byteCount);
 
         // Add size of the entire message (BBB)
@@ -227,7 +216,11 @@ public class Connectivity {
             buffer.put((byte) strSize.charAt(1));
             buffer.put((byte) strSize.charAt(2));
         }
-        buffer.put((byte) SEPARATOR_SIZE_REQUEST_ID);
+        buffer.put((byte) SEPARATOR_SIZE_ELEMENT);
+
+        // Add request/reply element flag
+        buffer.put((byte) ((request)? ELEMENT_FLAG_REQUEST:ELEMENT_FLAG_REPLY));
+        buffer.put((byte) SEPARATOR_ELEMENT_REQUEST_ID);
 
         // Add request ID (A)
         buffer.put((byte) element.mHandler.getRequestId());
@@ -317,6 +310,8 @@ public class Connectivity {
                     // Check if received request
                     String request = receive(false);
                     if (request != null) {
+
+                        mPendingRequest = null; // No more pending request (first request to process)
 
                         TransferElement reply = new TransferElement();
                         switch (request.charAt(0)) {
