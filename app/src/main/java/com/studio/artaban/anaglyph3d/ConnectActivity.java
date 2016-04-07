@@ -19,6 +19,30 @@ import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 public class ConnectActivity extends AppCompatActivity {
 
+    public void animGlass(final boolean right) {
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                final ImageView imgDevices = (ImageView)findViewById(R.id.image_devices);
+                if (imgDevices != null) {
+
+                    imgDevices.setImageDrawable(getResources().getDrawable(
+                            (right)? R.drawable.right_glass_anim:R.drawable.left_glass_anim));
+                    final AnimationDrawable animDevices = (AnimationDrawable) imgDevices.getDrawable();
+                    imgDevices.post(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            animDevices.start();
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    //////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +59,8 @@ public class ConnectActivity extends AppCompatActivity {
                 appBar.setBackgroundColor(Color.BLACK);
                 getWindow().setNavigationBarColor(Color.BLACK);
                 getWindow().setStatusBarColor(Color.BLACK);
-            } else // Default status bar color (API < 21)
+            }
+            else // Default status bar color (API < 21)
                 appBar.setBackgroundColor(Color.argb(255, 30, 30, 30));
         }
 
@@ -62,31 +87,22 @@ public class ConnectActivity extends AppCompatActivity {
         if (!Connectivity.getInstance().start()) {
 
             // Failed to enable Bluetooth connectivity
-            final ProgressBar progressBar = (ProgressBar)findViewById(R.id.progressBar);
+            final ProgressBar progressBar = (ProgressBar)findViewById(R.id.progress_bar);
             if (progressBar != null)
                 progressBar.setVisibility(View.GONE);
-            final TextView textView = (TextView)findViewById(R.id.textView);
+            final TextView textView = (TextView)findViewById(R.id.text_info);
             if (textView != null)
                 textView.setText(R.string.no_bluetooth);
-            final ImageView imgDevices = (ImageView)findViewById(R.id.imgDevices);
+            final ImageView imgDevices = (ImageView)findViewById(R.id.image_devices);
             if (imgDevices != null)
                 imgDevices.setImageDrawable(getResources().getDrawable(R.drawable.warning));
             return;
         }
 
         // Animate wait second devices image
-        final ImageView imgDevices = (ImageView)findViewById(R.id.imgDevices);
-        if (imgDevices != null) {
-            imgDevices.setImageDrawable(getResources().getDrawable(R.drawable.devices_anim));
-            final AnimationDrawable animDevices = (AnimationDrawable) imgDevices.getDrawable();
-            imgDevices.post(new Runnable() {
-
-                @Override
-                public void run() {
-                    animDevices.start();
-                }
-            });
-        }
+        final ImageView imgDevices = (ImageView)findViewById(R.id.image_devices);
+        if (imgDevices != null)
+            animGlass(true);
     }
 
     @Override

@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.studio.artaban.anaglyph3d.ConnectActivity;
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.MainActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;
@@ -441,6 +442,17 @@ public class Connectivity {
 
                         if (!mBluetooth.isDiscovering()) {
                             mStatus = Connectivity.Status.CONNECT;
+                            try {
+                                Activity curActivity = ActivityWrapper.get();
+                                if (curActivity == null)
+                                    throw new NullPointerException();
+
+                                if (curActivity.getClass().equals(ConnectActivity.class)) // Connect activity
+                                    ((ConnectActivity)curActivity).animGlass(true);
+                            }
+                            catch (NullPointerException e) {
+                                Logs.add(Logs.Type.F, "Wrong activity reference");
+                            }
                             devIndex = 0;
                         }
                         break;
@@ -476,6 +488,17 @@ public class Connectivity {
                                     mBluetooth.listen(true, Constants.CONN_SECURE_UUID,
                                             Constants.CONN_SECURE_NAME);
                                     mStatus = Connectivity.Status.LISTEN;
+                                    try {
+                                        Activity curActivity = ActivityWrapper.get();
+                                        if (curActivity == null)
+                                            throw new NullPointerException();
+
+                                        if (curActivity.getClass().equals(ConnectActivity.class)) // Connect activity
+                                            ((ConnectActivity)curActivity).animGlass(false);
+                                    }
+                                    catch (NullPointerException e) {
+                                        Logs.add(Logs.Type.F, "Wrong activity reference");
+                                    }
                                     Random rand = new Random();
                                     countListen = (short)(rand.nextInt(Constants.CONN_LISTEN_MAX -
                                             Constants.CONN_LISTEN_MIN) + Constants.CONN_LISTEN_MIN);
