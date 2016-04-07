@@ -23,6 +23,8 @@ public class Constants {
     public static final short CONN_LISTEN_MAX = 3100; // Maximum listen duration = Max * delay below
     public static final int CONN_WAIT_DELAY = 10; // Connection loop delay (in milliseconds)
 
+    public static final short CONN_MAX_DELAY_REPLY = 200; // Maximum delay to receive reply before disconnect
+
     ////// Bluetooth
     public static final String BLUETOOTH_DEVICES_SEPARATOR = "\n"; // Separator between device name and address
 

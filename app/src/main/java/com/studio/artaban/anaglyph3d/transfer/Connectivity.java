@@ -122,17 +122,46 @@ public class Connectivity {
                 (mBluetooth.getStatus() == Bluetooth.Status.CONNECTED);
     }
 
+
+
+
     ////// Request/Reply element format: BBB-A:CC_*
+
+
+
+    ////// Request/Reply element format: BBB-X#A:CC_*
     // _ BBB -> Digital size of the entire message (in decimal)
+    // _ X -> '0': Request element, '1': Reply element
     // _ A -> Request ID
     // _ CC -> Request type (in hex)
     // _ * -> Message
-    private static final char SEPARATOR_SIZE_REQUEST_ID = '-';
+
+
+
+    //private static final char SEPARATOR_SIZE_REQUEST_ID = '-';
+
+
+    private static final char SEPARATOR_SIZE_ELEMENT = '-';
+    private static final char SEPARATOR_ELEMENT_REQUEST_ID = '#';
     private static final char SEPARATOR_REQUEST_ID_TYPE = ':';
     private static final char SEPARATOR_TYPE_MESSAGE = '_';
 
+
+
+
     // Receive request or reply
-    private String receive() {
+    private String receive(boolean reply) {
+
+
+
+
+
+        //reply
+
+
+
+
+
 
         int size = mBluetooth.read(mRead);
         if (size > 0) {
@@ -146,7 +175,7 @@ public class Connectivity {
             }
 
             // Check element format received
-            if ((size > 9) &&
+            if ((size > 11) &&
                     ((message.charAt(3) != SEPARATOR_SIZE_REQUEST_ID) ||
                             (message.charAt(5) != SEPARATOR_REQUEST_ID_TYPE) ||
                             (message.charAt(8) != SEPARATOR_TYPE_MESSAGE))) {
@@ -166,7 +195,20 @@ public class Connectivity {
     }
 
     // Send request or reply
-    private boolean send(TransferElement element) {
+    private boolean send(boolean request, TransferElement element) {
+
+
+
+
+
+
+        //request
+
+
+
+
+
+
 
         Integer byteCount = element.mMessage.length() + 9;
         ByteBuffer buffer = ByteBuffer.allocate(byteCount);
@@ -257,6 +299,8 @@ public class Connectivity {
             synchronized (mRequests) { mRequests.clear(); }
         }
 
+        private short mWaitReply = 0;
+
         ////// Process (connected status):
         // _ Send requests (from request list)
         // _ Receive data: requests & replies (from remote device)
@@ -271,7 +315,7 @@ public class Connectivity {
                 case STAND_BY: {
 
                     // Check if received request
-                    String request = receive();
+                    String request = receive(false);
                     if (request != null) {
 
                         TransferElement reply = new TransferElement();
@@ -297,7 +341,7 @@ public class Connectivity {
                         }
 
                         // Send reply
-                        if (!send(reply)) {
+                        if (!send(false, reply)) {
 
                             Logs.add(Logs.Type.E, "Failed to send reply");
                             mDisconnectError = true;
@@ -313,13 +357,14 @@ public class Connectivity {
                             break; // No request to send
 
                         // Send request
-                        if (!send(mRequests.get(0))) {
+                        if (!send(true, mRequests.get(0))) {
 
                             Logs.add(Logs.Type.E, "Failed to send request");
                             mDisconnectError = true;
                             close();
                             break;
                         }
+                        mWaitReply = 0;
                         mStatus = Connectivity.Status.WAIT_REPLY;
                     }
                     break;
@@ -327,22 +372,29 @@ public class Connectivity {
                 case WAIT_REPLY: {
 
                     // Check if received reply
-                    String reply = receive();
+                    String reply = receive(true);
                     if (reply != null) {
 
                         synchronized (mRequests) {
 
-                            if (!mRequests.get(0).mHandler.receiveReply(
-                                    (byte) Integer.parseInt(reply.substring(2, 4), 16), reply.substring(5))) {
+                            int noMacthCount = mNotMatchingDevices.size();
+                            if ((mRequests.isEmpty()) || (!mRequests.get(0).mHandler.receiveReply(
+                                    (byte) Integer.parseInt(reply.substring(2, 4), 16), reply.substring(5)))) {
 
                                 Logs.add(Logs.Type.E, "Unexpected reply received (or device not matching)");
-                                mDisconnectError = true;
+                                mDisconnectError = (noMacthCount == mNotMatchingDevices.size());
                                 close();
                                 break;
                             }
                             mRequests.remove(0);
                             mStatus = Connectivity.Status.STAND_BY;
                         }
+                    }
+                    else if (mWaitReply++ == Constants.CONN_MAX_DELAY_REPLY) {
+
+                        Logs.add(Logs.Type.E, "Time limit to receive reply has expired");
+                        mDisconnectError = true;
+                        close();
                     }
                     break;
                 }
