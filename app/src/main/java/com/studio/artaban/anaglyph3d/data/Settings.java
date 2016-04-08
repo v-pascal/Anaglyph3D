@@ -46,6 +46,7 @@ public class Settings implements ConnectRequest {
     public static final String DATA_KEY_FPS = "fps";
 
     // Getters
+    public boolean isMaster() { return mMaster; }
     public String getRemoteDevice() { // Return remote device name
         return mRemoteDevice.substring(0, mRemoteDevice.indexOf(Constants.BLUETOOTH_DEVICES_SEPARATOR));
     }
@@ -84,7 +85,7 @@ public class Settings implements ConnectRequest {
     }
 
     // Data
-    private boolean mMaster; // Master device which has settings priority (false for slave device)
+    private boolean mMaster; // Master device which has priority (false for slave device)
     private String mRemoteDevice; // Remote device info
     public long mPerformance = 1000; // Device performance representation (lowest is best)
     private boolean mMaker = true; // Flag to know which device will have to make the final video (best performance)
@@ -353,7 +354,7 @@ public class Settings implements ConnectRequest {
 
             }
 
-            // Update active activity
+            // Update activities
             try {
                 Activity curActivity = ActivityWrapper.get();
                 if (curActivity == null)

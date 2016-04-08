@@ -20,7 +20,6 @@ import android.widget.TextView;
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.dummy.DummyContent;
-import com.studio.artaban.anaglyph3d.fragments.VideoDetailFragment;
 
 import java.util.List;
 

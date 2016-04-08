@@ -17,7 +17,6 @@ import android.view.View;
 import android.widget.NumberPicker;
 
 import com.studio.artaban.anaglyph3d.data.Constants;
-import com.studio.artaban.anaglyph3d.fragments.AppCompatPreferenceActivity;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
@@ -28,7 +27,7 @@ import org.json.JSONObject;
  * Created by pascal on 21/03/16.
  * Settings activity (preference)
  */
-public class SettingsActivity extends AppCompatPreferenceActivity
+public class SettingsActivity extends SettingsParentActivity
         implements Preference.OnPreferenceChangeListener {
 
     private class NumberPickerPreference extends DialogPreference {

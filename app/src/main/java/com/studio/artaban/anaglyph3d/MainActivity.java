@@ -21,7 +21,6 @@ import android.view.MenuItem;
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
-import com.studio.artaban.anaglyph3d.fragments.MainFragment;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
@@ -181,6 +180,7 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if ((drawer != null) && (drawer.isDrawerOpen(GravityCompat.START)))
             drawer.closeDrawer(GravityCompat.START);
+
         else // Put application into background (paused)
             moveTaskToBack(true);
     }

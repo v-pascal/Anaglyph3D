@@ -11,7 +11,6 @@ import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 import com.studio.artaban.anaglyph3d.R;
-import com.studio.artaban.anaglyph3d.fragments.VideoDetailFragment;
 
 /**
  * An activity representing a single Video detail screen. This

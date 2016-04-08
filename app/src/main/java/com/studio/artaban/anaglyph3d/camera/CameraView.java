@@ -81,53 +81,39 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
     private SurfaceHolder mHolder;
     private Camera mCamera;
 
-    public void resume() {
+    private void create() {
 
         if (mCamera == null)
             mCamera = getCamera();
 
-        setCallback();
-        // Needed during a lock/unlock screen operation
+        // Install a SurfaceHolder.Callback so we get notified when the
+        // underlying surface is created and destroyed.
+        mHolder = getHolder();
+        mHolder.addCallback(this);
+
+        // ...and needed during a lock/unlock screen operation
     }
-    public void pause() {
+    public void resume() { create(); }
+    public void pause() { release(); }
+    private void release() {
 
-
-
-
-
-
-        Logs.add(Logs.Type.I, "pause");
-
-
-
-
-
-
-
-
-        mCamera.release();
-        mCamera = null;
+        if (mCamera != null) {
+            mCamera.release();
+            mCamera = null;
+        }
     }
 
     //
     public CameraView(Context context, AttributeSet attrs) {
         super(context);
-        mCamera = getCamera();
-
-        // Install a SurfaceHolder.Callback so we get notified when the
-        // underlying surface is created and destroyed.
-        setCallback();
-    }
-
-    private void setCallback() {
-
-        mHolder = getHolder();
-        mHolder.addCallback(this);
+        create();
     }
 
     //////
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        create();
+
         // The Surface has been created, now tell the camera where to draw the preview.
         try {
             mCamera.setPreviewDisplay(holder);
@@ -190,5 +176,5 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder) { }
+    public void surfaceDestroyed(SurfaceHolder holder) { release(); }
 }

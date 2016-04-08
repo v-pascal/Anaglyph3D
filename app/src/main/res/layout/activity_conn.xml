@@ -44,15 +44,45 @@
             android:layout_marginTop="25dp"
             android:layout_marginBottom="25dp" />
 
-        <ImageView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/image_devices"
             android:layout_above="@+id/text_info"
-            android:layout_centerHorizontal="true"
-            android:contentDescription="@string/image_desc_devices"
-            android:adjustViewBounds="true"
-            android:scaleType="fitCenter" />
+            android:layout_centerHorizontal="true">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="7dp"
+                android:id="@+id/left_device"
+                android:src="@drawable/left_device"
+                android:onClick="onLeftDeviceClick"
+                android:contentDescription="@string/image_desc_devices"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/image_warning"
+                android:src="@drawable/warning"
+                android:visibility="gone"
+                android:contentDescription="@string/image_desc_warning"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="7dp"
+                android:id="@+id/right_device"
+                android:src="@drawable/right_device"
+                android:onClick="onRightDeviceClick"
+                android:contentDescription="@string/image_desc_devices"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter" />
+
+        </LinearLayout>
 
         <ProgressBar
             android:layout_width="wrap_content"

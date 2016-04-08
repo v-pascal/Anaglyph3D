@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Anaglyph 3D</string>
-    <string name="find_camera">Searching second camera...</string>
+    <string name="find_camera">Select the searched camera...</string>
     <string name="image_desc_devices" translatable="false">Camera devices/Warning image</string>
     <string name="no_bluetooth">Bluetooth not available!</string>
 
@@ -37,6 +37,7 @@
     <string name="confirm_disconnect">Do you really want to disconnect from the remote device?</string>
     <string name="connection_lost">WARNING: Connection lost!</string>
     <string name="image_desc_album" translatable="false">Album icon</string>
+    <string name="image_desc_warning" translatable="false">Warning image</string>
     <string name="connection_error">ERROR: Data transfer error! Connection closed.</string>
 
     <!-- Strings related to Settings -->

@@ -1,4 +1,4 @@
-package com.studio.artaban.anaglyph3d.fragments;
+package com.studio.artaban.anaglyph3d;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -10,7 +10,6 @@ import android.support.v4.app.Fragment;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
-import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.camera.CameraView;
 

@@ -2,12 +2,13 @@ package com.studio.artaban.anaglyph3d;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.AnimationDrawable;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -19,28 +20,26 @@ import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 public class ConnectActivity extends AppCompatActivity {
 
-    public void animGlass(final boolean right) {
-        runOnUiThread(new Runnable() {
+    private void setDeviceAnimation(boolean right) {
 
-            @Override
-            public void run() {
-                final ImageView imgDevices = (ImageView)findViewById(R.id.image_devices);
-                if (imgDevices != null) {
+        final ImageView deviceA = (ImageView)findViewById((right)? R.id.left_device:R.id.right_device);
+        if (deviceA != null)
+            deviceA.clearAnimation();
 
-                    imgDevices.setImageDrawable(getResources().getDrawable(
-                            (right)? R.drawable.right_glass_anim:R.drawable.left_glass_anim));
-                    final AnimationDrawable animDevices = (AnimationDrawable) imgDevices.getDrawable();
-                    imgDevices.post(new Runnable() {
+        final AlphaAnimation anim = new AlphaAnimation(1.0f, 0.f);
+        anim.setDuration(800);
+        anim.setRepeatCount(Animation.INFINITE);
+        anim.setRepeatMode(Animation.REVERSE);
+        final ImageView deviceB = (ImageView)findViewById((right)? R.id.right_device:R.id.left_device);
+        if (deviceB != null)
+            deviceB.startAnimation(anim);
 
-                        @Override
-                        public void run() {
-                            animDevices.start();
-                        }
-                    });
-                }
-            }
-        });
+        Connectivity.getInstance().mListenDevice = !right;
     }
+
+    //
+    public void onLeftDeviceClick(View sender) { setDeviceAnimation(false); }
+    public void onRightDeviceClick(View sender) { setDeviceAnimation(true); }
 
     //////
     @Override
@@ -93,16 +92,20 @@ public class ConnectActivity extends AppCompatActivity {
             final TextView textView = (TextView)findViewById(R.id.text_info);
             if (textView != null)
                 textView.setText(R.string.no_bluetooth);
-            final ImageView imgDevices = (ImageView)findViewById(R.id.image_devices);
-            if (imgDevices != null)
-                imgDevices.setImageDrawable(getResources().getDrawable(R.drawable.warning));
+            final ImageView devLeft = (ImageView)findViewById(R.id.left_device);
+            if (devLeft != null)
+                devLeft.setVisibility(View.GONE);
+            final ImageView devRight = (ImageView)findViewById(R.id.right_device);
+            if (devRight != null)
+                devRight.setVisibility(View.GONE);
+            final ImageView imgWarning = (ImageView)findViewById(R.id.image_warning);
+            if (imgWarning != null)
+                imgWarning.setVisibility(View.VISIBLE);
             return;
         }
 
-        // Animate wait second devices image
-        final ImageView imgDevices = (ImageView)findViewById(R.id.image_devices);
-        if (imgDevices != null)
-            animGlass(true);
+        // Searching right device (default)
+        setDeviceAnimation(true);
     }
 
     @Override

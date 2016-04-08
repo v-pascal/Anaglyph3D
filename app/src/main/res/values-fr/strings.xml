@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">3D Anaglyphe</string>
-    <string name="find_camera">Recherche deuxième camera...</string>
+    <string name="find_camera">Sélectionnez la caméra recherché...</string>
     <string name="no_bluetooth">Bluetooth non disponible!</string>
 
     <string name="navigation_drawer_close">Ferme la navigation</string>

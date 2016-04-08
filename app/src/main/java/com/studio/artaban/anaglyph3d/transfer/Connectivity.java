@@ -8,7 +8,6 @@ import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.ConnectActivity;
 import com.studio.artaban.anaglyph3d.R;
-import com.studio.artaban.anaglyph3d.MainActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
@@ -20,7 +19,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -36,9 +34,12 @@ public class Connectivity {
     //////
     private AsyncTask<Void, Void, Void> mProcessTask;
     private final Bluetooth mBluetooth = new Bluetooth();
-    public final ArrayList<String> mNotMatchingDevices = new ArrayList<String>();
     private final ByteArrayOutputStream mRead = new ByteArrayOutputStream();
     private boolean mAbort = true;
+
+    public volatile boolean mListenDevice = false; // false: Try to connect (master), true: Listen (slave)
+    public final ArrayList<String> mNotMatchingDevices = new ArrayList<String>();
+    // Array containing device info that camera resolutions do not match with current ones
 
     private enum Status {
         UNDEFINED,
@@ -115,6 +116,39 @@ public class Connectivity {
 
         return true; // Send request
     }
+    private boolean processRequest(String request) {
+
+        mPendingRequest = null; // No more pending request
+
+        TransferElement reply = new TransferElement();
+        switch (request.charAt(0)) {
+
+            case ConnectRequest.REQ_SETTINGS: reply.mHandler = Settings.getInstance(); break;
+            default: {
+
+                Logs.add(Logs.Type.E, "Unexpected request received");
+                mDisconnectError = true;
+                return false;
+            }
+        }
+        reply.mType = (byte)Integer.parseInt(request.substring(2, 4), 16);
+        reply.mMessage = reply.mHandler.getReply(reply.mType, request.substring(5));
+        if (reply.mMessage == null) {
+
+            Logs.add(Logs.Type.E, "Failed to reply to request");
+            mDisconnectError = true;
+            return false;
+        }
+
+        // Send reply
+        if (!send(false, reply)) {
+
+            Logs.add(Logs.Type.E, "Failed to send reply");
+            mDisconnectError = true;
+            return false;
+        }
+        return true;
+    }
 
     public void disconnect() { mDisconnectRequest = true; }
     private boolean isConnected() {
@@ -141,9 +175,6 @@ public class Connectivity {
 
     // Receive request or reply
     private String receive(boolean reply) {
-
-        if ((!reply) && (mPendingRequest != null))
-            return mPendingRequest;
 
         int size = mBluetooth.read(mRead);
         if (size > 0) {
@@ -253,6 +284,8 @@ public class Connectivity {
         // Initialize connection
         private void initialize(boolean position) {
 
+            synchronized (mRequests) { mRequests.clear(); }
+
             // Add request to initialize settings
             final Bundle connInfo = new Bundle();
             connInfo.putString(Settings.DATA_KEY_REMOTE_DEVICE, mBluetooth.getRemoteDevice());
@@ -264,16 +297,16 @@ public class Connectivity {
         // Close connection
         private void close() {
 
-            // Remove or close main activity from the activities stack (using activity result)
+            // Close current activity (back to connect activity)
             try {
                 Activity curActivity = ActivityWrapper.get();
                 if (curActivity == null)
                     throw new NullPointerException();
 
-                if (curActivity.getClass().equals(MainActivity.class))
-                    curActivity.finish();
-                else // ...other activity (back to connect activity, if not already the case)
+                if (!curActivity.getClass().equals(ConnectActivity.class)) { // Not connect activity
                     curActivity.setResult(Constants.RESULT_LOST_CONNECTION);
+                    curActivity.finish();
+                }
             }
             catch (NullPointerException e) {
                 Logs.add(Logs.Type.F, "Wrong activity reference");
@@ -290,7 +323,6 @@ public class Connectivity {
             }
             mStatus = Connectivity.Status.RESET;
             mDisconnectRequest = mDisconnectError = false;
-            synchronized (mRequests) { mRequests.clear(); }
         }
 
         private short mWaitReply = 0;
@@ -304,45 +336,14 @@ public class Connectivity {
             if (!isConnected())
                 close();
 
-            //
             switch (mStatus) {
                 case STAND_BY: {
 
                     // Check if received request
                     String request = receive(false);
                     if (request != null) {
-
-                        mPendingRequest = null; // No more pending request (first request to process)
-
-                        TransferElement reply = new TransferElement();
-                        switch (request.charAt(0)) {
-
-                            case ConnectRequest.REQ_SETTINGS: reply.mHandler = Settings.getInstance(); break;
-                            default: {
-
-                                Logs.add(Logs.Type.E, "Unexpected request received");
-                                mDisconnectError = true;
-                                close();
-                                return;
-                            }
-                        }
-                        reply.mType = (byte)Integer.parseInt(request.substring(2, 4), 16);
-                        reply.mMessage = reply.mHandler.getReply(reply.mType, request.substring(5));
-                        if (reply.mMessage == null) {
-
-                            Logs.add(Logs.Type.E, "Failed to reply to request");
-                            mDisconnectError = true;
+                        if (!processRequest(request))
                             close();
-                            break;
-                        }
-
-                        // Send reply
-                        if (!send(false, reply)) {
-
-                            Logs.add(Logs.Type.E, "Failed to send reply");
-                            mDisconnectError = true;
-                            close();
-                        }
                     }
                     else if (mDisconnectError) // Check if error during message receive
                         close();
@@ -373,18 +374,24 @@ public class Connectivity {
 
                         synchronized (mRequests) {
 
-                            int noMacthCount = mNotMatchingDevices.size();
+                            int noMatchCount = mNotMatchingDevices.size();
                             if ((mRequests.isEmpty()) || (!mRequests.get(0).mHandler.receiveReply(
-                                    (byte) Integer.parseInt(reply.substring(2, 4), 16), reply.substring(5)))) {
+                                    (byte) Integer.parseInt(reply.substring(2, 4), 16),
+                                    reply.substring(5)))) {
 
                                 Logs.add(Logs.Type.E, "Unexpected reply received (or device not matching)");
-                                mDisconnectError = (noMacthCount == mNotMatchingDevices.size());
+                                mDisconnectError = (noMatchCount == mNotMatchingDevices.size());
                                 close();
                                 break;
                             }
                             mRequests.remove(0);
                             mStatus = Connectivity.Status.STAND_BY;
                         }
+                    }
+                    else if (mPendingRequest != null) {
+                        if (!Settings.getInstance().isMaster())
+                            processRequest(mPendingRequest);
+                        //else // The master will wait its request reply
                     }
                     else if (mWaitReply++ == Constants.CONN_MAX_DELAY_REPLY) {
 
@@ -401,7 +408,7 @@ public class Connectivity {
         protected Void doInBackground(Void... params) {
             Logs.add(Logs.Type.I, "Connectivity thread started");
 
-            short devIndex = 0, waitListen = 0, countListen = 0;
+            short devIndex = 0;
             while(!mAbort) {
 
                 switch (mStatus) {
@@ -434,30 +441,30 @@ public class Connectivity {
                     case RESET: {
 
                         mBluetooth.reset();
-                        mBluetooth.discover();
-                        mStatus = Connectivity.Status.DISCOVER;
+                        if (mListenDevice) {
+
+                            // Listen
+                            mBluetooth.listen(true, Constants.CONN_SECURE_UUID,
+                                    Constants.CONN_SECURE_NAME);
+                            mStatus = Connectivity.Status.LISTEN;
+                        }
+                        else {
+
+                            // Discover (then try to connect)
+                            mBluetooth.discover();
+                            mStatus = Connectivity.Status.DISCOVER;
+                        }
                         break;
                     }
                     case DISCOVER: {
 
                         if (!mBluetooth.isDiscovering()) {
                             mStatus = Connectivity.Status.CONNECT;
-                            try {
-                                Activity curActivity = ActivityWrapper.get();
-                                if (curActivity == null)
-                                    throw new NullPointerException();
-
-                                if (curActivity.getClass().equals(ConnectActivity.class)) // Connect activity
-                                    ((ConnectActivity)curActivity).animGlass(true);
-                            }
-                            catch (NullPointerException e) {
-                                Logs.add(Logs.Type.F, "Wrong activity reference");
-                            }
                             devIndex = 0;
                         }
                         break;
                     }
-                    case CONNECT: {
+                    case CONNECT: { // Try to connect to discovered devices
 
                         switch (mBluetooth.getStatus()) {
                             case CONNECTING: break; // Still trying to connect
@@ -469,6 +476,12 @@ public class Connectivity {
                                 break;
                             }
                             case READY: {
+
+                                // Check if user has changed the device to search
+                                if (mListenDevice) {
+                                    mStatus = Connectivity.Status.RESET;
+                                    break;
+                                }
 
                                 final String device = mBluetooth.getDevice(devIndex++);
                                 if (device != null) {
@@ -483,27 +496,9 @@ public class Connectivity {
                                                     Constants.BLUETOOTH_DEVICES_SEPARATOR) + 1);
                                     mBluetooth.connect(true, Constants.CONN_SECURE_UUID, devAddress);
                                 }
-                                else {
+                                else // No more device to try to connect
+                                    mStatus = Connectivity.Status.RESET;
 
-                                    mBluetooth.listen(true, Constants.CONN_SECURE_UUID,
-                                            Constants.CONN_SECURE_NAME);
-                                    mStatus = Connectivity.Status.LISTEN;
-                                    try {
-                                        Activity curActivity = ActivityWrapper.get();
-                                        if (curActivity == null)
-                                            throw new NullPointerException();
-
-                                        if (curActivity.getClass().equals(ConnectActivity.class)) // Connect activity
-                                            ((ConnectActivity)curActivity).animGlass(false);
-                                    }
-                                    catch (NullPointerException e) {
-                                        Logs.add(Logs.Type.F, "Wrong activity reference");
-                                    }
-                                    Random rand = new Random();
-                                    countListen = (short)(rand.nextInt(Constants.CONN_LISTEN_MAX -
-                                            Constants.CONN_LISTEN_MIN) + Constants.CONN_LISTEN_MIN);
-                                    waitListen = 0;
-                                }
                                 break;
                             }
                         }
@@ -514,8 +509,10 @@ public class Connectivity {
                         switch (mBluetooth.getStatus()) {
                             case LISTENING: { // Still listening
 
-                                if (++waitListen == countListen)
+                                // Check if user has changed the device to search
+                                if (!mListenDevice)
                                     mStatus = Connectivity.Status.RESET;
+
                                 break;
                             }
                             case CONNECTED: {

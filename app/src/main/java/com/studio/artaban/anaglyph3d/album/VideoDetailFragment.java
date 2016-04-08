@@ -1,4 +1,4 @@
-package com.studio.artaban.anaglyph3d.fragments;
+package com.studio.artaban.anaglyph3d.album;
 
 import android.app.Activity;
 import android.support.design.widget.CollapsingToolbarLayout;
