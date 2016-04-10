@@ -8,13 +8,27 @@ import android.os.Bundle;
  */
 public interface ConnectRequest {
 
+    char REQ_NONE = ' ';
     char REQ_SETTINGS = 'S';
-    // Request IDs
+    ////// Request IDs
+
+    ////// Request received while waiting reply
+    class PreviousMaster {
+
+        public char mId = REQ_NONE;
+        public byte mType = 0;
+        //public String mMessage = null;
+    };
+    // Useful for master device when it replies to a pending request sent by the slave device
+    // -> See 'previous' parameter of the 'getReply' method
+
+    ///////////////////////////////////////////
 
     char getRequestId();
+    short getMaxWaitReply(byte type);
 
     String getRequest(byte type, Bundle data);
-    String getReply(byte type, String request);
+    String getReply(byte type, String request, PreviousMaster previous);
 
     boolean receiveReply(byte type, String reply);
 }

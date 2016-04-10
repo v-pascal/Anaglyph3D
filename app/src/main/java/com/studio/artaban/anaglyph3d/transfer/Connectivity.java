@@ -118,7 +118,20 @@ public class Connectivity {
     }
     private boolean processRequest(String request) {
 
+        ////// Request received while waiting reply
+        ConnectRequest.PreviousMaster previousRequest = null;
+        if ((Settings.getInstance().isMaster()) && (mPendingRequest != null)) {
+
+            previousRequest = new ConnectRequest.PreviousMaster();
+            synchronized (mRequests) {
+                previousRequest.mId = mRequests.get(0).mHandler.getRequestId();
+                previousRequest.mType = mRequests.get(0).mType;
+                //previousRequest.mMessage = mRequests.get(0).mMessage;
+                mRequests.remove(0);
+            }
+        }
         mPendingRequest = null; // No more pending request
+        ///////////////////////////////////////////
 
         TransferElement reply = new TransferElement();
         switch (request.charAt(0)) {
@@ -132,7 +145,7 @@ public class Connectivity {
             }
         }
         reply.mType = (byte)Integer.parseInt(request.substring(2, 4), 16);
-        reply.mMessage = reply.mHandler.getReply(reply.mType, request.substring(5));
+        reply.mMessage = reply.mHandler.getReply(reply.mType, request.substring(5), previousRequest);
         if (reply.mMessage == null) {
 
             Logs.add(Logs.Type.E, "Failed to reply to request");
@@ -175,6 +188,13 @@ public class Connectivity {
 
     // Receive request or reply
     private String receive(boolean reply) {
+
+        ////// Request received while waiting reply
+        if ((!reply) && (mPendingRequest != null))
+            return mPendingRequest;
+            // Needed when a request has been received during a wait reply (for master only)
+
+        ///////////////////////////////////////////
 
         int size = mBluetooth.read(mRead);
         if (size > 0) {
@@ -325,7 +345,7 @@ public class Connectivity {
             mDisconnectRequest = mDisconnectError = false;
         }
 
-        private short mWaitReply = 0;
+        private short mMaxWait = 0; // Maximum delay to receive reply before disconnect (in loop count)
 
         ////// Process (connected status):
         // _ Send requests (from request list)
@@ -361,7 +381,7 @@ public class Connectivity {
                             close();
                             break;
                         }
-                        mWaitReply = 0;
+                        mMaxWait = mRequests.get(0).mHandler.getMaxWaitReply(mRequests.get(0).mType);
                         mStatus = Connectivity.Status.WAIT_REPLY;
                     }
                     break;
@@ -384,18 +404,30 @@ public class Connectivity {
                                 close();
                                 break;
                             }
-                            mRequests.remove(0);
+
+                            ////// Request received while waiting reply
+                            if (mPendingRequest == null) // Always null for slave
+                                mRequests.remove(0);
+                            //else // Let's the 'STAND_BY' case process the pending request according
+                                   // the request we received the reply just above (for master only)
+
+                            ///////////////////////////////////////////
+
                             mStatus = Connectivity.Status.STAND_BY;
                         }
                     }
+                    ////// Request received while waiting reply
                     else if (mPendingRequest != null) {
-                        if (!Settings.getInstance().isMaster())
-                            processRequest(mPendingRequest);
-                        //else // The master will wait its request reply
+                        if (!Settings.getInstance().isMaster()) {
+                            if (!processRequest(mPendingRequest))
+                                close();
+                        }
+                        //else // The master will wait its reply
                     }
-                    else if (mWaitReply++ == Constants.CONN_MAX_DELAY_REPLY) {
+                    ///////////////////////////////////////////
+                    if (mMaxWait-- == 0) {
 
-                        Logs.add(Logs.Type.E, "Time limit to receive reply has expired");
+                        Logs.add(Logs.Type.E, "The time limit to receive reply has expired");
                         mDisconnectError = true;
                         close();
                     }
@@ -404,6 +436,7 @@ public class Connectivity {
             }
         }
 
+        //
         @Override
         protected Void doInBackground(Void... params) {
             Logs.add(Logs.Type.I, "Connectivity thread started");

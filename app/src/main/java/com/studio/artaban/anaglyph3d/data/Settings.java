@@ -159,6 +159,13 @@ public class Settings implements ConnectRequest {
     public char getRequestId() { return ConnectRequest.REQ_SETTINGS; }
 
     @Override
+    public short getMaxWaitReply(byte type) {
+
+        return (type == REQ_TYPE_INITIALIZE)?
+                Constants.CONN_MAX_WAIT_INITIALIZE:Constants.CONN_MAX_WAIT_SETTINGS;
+    }
+
+    @Override
     public String getRequest(byte type, Bundle data) {
 
         if (type == REQ_TYPE_INITIALIZE) {
@@ -264,7 +271,7 @@ public class Settings implements ConnectRequest {
     }
 
     @Override
-    public String getReply(byte type, String request) {
+    public String getReply(byte type, String request, PreviousMaster previous) {
 
         JSONObject settings;
         try { settings = new JSONObject(request); }
@@ -305,7 +312,21 @@ public class Settings implements ConnectRequest {
         }
         else { // Update settings (then reply)
 
-            if ((type & REQ_TYPE_RESOLUTION) == REQ_TYPE_RESOLUTION) {
+            ////// Request received while waiting reply
+            //
+            // Get previous master request type (if any)
+            byte previousType = (previous != null && previous.mId == ConnectRequest.REQ_SETTINGS)?
+                    previous.mType:0;
+            // -> Should not update settings from a pending request sent by a slave device if a master
+            //    request has already updated them (see 'previousType' checks below)
+
+            ///////////////////////////////////////////
+
+            if (((type & REQ_TYPE_RESOLUTION) == REQ_TYPE_RESOLUTION) &&
+                    ((previousType & REQ_TYPE_RESOLUTION) != REQ_TYPE_RESOLUTION)) {
+
+
+
 
 
 
@@ -314,7 +335,8 @@ public class Settings implements ConnectRequest {
 
 
             }
-            if ((type & REQ_TYPE_POSITION) == REQ_TYPE_POSITION) {
+            if (((type & REQ_TYPE_POSITION) == REQ_TYPE_POSITION) &&
+                    ((previousType & REQ_TYPE_POSITION) != REQ_TYPE_POSITION)) {
                 try {
                     mPosition = !settings.getBoolean(DATA_KEY_POSITION);
                     reply.put(DATA_KEY_POSITION, true); // Ok
@@ -325,7 +347,8 @@ public class Settings implements ConnectRequest {
                     return null;
                 }
             }
-            if ((type & REQ_TYPE_ORIENTATION) == REQ_TYPE_ORIENTATION) {
+            if (((type & REQ_TYPE_ORIENTATION) == REQ_TYPE_ORIENTATION) &&
+                    ((previousType & REQ_TYPE_ORIENTATION) != REQ_TYPE_ORIENTATION)) {
                 try {
                     mOrientation = settings.getBoolean(DATA_KEY_ORIENTATION);
                     reply.put(DATA_KEY_ORIENTATION, true); // Ok
@@ -336,7 +359,11 @@ public class Settings implements ConnectRequest {
                     return null;
                 }
             }
-            if ((type & REQ_TYPE_DURATION) == REQ_TYPE_DURATION) {
+            if (((type & REQ_TYPE_DURATION) == REQ_TYPE_DURATION) &&
+                    ((previousType & REQ_TYPE_DURATION) != REQ_TYPE_DURATION)) {
+
+
+
 
 
 
@@ -345,7 +372,11 @@ public class Settings implements ConnectRequest {
 
 
             }
-            if ((type & REQ_TYPE_FPS) == REQ_TYPE_FPS) {
+            if (((type & REQ_TYPE_FPS) == REQ_TYPE_FPS) &&
+                    ((previousType & REQ_TYPE_FPS) != REQ_TYPE_FPS)) {
+
+
+
 
 
 
@@ -363,9 +394,10 @@ public class Settings implements ConnectRequest {
                 if (curActivity.getClass().equals(SettingsActivity.class)) // Settings activity
                     ((SettingsActivity)curActivity).update(reply);
 
-                else if (curActivity.getClass().equals(MainActivity.class)) // Main activity
+                else if (curActivity.getClass().equals(MainActivity.class)) { // Main activity
                     if (reply.has(DATA_KEY_POSITION))
-                        ((MainActivity)curActivity).displayPosition();
+                        ((MainActivity) curActivity).displayPosition();
+                }
             }
             catch (NullPointerException e) {
                 Logs.add(Logs.Type.F, "Wrong activity reference");
@@ -418,16 +450,8 @@ public class Settings implements ConnectRequest {
                 return false;
             }
         }
-        else { // Update reply received
+        //else // Update reply received (nothing to do)
 
-
-
-
-
-
-
-
-        }
         return true;
     }
 }

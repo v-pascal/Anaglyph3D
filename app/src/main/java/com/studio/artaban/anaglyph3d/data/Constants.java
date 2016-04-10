@@ -20,7 +20,10 @@ public class Constants {
     public static final String CONN_SECURE_NAME = "ANAGLYPH-3D"; // Bluetooth connection name
 
     public static final int CONN_WAIT_DELAY = 10; // Connection loop sleep (in milliseconds)
-    public static final short CONN_MAX_DELAY_REPLY = 200; // Maximum delay to receive reply before disconnect
+
+    // Maximum delay to receive reply before disconnect (in loop count)
+    public static final short CONN_MAX_WAIT_INITIALIZE = 1500;
+    public static final short CONN_MAX_WAIT_SETTINGS = 200;
 
     ////// Bluetooth
     public static final String BLUETOOTH_DEVICES_SEPARATOR = "\n"; // Separator between device name and address

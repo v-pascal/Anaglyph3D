@@ -104,6 +104,7 @@ public class SettingsActivity extends SettingsParentActivity
 
                     mOrientationLock = true;
                     mOrientationSwitch.setChecked(Settings.getInstance().mOrientation);
+                    updateResolutions();
                 }
 
 
