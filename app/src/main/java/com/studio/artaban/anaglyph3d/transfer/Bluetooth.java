@@ -246,6 +246,19 @@ public class Bluetooth {
         if (mStatus == Status.DISABLED)
             return;
 
+        Set<BluetoothDevice> devices = mAdapter.getBondedDevices();
+        if (devices.size() > 0) {
+
+            synchronized (mDevices) {
+                for (BluetoothDevice device : devices) {
+
+                    String deviceInfo = device.getName() + Constants.BLUETOOTH_DEVICES_SEPARATOR +
+                            device.getAddress();
+                    if (!mDevices.contains(deviceInfo))
+                        mDevices.add(deviceInfo);
+                }
+            }
+        }
         if (mAdapter.isDiscovering())
             mAdapter.cancelDiscovery();
         mAdapter.startDiscovery();
@@ -370,7 +383,7 @@ public class Bluetooth {
     }
 
     //
-    public boolean initialize() {
+    public boolean initialize(Context context) {
 
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mAdapter == null) {
@@ -380,13 +393,12 @@ public class Bluetooth {
         if (!enable())
             return false;
 
+        // Enabling discoverability (according user acceptance)
+        Intent discoverable = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        discoverable.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+        context.startActivity(discoverable);
+
         mDevices.clear();
-
-        Set<BluetoothDevice> devices = mAdapter.getBondedDevices();
-        if (devices.size() > 0)
-            for (BluetoothDevice device : devices)
-                mDevices.add(device.getName() + "\n" + device.getAddress());
-
         mStatus = Status.READY;
         return true;
     }

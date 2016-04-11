@@ -83,7 +83,7 @@ public class ConnectActivity extends AppCompatActivity {
         }
 
         // Start connectivity
-        if (!Connectivity.getInstance().start()) {
+        if (!Connectivity.getInstance().start(this)) {
 
             // Failed to enable Bluetooth connectivity
             final ProgressBar progressBar = (ProgressBar)findViewById(R.id.progress_bar);
@@ -132,7 +132,7 @@ public class ConnectActivity extends AppCompatActivity {
 
         if (requestCode == 0) {
             if (resultCode == Constants.RESULT_RESTART_CONNECTION)
-                Connectivity.getInstance().start(); // Restart connectivity
+                Connectivity.getInstance().start(this); // Restart connectivity
 
             //else if (resultCode == Constants.RESULT_QUIT_APPLICATION)
             //    finish(); // Quit application

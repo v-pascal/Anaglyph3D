@@ -602,9 +602,9 @@ public class Connectivity {
     }
 
     //////
-    public boolean start() {
+    public boolean start(Context context) {
 
-        if ((mBluetooth.getStatus() == Bluetooth.Status.DISABLED) && (!mBluetooth.initialize()))
+        if ((mBluetooth.getStatus() == Bluetooth.Status.DISABLED) && (!mBluetooth.initialize(context)))
             return false;
 
         if (mStatus != Status.UNDEFINED) {
