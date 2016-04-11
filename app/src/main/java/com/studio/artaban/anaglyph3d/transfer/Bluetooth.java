@@ -41,11 +41,13 @@ public class Bluetooth {
             if (BluetoothDevice.ACTION_FOUND.equals(intent.getAction())) {
 
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (device.getBondState() != BluetoothDevice.BOND_BONDED) // Not already paired
-                    synchronized (mDevices) {
-                        mDevices.add(device.getName() + Constants.BLUETOOTH_DEVICES_SEPARATOR +
-                                device.getAddress());
-                    }
+                String deviceInfo = device.getName() + Constants.BLUETOOTH_DEVICES_SEPARATOR +
+                        device.getAddress();
+                synchronized (mDevices) {
+
+                    if (!mDevices.contains(deviceInfo))
+                        mDevices.add(deviceInfo);
+                }
             }
         }
     };
