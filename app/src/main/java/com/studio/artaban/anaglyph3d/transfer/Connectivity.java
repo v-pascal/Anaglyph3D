@@ -40,7 +40,7 @@ public class Connectivity {
     private boolean mAbort = true;
 
     public volatile boolean mListenDevice = false; // false: Try to connect (master), true: Listen (slave)
-    public final ArrayList<String> mNotMatchingDevices = new ArrayList<String>();
+    public final ArrayList<String> mNotMatchingDevices = new ArrayList<>();
     // Array containing device info that camera resolutions do not match with current ones
 
     private enum Status {
@@ -67,7 +67,7 @@ public class Connectivity {
         public byte mType;
         public String mMessage;
     }
-    private final List<TransferElement> mRequests = new ArrayList<TransferElement>();
+    private final List<TransferElement> mRequests = new ArrayList<>();
 
     //
     public boolean addRequest(ConnectRequest handler, byte type, Bundle data) {

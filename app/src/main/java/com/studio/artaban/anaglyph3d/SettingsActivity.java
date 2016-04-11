@@ -19,7 +19,6 @@ import android.widget.NumberPicker;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
-import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 import org.json.JSONObject;
@@ -49,6 +48,7 @@ public class SettingsActivity extends SettingsParentActivity
 
             mNumberValue = (int)defaultValue;
             persistInt(mNumberValue);
+            setSummary(String.valueOf(mNumberValue));
         }
 
         @Override
@@ -75,13 +75,13 @@ public class SettingsActivity extends SettingsParentActivity
                 // Replace 'onPreferenceChange' call here
                 if (getKey().equals(Settings.DATA_KEY_DURATION)) {
 
-                    Settings.getInstance().mDuration = mNumberValue;
+                    Settings.getInstance().mDuration = (short)mNumberValue;
                     Connectivity.getInstance().addRequest(Settings.getInstance(),
                             Settings.REQ_TYPE_DURATION, null);
                 }
                 else if (getKey().equals(Settings.DATA_KEY_FPS)) {
 
-                    Settings.getInstance().mFps = mNumberValue;
+                    Settings.getInstance().mFps = (short)mNumberValue;
                     Connectivity.getInstance().addRequest(Settings.getInstance(),
                             Settings.REQ_TYPE_FPS, null);
                 }
@@ -105,19 +105,18 @@ public class SettingsActivity extends SettingsParentActivity
 
                     mOrientationLock = true;
                     mOrientationSwitch.setChecked(Settings.getInstance().mOrientation);
-                    updateResolutions();
+                    if (!settings.has(Settings.DATA_KEY_RESOLUTION))
+                        updateResolutions();
+                    //else // Done below
                 }
+                if (settings.has(Settings.DATA_KEY_RESOLUTION))
+                    updateResolutions();
 
+                if (settings.has(Settings.DATA_KEY_DURATION))
+                    mDurationPreference.setDefaultValue(Settings.getInstance().mDuration);
 
-
-
-
-
-
-
-
-
-
+                if (settings.has(Settings.DATA_KEY_FPS))
+                    mFpsPreference.setDefaultValue(Settings.getInstance().mFps);
             }
         });
     }
@@ -198,7 +197,6 @@ public class SettingsActivity extends SettingsParentActivity
         mDurationPreference.setTitle(R.string.duration);
         mDurationPreference.setDialogTitle(R.string.duration);
         mDurationPreference.setDefaultValue(Settings.getInstance().mDuration);
-        mDurationPreference.setSummary(String.valueOf(Settings.getInstance().mDuration));
         mDurationPreference.mMin = Constants.CONFIG_MIN_DURATION;
         mDurationPreference.mMax = Constants.CONFIG_MAX_DURATION;
         //mDurationPreference.setOnPreferenceChangeListener(this);
@@ -209,7 +207,6 @@ public class SettingsActivity extends SettingsParentActivity
         mFpsPreference.setTitle(R.string.frame_per_second);
         mFpsPreference.setDialogTitle(R.string.frame_per_second);
         mFpsPreference.setDefaultValue(Settings.getInstance().mFps);
-        mFpsPreference.setSummary(String.valueOf(Settings.getInstance().mFps));
         mFpsPreference.mMin = Constants.CONFIG_MIN_FPS;
         mFpsPreference.mMax = Constants.CONFIG_MAX_FPS;
         //mFpsPreference.setOnPreferenceChangeListener(this);

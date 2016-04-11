@@ -50,7 +50,7 @@ public class Bluetooth {
         }
     };
 
-    private final ArrayList<String> mDevices = new ArrayList<String>();
+    private final ArrayList<String> mDevices = new ArrayList<>();
     private final ByteArrayOutputStream mReceived = new ByteArrayOutputStream();
     private Status mStatus = Status.DISABLED;
     private String mRemoteDevice;

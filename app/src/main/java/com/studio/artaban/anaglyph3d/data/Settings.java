@@ -3,6 +3,7 @@ package com.studio.artaban.anaglyph3d.data;
 import android.app.Activity;
 import android.hardware.Camera.Size;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 
 import com.studio.artaban.anaglyph3d.MainActivity;
 import com.studio.artaban.anaglyph3d.SettingsActivity;
@@ -90,13 +91,13 @@ public class Settings implements ConnectRequest {
     public long mPerformance = 1000; // Device performance representation (lowest is best)
     private boolean mMaker = true; // Flag to know which device will have to make the final video (best performance)
 
-    private final ArrayList<Size> mResolutions = new ArrayList<Size>(); // Resolutions list
+    private final ArrayList<Size> mResolutions = new ArrayList<>(); // Resolutions list
 
     public boolean mPosition = true; // Left camera position (false for right position)
     public boolean mOrientation = true; // Portrait orientation (false for landscape orientation)
     public Size mResolution; // Selected resolution
-    public int mDuration = 60; // Video duration (in seconds)
-    public int mFps = 30; // Frame per second
+    public short mDuration = 60; // Video duration (in seconds)
+    public short mFps = 30; // Frame per second
 
     // Request types (mask)
     public static final byte REQ_TYPE_INITIALIZE = 0x01;
@@ -129,7 +130,7 @@ public class Settings implements ConnectRequest {
     }
     private ArrayList<Size> getMergedResolutions(JSONArray resolutions) {
 
-        ArrayList<Size> mergedResolutions = new ArrayList<Size>();
+        ArrayList<Size> mergedResolutions = new ArrayList<>();
         try {
             for (int i = 0; i < resolutions.length(); ++i) {
 
@@ -322,24 +323,34 @@ public class Settings implements ConnectRequest {
 
             ///////////////////////////////////////////
 
+            ArrayList<Integer> messageIds = new ArrayList<>();
             if (((type & REQ_TYPE_RESOLUTION) == REQ_TYPE_RESOLUTION) &&
                     ((previousType & REQ_TYPE_RESOLUTION) != REQ_TYPE_RESOLUTION)) {
+                try {
+                    JSONObject size = settings.getJSONObject(DATA_KEY_RESOLUTION);
+                    String resolution;
+                    if (!Settings.getInstance().mOrientation)
+                        resolution = size.getInt(DATA_KEY_WIDTH) +
+                                Constants.CONFIG_RESOLUTION_SEPARATOR + size.getInt(DATA_KEY_HEIGHT);
+                    else
+                        resolution = size.getInt(DATA_KEY_HEIGHT) +
+                                Constants.CONFIG_RESOLUTION_SEPARATOR + size.getInt(DATA_KEY_WIDTH);
+                    setResolution(resolution, getResolutions());
+                    reply.put(DATA_KEY_RESOLUTION, true); // Ok
+                    messageIds.add(R.string.video_resolution);
+                }
+                catch (JSONException e) {
 
-
-
-
-
-
-
-
-
-
+                    Logs.add(Logs.Type.E, e.getMessage());
+                    return null;
+                }
             }
             if (((type & REQ_TYPE_POSITION) == REQ_TYPE_POSITION) &&
                     ((previousType & REQ_TYPE_POSITION) != REQ_TYPE_POSITION)) {
                 try {
                     mPosition = !settings.getBoolean(DATA_KEY_POSITION);
                     reply.put(DATA_KEY_POSITION, true); // Ok
+                    messageIds.add(R.string.camera_position);
                 }
                 catch (JSONException e) {
 
@@ -352,6 +363,7 @@ public class Settings implements ConnectRequest {
                 try {
                     mOrientation = settings.getBoolean(DATA_KEY_ORIENTATION);
                     reply.put(DATA_KEY_ORIENTATION, true); // Ok
+                    messageIds.add(R.string.video_orientation);
                 }
                 catch (JSONException e) {
 
@@ -361,28 +373,29 @@ public class Settings implements ConnectRequest {
             }
             if (((type & REQ_TYPE_DURATION) == REQ_TYPE_DURATION) &&
                     ((previousType & REQ_TYPE_DURATION) != REQ_TYPE_DURATION)) {
+                try {
+                    mDuration = (short)settings.getInt(DATA_KEY_DURATION);
+                    reply.put(DATA_KEY_DURATION, true); // Ok
+                    messageIds.add(R.string.video_duration);
+                }
+                catch (JSONException e) {
 
-
-
-
-
-
-
-
-
-
+                    Logs.add(Logs.Type.E, e.getMessage());
+                    return null;
+                }
             }
             if (((type & REQ_TYPE_FPS) == REQ_TYPE_FPS) &&
                     ((previousType & REQ_TYPE_FPS) != REQ_TYPE_FPS)) {
+                try {
+                    mFps = (short)settings.getInt(DATA_KEY_FPS);
+                    reply.put(DATA_KEY_FPS, true); // Ok
+                    messageIds.add(R.string.video_fps);
+                }
+                catch (JSONException e) {
 
-
-
-
-
-
-
-
-
+                    Logs.add(Logs.Type.E, e.getMessage());
+                    return null;
+                }
             }
 
             // Update activities
@@ -397,6 +410,14 @@ public class Settings implements ConnectRequest {
                 else if (curActivity.getClass().equals(MainActivity.class)) { // Main activity
                     if (reply.has(DATA_KEY_POSITION))
                         ((MainActivity) curActivity).displayPosition();
+
+                    // Display a message on settings changes
+                    int[] ids = new int[messageIds.size() + 1];
+                    ids[0] = R.string.settings_updated;
+                    for (int i = 0; i < messageIds.size(); ++i)
+                        ids[i + 1] = messageIds.get(i);
+
+                    DisplayMessage.getInstance().snack(R.id.fab, ids, Snackbar.LENGTH_SHORT);
                 }
             }
             catch (NullPointerException e) {
@@ -450,7 +471,8 @@ public class Settings implements ConnectRequest {
                 return false;
             }
         }
-        //else // Update reply received (nothing to do)
+        //else
+        // Update reply received (nothing to do)
 
         return true;
     }

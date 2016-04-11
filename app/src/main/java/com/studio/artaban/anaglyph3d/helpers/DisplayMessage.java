@@ -1,7 +1,7 @@
 package com.studio.artaban.anaglyph3d.helpers;
 
-import android.app.Activity;
 import android.content.DialogInterface;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
@@ -48,13 +48,13 @@ public class DisplayMessage {
                         dialog.create().show();
                     }
                     catch (NullPointerException e) {
-                        Logs.add(Logs.Type.F, "Failed to display dialog message");
+                        Logs.add(Logs.Type.F, "Failed to display Dialog message");
                     }
                 }
             });
         }
         catch (NullPointerException e) {
-            Logs.add(Logs.Type.F, "Failed to display dialog message");
+            Logs.add(Logs.Type.F, "Failed to display Dialog message");
         }
     }
     public void toast(final int message, final int duration) {
@@ -67,13 +67,39 @@ public class DisplayMessage {
                 public void run() {
                     try { Toast.makeText(ActivityWrapper.get(), message, duration).show(); }
                     catch (NullPointerException e) {
-                        Logs.add(Logs.Type.F, "Failed to display toast message");
+                        Logs.add(Logs.Type.F, "Failed to display Toast message");
                     }
                 }
             });
         }
         catch (NullPointerException e) {
-            Logs.add(Logs.Type.F, "Failed to display toast message");
+            Logs.add(Logs.Type.F, "Failed to display Toast message");
+        }
+    }
+    public void snack(final int view, final int[] messages, final int duration) {
+
+        // Display SnackBar message
+        try {
+            ActivityWrapper.get().runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        String message = "";
+                        for (int i = 0; i < messages.length; ++i)
+                            message += ActivityWrapper.get().getResources().getString(messages[i]);
+
+                        Snackbar.make(ActivityWrapper.get().findViewById(view),
+                                message, duration).show();
+                    }
+                    catch (NullPointerException e) {
+                        Logs.add(Logs.Type.F, "Failed to display SnackBar message");
+                    }
+                }
+            });
+        }
+        catch (NullPointerException e) {
+            Logs.add(Logs.Type.F, "Failed to display SnackBar message");
         }
     }
 }

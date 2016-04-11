@@ -36,5 +36,11 @@
     <string name="video_album">Album vidéo</string>
     <string name="connection_error">ATTENTION: Erreur durant le transfert de données! Connexion fermé.</string>
     <string name="pref_default_display_name"></string>
+    <string name="video_orientation">- Orientation de la video</string>
+    <string name="camera_position">- Position de la camera</string>
+    <string name="settings_updated">Paramètres mis à jour:\n</string>
+    <string name="video_duration">- Durée de la vidéo</string>
+    <string name="video_fps">- Images par seconde</string>
+    <string name="video_resolution">- Résolution vidéo</string>
 
 </resources>
