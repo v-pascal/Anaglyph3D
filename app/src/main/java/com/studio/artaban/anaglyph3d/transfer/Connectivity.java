@@ -15,9 +15,11 @@ import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -192,11 +194,14 @@ public class Connectivity {
         ////// Request received while waiting reply
         if ((!reply) && (mPendingRequest != null))
             return mPendingRequest;
-            // Needed when a request has been received during a wait reply (for master only)
+            // Needed when a request has been received during a wait reply
 
         ///////////////////////////////////////////
 
         int size = mBluetooth.read(mRead);
+        if ((size == 0) && (mRead.size() > 0))
+            size = mRead.size(); // Needed when received request & reply in same time
+
         if (size > 0) {
 
             String message;
@@ -218,10 +223,27 @@ public class Connectivity {
                 mDisconnectError = true;
                 return null;
             }
-            if (size == Integer.parseInt(message.substring(0, 3))) {
+            int sizeMessage = Integer.parseInt(message.substring(0, 3));
+            if (size >= sizeMessage) {
 
-                // Full message received
-                mRead.reset();
+                // Purge message received
+                if (size == sizeMessage)
+                    mRead.reset(); // Full message received
+
+                else { // Full & next message received
+
+                    message = message.substring(0, sizeMessage);
+                    byte[] store = Arrays.copyOfRange(mRead.toByteArray(), sizeMessage, size);
+                    mRead.reset();
+
+                    try { mRead.write(store); }
+                    catch (IOException e) {
+
+                        Logs.add(Logs.Type.E, "Failed to purge message received");
+                        mDisconnectError = true;
+                        return null;
+                    }
+                }
 
                 // Return result according what is expected
                 switch (message.charAt(4)) {
@@ -305,6 +327,7 @@ public class Connectivity {
         private void initialize(boolean position) {
 
             synchronized (mRequests) { mRequests.clear(); }
+            mRead.reset();
 
             // Add request to initialize settings
             final Bundle connInfo = new Bundle();

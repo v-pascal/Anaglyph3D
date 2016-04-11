@@ -19,6 +19,7 @@ import android.widget.NumberPicker;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 import org.json.JSONObject;
@@ -124,8 +125,6 @@ public class SettingsActivity extends SettingsParentActivity
     // Fill & Set resolutions preference list and value
     private void updateResolutions() {
 
-        mResolutionLock = true;
-
         final String[] resolutions = Settings.getInstance().getResolutions();
         mResolutionList.setEntries(resolutions);
         mResolutionList.setEntryValues(resolutions);
@@ -138,7 +137,6 @@ public class SettingsActivity extends SettingsParentActivity
 
     private boolean mPositionLock = true;
     private boolean mOrientationLock = true;
-    private boolean mResolutionLock = true;
     // Needed to avoid to send settings request to remote device during assignment (init or update)
     // -> Removing preference change listener to avoid calling 'onPreferenceChange' is not working:
     //
@@ -228,6 +226,11 @@ public class SettingsActivity extends SettingsParentActivity
                 mPositionLock = false;
                 return true;
             }
+
+            // Avoid to send request to remote device if the setting has not changed
+            if (Settings.getInstance().mPosition == (boolean)newValue)
+                return true; // BUG: Why calling 'onPreferenceChange' if not changed?
+
             Settings.getInstance().mPosition = (boolean)newValue;
             Connectivity.getInstance().addRequest(Settings.getInstance(),
                     Settings.REQ_TYPE_POSITION, null);
@@ -238,6 +241,11 @@ public class SettingsActivity extends SettingsParentActivity
                 mOrientationLock = false;
                 return true;
             }
+
+            // Avoid to send request to remote device if the setting has not changed
+            if (Settings.getInstance().mOrientation == (boolean)newValue)
+                return true; // BUG: Why calling 'onPreferenceChange' if not changed?
+
             Settings.getInstance().mOrientation = (boolean)newValue;
             Connectivity.getInstance().addRequest(Settings.getInstance(),
                     Settings.REQ_TYPE_ORIENTATION, null);
@@ -246,10 +254,7 @@ public class SettingsActivity extends SettingsParentActivity
             return true;
         }
         else if (preference.getKey().equals(Settings.DATA_KEY_RESOLUTION)) {
-            if (mResolutionLock) {
-                mResolutionLock = false;
-                return true;
-            }
+
             preference.setSummary((String) newValue);
             Settings.getInstance().setResolution((String) newValue,
                     (String[]) ((ListPreference) preference).getEntryValues());

@@ -22,7 +22,7 @@ public class Constants {
     public static final int CONN_WAIT_DELAY = 10; // Connection loop sleep (in milliseconds)
 
     // Maximum delay to receive reply before disconnect (in loop count)
-    public static final short CONN_MAX_WAIT_INITIALIZE = 1500;
+    public static final short CONN_MAX_WAIT_INITIALIZE = 1000;
     public static final short CONN_MAX_WAIT_SETTINGS = 200;
 
     ////// Bluetooth
