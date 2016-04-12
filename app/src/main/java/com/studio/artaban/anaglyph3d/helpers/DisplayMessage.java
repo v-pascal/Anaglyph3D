@@ -86,9 +86,13 @@ public class DisplayMessage {
                 public void run() {
                     try {
                         String message = "";
-                        for (int i = 0; i < messages.length; ++i)
+                        for (int i = 0; i < messages.length; ++i) {
                             message += ActivityWrapper.get().getResources().getString(messages[i]);
-
+                            if (i == 0)
+                                message += " ";
+                            else if ((i + 1) < messages.length)
+                                message += " & ";
+                        }
                         Snackbar.make(ActivityWrapper.get().findViewById(view),
                                 message, duration).show();
                     }

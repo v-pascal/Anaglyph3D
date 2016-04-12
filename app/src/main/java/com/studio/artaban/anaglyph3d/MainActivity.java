@@ -99,6 +99,15 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
+    public boolean isReady() {
+
+        // Check if activity is ready to start recording
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if ((drawer == null) || (!drawer.isDrawerOpen(GravityCompat.START)))
+            return true;
+
+        return false;
+    }
 
     //////
     @Override

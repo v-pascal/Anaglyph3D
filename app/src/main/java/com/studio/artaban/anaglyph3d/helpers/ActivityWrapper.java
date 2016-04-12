@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 
 import com.studio.artaban.anaglyph3d.MainActivity;
-import com.studio.artaban.anaglyph3d.data.Constants;
 
 import java.lang.ref.WeakReference;
 
@@ -17,7 +16,7 @@ public class ActivityWrapper {
     private static WeakReference<Activity> mCurActivity; // Activity reference
 
     private static boolean mQuitApp = false; // Flag to quit application (requested by the user)
-    // -> Needed to quit application in Connect activity (see 'onResume' method), probably because
+    // -> Needed to quit application in connect activity (see 'onResume' method), probably because
     //    Main activity has been launch through a weak reference ('setResult' not working)
 
     //////

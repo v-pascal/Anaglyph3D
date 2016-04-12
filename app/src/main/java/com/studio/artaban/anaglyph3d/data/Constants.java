@@ -22,8 +22,8 @@ public class Constants {
     public static final int CONN_WAIT_DELAY = 10; // Connection loop sleep (in milliseconds)
 
     // Maximum delay to receive reply before disconnect (in loop count)
-    public static final short CONN_MAX_WAIT_INITIALIZE = 1000;
-    public static final short CONN_MAX_WAIT_SETTINGS = 200;
+    public static final short CONN_MAXWAIT_DEFAULT = 200;
+    public static final short CONN_MAXWAIT_SETTINGS_INITIALIZE = 1000;
 
     ////// Bluetooth
     public static final String BLUETOOTH_DEVICES_SEPARATOR = "\n"; // Separator between device name and address
@@ -32,9 +32,11 @@ public class Constants {
     public static final String CONFIG_RESOLUTION_SEPARATOR = " x "; // Separator between with and height
     public static final int CONFIG_PERFORMANCE_LOOP = 100000; // Loop count for performance calculation
 
+    public static final short CONFIG_DEFAULT_DURATION = 60; // Default duration (in seconds)
     public static final int CONFIG_MIN_DURATION = 10; // Minimum duration (in seconds)
     public static final int CONFIG_MAX_DURATION = 180; // Maximum duration (in seconds)
 
-    public static final int CONFIG_MIN_FPS = 20; // Minimum frame per seconds
-    public static final int CONFIG_MAX_FPS = 60; // Maximum frame per seconds
+    public static final short CONFIG_DEFAULT_FPS = 8; // Default frames per second
+    public static final int CONFIG_MIN_FPS = 5; // Minimum frames per second
+    public static final int CONFIG_MAX_FPS = 20; // Maximum frames per second
 }

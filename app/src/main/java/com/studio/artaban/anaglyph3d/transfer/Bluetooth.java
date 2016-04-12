@@ -53,8 +53,8 @@ public class Bluetooth {
                 }
             }
             else if (BluetoothAdapter.ACTION_SCAN_MODE_CHANGED.equals(intent.getAction())) {
-                if (intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, 0) !=
-                        BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE)
+                if ((intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, 0) !=
+                        BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) && (mStatus != Status.CONNECTED))
 
                     // Inform user the device is no more visible by unpaired devices
                     DisplayMessage.getInstance().toast(R.string.not_discoverable, Toast.LENGTH_LONG);

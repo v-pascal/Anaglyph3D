@@ -99,13 +99,13 @@
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="title_video_list">Videos</string>
     <string name="title_video_detail">Video Detail</string>
-    <string name="video_orientation">- Video orientation</string>
-    <string name="camera_position">- Camera position</string>
-    <string name="settings_updated">Settings updated:\n</string>
-    <string name="video_duration">- Video duration</string>
+    <string name="video_orientation">Video orientation</string>
+    <string name="camera_position">Camera position</string>
+    <string name="settings_updated">Settings updated:</string>
+    <string name="video_duration">Video duration</string>
     <string name="video_album">Videos album</string>
-    <string name="video_fps">- Frame per second (FPS)</string>
-    <string name="video_resolution">- Video resolution</string>
+    <string name="video_fps">Frame per second (FPS)</string>
+    <string name="video_resolution">Video resolution</string>
     <string name="not_discoverable">WARNING: Bluetooth discoverable permission has expired! Restart application to make it visible again.</string>
 
 </resources>

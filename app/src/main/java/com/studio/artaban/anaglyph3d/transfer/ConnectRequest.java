@@ -8,9 +8,10 @@ import android.os.Bundle;
  */
 public interface ConnectRequest {
 
-    char REQ_NONE = ' ';
-    char REQ_SETTINGS = 'S';
     ////// Request IDs
+    char REQ_NONE = ' '; // Unknown request
+    char REQ_SETTINGS = 'S'; // Request to update settings (class 'Settings')
+    char REQ_RECORDER = 'R'; // Request to manage video recording (class 'RecorderFragment')
 
     ////// Request received while waiting reply
     class PreviousMaster {

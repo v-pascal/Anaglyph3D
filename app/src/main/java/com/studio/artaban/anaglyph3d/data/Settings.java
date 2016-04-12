@@ -94,17 +94,17 @@ public class Settings implements ConnectRequest {
     private final ArrayList<Size> mResolutions = new ArrayList<>(); // Resolutions list
 
     public boolean mPosition = true; // Left camera position (false for right position)
-    public boolean mOrientation = true; // Portrait orientation (false for landscape orientation)
+    public boolean mOrientation = false; // Portrait orientation (false for landscape orientation)
     public Size mResolution; // Selected resolution
-    public short mDuration = 60; // Video duration (in seconds)
-    public short mFps = 30; // Frame per second
+    public short mDuration = Constants.CONFIG_DEFAULT_DURATION; // Video duration (in seconds)
+    public short mFps = Constants.CONFIG_DEFAULT_FPS; // Frames per second
 
     // Request types (mask)
     public static final byte REQ_TYPE_INITIALIZE = 0x01;
     public static final byte REQ_TYPE_RESOLUTION = 0x02;
     public static final byte REQ_TYPE_POSITION = 0x04;
     public static final byte REQ_TYPE_ORIENTATION = 0x08;
-    public static final byte REQ_TYPE_DURATION = 0x0f;
+    public static final byte REQ_TYPE_DURATION = 0x10;
     public static final byte REQ_TYPE_FPS = 0x40;
 
     //
@@ -163,7 +163,7 @@ public class Settings implements ConnectRequest {
     public short getMaxWaitReply(byte type) {
 
         return (type == REQ_TYPE_INITIALIZE)?
-                Constants.CONN_MAX_WAIT_INITIALIZE:Constants.CONN_MAX_WAIT_SETTINGS;
+                Constants.CONN_MAXWAIT_SETTINGS_INITIALIZE:Constants.CONN_MAXWAIT_DEFAULT;
     }
 
     @Override

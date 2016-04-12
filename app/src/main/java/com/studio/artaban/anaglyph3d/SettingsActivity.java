@@ -113,10 +113,10 @@ public class SettingsActivity extends SettingsParentActivity
                     updateResolutions();
 
                 if (settings.has(Settings.DATA_KEY_DURATION))
-                    mDurationPreference.setDefaultValue(Settings.getInstance().mDuration);
+                    mDurationPreference.setDefaultValue((int)Settings.getInstance().mDuration);
 
                 if (settings.has(Settings.DATA_KEY_FPS))
-                    mFpsPreference.setDefaultValue(Settings.getInstance().mFps);
+                    mFpsPreference.setDefaultValue((int)Settings.getInstance().mFps);
             }
         });
     }
@@ -196,7 +196,7 @@ public class SettingsActivity extends SettingsParentActivity
         mDurationPreference.setKey(Settings.DATA_KEY_DURATION);
         mDurationPreference.setTitle(R.string.duration);
         mDurationPreference.setDialogTitle(R.string.duration);
-        mDurationPreference.setDefaultValue(Settings.getInstance().mDuration);
+        mDurationPreference.setDefaultValue((int)Settings.getInstance().mDuration);
         mDurationPreference.mMin = Constants.CONFIG_MIN_DURATION;
         mDurationPreference.mMax = Constants.CONFIG_MAX_DURATION;
         //mDurationPreference.setOnPreferenceChangeListener(this);
@@ -206,7 +206,7 @@ public class SettingsActivity extends SettingsParentActivity
         mFpsPreference.setKey(Settings.DATA_KEY_FPS);
         mFpsPreference.setTitle(R.string.frame_per_second);
         mFpsPreference.setDialogTitle(R.string.frame_per_second);
-        mFpsPreference.setDefaultValue(Settings.getInstance().mFps);
+        mFpsPreference.setDefaultValue((int)Settings.getInstance().mFps);
         mFpsPreference.mMin = Constants.CONFIG_MIN_FPS;
         mFpsPreference.mMax = Constants.CONFIG_MAX_FPS;
         //mFpsPreference.setOnPreferenceChangeListener(this);
