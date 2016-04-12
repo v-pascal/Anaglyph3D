@@ -8,10 +8,13 @@ public class Constants {
 
     public static final int NO_DATA = -1; // No value (integer)
 
-    ////// Activity (results & data)
+    ////// Activity
     public static final int RESULT_QUIT_APPLICATION = 300; // Quit application requested
     public static final int RESULT_LOST_CONNECTION = 301; // Connection lost result
     public static final int RESULT_RESTART_CONNECTION = 302; // Active connect activity
+
+    public static final int REQUEST_COMMAND = 0; // Request for commands (close connection, quit application, etc)
+    public static final int REQUEST_PROCESS = 1; // Request for record process
 
     public static final String DATA_CONNECTION_ESTABLISHED = "connected"; // Connection flag key
 

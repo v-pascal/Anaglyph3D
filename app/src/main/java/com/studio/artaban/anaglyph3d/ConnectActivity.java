@@ -77,7 +77,7 @@ public class ConnectActivity extends AppCompatActivity {
                     // Display album activity
                     Intent intent = new Intent(getApplicationContext(), VideoListActivity.class);
                     intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, false);
-                    startActivityForResult(intent, 0);
+                    startActivityForResult(intent, Constants.REQUEST_COMMAND);
                 }
             });
         }
@@ -130,7 +130,7 @@ public class ConnectActivity extends AppCompatActivity {
         // Set current activity
         ActivityWrapper.set(this);
 
-        if (requestCode == 0) {
+        if (requestCode == Constants.REQUEST_COMMAND) {
             if (resultCode == Constants.RESULT_RESTART_CONNECTION)
                 Connectivity.getInstance().start(this); // Restart connectivity
 

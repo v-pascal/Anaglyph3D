@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 
 import com.studio.artaban.anaglyph3d.MainActivity;
+import com.studio.artaban.anaglyph3d.data.Constants;
 
 import java.lang.ref.WeakReference;
 
@@ -32,7 +33,7 @@ public class ActivityWrapper {
 
                     try {
                         Intent intent = new Intent(get(), MainActivity.class);
-                        get().startActivityForResult(intent, 0);
+                        get().startActivityForResult(intent, Constants.REQUEST_COMMAND);
                     }
                     catch (NullPointerException e) {
                         Logs.add(Logs.Type.F, "Wrong activity reference");

@@ -16,6 +16,9 @@ import com.studio.artaban.anaglyph3d.camera.CameraView;
 /**
  * Created by pascal on 22/03/16.
  * Main fragment (display camera with glass)
+ *
+ * TODO: Integrate this fragment into the 'MainActivity'
+ *
  */
 public class MainFragment extends Fragment {
 

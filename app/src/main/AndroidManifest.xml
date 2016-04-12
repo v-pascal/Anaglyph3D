@@ -46,8 +46,8 @@
         <activity
             android:name=".SettingsActivity"
             android:label="@string/nav_settings"
-            android:theme="@style/Theme.AppCompat"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/Theme.AppCompat">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.studio.artaban.anaglyph3d.MainActivity" />
@@ -65,6 +65,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".album.VideoListActivity" />
         </activity>
+        <activity android:name=".ProcessActivity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar" />
     </application>
 
 </manifest>

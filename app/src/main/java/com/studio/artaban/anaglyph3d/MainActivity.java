@@ -25,7 +25,7 @@ import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     private int mNavItemSelected = Constants.NO_DATA; // Id of the selected navigation item (or -1 if none)
     private void onSelectNavItem() {
@@ -36,14 +36,14 @@ public class MainActivity extends AppCompatActivity
                 // Display album activity
                 Intent intent = new Intent(getApplicationContext(), VideoListActivity.class);
                 intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, true);
-                startActivityForResult(intent, 0);
+                startActivityForResult(intent, Constants.REQUEST_COMMAND);
                 break;
             }
             case R.id.navSettings: {
 
                 // Display settings activity
                 Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-                startActivityForResult(intent, 0);
+                startActivityForResult(intent, Constants.REQUEST_COMMAND);
                 break;
             }
             case R.id.navDisconnect: {
@@ -131,32 +131,8 @@ public class MainActivity extends AppCompatActivity
         }
 
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        if (fab != null) {
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-
-
-
-
-
-
-
-
-                    // Start recording
-                    //Check if remote device is ready
-
-
-
-
-
-
-
-
-                }
-            });
-        }
+        if (fab != null)
+            fab.setOnClickListener(this);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer != null) {
@@ -196,7 +172,7 @@ public class MainActivity extends AppCompatActivity
         // Set current activity
         ActivityWrapper.set(this);
 
-        if ((requestCode == 0) && (resultCode == Constants.RESULT_LOST_CONNECTION))
+        if ((requestCode == Constants.REQUEST_COMMAND) && (resultCode == Constants.RESULT_LOST_CONNECTION))
             finish(); // Lost connection (back to connect activity)
     }
 
@@ -210,6 +186,7 @@ public class MainActivity extends AppCompatActivity
             moveTaskToBack(true);
     }
 
+    //////
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
 
@@ -221,5 +198,27 @@ public class MainActivity extends AppCompatActivity
         // Let's drawer close event do the job (more efficient)
 
         return true;
+    }
+
+    @Override
+    public void onClick(View view) {
+
+        // Start recording
+
+
+
+
+
+        //Check if remote device is ready
+
+        Intent intent = new Intent(this, ProcessActivity.class);
+        startActivityForResult(intent, Constants.REQUEST_PROCESS);
+
+
+
+
+
+
+
     }
 }
