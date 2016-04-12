@@ -42,5 +42,6 @@
     <string name="video_duration">- Durée de la vidéo</string>
     <string name="video_fps">- Images par seconde</string>
     <string name="video_resolution">- Résolution vidéo</string>
+    <string name="not_discoverable">ATTENTION: L\'autorisation de visibilité Bluetooth a expiré! Redémarrez l\'application pour l\'autoriser à nouveau.</string>
 
 </resources>

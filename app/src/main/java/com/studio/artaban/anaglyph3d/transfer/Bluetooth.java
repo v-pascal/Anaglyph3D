@@ -8,8 +8,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.widget.Toast;
 
+import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
+import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 import java.io.ByteArrayOutputStream;
@@ -48,6 +51,13 @@ public class Bluetooth {
                     if (!mDevices.contains(deviceInfo))
                         mDevices.add(deviceInfo);
                 }
+            }
+            else if (BluetoothAdapter.ACTION_SCAN_MODE_CHANGED.equals(intent.getAction())) {
+                if (intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, 0) !=
+                        BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE)
+
+                    // Inform user the device is no more visible by unpaired devices
+                    DisplayMessage.getInstance().toast(R.string.not_discoverable, Toast.LENGTH_LONG);
             }
         }
     };
@@ -413,7 +423,11 @@ public class Bluetooth {
         return true;
     }
     public void register(Context context) {
-        context.registerReceiver(mReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+
+        context.registerReceiver(mReceiver, filter);
     }
     public void unregister(Context context) { context.unregisterReceiver(mReceiver); }
     public void release() {
