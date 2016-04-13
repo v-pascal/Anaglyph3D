@@ -13,9 +13,8 @@ public class Constants {
     //public static final int RESULT_QUIT_APPLICATION = 300; // Quit application requested
     public static final int RESULT_LOST_CONNECTION = 301; // Connection lost result
     public static final int RESULT_RESTART_CONNECTION = 302; // Active connect activity
-
-    public static final int REQUEST_COMMAND = 0; // Request for commands (close connection, quit application, etc)
-    public static final int REQUEST_PROCESS = 1; // Request for record process
+    public static final int RESULT_PROCESS_CANCELLED = 303; // Recording cancelled
+    public static final int RESULT_DISPLAY_ALBUM = 304; // Display album with current video
 
     public static final String DATA_CONNECTION_ESTABLISHED = "connected"; // Connection flag key
 

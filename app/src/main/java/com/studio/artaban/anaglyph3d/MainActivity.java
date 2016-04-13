@@ -22,6 +22,7 @@ import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 public class MainActivity extends AppCompatActivity
@@ -36,14 +37,14 @@ public class MainActivity extends AppCompatActivity
                 // Display album activity
                 Intent intent = new Intent(getApplicationContext(), VideoListActivity.class);
                 intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, true);
-                startActivityForResult(intent, Constants.REQUEST_COMMAND);
+                startActivityForResult(intent, 0);
                 break;
             }
             case R.id.navSettings: {
 
                 // Display settings activity
                 Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-                startActivityForResult(intent, Constants.REQUEST_COMMAND);
+                startActivityForResult(intent, 0);
                 break;
             }
             case R.id.navDisconnect: {
@@ -201,9 +202,16 @@ public class MainActivity extends AppCompatActivity
         // Set current activity
         ActivityWrapper.set(this);
 
-        if ((requestCode == Constants.REQUEST_COMMAND) && (resultCode == Constants.RESULT_LOST_CONNECTION))
+        if (requestCode != 0) {
+            Logs.add(Logs.Type.F, "Unexpected request code");
+            return;
+        }
+        if (resultCode == Constants.RESULT_LOST_CONNECTION)
             finish(); // Lost connection (back to connect activity)
-        else if (requestCode == Constants.REQUEST_PROCESS) {
+
+        else if (resultCode == Constants.RESULT_DISPLAY_ALBUM) {
+
+
 
 
 

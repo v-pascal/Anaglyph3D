@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 public class ConnectActivity extends AppCompatActivity {
@@ -77,7 +78,7 @@ public class ConnectActivity extends AppCompatActivity {
                     // Display album activity
                     Intent intent = new Intent(getApplicationContext(), VideoListActivity.class);
                     intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, false);
-                    startActivityForResult(intent, Constants.REQUEST_COMMAND);
+                    startActivityForResult(intent, 0);
                 }
             });
         }
@@ -130,14 +131,16 @@ public class ConnectActivity extends AppCompatActivity {
         // Set current activity
         ActivityWrapper.set(this);
 
-        if (requestCode == Constants.REQUEST_COMMAND) {
-            if (resultCode == Constants.RESULT_RESTART_CONNECTION)
-                Connectivity.getInstance().start(this); // Restart connectivity
-
-            //else if (resultCode == Constants.RESULT_QUIT_APPLICATION)
-            //    finish(); // Quit application
-            // BUG: Not working! See 'isQuitAppRequested' method call in 'onResume' method
+        if (requestCode != 0) {
+            Logs.add(Logs.Type.F, "Unexpected request code");
+            return;
         }
+        if (resultCode == Constants.RESULT_RESTART_CONNECTION)
+            Connectivity.getInstance().start(this); // Restart connectivity
+
+        //else if (resultCode == Constants.RESULT_QUIT_APPLICATION)
+        //    finish(); // Quit application
+        // BUG: Not working! See 'isQuitAppRequested' method call in 'onResume' method
     }
 
     @Override

@@ -139,8 +139,11 @@ public class Connectivity {
         TransferElement reply = new TransferElement();
         switch (request.charAt(0)) {
 
+            ////// Add request handler below
             case ConnectRequest.REQ_SETTINGS: reply.mHandler = Settings.getInstance(); break;
             case ConnectRequest.REQ_ACTIVITY: reply.mHandler = ActivityWrapper.getInstance(); break;
+            //////
+
             default: {
 
                 Logs.add(Logs.Type.E, "Unexpected request received");

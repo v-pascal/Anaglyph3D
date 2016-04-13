@@ -25,9 +25,26 @@ public class ActivityWrapper implements ConnectRequest {
     private ActivityWrapper() { }
 
     // Request types
-    public static final byte REQ_TYPE_READY = 1;
-    public static final byte REQ_TYPE_START = 2;
+    public static final byte REQ_TYPE_READY = 1; // Application is ready to start recording
+    public static final byte REQ_TYPE_START = 2; // Start recording command
+    public static final byte REQ_TYPE_CANCEL = 3; // Cancel recording
 
+    private String replyStartRequest() {
+        try {
+
+            ((ProcessActivity)get()).startRecording();
+            return Constants.CONN_REQUEST_ANSWER_TRUE;
+        }
+        catch (NullPointerException e) {
+            Logs.add(Logs.Type.F, "Wrong activity reference");
+        }
+        catch (ClassCastException e) {
+            Logs.add(Logs.Type.F, "Unexpected activity reference");
+        }
+        return Constants.CONN_REQUEST_ANSWER_FALSE;
+    }
+
+    //
     @Override public char getRequestId() { return ConnectRequest.REQ_ACTIVITY; }
     @Override public short getMaxWaitReply(byte type) { return Constants.CONN_MAXWAIT_DEFAULT; }
     @Override public String getRequest(byte type, Bundle data) { return Constants.CONN_REQUEST_TYPE_ASK; }
@@ -43,26 +60,23 @@ public class ActivityWrapper implements ConnectRequest {
                             ((MainActivity)curActivity).isReady()) {
 
                         // Start process activity
-                        startActivity(ProcessActivity.class, Constants.REQUEST_PROCESS);
+                        startActivity(ProcessActivity.class, 0);
 
                         return Constants.CONN_REQUEST_ANSWER_TRUE;
                     }
+                    else if (curActivity.getClass().equals(ProcessActivity.class))
+                        return Constants.CONN_REQUEST_ANSWER_TRUE; // Already answered
                 }
                 catch (NullPointerException e) {
                     Logs.add(Logs.Type.F, "Wrong activity reference");
                 }
                 break;
             }
-            case REQ_TYPE_START: {
+            case REQ_TYPE_START: return replyStartRequest();
+            case REQ_TYPE_CANCEL: {
 
-
-
-
-
-
-
-
-                break;
+                stopActivity(ProcessActivity.class);
+                break; // Reply not considered (see below)
             }
         }
         return Constants.CONN_REQUEST_ANSWER_FALSE;
@@ -73,24 +87,26 @@ public class ActivityWrapper implements ConnectRequest {
         switch (type) {
             case REQ_TYPE_READY: {
 
-                if (reply.equals(Constants.CONN_REQUEST_ANSWER_TRUE))
-                    // Start process activity
-                    startActivity(ProcessActivity.class, Constants.REQUEST_PROCESS);
+                if (reply.equals(Constants.CONN_REQUEST_ANSWER_TRUE)) {
+                    try {
+                        // Start process activity (if not already started)
+                        if (!get().getClass().equals(ProcessActivity.class))
+                            startActivity(ProcessActivity.class, 0);
+                    }
+                    catch (NullPointerException e) {
+                        Logs.add(Logs.Type.F, "Wrong activity reference");
+                        return false;
+                    }
+                }
                 else
                     DisplayMessage.getInstance().toast(R.string.device_not_ready, Toast.LENGTH_LONG);
                 return true;
             }
-            case REQ_TYPE_START: {
+            case REQ_TYPE_START:
+                return (replyStartRequest().equals(Constants.CONN_REQUEST_ANSWER_TRUE));
 
-
-
-
-
-
-
-
-                return true;
-            }
+            case REQ_TYPE_CANCEL:
+                return true; // Nothing to do
         }
         Logs.add(Logs.Type.F, "Unexpected activity reply received");
         return false;
@@ -109,8 +125,8 @@ public class ActivityWrapper implements ConnectRequest {
     public static Activity get() throws NullPointerException { return mCurActivity.get(); }
 
     public static void startActivity(final Class activity, final int request) {
-
         try {
+
             get().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -129,6 +145,29 @@ public class ActivityWrapper implements ConnectRequest {
             Logs.add(Logs.Type.F, "Wrong activity reference");
         }
     }
+    public static void stopActivity(final Class activity) {
+        try {
+
+            get().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+                    try {
+                        Activity curActivity = get();
+                        if (curActivity.getClass().equals(activity))
+                            curActivity.finish();
+                    }
+                    catch (NullPointerException e) {
+                        Logs.add(Logs.Type.F, "Wrong/Unexpected activity reference");
+                    }
+                }
+            });
+        }
+        catch (NullPointerException e) {
+            Logs.add(Logs.Type.F, "Wrong activity reference");
+        }
+    }
+
     public static boolean isQuitAppRequested() {
 
         if (mQuitApp) {
