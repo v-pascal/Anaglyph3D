@@ -108,5 +108,6 @@
     <string name="video_resolution">Video resolution</string>
     <string name="not_discoverable">WARNING: Bluetooth discoverable permission has expired! Restart application to make it visible again.</string>
     <string name="devices_distance">Distance between cameras:\n6cm - 7cm</string>
+    <string name="device_not_ready">WARNING: Failed to start recording! Remote device not ready.</string>
 
 </resources>

@@ -11,7 +11,7 @@ public interface ConnectRequest {
     ////// Request IDs
     char REQ_NONE = ' '; // Unknown request
     char REQ_SETTINGS = 'S'; // Request to update settings (class 'Settings')
-    char REQ_RECORDER = 'R'; // Request to manage video recording (class 'RecorderFragment')
+    char REQ_ACTIVITY = 'A'; // Request to know the remote activity status (class 'ActivityWrapper')
 
     ////// Request received while waiting reply
     class PreviousMaster {

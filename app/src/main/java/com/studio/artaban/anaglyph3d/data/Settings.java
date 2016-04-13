@@ -302,7 +302,7 @@ public class Settings implements ConnectRequest {
                     mResolution = mResolutions.get(0); // Select resolution (default)
 
                     // Start main activity
-                    ActivityWrapper.startMainActivity();
+                    ActivityWrapper.startActivity(MainActivity.class, Constants.REQUEST_COMMAND);
                 }
             }
             catch (JSONException e) {
@@ -463,7 +463,7 @@ public class Settings implements ConnectRequest {
                 mResolution = mResolutions.get(0); // Select resolution (default)
 
                 // Start main activity
-                ActivityWrapper.startMainActivity();
+                ActivityWrapper.startActivity(MainActivity.class, Constants.REQUEST_COMMAND);
             }
             catch (JSONException e) {
 

@@ -2,18 +2,102 @@ package com.studio.artaban.anaglyph3d.helpers;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.MainActivity;
+import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
+import com.studio.artaban.anaglyph3d.process.ProcessActivity;
+import com.studio.artaban.anaglyph3d.transfer.ConnectRequest;
 
 import java.lang.ref.WeakReference;
 
 /**
  * Created by pascal on 01/04/16.
  * Static class containing current activity
+ * and that manages activity status & command connectivity request
  */
-public class ActivityWrapper {
+public class ActivityWrapper implements ConnectRequest {
 
+    private static ActivityWrapper ourInstance = new ActivityWrapper();
+    public static ActivityWrapper getInstance() { return ourInstance; }
+    private ActivityWrapper() { }
+
+    // Request types
+    public static final byte REQ_TYPE_READY = 1;
+    public static final byte REQ_TYPE_START = 2;
+
+    @Override public char getRequestId() { return ConnectRequest.REQ_ACTIVITY; }
+    @Override public short getMaxWaitReply(byte type) { return Constants.CONN_MAXWAIT_DEFAULT; }
+    @Override public String getRequest(byte type, Bundle data) { return Constants.CONN_REQUEST_TYPE_ASK; }
+    @Override
+    public String getReply(byte type, String request, PreviousMaster previous) {
+
+        switch (type) {
+            case REQ_TYPE_READY: {
+                try {
+
+                    Activity curActivity = get();
+                    if ((curActivity.getClass().equals(MainActivity.class)) &&
+                            ((MainActivity)curActivity).isReady()) {
+
+                        // Start process activity
+                        startActivity(ProcessActivity.class, Constants.REQUEST_PROCESS);
+
+                        return Constants.CONN_REQUEST_ANSWER_TRUE;
+                    }
+                }
+                catch (NullPointerException e) {
+                    Logs.add(Logs.Type.F, "Wrong activity reference");
+                }
+                break;
+            }
+            case REQ_TYPE_START: {
+
+
+
+
+
+
+
+
+                break;
+            }
+        }
+        return Constants.CONN_REQUEST_ANSWER_FALSE;
+    }
+    @Override
+    public boolean receiveReply(byte type, String reply) {
+
+        switch (type) {
+            case REQ_TYPE_READY: {
+
+                if (reply.equals(Constants.CONN_REQUEST_ANSWER_TRUE))
+                    // Start process activity
+                    startActivity(ProcessActivity.class, Constants.REQUEST_PROCESS);
+                else
+                    DisplayMessage.getInstance().toast(R.string.device_not_ready, Toast.LENGTH_LONG);
+                return true;
+            }
+            case REQ_TYPE_START: {
+
+
+
+
+
+
+
+
+                return true;
+            }
+        }
+        Logs.add(Logs.Type.F, "Unexpected activity reply received");
+        return false;
+    }
+
+
+    //////
     private static WeakReference<Activity> mCurActivity; // Activity reference
 
     private static boolean mQuitApp = false; // Flag to quit application (requested by the user)
@@ -24,7 +108,7 @@ public class ActivityWrapper {
     public static void set(Activity activity) { mCurActivity = new WeakReference<Activity>(activity); }
     public static Activity get() throws NullPointerException { return mCurActivity.get(); }
 
-    public static void startMainActivity() {
+    public static void startActivity(final Class activity, final int request) {
 
         try {
             get().runOnUiThread(new Runnable() {
@@ -32,8 +116,8 @@ public class ActivityWrapper {
                 public void run() {
 
                     try {
-                        Intent intent = new Intent(get(), MainActivity.class);
-                        get().startActivityForResult(intent, Constants.REQUEST_COMMAND);
+                        Intent intent = new Intent(get(), activity);
+                        get().startActivityForResult(intent, request);
                     }
                     catch (NullPointerException e) {
                         Logs.add(Logs.Type.F, "Wrong activity reference");

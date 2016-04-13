@@ -93,8 +93,6 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
         // ...and needed during a lock/unlock screen operation
     }
-    public void resume() { create(); }
-    public void pause() { release(); }
     private void release() {
 
         if (mCamera != null) {

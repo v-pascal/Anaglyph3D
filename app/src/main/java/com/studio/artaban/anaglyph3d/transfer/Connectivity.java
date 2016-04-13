@@ -140,6 +140,7 @@ public class Connectivity {
         switch (request.charAt(0)) {
 
             case ConnectRequest.REQ_SETTINGS: reply.mHandler = Settings.getInstance(); break;
+            case ConnectRequest.REQ_ACTIVITY: reply.mHandler = ActivityWrapper.getInstance(); break;
             default: {
 
                 Logs.add(Logs.Type.E, "Unexpected request received");
@@ -224,7 +225,15 @@ public class Connectivity {
                 mDisconnectError = true;
                 return null;
             }
-            int sizeMessage = Integer.parseInt(message.substring(0, 3));
+
+            int sizeMessage;
+            try { sizeMessage = Integer.parseInt(message.substring(0, 3)); }
+            catch (NumberFormatException e) {
+
+                Logs.add(Logs.Type.E, "Wrong request/reply format received");
+                mDisconnectError = true;
+                return null;
+            }
             if (size >= sizeMessage) {
 
                 // Purge message received

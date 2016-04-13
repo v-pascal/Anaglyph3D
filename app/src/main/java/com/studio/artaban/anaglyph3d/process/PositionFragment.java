@@ -27,8 +27,9 @@ public class PositionFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        final View rootView = inflater.inflate((Settings.getInstance().mPosition)?
-                    R.layout.fragment_position_left:R.layout.fragment_position_right,
+        final View rootView = inflater.inflate(
+                (Settings.getInstance().mPosition)?
+                        R.layout.fragment_position_left:R.layout.fragment_position_right,
                 container, false);
 
         // Set up back device image

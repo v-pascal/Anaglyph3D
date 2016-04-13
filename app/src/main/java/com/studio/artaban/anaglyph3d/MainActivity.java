@@ -6,23 +6,22 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
-import com.studio.artaban.anaglyph3d.process.ProcessActivity;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 public class MainActivity extends AppCompatActivity
@@ -94,18 +93,40 @@ public class MainActivity extends AppCompatActivity
                 if (appBar != null)
                     appBar.setSubtitle(mSubTitle);
 
-                Fragment mainFragment = getSupportFragmentManager().findFragmentByTag(MainFragment.TAG);
-                if (mainFragment != null)
-                    ((MainFragment) mainFragment).displayPosition();
+                final ImageView imgGlass = (ImageView)findViewById(R.id.glass_image);
+                if (imgGlass != null) {
+
+                    RelativeLayout.LayoutParams imgParams = new RelativeLayout.LayoutParams(
+                            RelativeLayout.LayoutParams.WRAP_CONTENT,
+                            RelativeLayout.LayoutParams.WRAP_CONTENT);
+                    if (Settings.getInstance().mPosition) {
+
+                        imgGlass.setImageDrawable(getResources().getDrawable(R.drawable.left_glass));
+                        if (Build.VERSION.SDK_INT >= 17)
+                            imgParams.addRule(RelativeLayout.ALIGN_PARENT_END);
+                        imgParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+                    }
+                    else {
+
+                        imgGlass.setImageDrawable(getResources().getDrawable(R.drawable.right_glass));
+                        if (Build.VERSION.SDK_INT >= 17)
+                            imgParams.addRule(RelativeLayout.ALIGN_PARENT_START);
+                        imgParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                    }
+                    imgParams.addRule(RelativeLayout.CENTER_VERTICAL);
+                    imgGlass.setLayoutParams(imgParams);
+                }
             }
         });
     }
+
+    private boolean mInPause = true;
     public boolean isReady() {
 
         // Check if activity is ready to start recording
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if ((drawer == null) || (!drawer.isDrawerOpen(GravityCompat.START)))
-            return true;
+        if ((drawer != null) && (!drawer.isDrawerOpen(GravityCompat.START)))
+            return !mInPause;
 
         return false;
     }
@@ -158,11 +179,18 @@ public class MainActivity extends AppCompatActivity
 
         // Display remote device name into subtitle (with initial position)
         displayPosition();
+    }
 
-        // Add main fragment (after having set initial position)
-        FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
-        fragTransaction.add(R.id.main_container, new MainFragment(), MainFragment.TAG).commit();
-        getSupportFragmentManager().executePendingTransactions();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mInPause = false;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mInPause = true;
     }
 
     @Override
@@ -175,16 +203,16 @@ public class MainActivity extends AppCompatActivity
 
         if ((requestCode == Constants.REQUEST_COMMAND) && (resultCode == Constants.RESULT_LOST_CONNECTION))
             finish(); // Lost connection (back to connect activity)
+        else if (requestCode == Constants.REQUEST_PROCESS) {
 
 
 
 
-        //else if (requestCode == Constants.REQUEST_PROCESS)
 
 
 
 
-
+        }
     }
 
     @Override
@@ -212,24 +240,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onClick(View view) {
+    public void onClick(View view) { // Start recording
 
-        // Start recording
+        // Add connectivity request to check if remote device is ready...
+        Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                ActivityWrapper.REQ_TYPE_READY, null);
 
-
-
-
-
-        //Check if remote device is ready
-
-        Intent intent = new Intent(this, ProcessActivity.class);
-        startActivityForResult(intent, Constants.REQUEST_PROCESS);
-
-
-
-
-
-
-
+        // ...let's start the process activity if so
     }
 }
