@@ -22,7 +22,7 @@ import com.studio.artaban.anaglyph3d.camera.CameraView;
  */
 public class MainFragment extends Fragment {
 
-    public static final String TAG_FRAGMENT = "main";
+    public static final String TAG = "main";
 
     private View mCamLayout;
 

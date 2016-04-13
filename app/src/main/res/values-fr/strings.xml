@@ -43,5 +43,6 @@
     <string name="video_fps">Images par seconde</string>
     <string name="video_resolution">Résolution vidéo</string>
     <string name="not_discoverable">ATTENTION: L\'autorisation de visibilité Bluetooth a expiré! Redémarrez l\'application pour l\'autoriser à nouveau.</string>
+    <string name="devices_distance">Distance entre les caméras:\n6cm - 7cm</string>
 
 </resources>

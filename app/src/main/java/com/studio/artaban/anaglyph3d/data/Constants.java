@@ -1,5 +1,10 @@
 package com.studio.artaban.anaglyph3d.data;
 
+import android.graphics.Color;
+
+import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+
 /**
  * Created by pascal on 21/03/16.
  * Application constants

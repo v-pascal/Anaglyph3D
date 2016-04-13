@@ -22,6 +22,7 @@ import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
+import com.studio.artaban.anaglyph3d.process.ProcessActivity;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 public class MainActivity extends AppCompatActivity
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity
                 if (appBar != null)
                     appBar.setSubtitle(mSubTitle);
 
-                Fragment mainFragment = getSupportFragmentManager().findFragmentByTag(MainFragment.TAG_FRAGMENT);
+                Fragment mainFragment = getSupportFragmentManager().findFragmentByTag(MainFragment.TAG);
                 if (mainFragment != null)
                     ((MainFragment) mainFragment).displayPosition();
             }
@@ -158,9 +159,9 @@ public class MainActivity extends AppCompatActivity
         // Display remote device name into subtitle (with initial position)
         displayPosition();
 
-        // Add camera fragment (after having set initial position)
+        // Add main fragment (after having set initial position)
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
-        fragTransaction.add(R.id.main_container, new MainFragment(), MainFragment.TAG_FRAGMENT).commit();
+        fragTransaction.add(R.id.main_container, new MainFragment(), MainFragment.TAG).commit();
         getSupportFragmentManager().executePendingTransactions();
     }
 
@@ -174,6 +175,16 @@ public class MainActivity extends AppCompatActivity
 
         if ((requestCode == Constants.REQUEST_COMMAND) && (resultCode == Constants.RESULT_LOST_CONNECTION))
             finish(); // Lost connection (back to connect activity)
+
+
+
+
+        //else if (requestCode == Constants.REQUEST_PROCESS)
+
+
+
+
+
     }
 
     @Override
