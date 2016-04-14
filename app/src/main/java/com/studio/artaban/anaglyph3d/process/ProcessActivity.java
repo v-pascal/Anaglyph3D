@@ -52,6 +52,15 @@ public class ProcessActivity extends AppCompatActivity {
         getWindow().getDecorView().setSystemUiVisibility(flags);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        // Send cancel request to remote device (this action will finish the activity)
+        Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                ActivityWrapper.REQ_TYPE_CANCEL, null);
+    }
+
     //////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,12 +82,13 @@ public class ProcessActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (getSupportFragmentManager().findFragmentByTag(PositionFragment.TAG) != null) {
 
-            if (!isFinishing())
-                finish();
+        if ((getSupportFragmentManager().findFragmentByTag(PositionFragment.TAG) != null) &&
+                (!isFinishing())) {
 
-            // Send cancel request to remote device when finishing
+            finish(); // Finish activity when paused
+
+            // Send cancel request to remote device
             Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                     ActivityWrapper.REQ_TYPE_CANCEL, null);
         }

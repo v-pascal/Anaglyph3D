@@ -125,8 +125,11 @@ public class MainActivity extends AppCompatActivity
     private boolean mInPause = true; // Activity in background (pause status)
     private boolean mReadySent = false; // Flag to know if activity was ready when requested
 
-    public boolean isReadySent() { return mReadySent; } // See use comments...
+    public boolean isReadySent() { return mReadySent; } // See comments when used...
     public boolean isReady() {
+
+        if (mReadySent)
+            return false; // Avoid to reopen process activity
 
         // Check if activity is ready to start recording
         // -> Menu not displayed and activity not in pause
@@ -192,7 +195,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        mInPause = false;
+        mInPause = mReadySent = false;
     }
 
     @Override
@@ -204,10 +207,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        displayPosition(); // In case it has changed
 
         // Set current activity
         ActivityWrapper.set(this);
+
+        displayPosition(); // In case it has changed
 
         if (requestCode != 0) {
             Logs.add(Logs.Type.F, "Unexpected request code");

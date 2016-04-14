@@ -68,7 +68,7 @@ public class ActivityWrapper implements ConnectRequest {
 
                         // In case where received request after having sent it
                         // -> Process activity not opened yet but main activity no more ready
-                        else if (((MainActivity)curActivity).isReadySent())
+                        if (((MainActivity)curActivity).isReadySent())
                             return Constants.CONN_REQUEST_ANSWER_TRUE;
                     }
                     else if (curActivity.getClass().equals(ProcessActivity.class))
