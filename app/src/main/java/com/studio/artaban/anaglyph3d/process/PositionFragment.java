@@ -36,10 +36,10 @@ public class PositionFragment extends Fragment {
         final ImageView backDevice = (ImageView)rootView.findViewById(R.id.back_device);
         if (backDevice != null) {
 
-            // The back device image should take place in 60% of the screen height
+            // The back device image should take place in 50% of the screen height
             Point screenSize = new Point();
             getActivity().getWindowManager().getDefaultDisplay().getSize(screenSize);
-            float screenHeight = screenSize.y * 0.6f;
+            float screenHeight = screenSize.y * 0.5f;
 
             LayoutParams params = (LayoutParams)backDevice.getLayoutParams();
             params.height = (int)screenHeight;

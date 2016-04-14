@@ -79,7 +79,7 @@ public class ActivityWrapper implements ConnectRequest {
                 }
                 break;
             }
-            case REQ_TYPE_START: { return replyStartRequest(); }
+            case REQ_TYPE_START: return replyStartRequest();
             case REQ_TYPE_CANCEL: {
 
                 stopActivity(ProcessActivity.class);
@@ -109,10 +109,11 @@ public class ActivityWrapper implements ConnectRequest {
                     DisplayMessage.getInstance().toast(R.string.device_not_ready, Toast.LENGTH_LONG);
                 return true;
             }
-            case REQ_TYPE_START: {
+            case REQ_TYPE_START:
                 return (replyStartRequest().equals(Constants.CONN_REQUEST_ANSWER_TRUE));
-            }
-            case REQ_TYPE_CANCEL: { return true; } // Nothing to do
+
+            case REQ_TYPE_CANCEL:
+                return true; // Nothing to do
         }
         Logs.add(Logs.Type.F, "Unexpected activity reply received");
         return false;

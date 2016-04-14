@@ -1,6 +1,7 @@
 package com.studio.artaban.anaglyph3d.process;
 
 import android.os.Build;
+import android.os.Handler;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -41,15 +42,45 @@ public class ProcessActivity extends AppCompatActivity {
     //
     public void onValidatePosition(View sender) {
 
+
+
+
+
+
+
+
+
+        /*
         // Send start request to remote device
         Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                 ActivityWrapper.REQ_TYPE_START, null);
+        */
 
         // Set fullscreen mode
         int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
         if (Build.VERSION.SDK_INT >= 19)
             flags |= View.SYSTEM_UI_FLAG_IMMERSIVE;
         getWindow().getDecorView().setSystemUiVisibility(flags);
+
+
+
+
+
+
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                startRecording();
+            }
+        }, 1000);
+
+
+
+
+
+
     }
 
     @Override
