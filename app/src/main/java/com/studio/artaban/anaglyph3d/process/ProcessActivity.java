@@ -26,7 +26,10 @@ public class ProcessActivity extends AppCompatActivity {
             @Override
             public void run() {
 
-                // Replace position with recorder fragment
+                // Replace position with recorder fragment (if not already the case)
+                if (getSupportFragmentManager().findFragmentByTag(RecorderFragment.TAG) != null)
+                    return;
+
                 FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
                 fragTransaction.replace(R.id.main_container, new RecorderFragment(),
                         RecorderFragment.TAG).commit();
@@ -63,7 +66,7 @@ public class ProcessActivity extends AppCompatActivity {
         fragTransaction.add(R.id.main_container, new PositionFragment(), PositionFragment.TAG).commit();
         getSupportFragmentManager().executePendingTransactions();
 
-        // Set default result
+        // Set default activity result
         setResult(Constants.RESULT_PROCESS_CANCELLED);
     }
 

@@ -25,11 +25,12 @@ public interface ConnectRequest {
 
     ///////////////////////////////////////////
 
-    char getRequestId();
-    short getMaxWaitReply(byte type);
+    char getRequestId(); // Return request Id
+    short getMaxWaitReply(byte type); // Return maximum delay to receive reply before disconnect
+    boolean getRequestMerge(); // Return if request can be merged (if request types are mask values)
 
-    String getRequest(byte type, Bundle data);
-    String getReply(byte type, String request, PreviousMaster previous);
+    String getRequest(byte type, Bundle data); // Return request message
+    String getReply(byte type, String request, PreviousMaster previous); // Return reply of the request
 
-    boolean receiveReply(byte type, String reply);
+    boolean receiveReply(byte type, String reply); // Receive the reply of the request sent
 }

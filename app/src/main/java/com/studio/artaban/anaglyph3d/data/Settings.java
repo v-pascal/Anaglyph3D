@@ -156,16 +156,13 @@ public class Settings implements ConnectRequest {
     }
 
     //////
-    @Override
-    public char getRequestId() { return ConnectRequest.REQ_SETTINGS; }
-
-    @Override
-    public short getMaxWaitReply(byte type) {
+    @Override public char getRequestId() { return ConnectRequest.REQ_SETTINGS; }
+    @Override public short getMaxWaitReply(byte type) {
 
         return (type == REQ_TYPE_INITIALIZE)?
                 Constants.CONN_MAXWAIT_SETTINGS_INITIALIZE:Constants.CONN_MAXWAIT_DEFAULT;
     }
-
+    @Override public boolean getRequestMerge() { return true; }
     @Override
     public String getRequest(byte type, Bundle data) {
 

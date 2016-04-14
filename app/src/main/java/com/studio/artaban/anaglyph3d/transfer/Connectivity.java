@@ -96,6 +96,13 @@ public class Connectivity {
         if (mRequests.isEmpty())
             return false;
 
+        // Check if the current request cannot be merged
+        if (!mRequests.get(0).mHandler.getRequestMerge()) {
+
+            Logs.add(Logs.Type.V, "ID: " + mRequests.get(0).mHandler.getRequestId() + " Type: " +
+                    mRequests.get(0).mType);
+            return true; // Send request
+        }
         // Merge requests with same request Id that follows
         char requestId = mRequests.get(0).mHandler.getRequestId();
         byte requestType = mRequests.get(0).mType;
@@ -117,6 +124,8 @@ public class Connectivity {
         while (removeCount-- != 0)
             mRequests.remove(0);
 
+        Logs.add(Logs.Type.V, "ID: " + mRequests.get(0).mHandler.getRequestId() + " Type: " +
+                mRequests.get(0).mType);
         return true; // Send request
     }
     private boolean processRequest(String request) {

@@ -121,14 +121,21 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-    private boolean mInPause = true;
+    //
+    private boolean mInPause = true; // Activity in background (pause status)
+    private boolean mReadySent = false; // Flag to know if activity was ready when requested
+
+    public boolean isReadySent() { return mReadySent; } // See use comments...
     public boolean isReady() {
 
         // Check if activity is ready to start recording
+        // -> Menu not displayed and activity not in pause
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if ((drawer != null) && (!drawer.isDrawerOpen(GravityCompat.START)))
-            return !mInPause;
+        if ((drawer != null) && (!drawer.isDrawerOpen(GravityCompat.START)) && (!mInPause)) {
 
+            mReadySent = true;
+            return true; // ...will open process activity
+        }
         return false;
     }
 
