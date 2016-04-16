@@ -85,6 +85,53 @@ public class Settings implements ConnectRequest {
         return true;
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public boolean initResolutions() {
+
+        boolean init = mResolutions.isEmpty();
+        mResolutions.clear();
+        mPosition = true;
+        mOrientation = false;
+        mDuration = 10;
+
+        if (!CameraView.getAvailableResolutions(mResolutions))
+            return false;
+
+        if (init)
+            mResolution = mResolutions.get(11);
+        return true;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // Data
     private boolean mMaster; // Master device which has priority (false for slave device)
     private String mRemoteDevice; // Remote device info
@@ -94,7 +141,8 @@ public class Settings implements ConnectRequest {
     private final ArrayList<Size> mResolutions = new ArrayList<>(); // Resolutions list
 
     public boolean mPosition = true; // Left camera position (false for right position)
-    public boolean mOrientation = false; // Portrait orientation (false for landscape orientation)
+    public boolean mOrientation = true; // Portrait orientation (false for landscape orientation)
+    public boolean mReverse = false; // Reverse device orientation flag (see 'onReversePosition' method)
     public Size mResolution; // Selected resolution
     public short mDuration = Constants.CONFIG_DEFAULT_DURATION; // Video duration (in seconds)
     public short mFps = Constants.CONFIG_DEFAULT_FPS; // Frames per second

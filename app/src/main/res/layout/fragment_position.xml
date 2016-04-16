@@ -9,11 +9,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
         android:adjustViewBounds="true"
-        android:src="@drawable/back_left"
         android:id="@+id/back_device" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:adjustViewBounds="true"
+        android:src="@drawable/back_reverse"
+        android:onClick="onReversePosition"
+        android:id="@+id/back_reverse" />
 
     <TextView
         android:layout_width="match_parent"
@@ -31,7 +37,7 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:onClick="onValidatePosition"
-        app:backgroundTint="@color/full_blue"
-        android:src="@drawable/ic_done_white_48dp" />
+        app:backgroundTint="@android:color/white"
+        android:src="@drawable/ic_done_black_48dp" />
 
 </RelativeLayout>

@@ -1,5 +1,6 @@
 package com.studio.artaban.anaglyph3d.process;
 
+import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.support.v4.app.FragmentTransaction;
@@ -9,6 +10,7 @@ import android.view.View;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
+import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
@@ -68,6 +70,7 @@ public class ProcessActivity extends AppCompatActivity {
 
 
 
+
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
@@ -81,6 +84,25 @@ public class ProcessActivity extends AppCompatActivity {
 
 
 
+    }
+    public void onReversePosition(View sender) {
+
+        // Reverse the device orientation in order to position camera at the expected distance
+        // -> When cameras cannot be placed at the expected distance due to the position of the camera
+        //    on a particular device (often the case for landscape orientation), this option allows the
+        //    user to reverse it to place the camera as expected
+
+        Settings.getInstance().mReverse = !Settings.getInstance().mReverse;
+
+        // Change orientation
+        if (Settings.getInstance().mOrientation)
+            setRequestedOrientation((!Settings.getInstance().mReverse)?
+                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT:ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+        else
+            setRequestedOrientation((!Settings.getInstance().mReverse)?
+                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
+
+        ((PositionFragment)getSupportFragmentManager().findFragmentByTag(PositionFragment.TAG)).reverse();
     }
 
     @Override
@@ -100,6 +122,29 @@ public class ProcessActivity extends AppCompatActivity {
 
         // Set current activity
         ActivityWrapper.set(this);
+
+
+
+
+
+
+
+
+
+        Settings.getInstance().initResolutions();
+
+
+
+
+
+
+
+        // Set orientation
+        Settings.getInstance().mReverse = false;
+        if (Settings.getInstance().mOrientation)
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        else
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         // Add position fragment
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();

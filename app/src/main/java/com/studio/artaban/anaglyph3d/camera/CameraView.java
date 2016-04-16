@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.content.Context;
+import android.media.MediaRecorder;
 import android.util.AttributeSet;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -11,6 +12,7 @@ import android.view.SurfaceView;
 import android.view.WindowManager;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
@@ -23,7 +25,8 @@ import java.util.List;
  * Created by pascal on 22/03/16.
  * Camera helper
  */
-public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
+public class CameraView extends SurfaceView
+        implements SurfaceHolder.Callback, MediaRecorder.OnInfoListener {
 
     private static Camera getCamera() {
 
@@ -69,7 +72,9 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
                     });
             return false;
         }
-        List<Size> camResolutions = camera.getParameters().getSupportedPreviewSizes();
+        List<Size> camResolutions = camera.getParameters().getSupportedVideoSizes();
+        if (camResolutions == null)
+            camResolutions = camera.getParameters().getSupportedPreviewSizes();
         for (final Size camResolution: camResolutions)
             resolutions.add(camResolution);
 
@@ -77,9 +82,111 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
         return true;
     }
 
+    //
+    public Size getPreviewResolution() {
+
+        try { return mCamera.getParameters().getPreviewSize(); }
+        catch (Exception e) { return null; }
+    }
+    public boolean startRecording() {
+
+        // Stop camera preview
+        mCamera.stopPreview();
+        try { mCamera.setPreviewDisplay(null); }
+        catch (IOException e) {
+            Logs.add(Logs.Type.W, "Failed to remove preview display");
+        }
+        mCamera.unlock();
+
+        // Prepare recording
+        if(mMediaRecorder == null)
+            mMediaRecorder = new MediaRecorder();
+
+        mMediaRecorder.setPreviewDisplay(getHolder().getSurface());
+        mMediaRecorder.setCamera(mCamera);
+        mMediaRecorder.setOnInfoListener(this);
+
+        mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
+        mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+        mMediaRecorder.setVideoSize(Settings.getInstance().mResolution.width,
+                Settings.getInstance().mResolution.height);
+
+        // Set orientation
+        if (Settings.getInstance().mOrientation) { // Portrait
+
+            mMediaRecorder.setOrientationHint(90);
+            if (Settings.getInstance().mReverse)
+                mMediaRecorder.setOrientationHint(270);
+        }
+        else if (Settings.getInstance().mReverse) // Landscape & reverse
+            mMediaRecorder.setOrientationHint(180); // 0, 90, 180, and 270 degrees.
+
+        mMediaRecorder.setMaxDuration(Settings.getInstance().mDuration * 1000);
+        //mMediaRecorder.setVideoFrameRate(Settings.getInstance().mFps);
+
+
+
+
+
+
+
+
+        mMediaRecorder.setOutputFile("/storage/sdcard0/Movies/test.3gp");
+
+
+
+
+
+
+
+
+
+
+
+
+        try { mMediaRecorder.prepare(); }
+        catch (IOException e) {
+
+            Logs.add(Logs.Type.E, "Failed to prepare recorder: " + e.getMessage());
+            return false;
+        }
+
+        // Start recording
+        mMediaRecorder.start();
+        return true;
+    }
+
+    //////
+    @Override
+    public void onInfo(MediaRecorder mr, int what, int extra) {
+        if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
+
+            // The video recording has finished
+            mMediaRecorder.reset();
+            mMediaRecorder.release();
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+    }
+
     //////
     private SurfaceHolder mHolder;
     private Camera mCamera;
+    private MediaRecorder mMediaRecorder;
 
     private void create() {
 
@@ -144,7 +251,9 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback {
 
             // set preview size and make any resize, rotate or
             // reformatting changes here
-            switch (((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation()) {
+            switch (((WindowManager)getContext().getSystemService(
+                    Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation()) {
+
                 case Surface.ROTATION_0:
 
                     // Natural orientation (Portrait)
