@@ -1,5 +1,7 @@
 package com.studio.artaban.anaglyph3d.process;
 
+import android.content.Context;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -24,10 +26,15 @@ public class ProcessFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+        // Enable sound that is played when recording
+        ((AudioManager)getContext().getSystemService(Context.AUDIO_SERVICE)).
+                setStreamMute(AudioManager.STREAM_SYSTEM, true);
+
 
 
 
         //getArguments()
+
 
 
 

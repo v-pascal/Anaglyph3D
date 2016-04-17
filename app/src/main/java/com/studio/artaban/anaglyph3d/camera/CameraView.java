@@ -122,16 +122,8 @@ public class CameraView extends SurfaceView
         // Same preview & setting resolution
         return Settings.getInstance().mResolution;
     }
-    public boolean startRecording() {
 
-        // Stop camera preview
-        mCamera.stopPreview();
-        try { mCamera.setPreviewDisplay(null); }
-        catch (IOException e) {
-            Logs.add(Logs.Type.W, "Failed to remove preview display");
-        }
-        mCamera.setPreviewCallback(null);
-        mCamera.unlock();
+    private boolean prepareRecording() {
 
         // Prepare recording
         if(mMediaRecorder == null)
@@ -172,10 +164,46 @@ public class CameraView extends SurfaceView
             Logs.add(Logs.Type.E, "Failed to prepare recorder: " + e.getMessage());
             return false;
         }
+        return true;
+    }
+    public void startRecording() {
+
+        // Send start recording request (if master)
+        if (Settings.getInstance().isMaster()) {
+
+        }
+
+        // Stop camera preview
+        mCamera.stopPreview();
+        try { mCamera.setPreviewDisplay(null); }
+        catch (IOException e) {
+            Logs.add(Logs.Type.W, "Failed to remove preview display");
+        }
+        mCamera.setPreviewCallback(null);
+        mCamera.unlock();
+
+
+
+
+
+
+
+
+
 
         // Start recording
-        mMediaRecorder.start();
-        return true;
+        //mMediaRecorder.start();
+
+
+
+
+
+
+
+
+
+
+
     }
 
     //////
@@ -308,6 +336,9 @@ public class CameraView extends SurfaceView
                         System.arraycopy(data, 0, mRawPicture, 0, data.length);
                     }
                 });
+
+                // Prepare media recorder
+                prepareRecording();
             }
             mCamera.setPreviewDisplay(mHolder);
             mCamera.startPreview();

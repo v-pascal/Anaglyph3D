@@ -1,6 +1,8 @@
 package com.studio.artaban.anaglyph3d.process;
 
+import android.content.Context;
 import android.graphics.Point;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,6 +32,11 @@ public class RecorderFragment extends Fragment {
     public static final String TAG = "recorder";
 
     //
+    public void displayRecording() {
+        mRecordingHandler.post(mRecordingRunnable);
+    }
+
+    //////
     private ImageView mImageCounter;
     private CameraView mCameraView;
 
@@ -93,8 +100,41 @@ public class RecorderFragment extends Fragment {
                 @Override
                 public void run() {
 
-                    if (mCameraView.startRecording())
-                        mRecordingHandler.post(mRecordingRunnable);
+
+
+
+
+
+
+
+
+
+
+
+                    //if (mCameraView.startRecording())
+                    //    mRecordingHandler.post(mRecordingRunnable);
+
+
+
+
+
+
+
+                    // Disable sound that is played when recording
+                    ((AudioManager)getContext().getSystemService(Context.AUDIO_SERVICE)).
+                            setStreamMute(AudioManager.STREAM_SYSTEM, true);
+
+                    mCameraView.startRecording();
+
+
+
+
+
+
+
+
+
+
                 }
             });
         }
