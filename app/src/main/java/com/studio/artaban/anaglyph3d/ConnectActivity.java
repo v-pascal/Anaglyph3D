@@ -19,6 +19,8 @@ import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
+import java.io.File;
+
 public class ConnectActivity extends AppCompatActivity {
 
     private void setDeviceAnimation(boolean right) {
@@ -50,6 +52,13 @@ public class ConnectActivity extends AppCompatActivity {
 
         // Set current activity
         ActivityWrapper.set(this);
+
+        // Get documents folder of the application
+        File documents = getExternalFilesDir(null);
+        if (documents != null)
+            ActivityWrapper.DOCUMENTS_FOLDER = documents.getAbsolutePath();
+        else
+            Logs.add(Logs.Type.F, "Failed to get documents folder");
 
         // Add and set app bar
         final Toolbar appBar = (Toolbar)findViewById(R.id.appBar);

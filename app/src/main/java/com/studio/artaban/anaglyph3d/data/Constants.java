@@ -8,7 +8,6 @@ public class Constants {
 
     public static final int NO_DATA = -1; // No value (integer)
 
-
     ////// Activity
     //public static final int RESULT_QUIT_APPLICATION = 300; // Quit application requested
     public static final int RESULT_LOST_CONNECTION = 301; // Connection lost result
@@ -43,11 +42,17 @@ public class Constants {
     public static final String CONFIG_RESOLUTION_SEPARATOR = " x "; // Separator between with and height
     public static final int CONFIG_PERFORMANCE_LOOP = 100000; // Loop count for performance calculation
 
-    public static final short CONFIG_DEFAULT_DURATION = 60; // Default duration (in seconds)
+    public static final short CONFIG_DEFAULT_DURATION = 30; // Default duration (in seconds)
     public static final int CONFIG_MIN_DURATION = 10; // Minimum duration (in seconds)
     public static final int CONFIG_MAX_DURATION = 180; // Maximum duration (in seconds)
 
-    public static final short CONFIG_DEFAULT_FPS = 8; // Default frames per second
+    public static final short CONFIG_DEFAULT_FPS = 10; // Default frames per second
     public static final int CONFIG_MIN_FPS = 5; // Minimum frames per second
     public static final int CONFIG_MAX_FPS = 20; // Maximum frames per second
+
+
+    ////// Process
+    public static final String PROCESS_VIDEO_3GP_FILENAME = "/video.3gp";
+    public static final String PROCESS_LOCAL_PICTURE_FILENAME = "/local.jpg";
+    public static final String PROCESS_REMOTE_PICTURE_FILENAME = "/remote.jpg";
 }

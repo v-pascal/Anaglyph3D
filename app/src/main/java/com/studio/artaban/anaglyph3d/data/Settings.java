@@ -48,6 +48,7 @@ public class Settings implements ConnectRequest {
 
     // Getters
     public boolean isMaster() { return mMaster; }
+    public boolean isMaker() { return mMaker; }
     public String getRemoteDevice() { // Return remote device name
         return mRemoteDevice.substring(0, mRemoteDevice.indexOf(Constants.BLUETOOTH_DEVICES_SEPARATOR));
     }
@@ -84,53 +85,6 @@ public class Settings implements ConnectRequest {
         mResolution = mResolutions.get(resolutionIndex);
         return true;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public boolean initResolutions() {
-
-        boolean init = mResolutions.isEmpty();
-        mResolutions.clear();
-        mPosition = true;
-        mOrientation = false;
-        mDuration = 10;
-
-        if (!CameraView.getAvailableResolutions(mResolutions))
-            return false;
-
-        if (init)
-            mResolution = mResolutions.get(11);
-        return true;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // Data
     private boolean mMaster; // Master device which has priority (false for slave device)
@@ -222,8 +176,8 @@ public class Settings implements ConnectRequest {
 
             // Set up default settings
             mOrientation = true;
-            mDuration = 60;
-            mFps = 30;
+            mDuration = Constants.CONFIG_DEFAULT_DURATION;
+            mFps = Constants.CONFIG_DEFAULT_FPS;
 
             // Only resolutions may change (all other settings are in default state, see just above)
             // -> It should contain only resolutions that are available on both devices (master & slave)

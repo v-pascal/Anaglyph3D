@@ -126,10 +126,15 @@ public class PositionFragment extends Fragment {
             LayoutParams params = (LayoutParams)backReverse.getLayoutParams();
 
             // ...with a size of 25% of the screen width/height
-            if (Settings.getInstance().mOrientation) // Portrait
-                params.height = (int)(screenSize.x * 0.25f);
-            else // Landscape
-                params.height = (int)(screenSize.y * 0.25f);
+            int midPos;
+            if (Settings.getInstance().mOrientation) { // Portrait
+                params.height = (int) (screenSize.x * 0.25f);
+                midPos = params.height >> 1;
+            }
+            else { // Landscape
+                params.height = (int) (screenSize.y * 0.25f);
+                midPos = (screenSize.x >> 2) - (params.height >> 1);
+            }
             params.width = params.height;
 
             if (Settings.getInstance().mPosition) {
@@ -137,14 +142,14 @@ public class PositionFragment extends Fragment {
                 if (Build.VERSION.SDK_INT >= 17)
                     params.addRule(RelativeLayout.ALIGN_PARENT_START);
                 params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-                params.setMargins(params.height >> 1, 0, 0, 0);
+                params.setMargins(midPos, 0, 0, 0);
             }
             else {
 
                 if (Build.VERSION.SDK_INT >= 17)
                     params.addRule(RelativeLayout.ALIGN_PARENT_END);
                 params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-                params.setMargins(0, 0, params.height >> 1, 0);
+                params.setMargins(0, 0, midPos, 0);
             }
             backReverse.setLayoutParams(params);
             backReverse.requestLayout();

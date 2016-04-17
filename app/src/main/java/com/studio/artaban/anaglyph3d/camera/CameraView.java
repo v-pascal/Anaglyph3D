@@ -1,6 +1,7 @@
 package com.studio.artaban.anaglyph3d.camera;
 
 import android.content.DialogInterface;
+import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.content.Context;
@@ -12,10 +13,12 @@ import android.view.SurfaceView;
 import android.view.WindowManager;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
+import com.studio.artaban.anaglyph3d.process.ProcessActivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -85,8 +88,39 @@ public class CameraView extends SurfaceView
     //
     public Size getPreviewResolution() {
 
-        try { return mCamera.getParameters().getPreviewSize(); }
-        catch (Exception e) { return null; }
+        // Set preview resolution according the video setting
+        if (mCamera.getParameters().getSupportedVideoSizes() != null) {
+
+            // _ Same ratio with the video setting resolution
+            // _ Width x Height < Width x Height of the video setting
+            float ratio = ((float)Settings.getInstance().mResolution.width) /
+                    Settings.getInstance().mResolution.height;
+            int product = Settings.getInstance().mResolution.width *
+                    Settings.getInstance().mResolution.height;
+
+            List<Size> previewSizes = mCamera.getParameters().getSupportedPreviewSizes();
+            Size defaultSize = null;
+            for (Size previewSize : previewSizes) {
+                if (ratio == (((float)previewSize.width) / previewSize.height)) {
+
+                    int previewProduct = previewSize.width * previewSize.height;
+                    if (product > previewProduct)
+                        return previewSize; // Ok
+
+                    if (product == previewProduct)
+                        defaultSize = previewSize;
+                }
+            }
+            if (defaultSize != null)
+                return  defaultSize;
+                // Return at least default size with same ratio and product
+
+            Logs.add(Logs.Type.W, "Failed to get appropriate preview size");
+            // ...if not set keep video size as preview size (below)
+        }
+
+        // Same preview & setting resolution
+        return Settings.getInstance().mResolution;
     }
     public boolean startRecording() {
 
@@ -96,6 +130,7 @@ public class CameraView extends SurfaceView
         catch (IOException e) {
             Logs.add(Logs.Type.W, "Failed to remove preview display");
         }
+        mCamera.setPreviewCallback(null);
         mCamera.unlock();
 
         // Prepare recording
@@ -122,30 +157,14 @@ public class CameraView extends SurfaceView
                 mMediaRecorder.setOrientationHint(270);
         }
         else if (Settings.getInstance().mReverse) // Landscape & reverse
-            mMediaRecorder.setOrientationHint(180); // 0, 90, 180, and 270 degrees.
+            mMediaRecorder.setOrientationHint(180);
 
         mMediaRecorder.setMaxDuration(Settings.getInstance().mDuration * 1000);
         //mMediaRecorder.setVideoFrameRate(Settings.getInstance().mFps);
+        // BUG: Not working! Start recording failed if defined.
 
-
-
-
-
-
-
-
-        mMediaRecorder.setOutputFile("/storage/sdcard0/Movies/test.3gp");
-
-
-
-
-
-
-
-
-
-
-
+        mMediaRecorder.setOutputFile(ActivityWrapper.DOCUMENTS_FOLDER +
+                Constants.PROCESS_VIDEO_3GP_FILENAME);
 
         try { mMediaRecorder.prepare(); }
         catch (IOException e) {
@@ -168,25 +187,21 @@ public class CameraView extends SurfaceView
             mMediaRecorder.reset();
             mMediaRecorder.release();
 
-
-
-
-
-
-
-
-
-
-
-
-
+            try { ((ProcessActivity)ActivityWrapper.get()).startProcessing(mPreviewSize, mRawPicture); }
+            catch (Exception e) {
+                Logs.add(Logs.Type.F, "Unexpected activity reference");
+            }
         }
     }
 
     //////
     private SurfaceHolder mHolder;
     private Camera mCamera;
+
     private MediaRecorder mMediaRecorder;
+    private Size mPreviewSize;
+    private boolean mTakePicture;
+    private byte[] mRawPicture;
 
     private void create() {
 
@@ -209,8 +224,14 @@ public class CameraView extends SurfaceView
     }
 
     //
+    public CameraView(Context context) {
+        super(context);
+        mTakePicture = true;
+        create();
+    }
     public CameraView(Context context, AttributeSet attrs) {
         super(context);
+        mTakePicture = false;
         create();
     }
 
@@ -273,6 +294,20 @@ public class CameraView extends SurfaceView
                 case Surface.ROTATION_270:
                     mCamera.setDisplayOrientation(180); // Landscape (right)
                     break;
+            }
+            mPreviewSize = getPreviewResolution();
+            mCamera.getParameters().setPreviewSize(mPreviewSize.width, mPreviewSize.height);
+            mCamera.getParameters().setPreviewFormat(ImageFormat.NV21);
+            if (mTakePicture) {
+
+                mRawPicture = new byte[(int)(mPreviewSize.width * mPreviewSize.height * 3.0 / 2.0)];
+                mCamera.setPreviewCallback(new Camera.PreviewCallback() {
+
+                    @Override
+                    public void onPreviewFrame(byte[] data, Camera camera) {
+                        System.arraycopy(data, 0, mRawPicture, 0, data.length);
+                    }
+                });
             }
             mCamera.setPreviewDisplay(mHolder);
             mCamera.startPreview();

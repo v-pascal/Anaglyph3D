@@ -121,8 +121,9 @@ public class ActivityWrapper implements ConnectRequest {
 
 
     //////
-    private static WeakReference<Activity> mCurActivity; // Activity reference
+    public static String DOCUMENTS_FOLDER; // Application folder path
 
+    private static WeakReference<Activity> mCurActivity; // Activity reference
     private static boolean mQuitApp = false; // Flag to quit application (requested by the user)
     // -> Needed to quit application in connect activity (see 'onResume' method), probably because
     //    Main activity has been launch through a weak reference ('setResult' not working)

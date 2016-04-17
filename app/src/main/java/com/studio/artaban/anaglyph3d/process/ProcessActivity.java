@@ -1,8 +1,8 @@
 package com.studio.artaban.anaglyph3d.process;
 
 import android.content.pm.ActivityInfo;
+import android.hardware.Camera;
 import android.os.Build;
-import android.os.Handler;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,7 +19,8 @@ import com.studio.artaban.anaglyph3d.transfer.Connectivity;
  * Activity to manage video recording and transferring using fragments:
  * _ Position fragment
  * _ Recorder fragment
- * _ Status & Contrast fragment
+ * _ Process fragment (transfer)
+ * _ Contrast fragment
  */
 public class ProcessActivity extends AppCompatActivity {
 
@@ -40,50 +41,43 @@ public class ProcessActivity extends AppCompatActivity {
             }
         });
     }
+    public void startProcessing(final Camera.Size picSize, final byte[] picRaw) {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                // Remove fullscreen mode
+                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+
+                // Replace recorder with status fragment
+                FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
+                ProcessFragment process = new ProcessFragment();
+
+                Bundle picture = new Bundle();
+                picture.putInt(ProcessFragment.PICTURE_SIZE_WIDTH, picSize.width);
+                picture.putInt(ProcessFragment.PICTURE_SIZE_HEIGHT, picSize.height);
+                picture.putByteArray(ProcessFragment.PICTURE_RAW_BUFFER, picRaw);
+                process.setArguments(picture);
+
+                fragTransaction.replace(R.id.main_container, process, ProcessFragment.TAG).commit();
+                getSupportFragmentManager().executePendingTransactions();
+            }
+        });
+    }
 
     //
     public void onValidatePosition(View sender) {
 
-
-
-
-
-
-
-
-
-        /*
         // Send start request to remote device
         Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                 ActivityWrapper.REQ_TYPE_START, null);
-        */
 
         // Set fullscreen mode
         int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
         if (Build.VERSION.SDK_INT >= 19)
-            flags |= View.SYSTEM_UI_FLAG_IMMERSIVE;
+            flags |= View.SYSTEM_UI_FLAG_IMMERSIVE; // Force to keep fullscreen even if touched
         getWindow().getDecorView().setSystemUiVisibility(flags);
-
-
-
-
-
-
-
-
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                startRecording();
-            }
-        }, 1000);
-
-
-
-
-
-
     }
     public void onReversePosition(View sender) {
 
@@ -105,15 +99,6 @@ public class ProcessActivity extends AppCompatActivity {
         ((PositionFragment)getSupportFragmentManager().findFragmentByTag(PositionFragment.TAG)).reverse();
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-
-        // Send cancel request to remote device (this action will finish the activity)
-        Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
-                ActivityWrapper.REQ_TYPE_CANCEL, null);
-    }
-
     //////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,22 +107,6 @@ public class ProcessActivity extends AppCompatActivity {
 
         // Set current activity
         ActivityWrapper.set(this);
-
-
-
-
-
-
-
-
-
-        Settings.getInstance().initResolutions();
-
-
-
-
-
-
 
         // Set orientation
         Settings.getInstance().mReverse = false;
@@ -168,5 +137,14 @@ public class ProcessActivity extends AppCompatActivity {
             Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                     ActivityWrapper.REQ_TYPE_CANCEL, null);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        // Send cancel request to remote device (this action will finish the activity)
+        Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                ActivityWrapper.REQ_TYPE_CANCEL, null);
     }
 }
