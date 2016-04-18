@@ -90,7 +90,7 @@ public class ActivityWrapper implements ConnectRequest {
 
             case REQ_TYPE_CANCEL: {
 
-                stopActivity(ProcessActivity.class);
+                stopActivity(ProcessActivity.class, Constants.NO_DATA);
                 break; // Reply not considered (see below)
             }
         }
@@ -130,13 +130,8 @@ public class ActivityWrapper implements ConnectRequest {
 
 
     //////
-    public static String DOCUMENTS_FOLDER; // Application folder path
-
     private static WeakReference<Activity> mCurActivity; // Activity reference
-    private static boolean mQuitApp = false; // Flag to quit application (requested by the user)
-    // -> Needed to quit application in connect activity (see 'onResume' method), because when connect
-    //    activity is started from a background process and a new activity such as settings activity is
-    //    opened, there is a bug which prevents 'onActivityResult' of the connect activity to be called
+    public static String DOCUMENTS_FOLDER; // Application folder path
 
     //////
     public static void set(Activity activity) { mCurActivity = new WeakReference<Activity>(activity); }
@@ -145,64 +140,24 @@ public class ActivityWrapper implements ConnectRequest {
     public static void startActivity(final Class activity, final int request) {
         try {
 
-            get().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-
-                    try {
-                        Intent intent = new Intent(get(), activity);
-                        get().startActivityForResult(intent, request);
-                    }
-                    catch (NullPointerException e) {
-                        Logs.add(Logs.Type.F, "Wrong activity reference");
-                    }
-                }
-            });
+            Activity curActivity = get();
+            Intent intent = new Intent(curActivity, activity);
+            curActivity.startActivityForResult(intent, request);
         }
         catch (NullPointerException e) {
             Logs.add(Logs.Type.F, "Wrong activity reference");
         }
     }
-    public static void stopActivity(final Class activity) { // Stop expected activity (if active)
+    public static void stopActivity(final Class activity, final int result) { // Stop expected activity (if active)
         try {
 
-            get().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
+            Activity curActivity = get();
+            if (curActivity.getClass().equals(activity)) {
 
-                    try {
-                        Activity curActivity = get();
-                        if (curActivity.getClass().equals(activity))
-                            curActivity.finish();
-                    }
-                    catch (NullPointerException e) {
-                        Logs.add(Logs.Type.F, "Wrong/Unexpected activity reference");
-                    }
-                }
-            });
-        }
-        catch (NullPointerException e) {
-            Logs.add(Logs.Type.F, "Wrong activity reference");
-        }
-    }
-
-    public static boolean isQuitAppRequested() {
-
-        if (mQuitApp) {
-            mQuitApp = false; // Needed coz static variable
-            return true;
-        }
-        return false;
-    }
-    public static void quitApplication() {
-
-        mQuitApp = true;
-        try {
-            //get().getIntent().setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            //get().setResult(Constants.RESULT_QUIT_APPLICATION);
-            // BUG: Not working! See comments in 'mQuitApp' declaration
-
-            get().finish();
+                if (result != Constants.NO_DATA)
+                    curActivity.setResult(result);
+                curActivity.finish();
+            }
         }
         catch (NullPointerException e) {
             Logs.add(Logs.Type.F, "Wrong activity reference");

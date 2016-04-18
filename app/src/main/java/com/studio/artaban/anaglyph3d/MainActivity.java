@@ -66,7 +66,8 @@ public class MainActivity extends AppCompatActivity
 
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                ActivityWrapper.quitApplication();
+                                ActivityWrapper.stopActivity(MainActivity.class,
+                                        Constants.RESULT_QUIT_APPLICATION);
                             }
                         });
                 break;
@@ -220,6 +221,11 @@ public class MainActivity extends AppCompatActivity
         if (resultCode == Constants.RESULT_LOST_CONNECTION)
             finish(); // Lost connection (back to connect activity)
 
+        else if (resultCode == Constants.RESULT_QUIT_APPLICATION) {
+
+            setResult(Constants.RESULT_QUIT_APPLICATION);
+            finish();
+        }
         else if (resultCode == Constants.RESULT_DISPLAY_ALBUM) {
 
 

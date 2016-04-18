@@ -122,9 +122,6 @@ public class ConnectActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Connectivity.getInstance().resume(this);
-
-        if (ActivityWrapper.isQuitAppRequested())
-            finish(); // Force to quit application (see declaration)
     }
 
     @Override
@@ -147,9 +144,8 @@ public class ConnectActivity extends AppCompatActivity {
         if (resultCode == Constants.RESULT_RESTART_CONNECTION)
             Connectivity.getInstance().start(this); // Restart connectivity
 
-        //else if (resultCode == Constants.RESULT_QUIT_APPLICATION)
-        //    finish(); // Quit application
-        // BUG: Not working! See 'isQuitAppRequested' method call in 'onResume' method
+        else if (resultCode == Constants.RESULT_QUIT_APPLICATION)
+            finish(); // Quit application
     }
 
     @Override
