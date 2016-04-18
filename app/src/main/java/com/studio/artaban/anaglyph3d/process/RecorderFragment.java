@@ -21,7 +21,10 @@ import android.widget.TextView;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.camera.CameraView;
+import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
+import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 /**
  * Created by pascal on 12/04/16.
@@ -31,15 +34,81 @@ public class RecorderFragment extends Fragment {
 
     public static final String TAG = "recorder";
 
-    //
-    public void displayRecording() {
-        mRecordingHandler.post(mRecordingRunnable);
-    }
-
     //////
-    private ImageView mImageCounter;
     private CameraView mCameraView;
 
+    private ImageView mImageCounter;
+    private int mCounter = 4;
+
+    public void updateDownCount() { // Called by both devices until counter equal zero
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (mCounter == 0) { // Finished to display down count...
+
+                    // Start recording
+                    mImageCounter.setVisibility(View.GONE);
+                    mCameraView.startRecording();
+
+                    // Display recording info
+                    mRecordingHandler.post(mRecordingRunnable);
+                    return;
+                }
+
+                // Display next down count
+                mImageCounter.clearAnimation();
+                switch (mCounter--) {
+                    case 4:
+                        mImageCounter.setImageDrawable(getActivity().getResources().
+                                getDrawable(R.drawable.counter_4)); break;
+                    case 3:
+                        mImageCounter.setImageDrawable(getActivity().getResources().
+                                getDrawable(R.drawable.counter_3)); break;
+                    case 2:
+                        mImageCounter.setImageDrawable(getActivity().getResources().
+                                getDrawable(R.drawable.counter_2)); break;
+                    case 1:
+                        mImageCounter.setImageDrawable(getActivity().getResources().
+                                getDrawable(R.drawable.counter_1)); break;
+                }
+                final AlphaAnimation anim = new AlphaAnimation(1.0f, 0f);
+                anim.setDuration(1000);
+                anim.setFillAfter(true);
+                anim.setAnimationListener(new Animation.AnimationListener() {
+                    @Override public void onAnimationStart(Animation animation) { }
+                    @Override public void onAnimationRepeat(Animation animation) { }
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        if (Settings.getInstance().isMaker())
+                            return; // ...only for device which is not the maker
+
+                        // Send down count request to the maker
+                        Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                                ActivityWrapper.REQ_TYPE_DOWNCOUNT, null);
+
+                        if (mCounter == 0)
+                            mCameraView.postRecording();
+                    }
+                });
+
+                playBip();
+                mImageCounter.startAnimation(anim);
+            }
+        }, Constants.CONN_WAIT_DELAY << 1);
+    }
+
+    private void playBip() { // Play a bip sound during the down count
+
+        if (!Settings.getInstance().isMaker())
+            return; // Only the maker will play sound (better performance)
+
+        final MediaPlayer mediaPlayer = MediaPlayer.create(getContext(), R.raw.bip_sound);
+        mediaPlayer.start();
+    }
+
+    //
     private RelativeLayout mRecordingLayout;
     private Handler mRecordingHandler = new Handler();
     private Runnable mRecordingRunnable = new Runnable() {
@@ -80,87 +149,13 @@ public class RecorderFragment extends Fragment {
         }
     };
 
-    private void playBip() { // Play a bip sound during the down count
-
-        if (!Settings.getInstance().isMaker())
-            return; // Only the maker will play sound (better performance)
-
-        final MediaPlayer mediaPlayer = MediaPlayer.create(getContext(), R.raw.bip_sound);
-        mediaPlayer.start();
-    }
-    private Animation.AnimationListener mAnimListener = new Animation.AnimationListener() {
-
-        private short mCounter = 0;
-
-        @Override public void onAnimationStart(Animation animation) { }
-        @Override public void onAnimationEnd(Animation animation) {
-
-            mImageCounter.setVisibility(View.GONE);
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-
-
-
-
-
-
-
-
-
-
-
-
-                    //if (mCameraView.startRecording())
-                    //    mRecordingHandler.post(mRecordingRunnable);
-
-
-
-
-
-
-
-                    // Disable sound that is played when recording
-                    ((AudioManager)getContext().getSystemService(Context.AUDIO_SERVICE)).
-                            setStreamMute(AudioManager.STREAM_SYSTEM, true);
-
-                    mCameraView.startRecording();
-
-
-
-
-
-
-
-
-
-
-                }
-            });
-        }
-        @Override public void onAnimationRepeat(Animation animation) {
-            playBip();
-
-            switch (mCounter++) {
-                case 0:
-                    mImageCounter.setImageDrawable(getActivity().getResources().getDrawable(R.drawable.counter_3));
-                    break;
-                case 1:
-                    mImageCounter.setImageDrawable(getActivity().getResources().getDrawable(R.drawable.counter_2));
-                    break;
-                case 2:
-                    mImageCounter.setImageDrawable(getActivity().getResources().getDrawable(R.drawable.counter_1));
-                    break;
-            }
-        }
-    };
-
     //////
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         final View rootView = inflater.inflate(R.layout.fragment_recorder, container, false);
         mRecordingLayout = (RelativeLayout)rootView.findViewById(R.id.recording_layout);
+        mImageCounter = (ImageView)rootView.findViewById(R.id.counter_image);
 
         // Avoid the user to change recorder progression (which is displayed in a 'SeekBar')
         final SeekBar progress = (SeekBar)mRecordingLayout.findViewById(R.id.record_progress);
@@ -171,18 +166,6 @@ public class RecorderFragment extends Fragment {
             }
         });
         progress.setMax(Settings.getInstance().mDuration);
-
-        // Start down count animation
-        mImageCounter = (ImageView)rootView.findViewById(R.id.counter_image);
-        if (mImageCounter != null) {
-
-            final AlphaAnimation anim = new AlphaAnimation(1.0f, 0f);
-            anim.setDuration(1200);
-            anim.setRepeatCount(3);
-            anim.setAnimationListener(mAnimListener);
-
-            mImageCounter.startAnimation(anim);
-        }
 
         // Create & Position preview camera surface
         mCameraView = new CameraView(getContext());
@@ -212,7 +195,23 @@ public class RecorderFragment extends Fragment {
         params.addRule(RelativeLayout.CENTER_HORIZONTAL);
         ((RelativeLayout) rootView).addView(mCameraView, 0, params);
 
-        mImageCounter.requestLayout();
+        // Send start down count request (if not the maker)
+        if (!Settings.getInstance().isMaker()) {
+
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                            ActivityWrapper.REQ_TYPE_DOWNCOUNT, null);
+                }
+            }, 1000);
+        }
+
+        // Disable sound that is played when recording
+        ((AudioManager)getContext().getSystemService(Context.AUDIO_SERVICE)).
+                setStreamMute(AudioManager.STREAM_SYSTEM, true);
+
         return rootView;
     }
 }

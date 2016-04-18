@@ -26,9 +26,9 @@ public class ProcessFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        // Enable sound that is played when recording
+        // Restore system sound (disabled to avoid sound when start and stop recording)
         ((AudioManager)getContext().getSystemService(Context.AUDIO_SERVICE)).
-                setStreamMute(AudioManager.STREAM_SYSTEM, true);
+                setStreamMute(AudioManager.STREAM_SYSTEM, false);
 
 
 

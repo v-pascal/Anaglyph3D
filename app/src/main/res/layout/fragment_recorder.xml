@@ -10,8 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:contentDescription="@string/image_desc_counter"
-        android:id="@+id/counter_image"
-        android:src="@drawable/counter_4" />
+        android:id="@+id/counter_image" />
 
     <RelativeLayout
         android:layout_width="match_parent"

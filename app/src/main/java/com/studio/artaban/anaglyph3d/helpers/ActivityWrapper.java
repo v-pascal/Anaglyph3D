@@ -26,13 +26,18 @@ public class ActivityWrapper implements ConnectRequest {
 
     // Request types
     public static final byte REQ_TYPE_READY = 1; // Application is ready to start recording
-    public static final byte REQ_TYPE_START = 2; // Start recording command
-    public static final byte REQ_TYPE_CANCEL = 3; // Cancel recording process
+    public static final byte REQ_TYPE_START = 2; // Start recording command (start processing)
+    public static final byte REQ_TYPE_CANCEL = 3; // Cancel recording command
+    public static final byte REQ_TYPE_DOWNCOUNT = 4; // Update down count command
 
-    private String replyStartRequest() {
+    private String replyRequest(byte type) {
         try {
+            if (type == REQ_TYPE_START)
+                ((ProcessActivity)get()).startRecording();
 
-            ((ProcessActivity)get()).startRecording();
+            else // REQ_TYPE_DOWNCOUNT
+                ((ProcessActivity)get()).updateRecording();
+
             return Constants.CONN_REQUEST_ANSWER_TRUE;
         }
         catch (NullPointerException e) {
@@ -79,7 +84,10 @@ public class ActivityWrapper implements ConnectRequest {
                 }
                 break;
             }
-            case REQ_TYPE_START: return replyStartRequest();
+            case REQ_TYPE_START:
+            case REQ_TYPE_DOWNCOUNT:
+                return replyRequest(type);
+
             case REQ_TYPE_CANCEL: {
 
                 stopActivity(ProcessActivity.class);
@@ -110,7 +118,8 @@ public class ActivityWrapper implements ConnectRequest {
                 return true;
             }
             case REQ_TYPE_START:
-                return (replyStartRequest().equals(Constants.CONN_REQUEST_ANSWER_TRUE));
+            case REQ_TYPE_DOWNCOUNT:
+                return (replyRequest(type).equals(Constants.CONN_REQUEST_ANSWER_TRUE));
 
             case REQ_TYPE_CANCEL:
                 return true; // Nothing to do

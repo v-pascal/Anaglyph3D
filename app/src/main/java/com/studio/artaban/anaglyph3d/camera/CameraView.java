@@ -6,6 +6,7 @@ import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.content.Context;
 import android.media.MediaRecorder;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -85,7 +86,7 @@ public class CameraView extends SurfaceView
         return true;
     }
 
-    //
+    //////
     public Size getPreviewResolution() {
 
         // Set preview resolution according the video setting
@@ -123,6 +124,49 @@ public class CameraView extends SurfaceView
         return Settings.getInstance().mResolution;
     }
 
+    public void postRecording() {
+        // ...only called by the device which is not the maker
+
+        // Stop camera preview (in a few milliseconds)
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                stopPreview();
+            }
+        }, Constants.CONN_WAIT_DELAY << 1);
+    }
+    public void startRecording() {
+        if (Settings.getInstance().isMaker()) {
+
+            // Stop camera preview then start recording
+            stopPreview();
+            mMediaRecorder.start();
+        }
+        else { // Start recording (camera preview already stopped)
+
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mMediaRecorder.start();
+                }
+            }, Constants.CONN_WAIT_DELAY);
+        }
+    }
+
+    //
+    private void stopPreview() {
+
+        // Stop camera preview
+        mCamera.stopPreview();
+        try { mCamera.setPreviewDisplay(null); }
+        catch (IOException e) {
+            Logs.add(Logs.Type.W, "Failed to remove preview display");
+        }
+        mCamera.setPreviewCallback(null);
+        mCamera.unlock();
+    }
     private boolean prepareRecording() {
 
         // Prepare recording
@@ -165,45 +209,6 @@ public class CameraView extends SurfaceView
             return false;
         }
         return true;
-    }
-    public void startRecording() {
-
-        // Send start recording request (if master)
-        if (Settings.getInstance().isMaster()) {
-
-        }
-
-        // Stop camera preview
-        mCamera.stopPreview();
-        try { mCamera.setPreviewDisplay(null); }
-        catch (IOException e) {
-            Logs.add(Logs.Type.W, "Failed to remove preview display");
-        }
-        mCamera.setPreviewCallback(null);
-        mCamera.unlock();
-
-
-
-
-
-
-
-
-
-
-        // Start recording
-        //mMediaRecorder.start();
-
-
-
-
-
-
-
-
-
-
-
     }
 
     //////

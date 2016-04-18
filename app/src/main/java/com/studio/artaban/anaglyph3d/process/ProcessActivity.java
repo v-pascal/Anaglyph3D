@@ -41,6 +41,18 @@ public class ProcessActivity extends AppCompatActivity {
             }
         });
     }
+    public void updateRecording() {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() { // Update down count
+
+                RecorderFragment recorder = (RecorderFragment)getSupportFragmentManager().
+                        findFragmentByTag(RecorderFragment.TAG);
+                recorder.updateDownCount();
+            }
+        });
+    }
     public void startProcessing(final Camera.Size picSize, final byte[] picRaw) {
 
         runOnUiThread(new Runnable() {
@@ -50,7 +62,7 @@ public class ProcessActivity extends AppCompatActivity {
                 // Remove fullscreen mode
                 getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
 
-                // Replace recorder with status fragment
+                // Replace recorder with process fragment
                 FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
                 ProcessFragment process = new ProcessFragment();
 
