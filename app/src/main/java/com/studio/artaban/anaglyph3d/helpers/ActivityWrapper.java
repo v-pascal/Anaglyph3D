@@ -202,7 +202,7 @@ public class ActivityWrapper implements ConnectRequest {
             //get().setResult(Constants.RESULT_QUIT_APPLICATION);
             // BUG: Not working! See comments in 'mQuitApp' declaration
 
-            mCurActivity.get().finish();
+            get().finish();
         }
         catch (NullPointerException e) {
             Logs.add(Logs.Type.F, "Wrong activity reference");
