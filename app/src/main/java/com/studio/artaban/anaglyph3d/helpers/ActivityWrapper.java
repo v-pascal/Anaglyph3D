@@ -134,8 +134,9 @@ public class ActivityWrapper implements ConnectRequest {
 
     private static WeakReference<Activity> mCurActivity; // Activity reference
     private static boolean mQuitApp = false; // Flag to quit application (requested by the user)
-    // -> Needed to quit application in connect activity (see 'onResume' method), probably because
-    //    Main activity has been launch through a weak reference ('setResult' not working)
+    // -> Needed to quit application in connect activity (see 'onResume' method), because when connect
+    //    activity is started from a background process and a new activity such as settings activity is
+    //    opened, there is a bug which prevents 'onActivityResult' of the connect activity to be called
 
     //////
     public static void set(Activity activity) { mCurActivity = new WeakReference<Activity>(activity); }
@@ -197,8 +198,8 @@ public class ActivityWrapper implements ConnectRequest {
 
         mQuitApp = true;
         try {
-            //mCurActivity.get().getIntent().setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            //mCurActivity.get().setResult(Constants.RESULT_QUIT_APPLICATION);
+            //get().getIntent().setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            //get().setResult(Constants.RESULT_QUIT_APPLICATION);
             // BUG: Not working! See comments in 'mQuitApp' declaration
 
             mCurActivity.get().finish();

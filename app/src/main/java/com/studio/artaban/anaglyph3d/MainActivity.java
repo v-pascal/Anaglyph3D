@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.navAlbum: {
 
                 // Display album activity
-                Intent intent = new Intent(getApplicationContext(), VideoListActivity.class);
+                Intent intent = new Intent(this, VideoListActivity.class);
                 intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, true);
                 startActivityForResult(intent, 0);
                 break;
@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.navSettings: {
 
                 // Display settings activity
-                Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+                Intent intent = new Intent(this, SettingsActivity.class);
                 startActivityForResult(intent, 0);
                 break;
             }
