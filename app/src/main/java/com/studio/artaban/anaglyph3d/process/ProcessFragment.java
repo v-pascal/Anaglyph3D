@@ -3,12 +3,16 @@ package com.studio.artaban.anaglyph3d.process;
 import android.content.Context;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.libGST.GstObject;
+
+import java.io.File;
 
 /**
  * Created by pascal on 12/04/16.
@@ -34,6 +38,18 @@ public class ProcessFragment extends Fragment {
 
 
         //getArguments()
+
+        File pictures = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+
+        GstObject gst = new GstObject(getContext());
+        gst.launch("filesrc location=" + pictures + "/temp.jpg ! jpegdec ! videoconvert ! video/x-raw,format=RGB !" +
+                " filesink location=" + pictures + "/temp..bin");
+
+        //filesrc location=testage.nv21 blocksize=460800 ! video/x-raw,format=NV21,width=640,height=480,framerate=1/1 ! videoconvert ! jpegenc ! filesink location=temp.jpg
+
+        //filesrc location=myrec1.3gp ! qtdemux ! decodebin ! audioconvert ! wavenc ! filesink location=file1.wav
+        //filesrc location=myrec1.3gp ! qtdemux ! decodebin ! videoconvert ! jpegenc ! multifilesink location=img_%d.jpg
+
 
 
 
