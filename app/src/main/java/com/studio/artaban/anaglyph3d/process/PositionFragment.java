@@ -17,6 +17,8 @@ import android.widget.RelativeLayout.LayoutParams;
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Settings;
 
+import org.w3c.dom.Text;
+
 /**
  * Created by pascal on 13/04/16.
  * Position fragment to inform user on devices position before recording
@@ -48,11 +50,11 @@ public class PositionFragment extends Fragment {
         // Display the back device image according the new reverse specification
         if (Settings.getInstance().mReverse) {
 
-            if (Settings.getInstance().mOrientation) // Portrait
+            if (Settings.getInstance().mOrientation) // Portrait (reversed)
                 mBackImage.setImageBitmap(flip(BitmapFactory.decodeResource(getContext().getResources(),
                         (Settings.getInstance().mPosition)?
                                 R.drawable.back_portrait_left:R.drawable.back_portrait_right), true));
-            else // Landscape
+            else // Landscape (reversed)
                 mBackImage.setImageBitmap(flip(BitmapFactory.decodeResource(getContext().getResources(),
                         (Settings.getInstance().mPosition)?
                                 R.drawable.back_landscape_left:R.drawable.back_landscape_right), true));
@@ -68,6 +70,53 @@ public class PositionFragment extends Fragment {
                         (Settings.getInstance().mPosition) ?
                                 R.drawable.back_landscape_left : R.drawable.back_landscape_right));
         }
+
+
+
+
+
+
+
+        // Check if orientation has changed as expected (if not make changes as expected)
+        // -> Some phone as the 'Samsung Galaxy Trend Lite' do not apply orientation changes
+        if (Settings.getInstance().mReverse) {
+
+        }
+        else {
+            if (Settings.getInstance().mOrientation) { // Portrait
+
+
+                /*
+                if (mDistanceText.getRotation() > 0f) {
+
+
+                    mDistanceText.setRoation(0f);
+                    //Change alignment...
+
+
+                }
+                */
+
+            }
+            else { // Landscape
+
+
+
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
     //////

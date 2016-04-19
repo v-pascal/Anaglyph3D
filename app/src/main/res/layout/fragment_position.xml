@@ -28,7 +28,8 @@
         android:textAppearance="@android:style/TextAppearance.Large"
         android:gravity="center"
         android:layout_above="@id/back_device"
-        android:text="@string/devices_distance" />
+        android:text="@string/devices_distance"
+        android:id="@+id/distance_text" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

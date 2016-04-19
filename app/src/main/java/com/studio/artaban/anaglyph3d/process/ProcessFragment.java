@@ -39,16 +39,18 @@ public class ProcessFragment extends Fragment {
 
         //getArguments()
 
+        /*
         File pictures = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
 
         GstObject gst = new GstObject(getContext());
         gst.launch("filesrc location=" + pictures + "/temp.jpg ! jpegdec ! videoconvert ! video/x-raw,format=RGB !" +
                 " filesink location=" + pictures + "/temp..bin");
+                */
 
         //filesrc location=testage.nv21 blocksize=460800 ! video/x-raw,format=NV21,width=640,height=480,framerate=1/1 ! videoconvert ! jpegenc ! filesink location=temp.jpg
 
         //filesrc location=myrec1.3gp ! qtdemux ! decodebin ! audioconvert ! wavenc ! filesink location=file1.wav
-        //filesrc location=myrec1.3gp ! qtdemux ! decodebin ! videoconvert ! jpegenc ! multifilesink location=img_%d.jpg
+        //filesrc location=myrec1.3gp ! qtdemux ! decodebin ! videoconvert ! video/x-raw,format=RGB ! multifilesink location=img_%d.bin
 
 
 
