@@ -1,5 +1,6 @@
 package com.studio.artaban.anaglyph3d.process;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -8,16 +9,19 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
+import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
-
-import org.w3c.dom.Text;
+import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 
 /**
  * Created by pascal on 13/04/16.
@@ -47,6 +51,34 @@ public class PositionFragment extends Fragment {
     //
     public void reverse() {
 
+        // Check if orientation has changed as expected
+        // -> Some phone such as the 'Samsung Galaxy Trend Lite' do not apply orientation changes
+        int orientation = ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE)).
+                getDefaultDisplay().getRotation();
+
+        if (Settings.getInstance().mReverse) {
+            if (Settings.getInstance().mOrientation) {
+                if (orientation != Surface.ROTATION_270)
+                    orientation = Constants.NO_DATA; // Not in reversed portrait
+            }
+            else if (orientation != Surface.ROTATION_180)
+                orientation = Constants.NO_DATA; // Not in reversed landscape
+        }
+        else {
+            if (Settings.getInstance().mOrientation) {
+                if (orientation != Surface.ROTATION_0)
+                    orientation = Constants.NO_DATA; // Not in portrait
+            }
+            else if (orientation != Surface.ROTATION_90)
+                orientation = Constants.NO_DATA; // Not in landscape
+        }
+        if (orientation == Constants.NO_DATA) {
+
+            // Inform user the reverse option cannot be applied to this device
+            DisplayMessage.getInstance().toast(R.string.reverse_disabled, Toast.LENGTH_LONG);
+            return;
+        }
+
         // Display the back device image according the new reverse specification
         if (Settings.getInstance().mReverse) {
 
@@ -70,53 +102,6 @@ public class PositionFragment extends Fragment {
                         (Settings.getInstance().mPosition) ?
                                 R.drawable.back_landscape_left : R.drawable.back_landscape_right));
         }
-
-
-
-
-
-
-
-        // Check if orientation has changed as expected (if not make changes as expected)
-        // -> Some phone as the 'Samsung Galaxy Trend Lite' do not apply orientation changes
-        if (Settings.getInstance().mReverse) {
-
-        }
-        else {
-            if (Settings.getInstance().mOrientation) { // Portrait
-
-
-                /*
-                if (mDistanceText.getRotation() > 0f) {
-
-
-                    mDistanceText.setRoation(0f);
-                    //Change alignment...
-
-
-                }
-                */
-
-            }
-            else { // Landscape
-
-
-
-            }
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 
     //////
