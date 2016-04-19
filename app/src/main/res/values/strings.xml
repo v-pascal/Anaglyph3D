@@ -112,4 +112,8 @@
     <string name="image_desc_counter" translatable="false">Downcount image</string>
     <string name="reverse_disabled">WARNING: Impossible to reverse screen on this device!</string>
 
+    <string name="status_save_raw">Store picture to set contrast &amp; brightness</string>
+    <string name="status_convert_raw">Convert picture to set contrast &amp; brightness</string>
+    <string name="status_transfer_raw">Transfer picture to set contrast &amp; brightness</string>
+
 </resources>

@@ -143,9 +143,15 @@ public class ProcessActivity extends AppCompatActivity {
 
 
 
+
+
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
         fragTransaction.add(R.id.main_container, new ProcessFragment(), ProcessFragment.TAG).commit();
         getSupportFragmentManager().executePendingTransactions();
+
+
+
+
 
 
 

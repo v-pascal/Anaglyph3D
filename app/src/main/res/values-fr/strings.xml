@@ -47,4 +47,8 @@
     <string name="device_not_ready">ATTENTION: Démarrage de l\'enregistrement impossible! La caméra distante n\'est pas prête.</string>
     <string name="reverse_disabled">ATTENTION: Impossible de retourner l\'écran sur ce périphérique!</string>
 
+    <string name="status_save_raw">Stocke l\'image du contraste &amp; luminosité</string>
+    <string name="status_convert_raw">Convertit l\'image du contraste &amp; luminosité</string>
+    <string name="status_transfer_raw">Transfert de l\'image du contraste &amp; luminosité</string>
+
 </resources>
