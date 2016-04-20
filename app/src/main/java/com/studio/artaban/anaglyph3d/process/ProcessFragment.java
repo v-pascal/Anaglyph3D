@@ -1,6 +1,7 @@
 package com.studio.artaban.anaglyph3d.process;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioManager;
 import android.os.AsyncTask;
@@ -15,7 +16,9 @@ import android.widget.TextView;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
+import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.libGST.GstObject;
 
@@ -40,12 +43,13 @@ public class ProcessFragment extends Fragment {
     private enum Status {
 
         ////// Contrast & brightness step: 3 status
-        SAVE_RAW_PICTURE (R.string.status_save_raw), // Save local picture (used to set up the contrast & brightness)
-        CONVERT_RAW_PICTURE (R.string.status_convert_raw), // Convert local picture from NV21 to ARGB or JPEG
+        SAVE_PICTURE (R.string.status_save_raw), // Save raw picture (used to set up the contrast & brightness)
 
         // Progress for each 1024 bytes packets...
         TRANSFER_PICTURE (R.string.status_transfer_raw), // Transfer picture (to remote device which is not the maker)
         WAIT_PICTURE(0), // Wait until contrast & brightness picture has been received (to device which is not the maker)
+
+        CONVERT_PICTURE (R.string.status_convert_raw), // Convert local picture from NV21 to ARGB or JPEG
 
         ////// Video transfer & extraction step: 7 status
 
@@ -79,7 +83,7 @@ public class ProcessFragment extends Fragment {
         Status(int id) { mStringId = id; }
         public int getStringId() { return mStringId; }
     }
-    private Status mStatus = Status.SAVE_RAW_PICTURE;
+    private Status mStatus = Status.SAVE_PICTURE;
 
     private static GstObject mGStreamer;
 
@@ -93,7 +97,7 @@ public class ProcessFragment extends Fragment {
             while (mStatus != ProcessFragment.Status.FINISHED) {
                 switch (mStatus) {
 
-                    case SAVE_RAW_PICTURE: {
+                    case SAVE_PICTURE: {
 
                         publishProgress(1);
 
@@ -115,18 +119,48 @@ public class ProcessFragment extends Fragment {
                         catch (IOException e) {
 
                             Logs.add(Logs.Type.E, "Failed to save raw picture");
+                            mStatus = ProcessFragment.Status.FINISHED;
+
+                            // Inform user
+                            DisplayMessage.getInstance().alert(R.string.title_error, R.string.save_error,
+                                    null, false, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    ActivityWrapper.stopActivity(ProcessActivity.class, Constants.NO_DATA);
+                                }
+                            });
+                            break;
+                        }
+
+                        if (!Settings.getInstance().isMaker())
+                            mStatus = ProcessFragment.Status.CONVERT_PICTURE;
+                        else {
+
+                            mStatus = ProcessFragment.Status.TRANSFER_PICTURE;
+
 
 
 
 
 
                         }
-                        mStatus = ProcessFragment.Status.CONVERT_RAW_PICTURE;
                         break;
                     }
-                    case CONVERT_RAW_PICTURE: {
+                    case TRANSFER_PICTURE: {
+
+
+
+
+
+                        break;
+                    }
+                    case CONVERT_PICTURE: {
 
                         publishProgress(2);
+
+                        // Convert NV21 to ARGB picture file
+
+
 
 
                         /*
@@ -150,7 +184,9 @@ public class ProcessFragment extends Fragment {
 
 
 
-                        mStatus = ProcessFragment.Status.TRANSFER_PICTURE;
+                        mStatus = ProcessFragment.Status.WAIT_CONTRAST;
+
+
                         break;
                     }
                 }
