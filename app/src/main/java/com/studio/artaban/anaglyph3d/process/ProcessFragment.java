@@ -134,10 +134,6 @@ public class ProcessFragment extends Fragment {
         }
     };
 
-    //
-    private ImageView mClapImage;
-    private GridLayout mStepLayout;
-
     //////
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -149,68 +145,19 @@ public class ProcessFragment extends Fragment {
         ((AudioManager)getContext().getSystemService(Context.AUDIO_SERVICE)).
                 setStreamMute(AudioManager.STREAM_SYSTEM, false);
 
+        // Display 3D clap image animation
         final View rootView = inflater.inflate(R.layout.fragment_process, container, false);
-        mStepLayout = (GridLayout)rootView.findViewById(R.id.layout_step);
-
-        // Display 3D clap animation
-        mClapImage = (ImageView)rootView.findViewById(R.id.clap_image);
-        if (mClapImage != null) {
-
-            mClapImage.setImageDrawable(getResources().getDrawable(R.drawable.clap_anim));
-            final AnimationDrawable animClap = (AnimationDrawable)mClapImage.getDrawable();
-            mClapImage.post(new Runnable() {
+        final ImageView clapImage = (ImageView)rootView.findViewById(R.id.clap_image);
+        if (clapImage != null) {
+            clapImage.setImageDrawable(getResources().getDrawable(R.drawable.clap_anim));
+            clapImage.post(new Runnable() {
 
                 @Override
                 public void run() {
-                    animClap.start();
+                    ((AnimationDrawable) clapImage.getDrawable()).start();
                 }
             });
         }
         return rootView;
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-
-        super.onConfigurationChanged(newConfig);
-        switch (((WindowManager)getContext().getSystemService(
-                Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation()) {
-
-            case Surface.ROTATION_0: // Portrait
-                break;
-
-            case Surface.ROTATION_90: // Landscape
-
-
-
-
-                Logs.add(Logs.Type.I, "Landscape");
-
-
-                LayoutParams params = (LayoutParams)mClapImage.getLayoutParams();
-                if (Build.VERSION.SDK_INT >= 17)
-                    params.addRule(RelativeLayout.ALIGN_PARENT_END);
-                params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-                mClapImage.setLayoutParams(params);
-                mClapImage.requestLayout();
-
-
-
-                params = (LayoutParams)mStepLayout.getLayoutParams();
-                if (Build.VERSION.SDK_INT >= 17)
-                    params.removeRule(RelativeLayout.BELOW);
-                params.addRule(RelativeLayout.LEFT_OF, R.id.clap_image);
-                mStepLayout.setLayoutParams(params);
-                mStepLayout.requestLayout();
-
-
-
-                break;
-
-            case Surface.ROTATION_180: // Reversed portrait
-                break;
-            case Surface.ROTATION_270: // Reversed landscape
-                break;
-        }
     }
 }
