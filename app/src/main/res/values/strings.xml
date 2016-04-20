@@ -112,6 +112,13 @@
     <string name="image_desc_counter" translatable="false">Downcount image</string>
     <string name="reverse_disabled">WARNING: Impossible to reverse screen on this device!</string>
 
+    <!-- Process step -->
+    <string name="step_contrast">Contrast &amp; brightness</string>
+    <string name="step_video">Videos transfer &amp; extraction</string>
+    <string name="step_frames">Frames conversion</string>
+    <string name="step_anaglyph">Make &amp; transfer 3D video</string>
+
+    <!-- Process status -->
     <string name="status_save_raw">Store picture to set contrast &amp; brightness</string>
     <string name="status_convert_raw">Convert picture to set contrast &amp; brightness</string>
     <string name="status_transfer_raw">Transfer picture to set contrast &amp; brightness</string>

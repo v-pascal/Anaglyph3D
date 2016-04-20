@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:visibility="gone"
-        android:layout_margin="@dimen/fab_margin"
+        android:layout_margin="@dimen/layout_margin"
         android:id="@+id/recording_layout">
 
         <TextView

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/clap_anim"
+    android:oneshot="false" >
+
+    <item android:drawable="@drawable/clap_1" android:duration="1500" />
+    <item android:drawable="@drawable/clap_2" android:duration="100" />
+    <item android:drawable="@drawable/clap_3" android:duration="100" />
+    <item android:drawable="@drawable/clap_4" android:duration="500" />
+
+</animation-list>

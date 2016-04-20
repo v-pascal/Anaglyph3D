@@ -47,6 +47,13 @@
     <string name="device_not_ready">ATTENTION: Démarrage de l\'enregistrement impossible! La caméra distante n\'est pas prête.</string>
     <string name="reverse_disabled">ATTENTION: Impossible de retourner l\'écran sur ce périphérique!</string>
 
+    <!-- Process step -->
+    <string name="step_contrast">Contraste &amp; luminosité</string>
+    <string name="step_video">Transfert &amp; extraction des videos</string>
+    <string name="step_frames">Conversion des images</string>
+    <string name="step_anaglyph">Création &amp; transfert de la video 3D</string>
+
+    <!-- Process status -->
     <string name="status_save_raw">Stocke l\'image du contraste &amp; luminosité</string>
     <string name="status_convert_raw">Convertit l\'image du contraste &amp; luminosité</string>
     <string name="status_transfer_raw">Transfert de l\'image du contraste &amp; luminosité</string>

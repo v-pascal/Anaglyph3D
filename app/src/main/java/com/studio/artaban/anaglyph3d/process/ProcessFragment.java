@@ -1,15 +1,25 @@
 package com.studio.artaban.anaglyph3d.process;
 
 import android.content.Context;
+import android.content.res.Configuration;
+import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.GridLayout;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.libGST.GstObject;
 
 import java.io.File;
@@ -67,10 +77,11 @@ public class ProcessFragment extends Fragment {
 
                 case SAVE_RAW_PICTURE: {
 
+                    /*
                     int width = getArguments().getInt(PICTURE_SIZE_WIDTH);
                     int height = getArguments().getInt(PICTURE_SIZE_HEIGHT);
                     byte[] raw = getArguments().getByteArray(PICTURE_RAW_BUFFER);
-
+                    */
 
 
 
@@ -88,6 +99,24 @@ public class ProcessFragment extends Fragment {
                     GstObject gst = new GstObject(getContext());
                     gst.launch("filesrc location=" + pictures + "/temp.jpg ! jpegdec ! videoconvert ! video/x-raw,format=ARGB !" +
                             " filesink location=" + pictures + "/temp.bin");
+
+
+
+
+
+                    ######---------------------------
+
+                    - Contrast & brigthness
+                    - Videos transfer & extraction
+                      Frames conversion
+                      Transfer 3D video
+
+                    Status: Bla blabla bla lba...
+
+
+
+
+
                             */
 
                     //filesrc location=testage.nv21 blocksize=460800 ! video/x-raw,format=NV21,width=640,height=480,framerate=1/1 ! videoconvert ! jpegenc ! filesink location=temp.jpg
@@ -105,6 +134,10 @@ public class ProcessFragment extends Fragment {
         }
     };
 
+    //
+    private ImageView mClapImage;
+    private GridLayout mStepLayout;
+
     //////
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -116,6 +149,68 @@ public class ProcessFragment extends Fragment {
         ((AudioManager)getContext().getSystemService(Context.AUDIO_SERVICE)).
                 setStreamMute(AudioManager.STREAM_SYSTEM, false);
 
-        return inflater.inflate(R.layout.fragment_process, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_process, container, false);
+        mStepLayout = (GridLayout)rootView.findViewById(R.id.layout_step);
+
+        // Display 3D clap animation
+        mClapImage = (ImageView)rootView.findViewById(R.id.clap_image);
+        if (mClapImage != null) {
+
+            mClapImage.setImageDrawable(getResources().getDrawable(R.drawable.clap_anim));
+            final AnimationDrawable animClap = (AnimationDrawable)mClapImage.getDrawable();
+            mClapImage.post(new Runnable() {
+
+                @Override
+                public void run() {
+                    animClap.start();
+                }
+            });
+        }
+        return rootView;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+
+        super.onConfigurationChanged(newConfig);
+        switch (((WindowManager)getContext().getSystemService(
+                Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation()) {
+
+            case Surface.ROTATION_0: // Portrait
+                break;
+
+            case Surface.ROTATION_90: // Landscape
+
+
+
+
+                Logs.add(Logs.Type.I, "Landscape");
+
+
+                LayoutParams params = (LayoutParams)mClapImage.getLayoutParams();
+                if (Build.VERSION.SDK_INT >= 17)
+                    params.addRule(RelativeLayout.ALIGN_PARENT_END);
+                params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+                mClapImage.setLayoutParams(params);
+                mClapImage.requestLayout();
+
+
+
+                params = (LayoutParams)mStepLayout.getLayoutParams();
+                if (Build.VERSION.SDK_INT >= 17)
+                    params.removeRule(RelativeLayout.BELOW);
+                params.addRule(RelativeLayout.LEFT_OF, R.id.clap_image);
+                mStepLayout.setLayoutParams(params);
+                mStepLayout.requestLayout();
+
+
+
+                break;
+
+            case Surface.ROTATION_180: // Reversed portrait
+                break;
+            case Surface.ROTATION_270: // Reversed landscape
+                break;
+        }
     }
 }
