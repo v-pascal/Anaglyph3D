@@ -111,6 +111,7 @@
     <string name="device_not_ready">WARNING: Failed to start recording! Remote device not ready.</string>
     <string name="image_desc_counter" translatable="false">Downcount image</string>
     <string name="reverse_disabled">WARNING: Impossible to reverse screen on this device!</string>
+    <string name="status_label">Status:</string>
 
     <!-- Process step -->
     <string name="step_contrast">Contrast &amp; brightness</string>

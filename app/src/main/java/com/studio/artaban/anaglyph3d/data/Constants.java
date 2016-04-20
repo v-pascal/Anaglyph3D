@@ -53,6 +53,7 @@ public class Constants {
 
     ////// Process
     public static final String PROCESS_VIDEO_3GP_FILENAME = "/video.3gp";
+    public static final String PROCESS_RAW_PICTURE_FILENAME = "/local.nv21";
     public static final String PROCESS_LOCAL_PICTURE_FILENAME = "/local.jpg";
     public static final String PROCESS_REMOTE_PICTURE_FILENAME = "/remote.jpg";
 }

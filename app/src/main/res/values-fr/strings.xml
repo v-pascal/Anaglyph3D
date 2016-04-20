@@ -46,6 +46,7 @@
     <string name="devices_distance">Distance entre les caméras:\n6cm - 7cm</string>
     <string name="device_not_ready">ATTENTION: Démarrage de l\'enregistrement impossible! La caméra distante n\'est pas prête.</string>
     <string name="reverse_disabled">ATTENTION: Impossible de retourner l\'écran sur ce périphérique!</string>
+    <string name="status_label">Statut:</string>
 
     <!-- Process step -->
     <string name="step_contrast">Contraste &amp; luminosité</string>
