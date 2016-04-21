@@ -333,9 +333,7 @@ public class CameraView extends SurfaceView
             mCamera.getParameters().setPreviewFormat(ImageFormat.NV21);
             if (mTakePicture) {
 
-                mRawPicture = new byte[(mPreviewSize.width * mPreviewSize.height * 3) >> 1];
-                // NV21 buffer size
-
+                mRawPicture = new byte[(mPreviewSize.width * mPreviewSize.height * 3) >> 1]; // NV21 buffer size
                 mCamera.setPreviewCallback(new Camera.PreviewCallback() {
 
                     @Override

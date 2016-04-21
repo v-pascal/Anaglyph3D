@@ -35,7 +35,7 @@ public class Frame implements ConnectRequest {
     //////
     @Override public char getRequestId() { return ConnectRequest.REQ_FRAME; }
     @Override public boolean getRequestMerge() { return false; }
-    @Override public boolean getRequestBuffer(byte type) { return true; }
+    @Override public boolean getRequestBuffer(byte type) { return (type == REQ_TYPE_TRANSFER); }
 
     @Override public short getMaxWaitReply(byte type) { return Constants.CONN_MAXWAIT_DEFAULT; }
 
@@ -74,6 +74,9 @@ public class Frame implements ConnectRequest {
 
 
 
+
+
+
         return null;
     }
 
@@ -82,6 +85,9 @@ public class Frame implements ConnectRequest {
 
 
 
+
+        // Thread to send buffer
+        // -> mPacketCount until mPacketTotal
 
 
 
@@ -94,7 +100,13 @@ public class Frame implements ConnectRequest {
 
 
 
+
+
         //mPacketCount
+
+        //System.arraycopy(mBuffer, mPacketCount * 1024, buffer.toByteArray(), 0, size);
+
+
 
 
 
@@ -107,10 +119,23 @@ public class Frame implements ConnectRequest {
     private int mHeight;
 
     private byte[] mBuffer;
+
     private int mPacketCount;
     private int mPacketTotal;
 
     //
+    public byte[] getBuffer() { return mBuffer; }
+
     public int getPacketTotal() { return mPacketTotal; } // Return the total number of packet to send or receive
     public int getPacketCount() { return mPacketCount; } // Return the number of packet sent or received
+
+    //////
+    public static boolean convertNV21toARGB(String source, int width, int height, String destination) {
+
+        int size = (width * height * 3) >> 1; // NV21 buffer size
+        return ProcessFragment.mGStreamer.launch("filesrc location=" + source + " blocksize=" + size +
+                " ! video/x-raw,format=NV21,width=" + width + ",height=" + height +
+                ",framerate=1/1 ! videoconvert ! video/x-raw,format=ARGB ! filesink location=" +
+                destination);
+    }
 }

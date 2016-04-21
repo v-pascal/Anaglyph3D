@@ -1,6 +1,7 @@
 package com.studio.artaban.anaglyph3d.process;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioManager;
 import android.os.AsyncTask;
@@ -16,10 +17,17 @@ import android.widget.TextView;
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
+import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.media.Frame;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 import com.studio.artaban.libGST.GstObject;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * Created by pascal on 12/04/16.
@@ -36,13 +44,14 @@ public class ProcessFragment extends Fragment {
     //
     private enum Status {
 
-        ////// Contrast & brightness step: 3 status
+        ////// Contrast & brightness step: 4 status
         INITIALIZATION (R.string.status_initialize), // Initialize process (GStreamer)
 
         // Progress for each 1024 bytes packets...
         TRANSFER_PICTURE (R.string.status_transfer_raw), // Transfer picture (to remote device which is not the maker)
         WAIT_PICTURE(0), // Wait until contrast & brightness picture has been received (to device which is not the maker)
 
+        SAVE_PICTURE (R.string.status_save_raw), // Save raw picture into local file
         CONVERT_PICTURE (R.string.status_convert_raw), // Convert local picture from NV21 to ARGB or JPEG
 
         ////// Video transfer & extraction step: 7 status
@@ -79,10 +88,12 @@ public class ProcessFragment extends Fragment {
     }
     private Status mStatus = Status.INITIALIZATION;
 
-    private static GstObject mGStreamer;
+    public static GstObject mGStreamer;
 
     private ProcessTask mProcessTask;
     private class ProcessTask extends AsyncTask<Void, Integer, Void> {
+
+        private boolean mLocalPicture; // To define which picture to process
 
         @Override
         protected Void doInBackground(Void... params) {
@@ -100,10 +111,11 @@ public class ProcessFragment extends Fragment {
                             mGStreamer = new GstObject(getContext());
 
                         //////
+                        mLocalPicture = true;
                         if (!Settings.getInstance().isMaker())
-                            mStatus = ProcessFragment.Status.CONVERT_PICTURE;
-                        else {
+                            mStatus = ProcessFragment.Status.SAVE_PICTURE;
 
+                        else {
                             mStatus = ProcessFragment.Status.TRANSFER_PICTURE;
 
                             // Send picture transfer request
@@ -125,51 +137,101 @@ public class ProcessFragment extends Fragment {
                         publishProgress(Frame.getInstance().getPacketCount());
 
                         //////
+                        if (Frame.getInstance().getPacketCount() == Frame.getInstance().getPacketTotal()) {
 
 
 
 
 
 
+                            // !isMaker
+                            //mLocalPicture = false;
 
 
+
+
+
+
+                        }
+                        break;
+                    }
+
+                    // Called twice (for both local and remote picture)
+                    case SAVE_PICTURE: {
+
+                        publishProgress(2);
+
+                        // Save NV21 local/remote raw picture file
+                        try {
+                            byte[] raw = (mLocalPicture)?
+                                    getArguments().getByteArray(PICTURE_RAW_BUFFER):
+                                    Frame.getInstance().getBuffer();
+
+                            File rawFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
+                                    Constants.PROCESS_RAW_PICTURE_FILENAME);
+
+                            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(rawFile));
+                            bos.write(raw);
+                            bos.flush();
+                            bos.close();
+
+                            mStatus = ProcessFragment.Status.CONVERT_PICTURE;
+                        }
+                        catch (IOException e) {
+
+                            Logs.add(Logs.Type.E, "Failed to save raw picture");
+                            mStatus = ProcessFragment.Status.FINISHED;
+
+                            // Inform user
+                            DisplayMessage.getInstance().alert(R.string.title_error, R.string.save_error,
+                                    null, false, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            ActivityWrapper.stopActivity(ProcessActivity.class,
+                                                    Constants.NO_DATA);
+                                        }
+                                    });
+                        }
                         break;
                     }
                     case CONVERT_PICTURE: {
 
-                        publishProgress(2);
+                        publishProgress(3);
 
                         // Convert NV21 to ARGB picture file
-
-
-
-
-                        /*
-
                         int width = getArguments().getInt(PICTURE_SIZE_WIDTH);
                         int height = getArguments().getInt(PICTURE_SIZE_HEIGHT);
 
+                        Frame.convertNV21toARGB(ActivityWrapper.DOCUMENTS_FOLDER + Constants.PROCESS_RAW_PICTURE_FILENAME,
+                                width, height, ActivityWrapper.DOCUMENTS_FOLDER + ((mLocalPicture)?
+                                        Constants.PROCESS_LOCAL_PICTURE_FILENAME:
+                                        Constants.PROCESS_REMOTE_PICTURE_FILENAME));
 
-                        File pictures = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                        if (mLocalPicture)
+                            mStatus = ProcessFragment.Status.WAIT_PICTURE;
 
-                        GstObject gst = new GstObject(getContext());
-                        gst.launch("filesrc location=" + pictures + "/temp.jpg ! jpegdec ! videoconvert ! video/x-raw,format=ARGB !" +
-                                " filesink location=" + pictures + "/temp.bin");
-                                */
-
-                        //filesrc location=testage.nv21 blocksize=460800 ! video/x-raw,format=NV21,width=640,height=480,framerate=1/1 ! videoconvert ! jpegenc ! filesink location=temp.jpg
-
-                        //filesrc location=myrec1.3gp ! qtdemux ! decodebin ! audioconvert ! wavenc ! filesink location=file1.wav
-                        //filesrc location=myrec1.3gp ! qtdemux ! decodebin ! videoconvert ! video/x-raw,format=RGB ! multifilesink location=img_%d.bin
+                        else {
 
 
 
 
-                        mStatus = ProcessFragment.Status.WAIT_PICTURE;
-                        mStatus = ProcessFragment.Status.WAIT_CONTRAST;
 
 
 
+
+                            //load Contrast fragment
+
+                            mStatus = ProcessFragment.Status.WAIT_CONTRAST;
+
+
+
+
+
+
+
+
+
+                        }
                         break;
                     }
                 }
@@ -220,7 +282,7 @@ public class ProcessFragment extends Fragment {
         mProgressBar = (ProgressBar)rootView.findViewById(R.id.status_progress);
         mProgressText = (TextView)rootView.findViewById(R.id.status_text);
 
-        mProgressBar.setMax(3);
+        mProgressBar.setMax(4);
         mProgressBar.setProgressDrawable(getResources().getDrawable(R.drawable.process_progess));
         mProgressText.setText(mStatus.getStringId());
 
