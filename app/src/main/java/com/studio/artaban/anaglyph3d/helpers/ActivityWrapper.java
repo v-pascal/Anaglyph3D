@@ -11,6 +11,7 @@ import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.process.ProcessActivity;
 import com.studio.artaban.anaglyph3d.transfer.ConnectRequest;
 
+import java.io.ByteArrayOutputStream;
 import java.lang.ref.WeakReference;
 
 /**
@@ -51,9 +52,13 @@ public class ActivityWrapper implements ConnectRequest {
 
     //
     @Override public char getRequestId() { return ConnectRequest.REQ_ACTIVITY; }
-    @Override public short getMaxWaitReply(byte type) { return Constants.CONN_MAXWAIT_DEFAULT; }
     @Override public boolean getRequestMerge() { return false; }
-    @Override public String getRequest(byte type, Bundle data) { return Constants.CONN_REQUEST_TYPE_ASK; }
+    @Override public boolean getRequestBuffer(byte type) { return false; }
+
+    @Override public short getMaxWaitReply(byte type) { return Constants.CONN_MAXWAIT_DEFAULT; }
+
+    @Override
+    public String getRequest(byte type, Bundle data) { return Constants.CONN_REQUEST_TYPE_ASK; }
     @Override
     public String getReply(byte type, String request, PreviousMaster previous) {
 
@@ -96,8 +101,9 @@ public class ActivityWrapper implements ConnectRequest {
         }
         return Constants.CONN_REQUEST_ANSWER_FALSE;
     }
+
     @Override
-    public boolean receiveReply(byte type, String reply) {
+    public ReceiveResult receiveReply(byte type, String reply) {
 
         switch (type) {
             case REQ_TYPE_READY: {
@@ -110,22 +116,27 @@ public class ActivityWrapper implements ConnectRequest {
                     }
                     catch (NullPointerException e) {
                         Logs.add(Logs.Type.F, "Wrong activity reference");
-                        return false;
+                        return ReceiveResult.WRONG;
                     }
                 }
                 else
                     DisplayMessage.getInstance().toast(R.string.device_not_ready, Toast.LENGTH_LONG);
-                return true;
+                return ReceiveResult.GOOD;
             }
             case REQ_TYPE_START:
             case REQ_TYPE_DOWNCOUNT:
-                return (replyRequest(type).equals(Constants.CONN_REQUEST_ANSWER_TRUE));
+                return (replyRequest(type).equals(Constants.CONN_REQUEST_ANSWER_TRUE))?
+                        ReceiveResult.GOOD:ReceiveResult.WRONG;
 
             case REQ_TYPE_CANCEL:
-                return true; // Nothing to do
+                return ReceiveResult.GOOD; // Nothing to do
         }
         Logs.add(Logs.Type.F, "Unexpected activity reply received");
-        return false;
+        return ReceiveResult.WRONG;
+    }
+    @Override
+    public ReceiveResult receiveBuffer(int size, ByteArrayOutputStream buffer) {
+        return ReceiveResult.WRONG; // Unexpected call
     }
 
 

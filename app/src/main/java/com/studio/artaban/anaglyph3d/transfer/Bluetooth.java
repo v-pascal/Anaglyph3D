@@ -36,6 +36,7 @@ public class Bluetooth {
         CONNECTING, // Slave mode
         CONNECTED   // Processing connection
     }
+    private static final int MAX_RECEIVE_BUFFER = 1024;
 
     private BluetoothAdapter mAdapter;
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -213,7 +214,7 @@ public class Bluetooth {
 
         @Override public void run() {
 
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[MAX_RECEIVE_BUFFER];
             while (mStatus == Status.CONNECTED) {
                 try {
                     int bytes = mInStream.read(buffer);

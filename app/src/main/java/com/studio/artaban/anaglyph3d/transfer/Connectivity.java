@@ -13,6 +13,8 @@ import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
+import com.studio.artaban.anaglyph3d.media.Frame;
+import com.studio.artaban.anaglyph3d.transfer.ConnectRequest.ReceiveResult;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -55,7 +57,8 @@ public class Connectivity {
 
         ////// Connected
         STAND_BY,  // Send/Receive requests
-        WAIT_REPLY // Receive replies
+        WAIT_REPLY, // Receive replies
+        WAIT_BUFFER // Receive buffer packets (big transfer)
     }
     private Status mStatus = Status.UNDEFINED;
 
@@ -151,6 +154,7 @@ public class Connectivity {
             ////// Add request handler below
             case ConnectRequest.REQ_SETTINGS: reply.mHandler = Settings.getInstance(); break;
             case ConnectRequest.REQ_ACTIVITY: reply.mHandler = ActivityWrapper.getInstance(); break;
+            case ConnectRequest.REQ_FRAME: reply.mHandler = Frame.getInstance(); break;
             //////
 
             default: {
@@ -169,13 +173,18 @@ public class Connectivity {
             return false;
         }
 
-        // Send reply
+        ////// Send reply
         if (!send(false, reply)) {
 
             Logs.add(Logs.Type.E, "Failed to send reply");
             mDisconnectError = true;
             return false;
         }
+
+        // Check if a buffer will be sent by the remote device (after having received this reply)
+        if (reply.mHandler.getRequestBuffer(reply.mType))
+            mStatus = Status.WAIT_BUFFER;
+
         return true;
     }
 
@@ -438,9 +447,13 @@ public class Connectivity {
                         synchronized (mRequests) {
 
                             int noMatchCount = mNotMatchingDevices.size();
-                            if ((mRequests.isEmpty()) || (!mRequests.get(0).mHandler.receiveReply(
-                                    (byte) Integer.parseInt(reply.substring(2, 4), 16),
-                                    reply.substring(5)))) {
+                            ReceiveResult result = ReceiveResult.WRONG;
+                            if (!mRequests.isEmpty())
+                                result = mRequests.get(0).mHandler.receiveReply(
+                                            (byte) Integer.parseInt(reply.substring(2, 4), 16),
+                                            reply.substring(5));
+
+                            if ((mRequests.isEmpty()) || (result == ReceiveResult.WRONG)) {
 
                                 Logs.add(Logs.Type.E, "Unexpected reply received (or device not matching)");
                                 mDisconnectError = (noMatchCount == mNotMatchingDevices.size());
@@ -456,6 +469,7 @@ public class Connectivity {
 
                             ///////////////////////////////////////////
 
+                            // TODO: Check result here to not receive request during sending buffer
                             mStatus = Connectivity.Status.STAND_BY;
                         }
                     }
@@ -468,6 +482,41 @@ public class Connectivity {
                         //else // The master will wait its reply
                     }
                     ///////////////////////////////////////////
+
+                    if (mMaxWait-- == 0) {
+
+                        Logs.add(Logs.Type.E, "The time limit to receive reply has expired");
+                        mDisconnectError = true;
+                        close();
+                    }
+                    break;
+                }
+                case WAIT_BUFFER: {
+
+                    // Receive buffer
+                    int size = mBluetooth.read(mRead);
+                    switch (mRequests.get(0).mHandler.receiveBuffer(size, mRead)) {
+                        case GOOD: {
+
+
+
+
+                            return;
+                        }
+                        case WRONG: {
+
+
+
+                            return;
+                        }
+                        case PARTIAL: {
+
+
+
+                            break;
+                        }
+                    }
+
                     if (mMaxWait-- == 0) {
 
                         Logs.add(Logs.Type.E, "The time limit to receive reply has expired");

@@ -56,8 +56,8 @@
     <string name="step_anaglyph">Création &amp; transfert de la video 3D</string>
 
     <!-- Process status -->
-    <string name="status_save_raw">Stocke l\'image du contraste &amp; luminosité</string>
-    <string name="status_convert_raw">Convertit l\'image du contraste &amp; luminosité</string>
+    <string name="status_initialize">Initialisation du processus...</string>
+    <string name="status_convert_raw">Convertit l\'image du contraste &amp; luminosité...</string>
     <string name="status_transfer_raw">Transfert de l\'image du contraste &amp; luminosité</string>
 
 </resources>

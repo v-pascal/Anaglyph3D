@@ -19,6 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 /**
@@ -159,12 +160,15 @@ public class Settings implements ConnectRequest {
 
     //////
     @Override public char getRequestId() { return ConnectRequest.REQ_SETTINGS; }
+    @Override public boolean getRequestMerge() { return true; }
+    @Override public boolean getRequestBuffer(byte type) { return false; }
+
     @Override public short getMaxWaitReply(byte type) {
 
         return (type == REQ_TYPE_INITIALIZE)?
                 Constants.CONN_MAXWAIT_SETTINGS_INITIALIZE:Constants.CONN_MAXWAIT_DEFAULT;
     }
-    @Override public boolean getRequestMerge() { return true; }
+
     @Override
     public String getRequest(byte type, Bundle data) {
 
@@ -269,7 +273,6 @@ public class Settings implements ConnectRequest {
         }
         return request.toString();
     }
-
     @Override
     public String getReply(byte type, String request, PreviousMaster previous) {
 
@@ -427,14 +430,14 @@ public class Settings implements ConnectRequest {
     }
 
     @Override
-    public boolean receiveReply(byte type, String reply) {
+    public ReceiveResult receiveReply(byte type, String reply) {
 
         JSONObject receive;
         try { receive = new JSONObject(reply); }
         catch (JSONException e) {
 
             Logs.add(Logs.Type.E, e.getMessage());
-            return false;
+            return ReceiveResult.WRONG;
         }
 
         //
@@ -453,7 +456,7 @@ public class Settings implements ConnectRequest {
                             R.string.warning_not_matching,
                             getRemoteDevice(), false, null);
 
-                    return false; // ...will disconnect
+                    return ReceiveResult.WRONG; // ...will disconnect
                 }
 
                 // Remove resolutions that are not matching with the remote device (from 'mResolutions')
@@ -467,12 +470,16 @@ public class Settings implements ConnectRequest {
             catch (JSONException e) {
 
                 Logs.add(Logs.Type.E, e.getMessage());
-                return false;
+                return ReceiveResult.WRONG;
             }
         }
         //else
         // Update reply received (nothing to do)
 
-        return true;
+        return ReceiveResult.GOOD;
+    }
+    @Override
+    public ReceiveResult receiveBuffer(int size, ByteArrayOutputStream buffer) {
+        return ReceiveResult.WRONG; // Unexpected call
     }
 }

@@ -1,7 +1,6 @@
 package com.studio.artaban.anaglyph3d.process;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioManager;
 import android.os.AsyncTask;
@@ -17,15 +16,10 @@ import android.widget.TextView;
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
-import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
-import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
+import com.studio.artaban.anaglyph3d.media.Frame;
+import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 import com.studio.artaban.libGST.GstObject;
-
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 /**
  * Created by pascal on 12/04/16.
@@ -43,7 +37,7 @@ public class ProcessFragment extends Fragment {
     private enum Status {
 
         ////// Contrast & brightness step: 3 status
-        SAVE_PICTURE (R.string.status_save_raw), // Save raw picture (used to set up the contrast & brightness)
+        INITIALIZATION (R.string.status_initialize), // Initialize process (GStreamer)
 
         // Progress for each 1024 bytes packets...
         TRANSFER_PICTURE (R.string.status_transfer_raw), // Transfer picture (to remote device which is not the maker)
@@ -83,7 +77,7 @@ public class ProcessFragment extends Fragment {
         Status(int id) { mStringId = id; }
         public int getStringId() { return mStringId; }
     }
-    private Status mStatus = Status.SAVE_PICTURE;
+    private Status mStatus = Status.INITIALIZATION;
 
     private static GstObject mGStreamer;
 
@@ -97,7 +91,7 @@ public class ProcessFragment extends Fragment {
             while (mStatus != ProcessFragment.Status.FINISHED) {
                 switch (mStatus) {
 
-                    case SAVE_PICTURE: {
+                    case INITIALIZATION: {
 
                         publishProgress(1);
 
@@ -105,52 +99,43 @@ public class ProcessFragment extends Fragment {
                         if (mGStreamer == null)
                             mGStreamer = new GstObject(getContext());
 
-                        // Save NV21 raw picture file
-                        try {
-                            byte[] raw = getArguments().getByteArray(PICTURE_RAW_BUFFER);
-                            File rawFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
-                                    Constants.PROCESS_RAW_PICTURE_FILENAME);
-
-                            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(rawFile));
-                            bos.write(raw);
-                            bos.flush();
-                            bos.close();
-                        }
-                        catch (IOException e) {
-
-                            Logs.add(Logs.Type.E, "Failed to save raw picture");
-                            mStatus = ProcessFragment.Status.FINISHED;
-
-                            // Inform user
-                            DisplayMessage.getInstance().alert(R.string.title_error, R.string.save_error,
-                                    null, false, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    ActivityWrapper.stopActivity(ProcessActivity.class, Constants.NO_DATA);
-                                }
-                            });
-                            break;
-                        }
-
+                        //////
                         if (!Settings.getInstance().isMaker())
                             mStatus = ProcessFragment.Status.CONVERT_PICTURE;
                         else {
 
                             mStatus = ProcessFragment.Status.TRANSFER_PICTURE;
 
+                            byte[] raw = getArguments().getByteArray(PICTURE_RAW_BUFFER);
+                            if (raw != null)
+                                publishProgress(-(raw.length >> 10));
+                                // Raw buffer size / 1024 (Bluetooth.MAX_RECEIVE_BUFFER)
 
-
-
-
-
+                            // Send picture transfer request
+                            Connectivity.getInstance().addRequest(Frame.getInstance(),
+                                    Frame.REQ_TYPE_TRANSFER, getArguments());
                         }
                         break;
                     }
+                    case WAIT_PICTURE:
                     case TRANSFER_PICTURE: {
 
+                        // Sleep
+                        try { Thread.sleep(Constants.CONN_WAIT_DELAY << 1, 0); }
+                        catch (InterruptedException e) {
+                            Logs.add(Logs.Type.W, "Unable to sleep: " + e.getMessage());
+                        }
 
 
 
+
+                        publishProgress(Frame.getInstance().getPacketCount());
+
+
+
+
+
+                        //////
 
                         break;
                     }
@@ -184,7 +169,9 @@ public class ProcessFragment extends Fragment {
 
 
 
+                        mStatus = ProcessFragment.Status.WAIT_PICTURE;
                         mStatus = ProcessFragment.Status.WAIT_CONTRAST;
+
 
 
                         break;
@@ -199,8 +186,47 @@ public class ProcessFragment extends Fragment {
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
 
-            mProgressBar.setProgress(values[0]);
-            mProgressText.setText(mStatus.getStringId());
+            switch (mStatus) {
+                case WAIT_PICTURE:
+                case TRANSFER_PICTURE: {
+
+
+
+
+
+
+                    // Check if needed to change maximum progress bound (set packet count)
+                    if (values[0] < 0) {
+
+                        mProgressBar.setMax(1 - values[0]); // + 1 for first packet
+                        mProgressBar.setProgress(1);
+                        mProgressText.setText(mStatus.getStringId());
+                    }
+                    else {
+
+
+
+                        mProgressBar.setProgress(1);
+
+
+
+                    }
+
+
+
+
+
+
+
+                    break;
+                }
+                default: {
+
+                    mProgressBar.setProgress(values[0]);
+                    mProgressText.setText(mStatus.getStringId());
+                    break;
+                }
+            }
         }
     };
 
