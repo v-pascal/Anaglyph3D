@@ -44,14 +44,17 @@ public class Frame implements ConnectRequest {
         if (type != REQ_TYPE_TRANSFER)
             return null;
 
-        // Get picture buffer
+        // Get picture data
         mBuffer = data.getByteArray(ProcessFragment.PICTURE_RAW_BUFFER);
+        mWidth = data.getInt(ProcessFragment.PICTURE_SIZE_WIDTH);
+        mHeight = data.getInt(ProcessFragment.PICTURE_SIZE_HEIGHT);
+
+        mPacketCount = 0;
+        mPacketTotal = mBuffer.length >> 10;
+        // Picture buffer size / 1024 (Bluetooth.MAX_RECEIVE_BUFFER)
 
         JSONObject request = new JSONObject();
         try {
-            mWidth = data.getInt(ProcessFragment.PICTURE_SIZE_WIDTH);
-            mHeight = data.getInt(ProcessFragment.PICTURE_SIZE_HEIGHT);
-
             request.put(DATA_KEY_WIDTH, mWidth);
             request.put(DATA_KEY_HEIGHT, mHeight);
             request.put(DATA_KEY_BUFFER_SIZE, mBuffer.length);
@@ -91,6 +94,9 @@ public class Frame implements ConnectRequest {
 
 
 
+        //mPacketCount
+
+
 
 
         return ReceiveResult.WRONG;
@@ -101,10 +107,10 @@ public class Frame implements ConnectRequest {
     private int mHeight;
 
     private byte[] mBuffer;
+    private int mPacketCount;
+    private int mPacketTotal;
 
     //
-    public int getPacketCount() {
-
-        return 0;
-    }
+    public int getPacketTotal() { return mPacketTotal; } // Return the total number of packet to send or receive
+    public int getPacketCount() { return mPacketCount; } // Return the number of packet sent or received
 }

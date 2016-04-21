@@ -106,14 +106,11 @@ public class ProcessFragment extends Fragment {
 
                             mStatus = ProcessFragment.Status.TRANSFER_PICTURE;
 
-                            byte[] raw = getArguments().getByteArray(PICTURE_RAW_BUFFER);
-                            if (raw != null)
-                                publishProgress(-(raw.length >> 10));
-                                // Raw buffer size / 1024 (Bluetooth.MAX_RECEIVE_BUFFER)
-
                             // Send picture transfer request
                             Connectivity.getInstance().addRequest(Frame.getInstance(),
                                     Frame.REQ_TYPE_TRANSFER, getArguments());
+
+                            publishProgress(Frame.getInstance().getPacketCount());
                         }
                         break;
                     }
@@ -121,21 +118,20 @@ public class ProcessFragment extends Fragment {
                     case TRANSFER_PICTURE: {
 
                         // Sleep
-                        try { Thread.sleep(Constants.CONN_WAIT_DELAY << 1, 0); }
+                        try { Thread.sleep(Constants.PROCESS_WAIT_TRANSFER, 0); }
                         catch (InterruptedException e) {
                             Logs.add(Logs.Type.W, "Unable to sleep: " + e.getMessage());
                         }
-
-
-
-
                         publishProgress(Frame.getInstance().getPacketCount());
 
-
-
-
-
                         //////
+
+
+
+
+
+
+
 
                         break;
                     }
@@ -190,34 +186,12 @@ public class ProcessFragment extends Fragment {
                 case WAIT_PICTURE:
                 case TRANSFER_PICTURE: {
 
+                    mProgressBar.setMax(Frame.getInstance().getPacketTotal());
+                    mProgressBar.setProgress(values[0]);
 
-
-
-
-
-                    // Check if needed to change maximum progress bound (set packet count)
-                    if (values[0] < 0) {
-
-                        mProgressBar.setMax(1 - values[0]); // + 1 for first packet
-                        mProgressBar.setProgress(1);
-                        mProgressText.setText(mStatus.getStringId());
-                    }
-                    else {
-
-
-
-                        mProgressBar.setProgress(1);
-
-
-
-                    }
-
-
-
-
-
-
-
+                    String status = getResources().getString(mStatus.getStringId());
+                    status += " (" + values[0] + "/" + Frame.getInstance().getPacketTotal() + ")";
+                    mProgressText.setText(status);
                     break;
                 }
                 default: {

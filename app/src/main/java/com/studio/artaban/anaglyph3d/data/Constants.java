@@ -22,7 +22,7 @@ public class Constants {
     public static final String CONN_SECURE_UUID = "76d0eb60-a913-11e5-bfd6-0003a5d5c51b"; // Bluetooth secure UUID
     public static final String CONN_SECURE_NAME = "ANAGLYPH-3D"; // Bluetooth connection name
 
-    public static final int CONN_WAIT_DELAY = 10; // Connection loop sleep (in milliseconds)
+    public static final short CONN_WAIT_DELAY = 10; // Connection loop sleep (in milliseconds)
 
     // Maximum delay to receive reply before disconnect (in loop count)
     public static final short CONN_MAXWAIT_DEFAULT = 200;
@@ -52,6 +52,8 @@ public class Constants {
 
 
     ////// Process
+    public static final short PROCESS_WAIT_TRANSFER = 700; // Progress loop sleep (in milliseconds)
+
     public static final String PROCESS_VIDEO_3GP_FILENAME = "/video.3gp";
     public static final String PROCESS_LOCAL_PICTURE_FILENAME = "/local.argb";
     public static final String PROCESS_REMOTE_PICTURE_FILENAME = "/remote.argb";
