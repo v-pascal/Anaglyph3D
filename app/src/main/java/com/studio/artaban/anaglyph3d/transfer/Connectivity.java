@@ -73,6 +73,37 @@ public class Connectivity {
     }
     private final List<TransferElement> mRequests = new ArrayList<>();
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public boolean sendBuffer(byte[] buffer) {
+        return mBluetooth.write(buffer, buffer.length);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     //
     public boolean addRequest(ConnectRequest handler, byte type, Bundle data) {
 
@@ -106,6 +137,7 @@ public class Connectivity {
                     mRequests.get(0).mType);
             return true; // Send request
         }
+
         // Merge requests with same request Id that follows
         char requestId = mRequests.get(0).mHandler.getRequestId();
         byte requestType = mRequests.get(0).mType;
@@ -173,6 +205,10 @@ public class Connectivity {
             return false;
         }
 
+        // Check if a buffer will be sent to the remote device (without sending this reply)
+        if (reply.mHandler.getRequestBuffer(reply.mType) == ConnectRequest.BufferType.TO_SEND)
+            return true; // Nothing to do
+
         ////// Send reply
         if (!send(false, reply)) {
 
@@ -182,7 +218,7 @@ public class Connectivity {
         }
 
         // Check if a buffer will be sent by the remote device (after having received this reply)
-        if (reply.mHandler.getRequestBuffer(reply.mType))
+        if (reply.mHandler.getRequestBuffer(reply.mType) == ConnectRequest.BufferType.TO_RECEIVE)
             mStatus = Status.WAIT_BUFFER;
 
         return true;
@@ -425,7 +461,7 @@ public class Connectivity {
                         if (!mergeRequests())
                             break; // No request to send
 
-                        // Send request
+                        ////// Send request
                         if (!send(true, mRequests.get(0))) {
 
                             Logs.add(Logs.Type.E, "Failed to send request");
@@ -434,7 +470,13 @@ public class Connectivity {
                             break;
                         }
                         mMaxWait = mRequests.get(0).mHandler.getMaxWaitReply(mRequests.get(0).mType);
-                        mStatus = Connectivity.Status.WAIT_REPLY;
+
+                        // Assign wait status according if a buffer will be sent from the remote device
+                        // -> Buffer sent as a reply of this request
+                        mStatus = ((mRequests.get(0).mHandler.getRequestBuffer(mRequests.get(0).mType) ==
+                                ConnectRequest.BufferType.TO_SEND))?
+                                Connectivity.Status.WAIT_BUFFER:
+                                Connectivity.Status.WAIT_REPLY;
                     }
                     break;
                 }
@@ -447,13 +489,13 @@ public class Connectivity {
                         synchronized (mRequests) {
 
                             int noMatchCount = mNotMatchingDevices.size();
-                            ReceiveResult result = ReceiveResult.WRONG;
+                            ReceiveResult result = ReceiveResult.ERROR;
                             if (!mRequests.isEmpty())
                                 result = mRequests.get(0).mHandler.receiveReply(
                                             (byte) Integer.parseInt(reply.substring(2, 4), 16),
                                             reply.substring(5));
 
-                            if ((mRequests.isEmpty()) || (result == ReceiveResult.WRONG)) {
+                            if ((mRequests.isEmpty()) || (result == ReceiveResult.ERROR)) {
 
                                 Logs.add(Logs.Type.E, "Unexpected reply received (or device not matching)");
                                 mDisconnectError = (noMatchCount == mNotMatchingDevices.size());
@@ -496,44 +538,34 @@ public class Connectivity {
                     // Receive buffer
                     int size = mBluetooth.read(mRead);
                     switch (mRequests.get(0).mHandler.receiveBuffer(size, mRead)) {
-                        case GOOD: {
+                        case PARTIAL_PACKET: {
 
+                            if (mMaxWait-- == 0) {
 
-
-
-
-
-
-
-                            return;
-                        }
-                        case WRONG: {
-
-
-
-
-
-
-
-                            return;
+                                Logs.add(Logs.Type.E, "The time limit to receive reply has expired");
+                                mDisconnectError = true;
+                                close();
+                            }
+                            break;
                         }
                         case PARTIAL: {
 
-
-
-
-
-
-
+                            mMaxWait = mRequests.get(0).mHandler.getMaxWaitReply(mRequests.get(0).mType);
                             break;
                         }
-                    }
+                        case SUCCESS: {
 
-                    if (mMaxWait-- == 0) {
+                            synchronized (mRequests) { mRequests.remove(0); }
+                            mStatus = Connectivity.Status.STAND_BY;
+                            break;
+                        }
+                        case ERROR: {
 
-                        Logs.add(Logs.Type.E, "The time limit to receive reply has expired");
-                        mDisconnectError = true;
-                        close();
+                            Logs.add(Logs.Type.E, "Buffer received error");
+                            mDisconnectError = true;
+                            close();
+                            break;
+                        }
                     }
                     break;
                 }

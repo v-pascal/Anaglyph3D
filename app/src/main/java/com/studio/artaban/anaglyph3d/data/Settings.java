@@ -161,7 +161,7 @@ public class Settings implements ConnectRequest {
     //////
     @Override public char getRequestId() { return ConnectRequest.REQ_SETTINGS; }
     @Override public boolean getRequestMerge() { return true; }
-    @Override public boolean getRequestBuffer(byte type) { return false; }
+    @Override public BufferType getRequestBuffer(byte type) { return BufferType.NONE; }
 
     @Override public short getMaxWaitReply(byte type) {
 
@@ -437,7 +437,7 @@ public class Settings implements ConnectRequest {
         catch (JSONException e) {
 
             Logs.add(Logs.Type.E, e.getMessage());
-            return ReceiveResult.WRONG;
+            return ReceiveResult.ERROR;
         }
 
         //
@@ -456,7 +456,7 @@ public class Settings implements ConnectRequest {
                             R.string.warning_not_matching,
                             getRemoteDevice(), false, null);
 
-                    return ReceiveResult.WRONG; // ...will disconnect
+                    return ReceiveResult.ERROR; // ...will disconnect
                 }
 
                 // Remove resolutions that are not matching with the remote device (from 'mResolutions')
@@ -470,16 +470,16 @@ public class Settings implements ConnectRequest {
             catch (JSONException e) {
 
                 Logs.add(Logs.Type.E, e.getMessage());
-                return ReceiveResult.WRONG;
+                return ReceiveResult.ERROR;
             }
         }
         //else
         // Update reply received (nothing to do)
 
-        return ReceiveResult.GOOD;
+        return ReceiveResult.SUCCESS;
     }
     @Override
     public ReceiveResult receiveBuffer(int size, ByteArrayOutputStream buffer) {
-        return ReceiveResult.WRONG; // Unexpected call
+        return ReceiveResult.ERROR; // Unexpected call
     }
 }

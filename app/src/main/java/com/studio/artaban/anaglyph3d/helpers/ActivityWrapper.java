@@ -53,7 +53,7 @@ public class ActivityWrapper implements ConnectRequest {
     //
     @Override public char getRequestId() { return ConnectRequest.REQ_ACTIVITY; }
     @Override public boolean getRequestMerge() { return false; }
-    @Override public boolean getRequestBuffer(byte type) { return false; }
+    @Override public BufferType getRequestBuffer(byte type) { return BufferType.NONE; }
 
     @Override public short getMaxWaitReply(byte type) { return Constants.CONN_MAXWAIT_DEFAULT; }
 
@@ -116,27 +116,27 @@ public class ActivityWrapper implements ConnectRequest {
                     }
                     catch (NullPointerException e) {
                         Logs.add(Logs.Type.F, "Wrong activity reference");
-                        return ReceiveResult.WRONG;
+                        return ReceiveResult.ERROR;
                     }
                 }
                 else
                     DisplayMessage.getInstance().toast(R.string.device_not_ready, Toast.LENGTH_LONG);
-                return ReceiveResult.GOOD;
+                return ReceiveResult.SUCCESS;
             }
             case REQ_TYPE_START:
             case REQ_TYPE_DOWNCOUNT:
                 return (replyRequest(type).equals(Constants.CONN_REQUEST_ANSWER_TRUE))?
-                        ReceiveResult.GOOD:ReceiveResult.WRONG;
+                        ReceiveResult.SUCCESS:ReceiveResult.ERROR;
 
             case REQ_TYPE_CANCEL:
-                return ReceiveResult.GOOD; // Nothing to do
+                return ReceiveResult.SUCCESS; // Nothing to do
         }
         Logs.add(Logs.Type.F, "Unexpected activity reply received");
-        return ReceiveResult.WRONG;
+        return ReceiveResult.ERROR;
     }
     @Override
     public ReceiveResult receiveBuffer(int size, ByteArrayOutputStream buffer) {
-        return ReceiveResult.WRONG; // Unexpected call
+        return ReceiveResult.ERROR; // Unexpected call
     }
 
 

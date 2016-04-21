@@ -49,7 +49,7 @@ public class ProcessFragment extends Fragment {
 
         // Progress for each 1024 bytes packets...
         TRANSFER_PICTURE (R.string.status_transfer_raw), // Transfer picture (to remote device which is not the maker)
-        WAIT_PICTURE(0), // Wait until contrast & brightness picture has been received (to device which is not the maker)
+        WAIT_PICTURE (R.string.status_transfer_raw), // Wait until contrast & brightness picture has been received (to device which is not the maker)
 
         SAVE_PICTURE (R.string.status_save_raw), // Save raw picture into local file
         CONVERT_PICTURE (R.string.status_convert_raw), // Convert local picture from NV21 to ARGB or JPEG
@@ -57,16 +57,16 @@ public class ProcessFragment extends Fragment {
         ////// Video transfer & extraction step: 7 status
 
         // Progress for each 1024 bytes packets...
-        TRANSFER_VIDEO_SOURCE(0), // Transfer video
-        WAIT_VIDEO(0), // Wait until video has been received
+        TRANSFER_VIDEO (R.string.status_transfer_video), // Transfer video
+        WAIT_VIDEO (R.string.status_transfer_video), // Wait until video has been received
 
         EXTRACT_FRAMES_LEFT(0), // Extract RGB pictures from left camera
         EXTRACT_FRAMES_RIGHT(0), // Extract RGB pictures from right camera
         EXTRACT_AUDIO(0), // Extract audio from one of the videos
         MERGE_FPS(0), // Remove the too many RGB pictures from camera video with bigger FPS
 
-        TRANSFER_CONTRAST(0), // Transfer the contrast & brightness (from device which is not the maker)
-        WAIT_CONTRAST(0), // Wait until contrast & brightness have been received
+        TRANSFER_CONTRAST (R.string.status_transfer_contrast), // Transfer the contrast & brightness (from device which is not the maker)
+        WAIT_CONTRAST (R.string.status_wait_contrast), // Wait until contrast & brightness have been received
 
         ////// Make & transfer 3D video step: 3 status
 
@@ -94,6 +94,25 @@ public class ProcessFragment extends Fragment {
     private class ProcessTask extends AsyncTask<Void, Integer, Void> {
 
         private boolean mLocalPicture; // To define which picture to process
+        private void sleep() { // Sleep in process task
+
+            try { Thread.sleep(Constants.PROCESS_WAIT_TRANSFER, 0); }
+            catch (InterruptedException e) {
+                Logs.add(Logs.Type.W, "Unable to sleep: " + e.getMessage());
+            }
+        }
+        private Runnable mInitRunnable = new Runnable() {
+            @Override
+            public void run() {
+
+                // Initialize GStreamer library
+                if (mGStreamer == null)
+                    mGStreamer = new GstObject(getContext());
+
+                // Notify initialization finished
+                synchronized (this) { this.notify(); }
+            }
+        };
 
         @Override
         protected Void doInBackground(Void... params) {
@@ -106,9 +125,17 @@ public class ProcessFragment extends Fragment {
 
                         publishProgress(1);
 
-                        // Initialize GStreamer library
-                        if (mGStreamer == null)
-                            mGStreamer = new GstObject(getContext());
+                        // Initialize GStreamer library (on UI thread)
+                        synchronized (mInitRunnable) {
+
+                            getActivity().runOnUiThread(mInitRunnable);
+
+                            // Wait initialization finish on UI thread
+                            try { mInitRunnable.wait(); }
+                            catch (InterruptedException e) {
+                                Logs.add(Logs.Type.E, e.getMessage());
+                            }
+                        }
 
                         //////
                         mLocalPicture = true;
@@ -120,7 +147,7 @@ public class ProcessFragment extends Fragment {
 
                             // Send picture transfer request
                             Connectivity.getInstance().addRequest(Frame.getInstance(),
-                                    Frame.REQ_TYPE_TRANSFER, getArguments());
+                                    Frame.REQ_TYPE_DOWNLOAD, getArguments());
 
                             publishProgress(Frame.getInstance().getPacketCount());
                         }
@@ -129,37 +156,43 @@ public class ProcessFragment extends Fragment {
                     case WAIT_PICTURE:
                     case TRANSFER_PICTURE: {
 
-                        // Sleep
-                        try { Thread.sleep(Constants.PROCESS_WAIT_TRANSFER, 0); }
-                        catch (InterruptedException e) {
-                            Logs.add(Logs.Type.W, "Unable to sleep: " + e.getMessage());
-                        }
+                        sleep();
                         publishProgress(Frame.getInstance().getPacketCount());
 
                         //////
                         if (Frame.getInstance().getPacketCount() == Frame.getInstance().getPacketTotal()) {
+                            if (!Settings.getInstance().isMaker()) {
+
+                                mLocalPicture = false;
+                                mStatus = ProcessFragment.Status.SAVE_PICTURE;
+                            }
+                            else {
 
 
 
 
 
 
-                            // !isMaker
-                            //mLocalPicture = false;
+
+
+
+                                mStatus = ProcessFragment.Status.WAIT_VIDEO;
 
 
 
 
 
 
+
+                            }
                         }
                         break;
                     }
 
-                    // Called twice (for both local and remote picture)
+                    // Called twice: for both local and remote pictures
                     case SAVE_PICTURE: {
 
-                        publishProgress(2);
+                        publishProgress(2 + ((mLocalPicture)? 0:2));
 
                         // Save NV21 local/remote raw picture file
                         try {
@@ -196,7 +229,7 @@ public class ProcessFragment extends Fragment {
                     }
                     case CONVERT_PICTURE: {
 
-                        publishProgress(3);
+                        publishProgress(3 + ((mLocalPicture)? 0:2));
 
                         // Convert NV21 to ARGB picture file
                         int width = getArguments().getInt(PICTURE_SIZE_WIDTH);
@@ -234,8 +267,40 @@ public class ProcessFragment extends Fragment {
                         }
                         break;
                     }
+
+                    case WAIT_VIDEO: {
+
+
+
+
+
+                        sleep();
+
+
+
+
+
+                        break;
+                    }
+                    case WAIT_CONTRAST: {
+
+
+
+
+                        sleep();
+
+
+
+
+
+                        break;
+                    }
                 }
             }
+
+            // Notify loop process terminated
+            synchronized (this) { this.notify(); }
+
             Logs.add(Logs.Type.I, "Process loop stopped");
             return null;
         }
@@ -243,8 +308,10 @@ public class ProcessFragment extends Fragment {
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
-
             switch (mStatus) {
+
+                case WAIT_VIDEO:
+                case TRANSFER_VIDEO:
                 case WAIT_PICTURE:
                 case TRANSFER_PICTURE: {
 
@@ -258,6 +325,10 @@ public class ProcessFragment extends Fragment {
                 }
                 default: {
 
+                    if (mStatus == ProcessFragment.Status.SAVE_PICTURE)
+                        mProgressBar.setMax(5);
+
+                    //
                     mProgressBar.setProgress(values[0]);
                     mProgressText.setText(mStatus.getStringId());
                     break;
@@ -282,7 +353,7 @@ public class ProcessFragment extends Fragment {
         mProgressBar = (ProgressBar)rootView.findViewById(R.id.status_progress);
         mProgressText = (TextView)rootView.findViewById(R.id.status_text);
 
-        mProgressBar.setMax(4);
+        mProgressBar.setMax(5);
         mProgressBar.setProgressDrawable(getResources().getDrawable(R.drawable.process_progess));
         mProgressText.setText(mStatus.getStringId());
 
@@ -303,5 +374,23 @@ public class ProcessFragment extends Fragment {
         mProcessTask = new ProcessTask();
         mProcessTask.execute();
         return rootView;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        if (mStatus == Status.FINISHED)
+            return;
+
+        synchronized (mProcessTask) {
+
+            mStatus = Status.FINISHED;
+
+            try { mProcessTask.wait(); }
+            catch (InterruptedException e) {
+                Logs.add(Logs.Type.E, e.getMessage());
+            }
+        }
     }
 }

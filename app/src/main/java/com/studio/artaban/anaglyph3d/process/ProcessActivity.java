@@ -120,7 +120,6 @@ public class ProcessActivity extends AppCompatActivity {
         // Set current activity
         ActivityWrapper.set(this);
 
-        /*
         // Set orientation
         Settings.getInstance().mReverse = false;
         if (Settings.getInstance().mOrientation)
@@ -135,29 +134,6 @@ public class ProcessActivity extends AppCompatActivity {
 
         // Set default activity result
         setResult(Constants.RESULT_PROCESS_CANCELLED);
-        */
-
-
-
-
-
-
-
-
-
-        FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
-        fragTransaction.add(R.id.main_container, new ProcessFragment(), ProcessFragment.TAG).commit();
-        getSupportFragmentManager().executePendingTransactions();
-
-
-
-
-
-
-
-
-
-
     }
 
     @Override

@@ -125,5 +125,8 @@
     <string name="status_save_raw">Store picture to set contrast &amp; brightness...</string>
     <string name="status_convert_raw">Convert picture to set contrast &amp; brightness...</string>
     <string name="status_transfer_raw">Transfer picture to set contrast &amp; brightness</string>
+    <string name="status_transfer_video">Transfer the video</string>
+    <string name="status_wait_contrast">Waiting contrast &amp; brightness setting...</string>
+    <string name="status_transfer_contrast">Transfer contrast &amp; brightness setting...</string>
 
 </resources>
