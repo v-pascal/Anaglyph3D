@@ -28,6 +28,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by pascal on 12/04/16.
@@ -77,9 +78,7 @@ public class ProcessFragment extends Fragment {
 
         // Progress for each 1024 bytes packets...
         TRANSFER_3D_VIDEO(0), // Transfer 3D video (to remote device which is not the maker)
-        WAIT_3D_VIDEO(0), // Wait 3D video received
-
-        FINISHED(Constants.NO_DATA);
+        WAIT_3D_VIDEO(0); // Wait 3D video received
 
         //
         private final int mStringId;
@@ -87,6 +86,7 @@ public class ProcessFragment extends Fragment {
         public int getStringId() { return mStringId; }
     }
     private Status mStatus = Status.INITIALIZATION;
+    private volatile boolean mAbort = false;
 
     public static GstObject mGStreamer;
 
@@ -118,7 +118,7 @@ public class ProcessFragment extends Fragment {
         protected Void doInBackground(Void... params) {
 
             Logs.add(Logs.Type.I, "Start process loop");
-            while (mStatus != ProcessFragment.Status.FINISHED) {
+            while (!mAbort) {
                 switch (mStatus) {
 
                     case INITIALIZATION: {
@@ -213,7 +213,7 @@ public class ProcessFragment extends Fragment {
                         catch (IOException e) {
 
                             Logs.add(Logs.Type.E, "Failed to save raw picture");
-                            mStatus = ProcessFragment.Status.FINISHED;
+                            mAbort = true;
 
                             // Inform user
                             DisplayMessage.getInstance().alert(R.string.title_error, R.string.save_error,
@@ -297,10 +297,6 @@ public class ProcessFragment extends Fragment {
                     }
                 }
             }
-
-            // Notify loop process terminated
-            synchronized (this) { this.notify(); }
-
             Logs.add(Logs.Type.I, "Process loop stopped");
             return null;
         }
@@ -380,17 +376,14 @@ public class ProcessFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
 
-        if (mStatus == Status.FINISHED)
-            return;
-
-        synchronized (mProcessTask) {
-
-            mStatus = Status.FINISHED;
-
-            try { mProcessTask.wait(); }
-            catch (InterruptedException e) {
-                Logs.add(Logs.Type.E, e.getMessage());
-            }
+        mAbort = true;
+        try { mProcessTask.get(); }
+        catch (InterruptedException e) {
+            Logs.add(Logs.Type.E, "Failed to interrupt process task: " + e.getMessage());
         }
+        catch (ExecutionException e) {
+            Logs.add(Logs.Type.E, "Failed to stop process task: " + e.getMessage());
+        }
+        mProcessTask = null;
     }
 }
