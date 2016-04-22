@@ -2,6 +2,8 @@ package com.studio.artaban.anaglyph3d.process;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioManager;
 import android.os.AsyncTask;
@@ -110,7 +112,7 @@ public class ProcessFragment extends Fragment {
                     mGStreamer = new GstObject(getContext());
 
                 // Notify initialization finished
-                synchronized (this) { this.notify(); }
+                synchronized (this) { notify(); }
             }
         };
 
@@ -337,6 +339,21 @@ public class ProcessFragment extends Fragment {
     private ProgressBar mProgressBar;
     private TextView mProgressText;
 
+    private ImageView mClapPortrait, mClapLandscape;
+    private void displayClapImage(int orientation) { // Display clap image according orientation
+
+        if (orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) { // Portrait
+
+            mClapLandscape.setVisibility(View.GONE);
+            mClapPortrait.setVisibility(View.VISIBLE);
+        }
+        else { // Landscape
+
+            mClapPortrait.setVisibility(View.GONE);
+            mClapLandscape.setVisibility(View.VISIBLE);
+        }
+    }
+
     //////
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -353,23 +370,41 @@ public class ProcessFragment extends Fragment {
         mProgressBar.setProgressDrawable(getResources().getDrawable(R.drawable.process_progess));
         mProgressText.setText(mStatus.getStringId());
 
+        // Set unspecified orientation
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+
         // Display 3D clap image animation
-        final ImageView clapImage = (ImageView)rootView.findViewById(R.id.clap_image);
-        if (clapImage != null) {
-            clapImage.setImageDrawable(getResources().getDrawable(R.drawable.clap_anim));
-            clapImage.post(new Runnable() {
+        mClapPortrait = (ImageView)rootView.findViewById(R.id.clap_image_top);
+        if (mClapPortrait != null)
+            mClapPortrait.post(new Runnable() {
 
                 @Override
                 public void run() {
-                    ((AnimationDrawable) clapImage.getDrawable()).start();
+                    ((AnimationDrawable) mClapPortrait.getDrawable()).start();
                 }
             });
-        }
+        mClapLandscape = (ImageView)rootView.findViewById(R.id.clap_image_right);
+        if (mClapLandscape != null)
+            mClapLandscape.post(new Runnable() {
+
+                @Override
+                public void run() {
+                    ((AnimationDrawable) mClapLandscape.getDrawable()).start();
+                }
+            });
+
+        displayClapImage(getResources().getConfiguration().orientation);
 
         // Start process thread
         mProcessTask = new ProcessTask();
         mProcessTask.execute();
         return rootView;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        displayClapImage(newConfig.orientation);
     }
 
     @Override

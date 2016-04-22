@@ -387,7 +387,8 @@ public class Connectivity {
         return mBluetooth.write(buffer.array(), byteCount);
     }
 
-    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
     private class ProcessTask extends AsyncTask<Void, Void, Void> {
 
         // Initialize connection
@@ -537,7 +538,11 @@ public class Connectivity {
 
                     // Receive buffer
                     int size = mBluetooth.read(mRead);
-                    switch (mRequests.get(0).mHandler.receiveBuffer(size, mRead)) {
+                    ReceiveResult result;
+                    synchronized (mRequests) {
+                        result = mRequests.get(0).mHandler.receiveBuffer(size, mRead);
+                    }
+                    switch (result) {
                         case PARTIAL_PACKET: {
 
                             if (mMaxWait-- == 0) {
@@ -550,7 +555,9 @@ public class Connectivity {
                         }
                         case PARTIAL: {
 
-                            mMaxWait = mRequests.get(0).mHandler.getMaxWaitReply(mRequests.get(0).mType);
+                            synchronized (mRequests) {
+                                mMaxWait = mRequests.get(0).mHandler.getMaxWaitReply(mRequests.get(0).mType);
+                            }
                             break;
                         }
                         case SUCCESS: {
