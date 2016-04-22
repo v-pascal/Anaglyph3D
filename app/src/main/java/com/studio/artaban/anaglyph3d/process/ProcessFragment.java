@@ -1,5 +1,6 @@
 package com.studio.artaban.anaglyph3d.process;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
@@ -8,6 +9,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -92,9 +94,12 @@ public class ProcessFragment extends Fragment {
 
     public static GstObject mGStreamer;
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
     private ProcessTask mProcessTask;
     private class ProcessTask extends AsyncTask<Void, Integer, Void> {
 
+        /*
         private boolean mLocalPicture; // To define which picture to process
         private void sleep() { // Sleep in process task
 
@@ -111,19 +116,46 @@ public class ProcessFragment extends Fragment {
                 if (mGStreamer == null)
                     mGStreamer = new GstObject(getContext());
 
+
+
+
+                Logs.add(Logs.Type.E, "3");
+
+
+
+
+
+
                 // Notify initialization finished
                 synchronized (this) { notify(); }
             }
         };
+        */
 
         @Override
         protected Void doInBackground(Void... params) {
 
-            Logs.add(Logs.Type.I, "Start process loop");
+            Logs.add(Logs.Type.E, "Start process loop");
+
+
+
+
+
+
+            /*
             while (!mAbort) {
                 switch (mStatus) {
 
                     case INITIALIZATION: {
+
+
+
+
+
+                        Logs.add(Logs.Type.E, "1");
+
+
+
 
                         publishProgress(1);
 
@@ -132,12 +164,31 @@ public class ProcessFragment extends Fragment {
 
                             getActivity().runOnUiThread(mInitRunnable);
 
+
+
+
+                            Logs.add(Logs.Type.E, "2");
+
+
+
+
                             // Wait initialization finish on UI thread
                             try { mInitRunnable.wait(); }
                             catch (InterruptedException e) {
                                 Logs.add(Logs.Type.E, e.getMessage());
                             }
                         }
+
+
+
+
+
+                        Logs.add(Logs.Type.E, "4");
+
+
+
+
+
 
                         //////
                         mLocalPicture = true;
@@ -299,10 +350,12 @@ public class ProcessFragment extends Fragment {
                     }
                 }
             }
-            Logs.add(Logs.Type.I, "Process loop stopped");
+            */
+            Logs.add(Logs.Type.E, "Process loop stopped");
             return null;
         }
 
+        /*
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
@@ -333,6 +386,7 @@ public class ProcessFragment extends Fragment {
                 }
             }
         }
+        */
     };
 
     //
@@ -354,6 +408,55 @@ public class ProcessFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+
+
+        /*
+        Logs.add(Logs.Type.E, "1");
+
+
+        // Start process thread
+        mProcessTask = new ProcessTask();
+        mProcessTask.execute();
+
+
+        Logs.add(Logs.Type.E, "2");
+        */
+
+    }
+
+
+    private class myTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            Logs.add(Logs.Type.E, "testage");
+
+            return null;
+        }
+    }
+
+
+    public void start() {
+
+        Logs.add(Logs.Type.E, "1");
+
+
+        // Start process thread
+        //mProcessTask = new ProcessTask();
+        //mProcessTask.execute();
+
+        new myTask().execute();
+
+
+        Logs.add(Logs.Type.E, "2");
+    }
+
+
     //////
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -370,34 +473,50 @@ public class ProcessFragment extends Fragment {
         mProgressBar.setProgressDrawable(getResources().getDrawable(R.drawable.process_progess));
         mProgressText.setText(mStatus.getStringId());
 
-        // Set unspecified orientation
+        // Set unspecified orientation (default device orientation)
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
         // Display 3D clap image animation
         mClapPortrait = (ImageView)rootView.findViewById(R.id.clap_image_top);
-        if (mClapPortrait != null)
-            mClapPortrait.post(new Runnable() {
+        mClapPortrait.post(new Runnable() {
 
-                @Override
-                public void run() {
-                    ((AnimationDrawable) mClapPortrait.getDrawable()).start();
-                }
-            });
+            @Override
+            public void run() {
+                ((AnimationDrawable) mClapPortrait.getDrawable()).start();
+            }
+        });
         mClapLandscape = (ImageView)rootView.findViewById(R.id.clap_image_right);
-        if (mClapLandscape != null)
-            mClapLandscape.post(new Runnable() {
+        mClapLandscape.post(new Runnable() {
 
-                @Override
-                public void run() {
-                    ((AnimationDrawable) mClapLandscape.getDrawable()).start();
-                }
-            });
-
+            @Override
+            public void run() {
+                ((AnimationDrawable) mClapLandscape.getDrawable()).start();
+            }
+        });
         displayClapImage(getResources().getConfiguration().orientation);
 
         // Start process thread
-        mProcessTask = new ProcessTask();
-        mProcessTask.execute();
+        //mProcessTask = new ProcessTask();
+        //mProcessTask.execute();
+
+
+
+        //start();
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                Logs.add(Logs.Type.E, "test 1");
+
+                mProcessTask = new ProcessTask();
+                mProcessTask.execute();
+            }
+        }, 2000);
+
+
+
         return rootView;
     }
 

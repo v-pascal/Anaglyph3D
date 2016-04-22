@@ -2,6 +2,7 @@ package com.studio.artaban.anaglyph3d.process;
 
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +13,7 @@ import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 /**
@@ -53,30 +55,78 @@ public class ProcessActivity extends AppCompatActivity {
             }
         });
     }
-    public void startProcessing(final Camera.Size picSize, final byte[] picRaw) {
+    //public void startProcessing(final Camera.Size picSize, final byte[] picRaw) {
+    public void startProcessing() {
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
 
                 // Remove fullscreen mode
-                getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+                //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
 
                 // Replace recorder with process fragment
                 FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
                 ProcessFragment process = new ProcessFragment();
 
+                /*
                 Bundle picture = new Bundle();
                 picture.putInt(ProcessFragment.PICTURE_SIZE_WIDTH, picSize.width);
                 picture.putInt(ProcessFragment.PICTURE_SIZE_HEIGHT, picSize.height);
                 picture.putByteArray(ProcessFragment.PICTURE_RAW_BUFFER, picRaw);
                 process.setArguments(picture);
+                */
 
                 fragTransaction.replace(R.id.main_container, process, ProcessFragment.TAG).commit();
                 getSupportFragmentManager().executePendingTransactions();
+
+
+                //start();
+
+
             }
         });
     }
+
+
+
+
+
+
+
+    /*
+    private class myTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            Logs.add(Logs.Type.E, "testage");
+
+            return null;
+        }
+    }
+
+
+    public void start() {
+
+        Logs.add(Logs.Type.E, "1");
+
+
+        // Start process thread
+        //mProcessTask = new ProcessTask();
+        //mProcessTask.execute();
+
+        new myTask().execute();
+
+
+        Logs.add(Logs.Type.E, "2");
+    }
+    */
+
+
+
+
+
 
     //
     public void onValidatePosition(View sender) {
@@ -86,10 +136,12 @@ public class ProcessActivity extends AppCompatActivity {
                 ActivityWrapper.REQ_TYPE_START, null);
 
         // Set fullscreen mode
-        int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
-        if (Build.VERSION.SDK_INT >= 19)
-            flags |= View.SYSTEM_UI_FLAG_IMMERSIVE; // Force to keep fullscreen even if touched
-        getWindow().getDecorView().setSystemUiVisibility(flags);
+        //int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        //if (Build.VERSION.SDK_INT >= 19)
+        //    flags |= View.SYSTEM_UI_FLAG_IMMERSIVE; // Force to keep fullscreen even if touched
+        //getWindow().getDecorView().setSystemUiVisibility(flags);
+
+        // BUG: Make a crash on some device when the screen is touched (e.g 'Samsung Galaxy Trend Lite')
     }
     public void onReversePosition(View sender) {
 
