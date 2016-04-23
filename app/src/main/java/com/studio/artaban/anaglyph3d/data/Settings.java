@@ -96,9 +96,9 @@ public class Settings implements ConnectRequest {
     private final ArrayList<Size> mResolutions = new ArrayList<>(); // Resolutions list
 
     public boolean mPosition = true; // Left camera position (false for right position)
-    public boolean mOrientation = false; //true; // Portrait orientation (false for landscape orientation)
     public boolean mReverse = false; // Reverse device orientation flag (see 'onReversePosition' method)
     public Size mResolution; // Selected resolution
+    public boolean mOrientation = Constants.CONFIG_DEFAULT_ORIENTATION; // Portrait orientation (false for landscape orientation)
     public short mDuration = Constants.CONFIG_DEFAULT_DURATION; // Video duration (in seconds)
     public short mFps = Constants.CONFIG_DEFAULT_FPS; // Frames per second
 
@@ -179,7 +179,7 @@ public class Settings implements ConnectRequest {
             mRemoteDevice = data.getString(DATA_KEY_REMOTE_DEVICE);
 
             // Set up default settings
-            mOrientation = false; //true;
+            mOrientation = Constants.CONFIG_DEFAULT_ORIENTATION;
             mDuration = Constants.CONFIG_DEFAULT_DURATION;
             mFps = Constants.CONFIG_DEFAULT_FPS;
 

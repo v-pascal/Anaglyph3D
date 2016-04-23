@@ -2,8 +2,6 @@ package com.studio.artaban.anaglyph3d.process;
 
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,7 +11,6 @@ import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
-import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 /**
@@ -55,78 +52,24 @@ public class ProcessActivity extends AppCompatActivity {
             }
         });
     }
-    //public void startProcessing(final Camera.Size picSize, final byte[] picRaw) {
-    public void startProcessing() {
+    public void startProcessing(Camera.Size picSize, byte[] picRaw) {
 
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+        // Remove fullscreen mode
+        //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
 
-                // Remove fullscreen mode
-                //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+        // Replace recorder with process fragment
+        FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
+        ProcessFragment process = new ProcessFragment();
 
-                // Replace recorder with process fragment
-                FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
-                ProcessFragment process = new ProcessFragment();
+        Bundle picture = new Bundle();
+        picture.putInt(ProcessFragment.PICTURE_SIZE_WIDTH, picSize.width);
+        picture.putInt(ProcessFragment.PICTURE_SIZE_HEIGHT, picSize.height);
+        picture.putByteArray(ProcessFragment.PICTURE_RAW_BUFFER, picRaw);
+        process.setArguments(picture);
 
-                /*
-                Bundle picture = new Bundle();
-                picture.putInt(ProcessFragment.PICTURE_SIZE_WIDTH, picSize.width);
-                picture.putInt(ProcessFragment.PICTURE_SIZE_HEIGHT, picSize.height);
-                picture.putByteArray(ProcessFragment.PICTURE_RAW_BUFFER, picRaw);
-                process.setArguments(picture);
-                */
-
-                fragTransaction.replace(R.id.main_container, process, ProcessFragment.TAG).commit();
-                getSupportFragmentManager().executePendingTransactions();
-
-
-                //start();
-
-
-            }
-        });
+        fragTransaction.replace(R.id.main_container, process, ProcessFragment.TAG).commit();
+        getSupportFragmentManager().executePendingTransactions();
     }
-
-
-
-
-
-
-
-    /*
-    private class myTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... params) {
-
-            Logs.add(Logs.Type.E, "testage");
-
-            return null;
-        }
-    }
-
-
-    public void start() {
-
-        Logs.add(Logs.Type.E, "1");
-
-
-        // Start process thread
-        //mProcessTask = new ProcessTask();
-        //mProcessTask.execute();
-
-        new myTask().execute();
-
-
-        Logs.add(Logs.Type.E, "2");
-    }
-    */
-
-
-
-
-
 
     //
     public void onValidatePosition(View sender) {
@@ -146,9 +89,9 @@ public class ProcessActivity extends AppCompatActivity {
     public void onReversePosition(View sender) {
 
         // Reverse the device orientation in order to position camera at the expected distance
-        // -> When cameras cannot be placed at the expected distance due to the position of the camera
+        // -> When cameras cannot be placed at the expected distance due to the location of the camera
         //    on a particular device (often the case for landscape orientation), this option allows the
-        //    user to reverse it to place the camera as expected
+        //    user to reverse it in order to place the camera as the expected distance
 
         Settings.getInstance().mReverse = !Settings.getInstance().mReverse;
 

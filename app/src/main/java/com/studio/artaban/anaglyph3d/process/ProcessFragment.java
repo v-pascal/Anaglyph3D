@@ -9,7 +9,6 @@ import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +31,6 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by pascal on 12/04/16.
@@ -41,6 +39,18 @@ import java.util.concurrent.ExecutionException;
 public class ProcessFragment extends Fragment {
 
     public static final String TAG = "process";
+
+
+
+
+
+
+
+
+
+
+
+
 
     public static final String PICTURE_SIZE_WIDTH = "width";
     public static final String PICTURE_SIZE_HEIGHT = "height";
@@ -57,7 +67,7 @@ public class ProcessFragment extends Fragment {
         WAIT_PICTURE (R.string.status_transfer_raw), // Wait until contrast & brightness picture has been received (to device which is not the maker)
 
         SAVE_PICTURE (R.string.status_save_raw), // Save raw picture into local file
-        CONVERT_PICTURE (R.string.status_convert_raw), // Convert local picture from NV21 to ARGB or JPEG
+        CONVERT_PICTURE (R.string.status_convert_raw), // Convert local picture from NV21 to ARGB
 
         ////// Video transfer & extraction step: 7 status
 
@@ -65,8 +75,8 @@ public class ProcessFragment extends Fragment {
         TRANSFER_VIDEO (R.string.status_transfer_video), // Transfer video
         WAIT_VIDEO (R.string.status_transfer_video), // Wait until video has been received
 
-        EXTRACT_FRAMES_LEFT(0), // Extract RGB pictures from left camera
-        EXTRACT_FRAMES_RIGHT(0), // Extract RGB pictures from right camera
+        EXTRACT_FRAMES_LEFT(0), // Extract ARGB pictures from left camera
+        EXTRACT_FRAMES_RIGHT(0), // Extract ARGB pictures from right camera
         EXTRACT_AUDIO(0), // Extract audio from one of the videos
         MERGE_FPS(0), // Remove the too many RGB pictures from camera video with bigger FPS
 
@@ -99,7 +109,6 @@ public class ProcessFragment extends Fragment {
     private ProcessTask mProcessTask;
     private class ProcessTask extends AsyncTask<Void, Integer, Void> {
 
-        /*
         private boolean mLocalPicture; // To define which picture to process
         private void sleep() { // Sleep in process task
 
@@ -130,19 +139,11 @@ public class ProcessFragment extends Fragment {
                 synchronized (this) { notify(); }
             }
         };
-        */
 
         @Override
         protected Void doInBackground(Void... params) {
 
             Logs.add(Logs.Type.E, "Start process loop");
-
-
-
-
-
-
-            /*
             while (!mAbort) {
                 switch (mStatus) {
 
@@ -350,12 +351,10 @@ public class ProcessFragment extends Fragment {
                     }
                 }
             }
-            */
             Logs.add(Logs.Type.E, "Process loop stopped");
             return null;
         }
 
-        /*
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
@@ -386,8 +385,17 @@ public class ProcessFragment extends Fragment {
                 }
             }
         }
-        */
     };
+
+
+
+
+
+
+
+
+
+
 
     //
     private ProgressBar mProgressBar;
@@ -408,55 +416,6 @@ public class ProcessFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-
-
-        /*
-        Logs.add(Logs.Type.E, "1");
-
-
-        // Start process thread
-        mProcessTask = new ProcessTask();
-        mProcessTask.execute();
-
-
-        Logs.add(Logs.Type.E, "2");
-        */
-
-    }
-
-
-    private class myTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... params) {
-
-            Logs.add(Logs.Type.E, "testage");
-
-            return null;
-        }
-    }
-
-
-    public void start() {
-
-        Logs.add(Logs.Type.E, "1");
-
-
-        // Start process thread
-        //mProcessTask = new ProcessTask();
-        //mProcessTask.execute();
-
-        new myTask().execute();
-
-
-        Logs.add(Logs.Type.E, "2");
-    }
-
-
     //////
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -469,9 +428,17 @@ public class ProcessFragment extends Fragment {
         mProgressBar = (ProgressBar)rootView.findViewById(R.id.status_progress);
         mProgressText = (TextView)rootView.findViewById(R.id.status_text);
 
+
+
+
+        /*
         mProgressBar.setMax(5);
         mProgressBar.setProgressDrawable(getResources().getDrawable(R.drawable.process_progess));
         mProgressText.setText(mStatus.getStringId());
+        */
+
+
+
 
         // Set unspecified orientation (default device orientation)
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -495,25 +462,20 @@ public class ProcessFragment extends Fragment {
         });
         displayClapImage(getResources().getConfiguration().orientation);
 
+
+
+
+
+
+
+
         // Start process thread
         //mProcessTask = new ProcessTask();
         //mProcessTask.execute();
 
 
 
-        //start();
 
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-                Logs.add(Logs.Type.E, "test 1");
-
-                mProcessTask = new ProcessTask();
-                mProcessTask.execute();
-            }
-        }, 2000);
 
 
 
@@ -526,6 +488,7 @@ public class ProcessFragment extends Fragment {
         displayClapImage(newConfig.orientation);
     }
 
+    /*
     @Override
     public void onDetach() {
         super.onDetach();
@@ -540,4 +503,5 @@ public class ProcessFragment extends Fragment {
         }
         mProcessTask = null;
     }
+    */
 }

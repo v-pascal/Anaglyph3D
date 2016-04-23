@@ -220,8 +220,7 @@ public class CameraView extends SurfaceView
             mMediaRecorder.reset();
             mMediaRecorder.release();
 
-            //try { ((ProcessActivity)ActivityWrapper.get()).startProcessing(mPreviewSize, mRawPicture); }
-            try { ((ProcessActivity)ActivityWrapper.get()).startProcessing(); }
+            try { ((ProcessActivity)ActivityWrapper.get()).startProcessing(mPreviewSize, mRawPicture); }
             catch (Exception e) {
                 Logs.add(Logs.Type.F, "Unexpected activity reference");
             }
