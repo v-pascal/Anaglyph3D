@@ -73,37 +73,6 @@ public class Connectivity {
     }
     private final List<TransferElement> mRequests = new ArrayList<>();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public boolean sendBuffer(byte[] buffer) {
-        return mBluetooth.write(buffer, buffer.length);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     //
     public boolean addRequest(ConnectRequest handler, byte type, Bundle data) {
 
@@ -384,7 +353,12 @@ public class Connectivity {
         // Add message (*)
         buffer.put(element.mMessage.getBytes()); // Default charset UTF-8
 
-        return mBluetooth.write(buffer.array(), byteCount);
+        return mBluetooth.write(buffer.array(), 0, byteCount);
+    }
+
+    // Send buffer
+    public boolean send(byte[] buffer, int start, int len) {
+        return mBluetooth.write(buffer, start, len);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

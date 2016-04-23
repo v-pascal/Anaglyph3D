@@ -1,6 +1,7 @@
 package com.studio.artaban.anaglyph3d.media;
 
 import android.os.Bundle;
+import android.os.Handler;
 
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
@@ -21,9 +22,7 @@ import java.io.ByteArrayOutputStream;
 public class Frame implements ConnectRequest {
 
     private static Frame ourInstance = new Frame();
-    public static Frame getInstance() {
-        return ourInstance;
-    }
+    public static Frame getInstance() { return ourInstance; }
     private Frame() { }
 
     // Data keys
@@ -70,8 +69,8 @@ public class Frame implements ConnectRequest {
         mBufferSize = mBuffer.length;
 
         mPacketCount = 0;
-        mPacketTotal = mBuffer.length >> 10;
-        // Picture buffer size / 1024 (Bluetooth.MAX_RECEIVE_BUFFER)
+        mPacketTotal = mBuffer.length >> 12;
+        // Picture buffer size / 4096 (Bluetooth.MAX_RECEIVE_BUFFER)
 
         JSONObject request = new JSONObject();
         try {
@@ -94,27 +93,8 @@ public class Frame implements ConnectRequest {
             case REQ_TYPE_DOWNLOAD: break;
             case REQ_TYPE_UPLOAD: {
 
-
-
-
-
-
-
-                // Thread to send buffer
-                // -> mPacketCount until mPacketTotal
-
-                Connectivity.getInstance().sendBuffer(mBuffer);
-                mPacketCount = mPacketTotal;
-
-
-
-
-
-
-
-
-
-                return Constants.CONN_REQUEST_ANSWER_TRUE; // Not sent
+                send(); // Send picture buffer
+                return Constants.CONN_REQUEST_ANSWER_TRUE; // ...reply not sent (see 'getRequestBuffer')
             }
         }
 
@@ -134,8 +114,8 @@ public class Frame implements ConnectRequest {
             mBuffer = new byte[mBufferSize];
 
             mPacketCount = 0;
-            mPacketTotal = mBufferSize >> 10;
-            // Picture buffer size / 1024 (Bluetooth.MAX_RECEIVE_BUFFER)
+            mPacketTotal = mBufferSize >> 12;
+            // Picture buffer size / 4096 (Bluetooth.MAX_RECEIVE_BUFFER)
 
             return Constants.CONN_REQUEST_ANSWER_TRUE;
         }
@@ -148,28 +128,7 @@ public class Frame implements ConnectRequest {
     @Override
     public ReceiveResult receiveReply(byte type, String reply) {
 
-
-
-
-
-
-
-
-
-        // Thread to send buffer
-        // -> mPacketCount until mPacketTotal
-
-        Connectivity.getInstance().sendBuffer(mBuffer);
-        mPacketCount = mPacketTotal;
-
-
-
-
-
-
-
-
-
+        send(); // Send picture buffer
         return ReceiveResult.SUCCESS;
     }
     @Override
@@ -202,8 +161,8 @@ public class Frame implements ConnectRequest {
     private byte[] mBuffer;
     private int mBufferSize;
 
-    private int mPacketCount;
-    private int mPacketTotal;
+    private int mPacketCount = 0;
+    private int mPacketTotal = 1;
 
     //
     public byte[] getBuffer() { return mBuffer; }
@@ -211,13 +170,49 @@ public class Frame implements ConnectRequest {
     public int getPacketTotal() { return mPacketTotal; } // Return the total number of packet to send or receive
     public int getPacketCount() { return mPacketCount; } // Return the number of packet sent or received
 
+    private void send() { // Send picture buffer
+
+        mPacketCount = 0;
+        mPacketTotal = mBuffer.length >> 10;
+        // Picture buffer size / 1024 (Bluetooth.MAX_SEND_BUFFER)
+
+        Handler handler = new Handler();
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+
+                for (int sent = 0; sent < mBuffer.length; sent += Bluetooth.MAX_SEND_BUFFER) {
+                    int send = ((sent + Bluetooth.MAX_SEND_BUFFER) < mBuffer.length)?
+                            Bluetooth.MAX_SEND_BUFFER:mBuffer.length - sent;
+
+                    // Send buffer packets
+                    Connectivity.getInstance().send(mBuffer, sent, send);
+                    ++mPacketCount;
+                }
+            }
+        });
+    }
+
     //////
     public static boolean convertNV21toARGB(String source, int width, int height, String destination) {
+
+
+
+
+
+
+
+
 
         int size = (width * height * 3) >> 1; // NV21 buffer size
         return ProcessThread.mGStreamer.launch("filesrc location=" + source + " blocksize=" + size +
                 " ! video/x-raw,format=NV21,width=" + width + ",height=" + height +
                 ",framerate=1/1 ! videoconvert ! video/x-raw,format=ARGB ! filesink location=" +
                 destination);
+
+
+
+
+
     }
 }

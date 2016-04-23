@@ -36,7 +36,8 @@ public class Bluetooth {
         CONNECTING, // Slave mode
         CONNECTED   // Processing connection
     }
-    public static final int MAX_RECEIVE_BUFFER = 1024;
+    public static final int MAX_SEND_BUFFER = 1024;
+    public static final int MAX_RECEIVE_BUFFER = MAX_SEND_BUFFER >> 2; // Receive buffer must be > send buffer
 
     private BluetoothAdapter mAdapter;
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -237,12 +238,15 @@ public class Bluetooth {
             }
         }
 
-        public void write(byte[] buffer, int len) {
+        public void write(byte[] buffer, int start, int len) {
 
             if (mOutStream == null)
                 return;
 
-            try { mOutStream.write(buffer, 0, len); }
+            try {
+                mOutStream.write(buffer, start, len);
+                mOutStream.flush();
+            }
             catch (IOException e) {
                 Logs.add(Logs.Type.E, "Failed to write: " + e.toString());
             }
@@ -364,7 +368,7 @@ public class Bluetooth {
     }
 
     //
-    public boolean write(byte[] buffer, int len) {
+    public boolean write(byte[] buffer, int start, int len) {
 
         if (mStatus != Status.CONNECTED) {
             Logs.add(Logs.Type.W, "Failed to write: Wrong " + mStatus + " status");
@@ -372,7 +376,7 @@ public class Bluetooth {
         }
         ProcessThread process;
         synchronized (mProcessing) { process = mProcessing; }
-        process.write(buffer, len);
+        process.write(buffer, start, len);
         return true;
     }
     public synchronized int read(ByteArrayOutputStream buffer) {
