@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
-import com.studio.artaban.anaglyph3d.process.ProcessFragment;
+import com.studio.artaban.anaglyph3d.process.ProcessThread;
 import com.studio.artaban.anaglyph3d.transfer.Bluetooth;
 import com.studio.artaban.anaglyph3d.transfer.ConnectRequest;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
@@ -27,8 +27,9 @@ public class Frame implements ConnectRequest {
     private Frame() { }
 
     // Data keys
-    private static final String DATA_KEY_WIDTH = "width";
-    private static final String DATA_KEY_HEIGHT = "height";
+    public static final String DATA_KEY_WIDTH = "width";
+    public static final String DATA_KEY_HEIGHT = "height";
+    public static final String DATA_KEY_BUFFER = "buffer";
     private static final String DATA_KEY_BUFFER_SIZE = "size";
 
     // Request types
@@ -62,9 +63,9 @@ public class Frame implements ConnectRequest {
         }
 
         // Get picture data
-        mBuffer = data.getByteArray(ProcessFragment.PICTURE_RAW_BUFFER);
-        mWidth = data.getInt(ProcessFragment.PICTURE_SIZE_WIDTH);
-        mHeight = data.getInt(ProcessFragment.PICTURE_SIZE_HEIGHT);
+        mBuffer = data.getByteArray(DATA_KEY_BUFFER);
+        mWidth = data.getInt(DATA_KEY_WIDTH);
+        mHeight = data.getInt(DATA_KEY_HEIGHT);
 
         mBufferSize = mBuffer.length;
 
@@ -101,6 +102,11 @@ public class Frame implements ConnectRequest {
 
                 // Thread to send buffer
                 // -> mPacketCount until mPacketTotal
+
+                Connectivity.getInstance().sendBuffer(mBuffer);
+                mPacketCount = mPacketTotal;
+
+
 
 
 
@@ -209,7 +215,7 @@ public class Frame implements ConnectRequest {
     public static boolean convertNV21toARGB(String source, int width, int height, String destination) {
 
         int size = (width * height * 3) >> 1; // NV21 buffer size
-        return ProcessFragment.mGStreamer.launch("filesrc location=" + source + " blocksize=" + size +
+        return ProcessThread.mGStreamer.launch("filesrc location=" + source + " blocksize=" + size +
                 " ! video/x-raw,format=NV21,width=" + width + ",height=" + height +
                 ",framerate=1/1 ! videoconvert ! video/x-raw,format=ARGB ! filesink location=" +
                 destination);

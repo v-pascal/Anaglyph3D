@@ -1,5 +1,6 @@
 package com.studio.artaban.anaglyph3d.process;
 
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
 import android.support.v4.app.FragmentTransaction;
@@ -13,6 +14,7 @@ import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
+import com.studio.artaban.libGST.GstObject;
 
 /**
  * Created by pascal on 12/04/16.
@@ -104,7 +106,8 @@ public class ProcessActivity extends AppCompatActivity {
 
         ((PositionFragment)getSupportFragmentManager().findFragmentByTag(PositionFragment.TAG)).reverse();
     }
-    public void onUpdateProgress(final ProcessThread.Status status, final int progress) {
+    public void onUpdateProgress(final String status, final int progress, final int max,
+                                 final ProcessThread.Step step) {
 
         runOnUiThread(new Runnable() {
             @Override
@@ -114,10 +117,42 @@ public class ProcessActivity extends AppCompatActivity {
                         findFragmentByTag(ProcessFragment.TAG);
 
                 if (processFragment != null)
-                    processFragment.updateProgress(status, progress);
+                    processFragment.updateProgress(status, progress, max, step);
                 //else // Contrast or Synchronize fragment opened (nothing to update)
             }
         });
+    }
+
+    private InitializeRunnable mInitRunnable;
+    private class InitializeRunnable implements Runnable {
+
+        private Context mContext;
+        public InitializeRunnable(Context context) { mContext = context; }
+
+        @Override
+        public void run() {
+
+            // Initialize GStreamer library
+            if (ProcessThread.mGStreamer == null)
+                ProcessThread.mGStreamer = new GstObject(mContext);
+
+            // Notify initialization finished
+            synchronized (this) { notify(); }
+        }
+    };
+    public void onInitialize() { // Initialize GStreamer library on UI thread
+
+        mInitRunnable = new InitializeRunnable(this);
+        synchronized (mInitRunnable) {
+
+            runOnUiThread(mInitRunnable);
+
+            // Wait initialization finish on UI thread
+            try { mInitRunnable.wait(); }
+            catch (InterruptedException e) {
+                Logs.add(Logs.Type.E, e.getMessage());
+            }
+        }
     }
 
     //////
