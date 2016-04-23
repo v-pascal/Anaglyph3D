@@ -53,7 +53,7 @@ public class Constants {
 
 
     ////// Process
-    public static final short PROCESS_WAIT_TRANSFER = 200; // Progress loop sleep (in milliseconds)
+    public static final short PROCESS_WAIT_TRANSFER = 500; // Progress loop sleep (in milliseconds)
 
     public static final String PROCESS_VIDEO_3GP_FILENAME = "/video.3gp";
     public static final String PROCESS_RAW_PICTURE_FILENAME = "/local.nv21";

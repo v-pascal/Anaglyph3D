@@ -11,6 +11,7 @@ import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 /**
@@ -18,8 +19,9 @@ import com.studio.artaban.anaglyph3d.transfer.Connectivity;
  * Activity to manage video recording and transferring using fragments:
  * _ Position fragment
  * _ Recorder fragment
- * _ Process fragment (transfer)
+ * _ Process fragment (status)
  * _ Contrast fragment
+ * _ Synchronize fragment
  */
 public class ProcessActivity extends AppCompatActivity {
 
@@ -52,6 +54,7 @@ public class ProcessActivity extends AppCompatActivity {
             }
         });
     }
+    private ProcessThread mProcessThread;
     public void startProcessing(Camera.Size picSize, byte[] picRaw) {
 
         // Remove fullscreen mode
@@ -59,16 +62,12 @@ public class ProcessActivity extends AppCompatActivity {
 
         // Replace recorder with process fragment
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
-        ProcessFragment process = new ProcessFragment();
-
-        Bundle picture = new Bundle();
-        picture.putInt(ProcessFragment.PICTURE_SIZE_WIDTH, picSize.width);
-        picture.putInt(ProcessFragment.PICTURE_SIZE_HEIGHT, picSize.height);
-        picture.putByteArray(ProcessFragment.PICTURE_RAW_BUFFER, picRaw);
-        process.setArguments(picture);
-
-        fragTransaction.replace(R.id.main_container, process, ProcessFragment.TAG).commit();
+        fragTransaction.replace(R.id.main_container, new ProcessFragment(), ProcessFragment.TAG).commit();
         getSupportFragmentManager().executePendingTransactions();
+
+        // Start process thread
+        mProcessThread = new ProcessThread(picSize, picRaw);
+        mProcessThread.start();
     }
 
     //
@@ -104,6 +103,21 @@ public class ProcessActivity extends AppCompatActivity {
                     ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
 
         ((PositionFragment)getSupportFragmentManager().findFragmentByTag(PositionFragment.TAG)).reverse();
+    }
+    public void onUpdateProgress(final ProcessThread.Status status, final int progress) {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                ProcessFragment processFragment = (ProcessFragment)getSupportFragmentManager().
+                        findFragmentByTag(ProcessFragment.TAG);
+
+                if (processFragment != null)
+                    processFragment.updateProgress(status, progress);
+                //else // Contrast or Synchronize fragment opened (nothing to update)
+            }
+        });
     }
 
     //////
@@ -153,5 +167,13 @@ public class ProcessActivity extends AppCompatActivity {
         // Send cancel request to remote device (this action will finish the activity)
         Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                 ActivityWrapper.REQ_TYPE_CANCEL, null);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if ((mProcessThread != null) && (mProcessThread.isAlive()))
+            mProcessThread.release();
     }
 }

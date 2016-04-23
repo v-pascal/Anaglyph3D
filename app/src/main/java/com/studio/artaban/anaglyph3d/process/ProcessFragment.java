@@ -109,7 +109,7 @@ public class ProcessFragment extends Fragment {
     private ProcessTask mProcessTask;
     private class ProcessTask extends AsyncTask<Void, Integer, Void> {
 
-        private boolean mLocalPicture; // To define which picture to process
+        private boolean mLocalPicture; // To define which picture to process (local or remote)
         private void sleep() { // Sleep in process task
 
             try { Thread.sleep(Constants.PROCESS_WAIT_TRANSFER, 0); }
@@ -396,6 +396,18 @@ public class ProcessFragment extends Fragment {
 
 
 
+    // Update progress bar and status text displayed
+    public void updateProgress(ProcessThread.Status status, int progress) {
+        switch (status) {
+
+            case INITIALIZATION: {
+                mProgressBar.setMax((Settings.getInstance().isMaker())? 2:4);
+                break;
+            }
+        }
+        mProgressBar.setProgress(progress);
+        mProgressText.setText(status.getStringId());
+    }
 
     //
     private ProgressBar mProgressBar;
@@ -425,20 +437,9 @@ public class ProcessFragment extends Fragment {
                 setStreamMute(AudioManager.STREAM_SYSTEM, false);
 
         final View rootView = inflater.inflate(R.layout.fragment_process, container, false);
-        mProgressBar = (ProgressBar)rootView.findViewById(R.id.status_progress);
         mProgressText = (TextView)rootView.findViewById(R.id.status_text);
-
-
-
-
-        /*
-        mProgressBar.setMax(5);
+        mProgressBar = (ProgressBar)rootView.findViewById(R.id.status_progress);
         mProgressBar.setProgressDrawable(getResources().getDrawable(R.drawable.process_progess));
-        mProgressText.setText(mStatus.getStringId());
-        */
-
-
-
 
         // Set unspecified orientation (default device orientation)
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -484,6 +485,7 @@ public class ProcessFragment extends Fragment {
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
+
         super.onConfigurationChanged(newConfig);
         displayClapImage(newConfig.orientation);
     }
