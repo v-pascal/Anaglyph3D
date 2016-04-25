@@ -81,9 +81,8 @@ public class ProcessFragment extends Fragment {
         mFramesChecked = (ImageView)rootView.findViewById(R.id.frames_checked);
         mMakeChecked = (ImageView)rootView.findViewById(R.id.anaglyph_checked);
 
-        mProgressText = (TextView)rootView.findViewById(R.id.status_text);
         mProgressBar = (ProgressBar)rootView.findViewById(R.id.status_progress);
-        mProgressBar.setProgressDrawable(getResources().getDrawable(R.drawable.process_progess));
+        mProgressText = (TextView)rootView.findViewById(R.id.status_text);
 
         // Display 3D clap image animation
         mClapPortrait = (ImageView)rootView.findViewById(R.id.clap_image_top);
