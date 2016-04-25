@@ -135,7 +135,7 @@ public class ActivityWrapper implements ConnectRequest {
         return ReceiveResult.ERROR;
     }
     @Override
-    public ReceiveResult receiveBuffer(int size, ByteArrayOutputStream buffer) {
+    public ReceiveResult receiveBuffer(ByteArrayOutputStream buffer) {
         return ReceiveResult.ERROR; // Unexpected call
     }
 

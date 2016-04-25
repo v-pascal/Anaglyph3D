@@ -59,6 +59,9 @@ public class ProcessActivity extends AppCompatActivity {
     private ProcessThread mProcessThread;
     public void startProcessing(Camera.Size picSize, byte[] picRaw) {
 
+        // Set unspecified orientation (default device orientation)
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+
         // Remove fullscreen mode
         //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
 
@@ -107,7 +110,7 @@ public class ProcessActivity extends AppCompatActivity {
         ((PositionFragment)getSupportFragmentManager().findFragmentByTag(PositionFragment.TAG)).reverse();
     }
     public void onUpdateProgress(final String status, final int progress, final int max,
-                                 final ProcessThread.Step step) {
+                                 final ProcessThread.Step step, final boolean heavy) {
 
         runOnUiThread(new Runnable() {
             @Override
@@ -117,7 +120,7 @@ public class ProcessActivity extends AppCompatActivity {
                         findFragmentByTag(ProcessFragment.TAG);
 
                 if (processFragment != null)
-                    processFragment.updateProgress(status, progress, max, step);
+                    processFragment.updateProgress(status, progress, max, step, heavy);
                 //else // Contrast or Synchronize fragment opened (nothing to update)
             }
         });

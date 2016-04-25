@@ -46,7 +46,7 @@ public class ProcessThread extends Thread {
     }
 
     public enum Step { VIDEO, CONTRAST, FRAMES, MAKE }
-    public enum Status {
+    private enum Status {
 
         ////// Contrast & brightness step: 4 status
         INITIALIZATION (R.string.status_initialize), // Initialize process (GStreamer)
@@ -97,6 +97,8 @@ public class ProcessThread extends Thread {
     private void publishProgress(int progress, int max) {
         try {
             String status = ActivityWrapper.get().getResources().getString(mStatus.getStringId());
+            boolean heavyProcess = false;
+
             switch (mStatus) {
 
                 case WAIT_VIDEO:
@@ -107,8 +109,19 @@ public class ProcessThread extends Thread {
                     status += " (" + progress + "/" + max + ")";
                     break;
                 }
+
+                // Heavy process
+                case CONVERT_PICTURE:
+                case EXTRACT_FRAMES_LEFT:
+                case EXTRACT_FRAMES_RIGHT:
+                case EXTRACT_AUDIO: {
+
+                    heavyProcess = true; // Set indeterminate progress bar
+                    break;
+                }
             }
-            ((ProcessActivity)ActivityWrapper.get()).onUpdateProgress(status, progress, max, mStep);
+            ((ProcessActivity) ActivityWrapper.get()).onUpdateProgress(status, progress, max,
+                    mStep, heavyProcess);
         }
         catch (NullPointerException e) {
             Logs.add(Logs.Type.F, "Wrong activity reference");
@@ -129,7 +142,7 @@ public class ProcessThread extends Thread {
     @Override
     public void run() {
 
-        Logs.add(Logs.Type.E, "Start process loop");
+        Logs.add(Logs.Type.V, "Process thread started");
         boolean localPicture = true; // To define which picture to process (local or remote)
 
         while (!mAbort) {
@@ -171,8 +184,8 @@ public class ProcessThread extends Thread {
                         Connectivity.getInstance().addRequest(Frame.getInstance(),
                                 Frame.REQ_TYPE_DOWNLOAD, data);
 
-                        publishProgress(Frame.getInstance().getPacketCount(),
-                                Frame.getInstance().getPacketTotal());
+                        publishProgress(Frame.getInstance().getTransferSize(),
+                                Frame.getInstance().getBufferSize());
                     }
                     break;
                 }
@@ -180,11 +193,11 @@ public class ProcessThread extends Thread {
                 case TRANSFER_PICTURE: {
 
                     sleep();
-                    publishProgress(Frame.getInstance().getPacketCount(),
-                            Frame.getInstance().getPacketTotal());
+                    publishProgress(Frame.getInstance().getTransferSize(),
+                            Frame.getInstance().getBufferSize());
 
                     //////
-                    if (Frame.getInstance().getPacketCount() == Frame.getInstance().getPacketTotal()) {
+                    if (Frame.getInstance().getTransferSize() == Frame.getInstance().getBufferSize()) {
                         if (!Settings.getInstance().isMaker()) {
 
                             localPicture = false;
@@ -201,6 +214,8 @@ public class ProcessThread extends Thread {
 
 
                             mStatus = Status.WAIT_VIDEO;
+
+
 
 
 
@@ -316,7 +331,8 @@ public class ProcessThread extends Thread {
                     break;
                 }
             }
+            mAbort = !Connectivity.getInstance().isConnected();
         }
-        Logs.add(Logs.Type.E, "Process loop stopped");
+        Logs.add(Logs.Type.I, "Process thread stopped");
     }
 }

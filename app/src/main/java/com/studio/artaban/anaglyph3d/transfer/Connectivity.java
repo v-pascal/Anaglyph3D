@@ -2,7 +2,6 @@ package com.studio.artaban.anaglyph3d.transfer;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -23,7 +22,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by pascal on 20/03/16.
@@ -36,7 +34,7 @@ public class Connectivity {
     private Connectivity() { }
 
     //////
-    private AsyncTask<Void, Void, Void> mProcessTask;
+    private ConnectThread mConnectThread;
     private final Bluetooth mBluetooth = new Bluetooth();
     private final ByteArrayOutputStream mRead = new ByteArrayOutputStream();
     private boolean mAbort = true;
@@ -72,6 +70,7 @@ public class Connectivity {
         public String mMessage;
     }
     private final List<TransferElement> mRequests = new ArrayList<>();
+    private TransferElement mRequestBuffer;
 
     //
     public boolean addRequest(ConnectRequest handler, byte type, Bundle data) {
@@ -174,7 +173,8 @@ public class Connectivity {
             return false;
         }
 
-        // Check if a buffer will be sent to the remote device (without sending this reply)
+        // Check if a buffer will be or has been sent to the remote device (without sending this reply)
+        // -> See buffer send in the 'getReply' method of the handler
         if (reply.mHandler.getRequestBuffer(reply.mType) == ConnectRequest.BufferType.TO_SEND)
             return true; // Nothing to do
 
@@ -187,14 +187,16 @@ public class Connectivity {
         }
 
         // Check if a buffer will be sent by the remote device (after having received this reply)
-        if (reply.mHandler.getRequestBuffer(reply.mType) == ConnectRequest.BufferType.TO_RECEIVE)
-            mStatus = Status.WAIT_BUFFER;
+        if (reply.mHandler.getRequestBuffer(reply.mType) == ConnectRequest.BufferType.TO_RECEIVE) {
 
+            mRequestBuffer = reply; // Store buffer request
+            mStatus = Status.WAIT_BUFFER;
+        }
         return true;
     }
 
     public void disconnect() { mDisconnectRequest = true; }
-    private boolean isConnected() {
+    public boolean isConnected() {
 
         return (!mDisconnectRequest) && (!mDisconnectError) &&
                 (mBluetooth.getStatus() == Bluetooth.Status.CONNECTED);
@@ -358,12 +360,14 @@ public class Connectivity {
 
     // Send buffer
     public boolean send(byte[] buffer, int start, int len) {
-        return mBluetooth.write(buffer, start, len);
+
+        mDisconnectError = !mBluetooth.write(buffer, start, len);
+        return !mDisconnectError;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private class ProcessTask extends AsyncTask<Void, Void, Void> {
+    private class ConnectThread extends Thread {
 
         // Initialize connection
         private void initialize(boolean position) {
@@ -448,10 +452,17 @@ public class Connectivity {
 
                         // Assign wait status according if a buffer will be sent from the remote device
                         // -> Buffer sent as a reply of this request
-                        mStatus = ((mRequests.get(0).mHandler.getRequestBuffer(mRequests.get(0).mType) ==
-                                ConnectRequest.BufferType.TO_SEND))?
-                                Connectivity.Status.WAIT_BUFFER:
-                                Connectivity.Status.WAIT_REPLY;
+                        if ((mRequests.get(0).mHandler.getRequestBuffer(mRequests.get(0).mType) ==
+                                ConnectRequest.BufferType.TO_SEND)) { // Request the remote to send buffer
+
+                            // ...will receive buffer
+                            mRequestBuffer = mRequests.get(0); // Store buffer request
+                            mRequests.remove(0);
+
+                            mStatus = Connectivity.Status.WAIT_BUFFER;
+                        }
+                        else // ...will receive reply
+                            mStatus = Connectivity.Status.WAIT_REPLY;
                     }
                     break;
                 }
@@ -511,13 +522,10 @@ public class Connectivity {
                 case WAIT_BUFFER: {
 
                     // Receive buffer
-                    int size = mBluetooth.read(mRead);
-                    ReceiveResult result;
-                    synchronized (mRequests) {
-                        result = mRequests.get(0).mHandler.receiveBuffer(size, mRead);
-                    }
-                    switch (result) {
-                        case PARTIAL_PACKET: {
+                    mBluetooth.read(mRead);
+                    switch (mRequestBuffer.mHandler.receiveBuffer(mRead)) {
+
+                        case NONE: {
 
                             if (mMaxWait-- == 0) {
 
@@ -529,14 +537,12 @@ public class Connectivity {
                         }
                         case PARTIAL: {
 
-                            synchronized (mRequests) {
-                                mMaxWait = mRequests.get(0).mHandler.getMaxWaitReply(mRequests.get(0).mType);
-                            }
+                            mMaxWait = mRequestBuffer.mHandler.getMaxWaitReply(mRequestBuffer.mType);
                             break;
                         }
                         case SUCCESS: {
 
-                            synchronized (mRequests) { mRequests.remove(0); }
+                            mRequestBuffer = null;
                             mStatus = Connectivity.Status.STAND_BY;
                             break;
                         }
@@ -553,9 +559,9 @@ public class Connectivity {
             }
         }
 
-        //
+        //////
         @Override
-        protected Void doInBackground(Void... params) {
+        public void run() {
             Logs.add(Logs.Type.I, "Connectivity thread started");
 
             short devIndex = 0;
@@ -694,8 +700,7 @@ public class Connectivity {
                     Logs.add(Logs.Type.W, "Unable to sleep: " + e.getMessage());
                 }
             }
-            Logs.add(Logs.Type.I, "Connectivity thread ended");
-            return null;
+            Logs.add(Logs.Type.I, "Connectivity thread stopped");
         }
     }
 
@@ -711,8 +716,8 @@ public class Connectivity {
         }
         mAbort = false;
         mStatus = Status.UNDEFINED;
-        mProcessTask = new ProcessTask();
-        mProcessTask.execute();
+        mConnectThread = new ConnectThread();
+        mConnectThread.start();
         return true;
     }
     public void stop() {
@@ -721,14 +726,12 @@ public class Connectivity {
             return;
 
         mAbort = true;
-        try { mProcessTask.get(); }
+
+        try { mConnectThread.join(); }
         catch (InterruptedException e) {
-            Logs.add(Logs.Type.E, "Failed to interrupt connectivity task: " + e.getMessage());
+            Logs.add(Logs.Type.E, "Failed to stop connectivity thread: " + e.getMessage());
         }
-        catch (ExecutionException e) {
-            Logs.add(Logs.Type.E, "Failed to stop connectivity task: " + e.getMessage());
-        }
-        mProcessTask = null;
+        mConnectThread = null;
         mStatus = Status.UNDEFINED;
         mBluetooth.reset();
     }

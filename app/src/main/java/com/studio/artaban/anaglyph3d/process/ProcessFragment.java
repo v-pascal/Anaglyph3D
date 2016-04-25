@@ -15,6 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.data.Constants;
 
 /**
  * Created by pascal on 12/04/16.
@@ -25,7 +26,8 @@ public class ProcessFragment extends Fragment {
     public static final String TAG = "process";
 
     // Update progress bar, status text and step displayed
-    public void updateProgress(String status, int progress, int max, ProcessThread.Step step) {
+    public void updateProgress(String status, int progress, int max,
+                               ProcessThread.Step step, boolean heavy) {
 
         switch (step) {
             case MAKE:
@@ -34,10 +36,12 @@ public class ProcessFragment extends Fragment {
                 mFramesChecked.setVisibility(View.VISIBLE);
             case CONTRAST:
                 mContrastChecked.setVisibility(View.VISIBLE);
+            default: // VIDEO
                 break;
         }
         mProgressBar.setMax(max);
         mProgressBar.setProgress(progress);
+        mProgressBar.setIndeterminate(heavy);
         mProgressText.setText(status);
     }
 
@@ -80,9 +84,6 @@ public class ProcessFragment extends Fragment {
         mProgressText = (TextView)rootView.findViewById(R.id.status_text);
         mProgressBar = (ProgressBar)rootView.findViewById(R.id.status_progress);
         mProgressBar.setProgressDrawable(getResources().getDrawable(R.drawable.process_progess));
-
-        // Set unspecified orientation (default device orientation)
-        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
         // Display 3D clap image animation
         mClapPortrait = (ImageView)rootView.findViewById(R.id.clap_image_top);

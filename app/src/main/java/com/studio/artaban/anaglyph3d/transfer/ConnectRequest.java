@@ -53,10 +53,10 @@ public interface ConnectRequest {
         // TODO: Add result here to inform connectivity loop to not receive request during sending buffer
 
         ////// Buffer reply result
-        PARTIAL_PACKET, // Receive partial packet reply result
+        NONE, // No reply result
         PARTIAL // Receive partial buffer reply result
     };
 
     ReceiveResult receiveReply(byte type, String reply); // Receive the reply of the request sent
-    ReceiveResult receiveBuffer(int size, ByteArrayOutputStream buffer); // Receive buffer sent
+    ReceiveResult receiveBuffer(ByteArrayOutputStream buffer); // Receive buffer sent
 }

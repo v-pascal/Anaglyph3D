@@ -2,6 +2,7 @@ package com.studio.artaban.anaglyph3d.media;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
@@ -66,11 +67,7 @@ public class Frame implements ConnectRequest {
         mWidth = data.getInt(DATA_KEY_WIDTH);
         mHeight = data.getInt(DATA_KEY_HEIGHT);
 
-        mBufferSize = mBuffer.length;
-
-        mPacketCount = 0;
-        mPacketTotal = mBuffer.length >> 12;
-        // Picture buffer size / 4096 (Bluetooth.MAX_RECEIVE_BUFFER)
+        mTransferSize = 0;
 
         JSONObject request = new JSONObject();
         try {
@@ -109,13 +106,9 @@ public class Frame implements ConnectRequest {
         try {
             mWidth = picture.getInt(DATA_KEY_WIDTH);
             mHeight = picture.getInt(DATA_KEY_HEIGHT);
-            mBufferSize = picture.getInt(DATA_KEY_BUFFER_SIZE);
+            mBuffer = new byte[picture.getInt(DATA_KEY_BUFFER_SIZE)];
 
-            mBuffer = new byte[mBufferSize];
-
-            mPacketCount = 0;
-            mPacketTotal = mBufferSize >> 12;
-            // Picture buffer size / 4096 (Bluetooth.MAX_RECEIVE_BUFFER)
+            mTransferSize = 0;
 
             return Constants.CONN_REQUEST_ANSWER_TRUE;
         }
@@ -132,23 +125,22 @@ public class Frame implements ConnectRequest {
         return ReceiveResult.SUCCESS;
     }
     @Override
-    public ReceiveResult receiveBuffer(int size, ByteArrayOutputStream buffer) {
+    public ReceiveResult receiveBuffer(ByteArrayOutputStream buffer) {
 
-        // Check if partial packet received
-        if ((size < Bluetooth.MAX_RECEIVE_BUFFER) && (mPacketCount != mPacketTotal))
-            return ReceiveResult.PARTIAL_PACKET; // ...less than the maximum buffer size
+        if (buffer.size() == 0)
+            return ReceiveResult.NONE; // Nothing has been received
 
-        // Fill maximum or remaining buffer received
-        System.arraycopy(mBuffer, mPacketCount * Bluetooth.MAX_RECEIVE_BUFFER,
-                buffer.toByteArray(), 0, size);
+        ReceiveResult result = ReceiveResult.PARTIAL; // Buffer not fully received yet
+
+        // Fill buffer received
+        System.arraycopy(buffer.toByteArray(), 0, mBuffer, mTransferSize, buffer.size());
+        mTransferSize += buffer.size();
         buffer.reset();
 
-        ++mPacketCount;
-
-        if (mBuffer.length == mBufferSize)
+        if (mTransferSize == mBuffer.length)
             return ReceiveResult.SUCCESS; // Buffer fully received
 
-        if (mBuffer.length > mBufferSize)
+        if (mTransferSize > mBuffer.length)
             return ReceiveResult.ERROR; // Error: Buffer received bigger than expected
 
         return ReceiveResult.PARTIAL; // ...buffer not fully received yet
@@ -157,26 +149,21 @@ public class Frame implements ConnectRequest {
     //////
     private int mWidth;
     private int mHeight;
+    private byte[] mBuffer = new byte[1]; // Must be defined (see 'getBufferSize' method)
 
-    private byte[] mBuffer;
-    private int mBufferSize;
-
-    private int mPacketCount = 0;
-    private int mPacketTotal = 1;
+    private volatile int mTransferSize = 0;
 
     //
     public byte[] getBuffer() { return mBuffer; }
 
-    public int getPacketTotal() { return mPacketTotal; } // Return the total number of packet to send or receive
-    public int getPacketCount() { return mPacketCount; } // Return the number of packet sent or received
+    public int getBufferSize() { return mBuffer.length; }
+    public int getTransferSize() { return mTransferSize; } // Return the number of byte sent or received
 
     private void send() { // Send picture buffer
 
-        mPacketCount = 0;
-        mPacketTotal = mBuffer.length >> 10;
-        // Picture buffer size / 1024 (Bluetooth.MAX_SEND_BUFFER)
+        mTransferSize = 0;
 
-        Handler handler = new Handler();
+        Handler handler = new Handler(Looper.getMainLooper());
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -185,9 +172,13 @@ public class Frame implements ConnectRequest {
                     int send = ((sent + Bluetooth.MAX_SEND_BUFFER) < mBuffer.length)?
                             Bluetooth.MAX_SEND_BUFFER:mBuffer.length - sent;
 
-                    // Send buffer packets
-                    Connectivity.getInstance().send(mBuffer, sent, send);
-                    ++mPacketCount;
+                    // Send buffer packet
+                    if (!Connectivity.getInstance().send(mBuffer, sent, send)) {
+
+                        Logs.add(Logs.Type.E, "Failed to send buffer packet");
+                        break;
+                    }
+                    mTransferSize += send;
                 }
             }
         });
@@ -203,12 +194,15 @@ public class Frame implements ConnectRequest {
 
 
 
+        // Portrait ???
 
         int size = (width * height * 3) >> 1; // NV21 buffer size
         return ProcessThread.mGStreamer.launch("filesrc location=" + source + " blocksize=" + size +
                 " ! video/x-raw,format=NV21,width=" + width + ",height=" + height +
                 ",framerate=1/1 ! videoconvert ! video/x-raw,format=ARGB ! filesink location=" +
                 destination);
+
+
 
 
 

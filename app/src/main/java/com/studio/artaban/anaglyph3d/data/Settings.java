@@ -479,7 +479,7 @@ public class Settings implements ConnectRequest {
         return ReceiveResult.SUCCESS;
     }
     @Override
-    public ReceiveResult receiveBuffer(int size, ByteArrayOutputStream buffer) {
+    public ReceiveResult receiveBuffer(ByteArrayOutputStream buffer) {
         return ReceiveResult.ERROR; // Unexpected call
     }
 }
