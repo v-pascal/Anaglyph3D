@@ -133,7 +133,7 @@
             android:layout_height="wrap_content"
             style="@android:style/Widget.ProgressBar.Horizontal"
             android:progressDrawable="@drawable/process_progress"
-            android:indeterminateDrawable="@drawable/heavy_progress"
+            android:indeterminateDrawable="@android:drawable/progress_indeterminate_horizontal"
             android:id="@+id/status_progress" />
 
         <TextView

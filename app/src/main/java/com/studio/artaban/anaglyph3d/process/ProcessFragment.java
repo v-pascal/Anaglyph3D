@@ -15,7 +15,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.studio.artaban.anaglyph3d.R;
-import com.studio.artaban.anaglyph3d.data.Constants;
 
 /**
  * Created by pascal on 12/04/16.
