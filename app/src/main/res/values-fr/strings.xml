@@ -47,7 +47,10 @@
     <string name="device_not_ready">ATTENTION: Démarrage de l\'enregistrement impossible! La caméra distante n\'est pas prête.</string>
     <string name="reverse_disabled">ATTENTION: Impossible de retourner l\'écran sur ce périphérique!</string>
     <string name="status_label">Statut:</string>
-    <string name="save_error">Impossible de sauvegarder l\'image de configuration du contraste &amp; luminisité!</string>
+
+    <!-- Process error -->
+    <string name="error_save_picture">Impossible de sauvegarder l\'image de configuration du contraste &amp; luminisité!</string>
+    <string name="error_load_video">Impossible de charger la vidéo!</string>
 
     <!-- Process step -->
     <string name="step_contrast">Contraste &amp; luminosité</string>

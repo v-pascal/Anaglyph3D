@@ -15,8 +15,11 @@ import com.studio.artaban.anaglyph3d.media.Video;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 import com.studio.artaban.libGST.GstObject;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -95,62 +98,55 @@ public class ProcessThread extends Thread {
     public static GstObject mGStreamer;
 
     //
-    public class ProgressStatus {
+    public static class ProgressStatus {
 
-        public String message;
-        public int progress;
-        public int max;
-        public Step step;
-        public boolean heavy;
+        public String message = "";
+        public int progress = 0;
+        public int max = 1;
+        public Step step = Step.CONTRAST;
+        public boolean heavy = false;
     }
+    public static final ProgressStatus mProgress = new ProgressStatus();
 
-    private final ProgressStatus mProgress = new ProgressStatus();
     private void publishProgress(int progress, int max) {
         try {
-            String status = ActivityWrapper.get().getResources().getString(mStatus.getStringId());
-            boolean heavyProcess = false;
+            synchronized (mProgress) {
 
-            switch (mStatus) {
+                mProgress.message = ActivityWrapper.get().getResources().getString(mStatus.getStringId());
+                mProgress.heavy = false;
+                mProgress.max = max;
+                mProgress.progress = progress;
+                mProgress.step = mStep;
 
-                case WAIT_VIDEO:
-                case TRANSFER_VIDEO:
-                case WAIT_PICTURE:
-                case TRANSFER_PICTURE: {
+                switch (mStatus) {
 
-                    if ((progress != 0) || (max != 1)) {
+                    case WAIT_VIDEO:
+                    case TRANSFER_VIDEO:
+                    case WAIT_PICTURE:
+                    case TRANSFER_PICTURE: {
 
-                        status += " (" + progress + "/" + max + ")";
+                        if ((progress != 0) || (max != 1)) {
+
+                            mProgress.message += " (" + progress + "/" + max + ")";
+                            break;
+                        }
+                        //else // Do not display ' (0/1)' while waiting data transfer but indeterminate
+                    }
+
+                    // Heavy process
+                    case CONVERT_PICTURE:
+                    case EXTRACT_FRAMES_LEFT:
+                    case EXTRACT_FRAMES_RIGHT:
+                    case EXTRACT_AUDIO: {
+
+                        mProgress.heavy = true; // Set indeterminate progress bar style
                         break;
                     }
-                    //else // Do not display ' (0/1)' while waiting data transfer but indeterminate
-                }
-
-                // Heavy process
-                case CONVERT_PICTURE:
-                case EXTRACT_FRAMES_LEFT:
-                case EXTRACT_FRAMES_RIGHT:
-                case EXTRACT_AUDIO: {
-
-                    heavyProcess = true; // Set indeterminate progress bar style
-                    break;
                 }
             }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-            ((ProcessActivity) ActivityWrapper.get()).onUpdateProgress(status, progress, max,
-                    mStep, heavyProcess);
+            // Update progress status (when needed)
+            ((ProcessActivity) ActivityWrapper.get()).onUpdateProgress();
         }
         catch (NullPointerException e) {
             Logs.add(Logs.Type.F, "Wrong activity reference");
@@ -159,6 +155,7 @@ public class ProcessThread extends Thread {
             Logs.add(Logs.Type.F, "Unexpected activity reference");
         }
     }
+
     private void sleep() { // Sleep in process loop
 
         try { Thread.sleep(Constants.PROCESS_WAIT_TRANSFER, 0); }
@@ -266,7 +263,7 @@ public class ProcessThread extends Thread {
                         mAbort = true;
 
                         // Inform user
-                        DisplayMessage.getInstance().alert(R.string.title_error, R.string.save_error,
+                        DisplayMessage.getInstance().alert(R.string.title_error, R.string.error_save_picture,
                                 null, false, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
@@ -311,6 +308,9 @@ public class ProcessThread extends Thread {
 
 
 
+
+
+
                         //load Contrast fragment
 
 
@@ -326,23 +326,39 @@ public class ProcessThread extends Thread {
 
                         mStatus = Status.TRANSFER_VIDEO;
 
-                        // Load local video buffer
+                        try {
+                            // Load local video buffer
+                            File videoFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
+                                    Constants.PROCESS_VIDEO_3GP_FILENAME);
+                            byte[] videoBuffer = new byte[(int)videoFile.length()];
+                            if (new FileInputStream(videoFile).read(videoBuffer) != Constants.NO_DATA)
+                                throw new IOException();
 
+                            Bundle data = new Bundle();
+                            data.putByteArray(Video.DATA_KEY_BUFFER, videoBuffer);
 
+                            // Send download video request (upload to remote device)
+                            Connectivity.getInstance().addRequest(Video.getInstance(),
+                                    Video.REQ_TYPE_DOWNLOAD, data);
 
+                            publishProgress(Video.getInstance().getTransferSize(),
+                                    Video.getInstance().getBufferSize());
+                        }
+                        catch (IOException e) {
 
+                            Logs.add(Logs.Type.E, "Failed to load video file");
+                            mAbort = true;
 
-
-
-                        Bundle data = new Bundle();
-                        data.putByteArray(Video.DATA_KEY_BUFFER, videoBuffer);
-
-                        // Send download video request (upload to remote device)
-                        Connectivity.getInstance().addRequest(Video.getInstance(),
-                                Video.REQ_TYPE_DOWNLOAD, data);
-
-                        publishProgress(Video.getInstance().getTransferSize(),
-                                Video.getInstance().getBufferSize());
+                            // Inform user
+                            DisplayMessage.getInstance().alert(R.string.title_error, R.string.error_load_video,
+                                    null, false, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            ActivityWrapper.stopActivity(ProcessActivity.class,
+                                                    Constants.NO_DATA);
+                                        }
+                                    });
+                        }
                     }
                     break;
                 }
@@ -358,6 +374,7 @@ public class ProcessThread extends Thread {
                     //////
                     if (Frame.getInstance().getTransferSize() == Frame.getInstance().getBufferSize()) {
                         if (!Settings.getInstance().isMaker()) {
+
 
 
 

@@ -112,7 +112,10 @@
     <string name="image_desc_counter" translatable="false">Downcount image</string>
     <string name="reverse_disabled">WARNING: Impossible to reverse screen on this device!</string>
     <string name="status_label">Status:</string>
-    <string name="save_error">Failed to save picture to set contrast &amp; brightness!</string>
+
+    <!-- Process error -->
+    <string name="error_save_picture">Failed to save picture to set contrast &amp; brightness!</string>
+    <string name="error_load_video">Failed to load local video!</string>
 
     <!-- Process step -->
     <string name="step_contrast">Contrast &amp; brightness</string>

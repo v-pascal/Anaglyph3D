@@ -66,9 +66,9 @@ public class Connectivity {
 
     private class TransferElement {
 
-        public ConnectRequest mHandler;
-        public byte mType;
-        public String mMessage;
+        public ConnectRequest handler;
+        public byte type;
+        public String message;
     }
     private final List<TransferElement> mRequests = new ArrayList<>();
     private TransferElement mRequestBuffer;
@@ -86,9 +86,9 @@ public class Connectivity {
 
         // Add request into request list
         TransferElement request = new TransferElement();
-        request.mHandler = handler;
-        request.mType = type;
-        request.mMessage = message;
+        request.handler = handler;
+        request.type = type;
+        request.message = message;
 
         synchronized (mRequests) { mRequests.add(request); }
 
@@ -100,24 +100,24 @@ public class Connectivity {
             return false;
 
         // Check if the current request cannot be merged
-        if (!mRequests.get(0).mHandler.getRequestMerge()) {
+        if (!mRequests.get(0).handler.getRequestMerge()) {
 
-            Logs.add(Logs.Type.V, "ID: " + mRequests.get(0).mHandler.getRequestId() + " Type: " +
-                    mRequests.get(0).mType);
+            Logs.add(Logs.Type.V, "ID: " + mRequests.get(0).handler.getRequestId() + " Type: " +
+                    mRequests.get(0).type);
             return true; // Send request
         }
 
         // Merge requests with same request Id that follows
-        char requestId = mRequests.get(0).mHandler.getRequestId();
-        byte requestType = mRequests.get(0).mType;
+        char requestId = mRequests.get(0).handler.getRequestId();
+        byte requestType = mRequests.get(0).type;
 
         int removeCount = 0;
         for (int i = 1; i < mRequests.size(); ++i) {
 
-            if (requestId == mRequests.get(i).mHandler.getRequestId()) {
+            if (requestId == mRequests.get(i).handler.getRequestId()) {
 
-                requestType |= mRequests.get(i).mType; // Merge type (mask)
-                mRequests.get(i).mType = requestType;
+                requestType |= mRequests.get(i).type; // Merge type (mask)
+                mRequests.get(i).type = requestType;
                 ++removeCount;
             }
             else
@@ -128,8 +128,8 @@ public class Connectivity {
         while (removeCount-- != 0)
             mRequests.remove(0);
 
-        Logs.add(Logs.Type.V, "ID: " + mRequests.get(0).mHandler.getRequestId() + " Type: " +
-                mRequests.get(0).mType);
+        Logs.add(Logs.Type.V, "ID: " + mRequests.get(0).handler.getRequestId() + " Type: " +
+                mRequests.get(0).type);
         return true; // Send request
     }
     private boolean processRequest(String request) {
@@ -140,8 +140,8 @@ public class Connectivity {
 
             previousRequest = new ConnectRequest.PreviousMaster();
             synchronized (mRequests) {
-                previousRequest.mId = mRequests.get(0).mHandler.getRequestId();
-                previousRequest.mType = mRequests.get(0).mType;
+                previousRequest.mId = mRequests.get(0).handler.getRequestId();
+                previousRequest.mType = mRequests.get(0).type;
                 //previousRequest.mMessage = mRequests.get(0).mMessage;
                 mRequests.remove(0);
             }
@@ -153,10 +153,10 @@ public class Connectivity {
         switch (request.charAt(0)) {
 
             ////// Add request handler below
-            case ConnectRequest.REQ_SETTINGS: reply.mHandler = Settings.getInstance(); break;
-            case ConnectRequest.REQ_ACTIVITY: reply.mHandler = ActivityWrapper.getInstance(); break;
-            case ConnectRequest.REQ_FRAME: reply.mHandler = Frame.getInstance(); break;
-            case ConnectRequest.REQ_VIDEO: reply.mHandler = Video.getInstance(); break;
+            case ConnectRequest.REQ_SETTINGS: reply.handler = Settings.getInstance(); break;
+            case ConnectRequest.REQ_ACTIVITY: reply.handler = ActivityWrapper.getInstance(); break;
+            case ConnectRequest.REQ_FRAME: reply.handler = Frame.getInstance(); break;
+            case ConnectRequest.REQ_VIDEO: reply.handler = Video.getInstance(); break;
             //////
 
             default: {
@@ -166,9 +166,9 @@ public class Connectivity {
                 return false;
             }
         }
-        reply.mType = (byte)Integer.parseInt(request.substring(2, 4), 16);
-        reply.mMessage = reply.mHandler.getReply(reply.mType, request.substring(5), previousRequest);
-        if (reply.mMessage == null) {
+        reply.type = (byte)Integer.parseInt(request.substring(2, 4), 16);
+        reply.message = reply.handler.getReply(reply.type, request.substring(5), previousRequest);
+        if (reply.message == null) {
 
             Logs.add(Logs.Type.E, "Failed to reply to request");
             mDisconnectError = true;
@@ -177,7 +177,7 @@ public class Connectivity {
 
         // Check if a buffer will be or has been sent to the remote device (without sending this reply)
         // -> See buffer send in the 'getReply' method of the handler
-        if (reply.mHandler.getRequestBuffer(reply.mType) == ConnectRequest.BufferType.TO_SEND)
+        if (reply.handler.getRequestBuffer(reply.type) == ConnectRequest.BufferType.TO_SEND)
             return true; // Nothing to do
 
         ////// Send reply
@@ -189,7 +189,7 @@ public class Connectivity {
         }
 
         // Check if a buffer will be sent by the remote device (after having received this reply)
-        if (reply.mHandler.getRequestBuffer(reply.mType) == ConnectRequest.BufferType.TO_RECEIVE) {
+        if (reply.handler.getRequestBuffer(reply.type) == ConnectRequest.BufferType.TO_RECEIVE) {
 
             mRequestBuffer = reply; // Store buffer request
             mStatus = Status.WAIT_BUFFER;
@@ -313,7 +313,7 @@ public class Connectivity {
     // Send request or reply
     private boolean send(boolean request, TransferElement element) {
 
-        Integer byteCount = element.mMessage.length() + 11;
+        Integer byteCount = element.message.length() + 11;
         ByteBuffer buffer = ByteBuffer.allocate(byteCount);
 
         // Add size of the entire message (BBB)
@@ -337,11 +337,11 @@ public class Connectivity {
         buffer.put((byte) SEPARATOR_ELEMENT_REQUEST_ID);
 
         // Add request ID (A)
-        buffer.put((byte) element.mHandler.getRequestId());
+        buffer.put((byte) element.handler.getRequestId());
         buffer.put((byte) SEPARATOR_REQUEST_ID_TYPE);
 
         // Add request type (CC)
-        String strType = Integer.toString(element.mType, 16);
+        String strType = Integer.toString(element.type, 16);
         if (strType.length() > 1) {
 
             buffer.put((byte) strType.charAt(0));
@@ -355,7 +355,7 @@ public class Connectivity {
         buffer.put((byte) SEPARATOR_TYPE_MESSAGE);
 
         // Add message (*)
-        buffer.put(element.mMessage.getBytes()); // Default charset UTF-8
+        buffer.put(element.message.getBytes()); // Default charset UTF-8
 
         return mBluetooth.write(buffer.array(), 0, byteCount);
     }
@@ -450,11 +450,11 @@ public class Connectivity {
                             close();
                             break;
                         }
-                        mMaxWait = mRequests.get(0).mHandler.getMaxWaitReply(mRequests.get(0).mType);
+                        mMaxWait = mRequests.get(0).handler.getMaxWaitReply(mRequests.get(0).type);
 
                         // Assign wait status according if a buffer will be sent from the remote device
                         // -> Buffer sent as a reply of this request
-                        if ((mRequests.get(0).mHandler.getRequestBuffer(mRequests.get(0).mType) ==
+                        if ((mRequests.get(0).handler.getRequestBuffer(mRequests.get(0).type) ==
                                 ConnectRequest.BufferType.TO_SEND)) { // Request the remote to send buffer
 
                             // ...will receive buffer
@@ -479,7 +479,7 @@ public class Connectivity {
                             int noMatchCount = mNotMatchingDevices.size();
                             ReceiveResult result = ReceiveResult.ERROR;
                             if (!mRequests.isEmpty())
-                                result = mRequests.get(0).mHandler.receiveReply(
+                                result = mRequests.get(0).handler.receiveReply(
                                             (byte) Integer.parseInt(reply.substring(2, 4), 16),
                                             reply.substring(5));
 
@@ -525,7 +525,7 @@ public class Connectivity {
 
                     // Receive buffer
                     mBluetooth.read(mRead);
-                    switch (mRequestBuffer.mHandler.receiveBuffer(mRead)) {
+                    switch (mRequestBuffer.handler.receiveBuffer(mRead)) {
 
                         case NONE: {
 
@@ -539,7 +539,7 @@ public class Connectivity {
                         }
                         case PARTIAL: {
 
-                            mMaxWait = mRequestBuffer.mHandler.getMaxWaitReply(mRequestBuffer.mType);
+                            mMaxWait = mRequestBuffer.handler.getMaxWaitReply(mRequestBuffer.type);
                             break;
                         }
                         case SUCCESS: {

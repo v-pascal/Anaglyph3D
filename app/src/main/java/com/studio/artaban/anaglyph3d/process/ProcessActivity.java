@@ -65,14 +65,14 @@ public class ProcessActivity extends AppCompatActivity {
         // Remove fullscreen mode
         //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
 
+        // Start process thread
+        mProcessThread = new ProcessThread(picSize, picRaw);
+        mProcessThread.start();
+
         // Replace recorder with process fragment
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
         fragTransaction.replace(R.id.main_container, new ProcessFragment(), ProcessFragment.TAG).commit();
         getSupportFragmentManager().executePendingTransactions();
-
-        // Start process thread
-        mProcessThread = new ProcessThread(picSize, picRaw);
-        mProcessThread.start();
     }
 
     //
@@ -109,8 +109,7 @@ public class ProcessActivity extends AppCompatActivity {
 
         ((PositionFragment)getSupportFragmentManager().findFragmentByTag(PositionFragment.TAG)).reverse();
     }
-    public void onUpdateProgress(final String status, final int progress, final int max,
-                                 final ProcessThread.Step step, final boolean heavy) {
+    public void onUpdateProgress() {
 
         runOnUiThread(new Runnable() {
             @Override
@@ -120,7 +119,7 @@ public class ProcessActivity extends AppCompatActivity {
                         findFragmentByTag(ProcessFragment.TAG);
 
                 if (processFragment != null)
-                    processFragment.updateProgress(status, progress, max, step, heavy);
+                    processFragment.updateProgress();
                 //else // Contrast or Synchronize fragment opened (nothing to update)
             }
         });

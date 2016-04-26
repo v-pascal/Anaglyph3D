@@ -25,23 +25,24 @@ public class ProcessFragment extends Fragment {
     public static final String TAG = "process";
 
     // Update progress bar, status text and step displayed
-    public void updateProgress(String status, int progress, int max,
-                               ProcessThread.Step step, boolean heavy) {
+    public void updateProgress() {
+        synchronized (ProcessThread.mProgress) {
 
-        switch (step) {
-            case MAKE:
-                mMakeChecked.setVisibility(View.VISIBLE);
-            case FRAMES:
-                mFramesChecked.setVisibility(View.VISIBLE);
-            case VIDEO:
-                mVideoChecked.setVisibility(View.VISIBLE);
-            default: // VIDEO
-                break;
+            switch (ProcessThread.mProgress.step) {
+                case MAKE:
+                    mMakeChecked.setVisibility(View.VISIBLE);
+                case FRAMES:
+                    mFramesChecked.setVisibility(View.VISIBLE);
+                case VIDEO:
+                    mVideoChecked.setVisibility(View.VISIBLE);
+                default: // VIDEO
+                    break;
+            }
+            mProgressBar.setMax(ProcessThread.mProgress.max);
+            mProgressBar.setProgress(ProcessThread.mProgress.progress);
+            mProgressBar.setIndeterminate(ProcessThread.mProgress.heavy);
+            mProgressText.setText(ProcessThread.mProgress.message);
         }
-        mProgressBar.setMax(max);
-        mProgressBar.setProgress(progress);
-        mProgressBar.setIndeterminate(heavy);
-        mProgressText.setText(status);
     }
 
     //
@@ -101,19 +102,9 @@ public class ProcessFragment extends Fragment {
                 ((AnimationDrawable) mClapLandscape.getDrawable()).start();
             }
         });
+
         displayClapImage(getResources().getConfiguration().orientation);
-
-
-
-
-
-
-
-
-
-
-
-
+        updateProgress();
 
         return rootView;
     }
