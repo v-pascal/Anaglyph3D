@@ -15,11 +15,9 @@ import com.studio.artaban.anaglyph3d.media.Video;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 import com.studio.artaban.libGST.GstObject;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -49,25 +47,32 @@ public class ProcessThread extends Thread {
         }
     }
 
-    public enum Step { CONTRAST, VIDEO, FRAMES, MAKE }
+    public enum Step {
+
+        CONTRAST, // Contrast & brightness
+        VIDEO, // Video transfer & extraction
+        FRAMES, // Frames conversion
+        MAKE // Make & transfer 3D video
+    }
     private enum Status {
 
-        ////// Contrast & brightness step: 4 status
+        ////// Contrast & brightness step
         INITIALIZATION (R.string.status_initialize), // Initialize process (GStreamer)
 
-        // Progress for each 1024 bytes packets...
+        // Progress for each bytes transferred...
         TRANSFER_PICTURE (R.string.status_transfer_raw), // Transfer picture (to remote device which is not the maker)
         WAIT_PICTURE (R.string.status_transfer_raw), // Wait until contrast & brightness picture has been received (to device which is not the maker)
 
         SAVE_PICTURE (R.string.status_save_raw), // Save raw picture into local file
         CONVERT_PICTURE (R.string.status_convert_raw), // Convert local picture from NV21 to ARGB
 
-        ////// Video transfer & extraction step: 7 status
+        ////// Video transfer & extraction step
 
-        // Progress for each 1024 bytes packets...
+        // Progress for each bytes transferred...
         TRANSFER_VIDEO (R.string.status_transfer_video), // Transfer video
         WAIT_VIDEO (R.string.status_transfer_video), // Wait until video has been received
 
+        SAVE_VIDEO (R.string.status_save_video), // Save remote video
         EXTRACT_FRAMES_LEFT(0), // Extract ARGB pictures from left camera
         EXTRACT_FRAMES_RIGHT(0), // Extract ARGB pictures from right camera
         EXTRACT_AUDIO(0), // Extract audio from one of the videos
@@ -76,14 +81,16 @@ public class ProcessThread extends Thread {
         TRANSFER_CONTRAST (R.string.status_transfer_contrast), // Transfer the contrast & brightness (from device which is not the maker)
         WAIT_CONTRAST (R.string.status_wait_contrast), // Wait until contrast & brightness have been received
 
-        ////// Make & transfer 3D video step: 3 status
+        ////// Frames conversion step
 
         // Progress for each pictures extracted from videos...
         APPLY_FRAME_CHANGES(0), // Color frame (in blue or red), and apply contrast & brightness
 
+        ////// Make & transfer 3D video step
+
         MAKE_3D_VIDEO(0), // Make the anaglyph 3D video
 
-        // Progress for each 1024 bytes packets...
+        // Progress for each bytes transferred...
         TRANSFER_3D_VIDEO(0), // Transfer 3D video (to remote device which is not the maker)
         WAIT_3D_VIDEO(0); // Wait 3D video received
 
@@ -130,7 +137,8 @@ public class ProcessThread extends Thread {
                             mProgress.message += " (" + progress + "/" + max + ")";
                             break;
                         }
-                        //else // Do not display ' (0/1)' while waiting data transfer but indeterminate
+                        //else // Do not display ' (0/1)' while waiting data transfer but...
+                        //break; // ...indeterminate below
                     }
 
                     // Heavy process
@@ -331,7 +339,7 @@ public class ProcessThread extends Thread {
                             File videoFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
                                     Constants.PROCESS_VIDEO_3GP_FILENAME);
                             byte[] videoBuffer = new byte[(int)videoFile.length()];
-                            if (new FileInputStream(videoFile).read(videoBuffer) != Constants.NO_DATA)
+                            if (new FileInputStream(videoFile).read(videoBuffer) != videoBuffer.length)
                                 throw new IOException();
 
                             Bundle data = new Bundle();
@@ -372,12 +380,18 @@ public class ProcessThread extends Thread {
                             Video.getInstance().getBufferSize());
 
                     //////
-                    if (Frame.getInstance().getTransferSize() == Frame.getInstance().getBufferSize()) {
+                    if (Video.getInstance().getTransferSize() == Video.getInstance().getBufferSize()) {
                         if (!Settings.getInstance().isMaker()) {
 
 
 
 
+
+
+
+
+                            //mStatus = Status.WAIT_CONTRAST;
+                            //mStatus = Status.TRANSFER_CONTRAST;
 
 
 
@@ -393,6 +407,7 @@ public class ProcessThread extends Thread {
 
 
 
+                            //mStatus = Status.SAVE_VIDEO;
 
 
 

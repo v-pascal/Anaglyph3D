@@ -66,5 +66,6 @@
     <string name="status_transfer_video">Transfert de la video</string>
     <string name="status_wait_contrast">Contraste &amp; luminosité en attente...</string>
     <string name="status_transfer_contrast">Transfert du contraste &amp; luminosité...</string>
+    <string name="status_save_video">Sauvegarde de la vidéo transférée...</string>
 
 </resources>

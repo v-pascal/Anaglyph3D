@@ -3,7 +3,6 @@ package com.studio.artaban.anaglyph3d.media;
 import android.os.Bundle;
 
 import com.studio.artaban.anaglyph3d.data.Constants;
-import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.transfer.BufferRequest;
 import com.studio.artaban.anaglyph3d.transfer.ConnectRequest;
 
@@ -29,12 +28,10 @@ public class Video extends BufferRequest {
         }
 
         JSONObject request = getBufferRequest(type, data);
-        try { return request.toString(); }
-        catch (NullPointerException e) {
+        if (request != null)
+            return request.toString();
 
-            Logs.add(Logs.Type.E, e.getMessage());
-            return null;
-        }
+        return null;
     }
     @Override
     public String getReply(byte type, String request, PreviousMaster previous) {

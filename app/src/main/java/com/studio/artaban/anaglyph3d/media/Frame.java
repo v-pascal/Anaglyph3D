@@ -39,22 +39,21 @@ public class Frame extends BufferRequest {
         mHeight = data.getInt(DATA_KEY_HEIGHT);
 
         JSONObject request = getBufferRequest(type, data);
-        try {
-            request.put(DATA_KEY_WIDTH, mWidth);
-            request.put(DATA_KEY_HEIGHT, mHeight);
+        if (request != null) {
+            try {
 
-            return request.toString();
-        }
-        catch (JSONException e) {
+                request.put(DATA_KEY_WIDTH, mWidth);
+                request.put(DATA_KEY_HEIGHT, mHeight);
 
-            Logs.add(Logs.Type.E, e.getMessage());
-            return null;
-        }
-        catch (NullPointerException e) {
+                return request.toString();
+            }
+            catch (JSONException e) {
 
-            Logs.add(Logs.Type.E, e.getMessage());
-            return null;
+                Logs.add(Logs.Type.E, e.getMessage());
+                return null;
+            }
         }
+        return null;
     }
     @Override
     public String getReply(byte type, String request, PreviousMaster previous) {

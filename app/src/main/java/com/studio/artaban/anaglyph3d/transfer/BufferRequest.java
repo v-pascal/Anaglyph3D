@@ -1,8 +1,6 @@
 package com.studio.artaban.anaglyph3d.transfer;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
@@ -19,9 +17,7 @@ import java.io.ByteArrayOutputStream;
 public abstract class BufferRequest implements ConnectRequest {
 
     private char mRequestId;
-    public BufferRequest(char id) {
-        mRequestId = id;
-    }
+    public BufferRequest(char id) { mRequestId = id; }
 
     // Data keys
     public static final String DATA_KEY_BUFFER = "buffer";
@@ -61,8 +57,6 @@ public abstract class BufferRequest implements ConnectRequest {
         if (buffer.size() == 0)
             return ReceiveResult.NONE; // Nothing has been received
 
-        ReceiveResult result = ReceiveResult.PARTIAL; // Buffer not fully received yet
-
         // Fill buffer received
         System.arraycopy(buffer.toByteArray(), 0, mBuffer, mTransferSize, buffer.size());
         mTransferSize += buffer.size();
@@ -74,6 +68,7 @@ public abstract class BufferRequest implements ConnectRequest {
         if (mTransferSize > mBuffer.length)
             return ReceiveResult.ERROR; // Error: Buffer received bigger than expected
 
+        Logs.add(Logs.Type.D, mRequestId + " - Received: " + mTransferSize + "/" + mBuffer.length);
         return ReceiveResult.PARTIAL; // ...buffer not fully received yet
     }
 
@@ -85,8 +80,7 @@ public abstract class BufferRequest implements ConnectRequest {
 
         mTransferSize = 0;
 
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.post(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
 
@@ -103,7 +97,7 @@ public abstract class BufferRequest implements ConnectRequest {
                     mTransferSize += send;
                 }
             }
-        });
+        }).start();
     }
 
     //
