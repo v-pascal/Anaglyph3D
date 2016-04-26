@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:oneshot="false">
+    <item android:drawable="@drawable/heavy_bitmap1" android:duration="50" />
+    <item android:drawable="@drawable/heavy_bitmap2" android:duration="50" />
+    <item android:drawable="@drawable/heavy_bitmap3" android:duration="50" />
+    <item android:drawable="@drawable/heavy_bitmap4" android:duration="50" />
+    <item android:drawable="@drawable/heavy_bitmap5" android:duration="50" />
+    <item android:drawable="@drawable/heavy_bitmap6" android:duration="50" />
+    <item android:drawable="@drawable/heavy_bitmap7" android:duration="50" />
+    <item android:drawable="@drawable/heavy_bitmap8" android:duration="50" />
+</animation-list>

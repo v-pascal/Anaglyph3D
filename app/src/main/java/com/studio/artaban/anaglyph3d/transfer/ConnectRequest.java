@@ -15,6 +15,7 @@ public interface ConnectRequest {
     char REQ_SETTINGS = 'S'; // Request to update settings (class 'Settings')
     char REQ_ACTIVITY = 'A'; // Request to start process (class 'ActivityWrapper')
     char REQ_FRAME = 'F'; // Request to transfer pictures (class 'Frame')
+    char REQ_VIDEO = 'V'; // Request to transfer videos (class 'Video')
 
     ////// Request received while waiting reply
     class PreviousMaster {

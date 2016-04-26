@@ -13,6 +13,7 @@ import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.media.Frame;
+import com.studio.artaban.anaglyph3d.media.Video;
 import com.studio.artaban.anaglyph3d.transfer.ConnectRequest.ReceiveResult;
 
 import java.io.ByteArrayOutputStream;
@@ -155,6 +156,7 @@ public class Connectivity {
             case ConnectRequest.REQ_SETTINGS: reply.mHandler = Settings.getInstance(); break;
             case ConnectRequest.REQ_ACTIVITY: reply.mHandler = ActivityWrapper.getInstance(); break;
             case ConnectRequest.REQ_FRAME: reply.mHandler = Frame.getInstance(); break;
+            case ConnectRequest.REQ_VIDEO: reply.mHandler = Video.getInstance(); break;
             //////
 
             default: {

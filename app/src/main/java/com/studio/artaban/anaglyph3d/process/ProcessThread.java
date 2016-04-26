@@ -11,6 +11,7 @@ import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.media.Frame;
+import com.studio.artaban.anaglyph3d.media.Video;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 import com.studio.artaban.libGST.GstObject;
 
@@ -45,7 +46,7 @@ public class ProcessThread extends Thread {
         }
     }
 
-    public enum Step { VIDEO, CONTRAST, FRAMES, MAKE }
+    public enum Step { CONTRAST, VIDEO, FRAMES, MAKE }
     private enum Status {
 
         ////// Contrast & brightness step: 4 status
@@ -88,12 +89,22 @@ public class ProcessThread extends Thread {
         Status(int id) { mStringId = id; }
         public int getStringId() { return mStringId; }
     }
-    private Step mStep = Step.VIDEO;
+    private Step mStep = Step.CONTRAST;
     private Status mStatus = Status.INITIALIZATION;
 
     public static GstObject mGStreamer;
 
     //
+    public class ProgressStatus {
+
+        public String message;
+        public int progress;
+        public int max;
+        public Step step;
+        public boolean heavy;
+    }
+
+    private final ProgressStatus mProgress = new ProgressStatus();
     private void publishProgress(int progress, int max) {
         try {
             String status = ActivityWrapper.get().getResources().getString(mStatus.getStringId());
@@ -106,8 +117,12 @@ public class ProcessThread extends Thread {
                 case WAIT_PICTURE:
                 case TRANSFER_PICTURE: {
 
-                    status += " (" + progress + "/" + max + ")";
-                    break;
+                    if ((progress != 0) || (max != 1)) {
+
+                        status += " (" + progress + "/" + max + ")";
+                        break;
+                    }
+                    //else // Do not display ' (0/1)' while waiting data transfer but indeterminate
                 }
 
                 // Heavy process
@@ -116,10 +131,24 @@ public class ProcessThread extends Thread {
                 case EXTRACT_FRAMES_RIGHT:
                 case EXTRACT_AUDIO: {
 
-                    heavyProcess = true; // Set indeterminate progress bar
+                    heavyProcess = true; // Set indeterminate progress bar style
                     break;
                 }
             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             ((ProcessActivity) ActivityWrapper.get()).onUpdateProgress(status, progress, max,
                     mStep, heavyProcess);
         }
@@ -172,7 +201,8 @@ public class ProcessThread extends Thread {
                     if (!Settings.getInstance().isMaker())
                         mStatus = Status.SAVE_PICTURE;
 
-                    else {
+                    else { // Maker
+
                         mStatus = Status.TRANSFER_PICTURE;
 
                         Bundle data = new Bundle();
@@ -180,7 +210,7 @@ public class ProcessThread extends Thread {
                         data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
                         data.putByteArray(Frame.DATA_KEY_BUFFER, mPictureRaw);
 
-                        // Send picture transfer request
+                        // Send download picture request (upload to remote device)
                         Connectivity.getInstance().addRequest(Frame.getInstance(),
                                 Frame.REQ_TYPE_DOWNLOAD, data);
 
@@ -203,33 +233,16 @@ public class ProcessThread extends Thread {
                             localPicture = false;
                             mStatus = Status.SAVE_PICTURE;
                         }
-                        else {
+                        else { // Maker
 
-
-
-
-
-
-
-
-
+                            mStep = Step.VIDEO;
                             mStatus = Status.WAIT_VIDEO;
-
-
-
-
-
-
-
-
-
-
                         }
                     }
                     break;
                 }
 
-                // Called twice: for both local and remote pictures
+                ////// Called twice: for both local and remote pictures
                 case SAVE_PICTURE: {
 
                     publishProgress(2 + ((localPicture)? 0:2), 4);
@@ -269,8 +282,19 @@ public class ProcessThread extends Thread {
                     publishProgress(3 + ((localPicture)? 0:2), 4);
 
                     // Convert NV21 to ARGB picture file
+                    int width, height;
+                    if (Settings.getInstance().mOrientation) { // Portrait
+
+                        width = (localPicture)? mPictureSize.height:Frame.getInstance().getHeight();
+                        height = (localPicture)? mPictureSize.width:Frame.getInstance().getWidth();
+                    }
+                    else { // Landscape
+
+                        width = (localPicture)? mPictureSize.width:Frame.getInstance().getWidth();
+                        height = (localPicture)? mPictureSize.height:Frame.getInstance().getHeight();
+                    }
                     Frame.convertNV21toARGB(ActivityWrapper.DOCUMENTS_FOLDER + Constants.PROCESS_RAW_PICTURE_FILENAME,
-                            mPictureSize.width, mPictureSize.height, ActivityWrapper.DOCUMENTS_FOLDER +
+                            width, height, ActivityWrapper.DOCUMENTS_FOLDER +
                                     ((localPicture)?
                                     Constants.PROCESS_LOCAL_PICTURE_FILENAME:
                                     Constants.PROCESS_REMOTE_PICTURE_FILENAME));
@@ -289,7 +313,6 @@ public class ProcessThread extends Thread {
 
                         //load Contrast fragment
 
-                        mStatus = Status.WAIT_CONTRAST;
 
 
 
@@ -299,35 +322,67 @@ public class ProcessThread extends Thread {
 
 
 
+
+
+                        mStatus = Status.TRANSFER_VIDEO;
+
+                        // Load local video buffer
+
+
+
+
+
+
+
+                        Bundle data = new Bundle();
+                        data.putByteArray(Video.DATA_KEY_BUFFER, videoBuffer);
+
+                        // Send download video request (upload to remote device)
+                        Connectivity.getInstance().addRequest(Video.getInstance(),
+                                Video.REQ_TYPE_DOWNLOAD, data);
+
+                        publishProgress(Video.getInstance().getTransferSize(),
+                                Video.getInstance().getBufferSize());
                     }
                     break;
                 }
+                //////
 
+                case TRANSFER_VIDEO:
                 case WAIT_VIDEO: {
 
-
-
-
-
                     sleep();
+                    publishProgress(Video.getInstance().getTransferSize(),
+                            Video.getInstance().getBufferSize());
+
+                    //////
+                    if (Frame.getInstance().getTransferSize() == Frame.getInstance().getBufferSize()) {
+                        if (!Settings.getInstance().isMaker()) {
 
 
 
 
 
-                    break;
-                }
-                case WAIT_CONTRAST: {
-
-
-
-
-                    sleep();
 
 
 
 
 
+                        }
+                        else { // Maker
+
+
+
+
+
+
+
+
+
+
+
+                        }
+                    }
                     break;
                 }
             }

@@ -33,8 +33,8 @@ public class ProcessFragment extends Fragment {
                 mMakeChecked.setVisibility(View.VISIBLE);
             case FRAMES:
                 mFramesChecked.setVisibility(View.VISIBLE);
-            case CONTRAST:
-                mContrastChecked.setVisibility(View.VISIBLE);
+            case VIDEO:
+                mVideoChecked.setVisibility(View.VISIBLE);
             default: // VIDEO
                 break;
         }
@@ -45,7 +45,7 @@ public class ProcessFragment extends Fragment {
     }
 
     //
-    private ImageView mContrastChecked;
+    private ImageView mVideoChecked;
     private ImageView mFramesChecked;
     private ImageView mMakeChecked;
 
@@ -76,12 +76,13 @@ public class ProcessFragment extends Fragment {
                 setStreamMute(AudioManager.STREAM_SYSTEM, false);
 
         final View rootView = inflater.inflate(R.layout.fragment_process, container, false);
-        mContrastChecked = (ImageView)rootView.findViewById(R.id.contrast_checked);
+        mVideoChecked = (ImageView)rootView.findViewById(R.id.video_checked);
         mFramesChecked = (ImageView)rootView.findViewById(R.id.frames_checked);
         mMakeChecked = (ImageView)rootView.findViewById(R.id.anaglyph_checked);
 
-        mProgressBar = (ProgressBar)rootView.findViewById(R.id.status_progress);
         mProgressText = (TextView)rootView.findViewById(R.id.status_text);
+        mProgressBar = (ProgressBar)rootView.findViewById(R.id.status_progress);
+        mProgressBar.setIndeterminateDrawable(getResources().getDrawable(R.drawable.heavy_progress));
 
         // Display 3D clap image animation
         mClapPortrait = (ImageView)rootView.findViewById(R.id.clap_image_top);
@@ -101,6 +102,19 @@ public class ProcessFragment extends Fragment {
             }
         });
         displayClapImage(getResources().getConfiguration().orientation);
+
+
+
+
+
+
+
+
+
+
+
+
+
         return rootView;
     }
 

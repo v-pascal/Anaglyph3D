@@ -42,8 +42,8 @@ public class Constants {
     public static final String CONFIG_RESOLUTION_SEPARATOR = " x "; // Separator between with and height
     public static final int CONFIG_PERFORMANCE_LOOP = 4096; // Loop count for performance calculation
 
-    public static final boolean CONFIG_DEFAULT_ORIENTATION = false; //true; // Default orientation (portrait)
-    public static final short CONFIG_DEFAULT_DURATION = 10; //60; // Default duration (in seconds)
+    public static final boolean CONFIG_DEFAULT_ORIENTATION = true; // Default orientation (portrait)
+    public static final short CONFIG_DEFAULT_DURATION = 60; // Default duration (in seconds)
     public static final int CONFIG_MIN_DURATION = 10; // Minimum duration (in seconds)
     public static final int CONFIG_MAX_DURATION = 180; // Maximum duration (in seconds)
 
