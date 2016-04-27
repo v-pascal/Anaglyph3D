@@ -12,12 +12,13 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
+import com.studio.artaban.anaglyph3d.media.Frame;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,6 +29,11 @@ public class ContrastActivity extends AppCompatActivity {
 
     private ImageView mContrastImage;
     private Bitmap mContrastBitmap;
+    // Contrast image info
+
+    private int mCompareWidth;
+    private int mCompareHeight;
+    // Size of the compare image
 
     private int getActionBarHeight() { // Return height of the action bar (in pixel)
 
@@ -38,6 +44,134 @@ public class ContrastActivity extends AppCompatActivity {
 
         Logs.add(Logs.Type.W, "'android.R.attr.actionBarSize' attribute not found");
         return 0;
+    }
+    private boolean loadImagesFromFiles(ImageView compareImage) { // Load both images from RGBA files
+
+        File localFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
+                Constants.PROCESS_LOCAL_PICTURE_FILENAME);
+        File remoteFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
+                Constants.PROCESS_REMOTE_PICTURE_FILENAME);
+
+        Bundle data = getIntent().getExtras().getBundle(Constants.DATA_ACTIVITY);
+        if (data == null) {
+
+            Logs.add(Logs.Type.F, "No data activity found");
+            return false;
+        }
+
+        //
+        File imageFile;
+        int imageWidth, imageHeight;
+        if (localFile.length() > remoteFile.length()) { // Set contrast & brightness to local picture...
+
+            imageFile = localFile;
+            imageWidth = data.getInt(Frame.DATA_KEY_WIDTH);
+            imageHeight = data.getInt(Frame.DATA_KEY_HEIGHT);
+        }
+        else { // ...or to remote picture
+
+            imageFile = remoteFile;
+            imageWidth = Frame.getInstance().getWidth();
+            imageHeight = Frame.getInstance().getHeight();
+        }
+
+        byte[] imageBuffer = new byte[(int)imageFile.length()];
+        try {
+            if (new FileInputStream(imageFile).read(imageBuffer) == imageBuffer.length) {
+
+                mContrastBitmap = Bitmap.createBitmap(imageWidth, imageHeight, Bitmap.Config.ARGB_8888);
+                mContrastBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(imageBuffer));
+                mContrastImage.setImageBitmap(mContrastBitmap);
+            }
+            else
+                throw new IOException();
+        }
+        catch (IOException e) {
+
+            Logs.add(Logs.Type.E, "Failed to load picture file: " + imageFile.getAbsolutePath());
+            return false;
+        }
+
+        //
+        if (imageFile == localFile) {
+
+            imageFile = remoteFile;
+            imageWidth = mCompareWidth = Frame.getInstance().getWidth();
+            imageHeight = mCompareHeight = Frame.getInstance().getHeight();
+        }
+        else {
+
+            imageFile = localFile;
+            imageWidth = mCompareWidth = data.getInt(Frame.DATA_KEY_WIDTH);
+            imageHeight = mCompareHeight = data.getInt(Frame.DATA_KEY_HEIGHT);
+        }
+
+        imageBuffer = new byte[(int)imageFile.length()];
+        try {
+            if (new FileInputStream(imageFile).read(imageBuffer) == imageBuffer.length) {
+
+                Bitmap compareBitmap = Bitmap.createBitmap(imageWidth, imageHeight, Bitmap.Config.ARGB_8888);
+                compareBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(imageBuffer));
+                compareImage.setImageBitmap(compareBitmap);
+            }
+            else
+                throw new IOException();
+        }
+        catch (IOException e) {
+
+            Logs.add(Logs.Type.E, "Failed to load picture file: " + imageFile.getAbsolutePath());
+            return false;
+        }
+        return true;
+    }
+    private void positionImages(ImageView compareImage, int screenWidth, int screenHeight) {
+
+
+
+
+
+
+
+
+
+
+        ///////////////// Landscape
+
+
+        LayoutParams params = (LayoutParams)mContrastImage.getLayoutParams();
+        params.width = screenWidth >> 1;
+        params.height = (int)(params.width * mContrastBitmap.getHeight() / (float)mContrastBitmap.getWidth());
+        if (params.height < screenHeight) {
+
+            params.height = screenHeight;
+            params.width = (int)(mContrastBitmap.getWidth() * screenHeight / (float)mContrastBitmap.getHeight());
+
+            // Shift both images in order to move them in the middle of the screen (horizontally)
+            // -> This is needed coz the 'LinearLayout' allows child images to overstep its bounds
+            //    vertically but not horizontally. If not shift the other image will be partially
+            //    visible.
+
+            params.setMargins((screenWidth - (params.width << 1)) / 2, 0, 0, 0);
+            // ...note the left margin above has a negative value to shift images on the left
+        }
+        mContrastImage.setLayoutParams(params);
+
+        params = (LayoutParams)compareImage.getLayoutParams();
+        params.width = screenWidth >> 1;
+        params.height = (int)(params.width * mCompareHeight / (float)mCompareWidth);
+        if (params.height < screenHeight) {
+
+            params.height = screenHeight;
+            params.width = (int)(mCompareWidth * screenHeight / (float)mCompareHeight);
+        }
+        compareImage.setLayoutParams(params);
+
+
+
+
+
+
+
     }
 
     //
@@ -75,24 +209,15 @@ public class ContrastActivity extends AppCompatActivity {
         if (appBar != null)
             appBar.setDisplayHomeAsUpEnabled(true);
 
-
-
-
-
-
-
-
-
+        //
         final ViewStub stub = (ViewStub) findViewById(R.id.layout_container);
         stub.setLayoutResource(R.layout.contrast_landscape);
-        final View root = stub.inflate();
+
+        final View rootView = stub.inflate();
+        mContrastImage = (ImageView)rootView.findViewById(R.id.image_contrast);
+        final ImageView compareImage = (ImageView)rootView.findViewById(R.id.image_compare);
 
 
-
-
-
-        mContrastImage = (ImageView)root.findViewById(R.id.image_contrast);
-        final ImageView compareImage = (ImageView)root.findViewById(R.id.image_compare);
 
 
 
@@ -115,126 +240,46 @@ public class ContrastActivity extends AppCompatActivity {
 
 
 
+
+
         ////// Load images
-        File localFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
-                Constants.PROCESS_LOCAL_PICTURE_FILENAME);
-        File remoteFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
-                Constants.PROCESS_REMOTE_PICTURE_FILENAME);
+        if (!loadImagesFromFiles(compareImage)) {
 
-        File imageFile;
-        int imageWidth, imageHeight;
-        if (localFile.length() > remoteFile.length()) { // Set contrast & brightness to local picture...
 
-            imageFile = localFile;
-            imageWidth = 640;
-            imageHeight = 480;
-        }
-        else { // ...or to remote picture
 
-            imageFile = remoteFile;
-            imageWidth = 640;
-            imageHeight = 480;
-        }
 
-        byte[] imageBuffer = new byte[(int)imageFile.length()];
-        try {
-            if (new FileInputStream(imageFile).read(imageBuffer) == imageBuffer.length) {
 
-                mContrastBitmap = Bitmap.createBitmap(imageWidth, imageHeight, Bitmap.Config.ARGB_8888);
-                mContrastBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(imageBuffer));
-                mContrastImage.setImageBitmap(mContrastBitmap);
-            }
-            else
-                throw new IOException();
-        }
-        catch (IOException e) {
-            Logs.add(Logs.Type.E, "Failed to load picture file: " + imageFile.getAbsolutePath());
-        }
-
-        if (imageFile == localFile) {
-
-            imageFile = remoteFile;
-            imageWidth = 640;
-            imageHeight = 480;
-        }
-        else {
-
-            imageFile = localFile;
-            imageWidth = 640;
-            imageHeight = 480;
-        }
-
-        imageBuffer = new byte[(int)imageFile.length()];
-        try {
-            if (new FileInputStream(imageFile).read(imageBuffer) == imageBuffer.length) {
-
-                Bitmap compareBitmap = Bitmap.createBitmap(imageWidth, imageHeight, Bitmap.Config.ARGB_8888);
-                compareBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(imageBuffer));
-                compareImage.setImageBitmap(compareBitmap);
-            }
-            else
-                throw new IOException();
-        }
-        catch (IOException e) {
-            Logs.add(Logs.Type.E, "Failed to load picture file: " + imageFile.getAbsolutePath());
+            finish();
+            return;
         }
 
 
 
 
-        //getIntent().getExtras().getBundle();
 
-
-
-
-
-        ///////////////// Landscape
 
 
         ////// Position images
         final Point screenSize = new Point();
         getWindowManager().getDefaultDisplay().getSize(screenSize);
-        int screenWidth = screenSize.x;
         int screenHeight = screenSize.y - getActionBarHeight();
 
-
-
         // Get control panel height at the screen bottom (in pixel)
-
-        final ImageView icon = (ImageView)root.findViewById(R.id.brightness_icon);
-        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)icon.getLayoutParams();
+        final ImageView icon = (ImageView)rootView.findViewById(R.id.brightness_icon);
+        LayoutParams params = (LayoutParams)icon.getLayoutParams();
         screenHeight -= params.height;
 
+        positionImages(compareImage, screenSize.x, screenHeight);
 
 
 
-        params = (LinearLayout.LayoutParams)mContrastImage.getLayoutParams();
-        params.width = screenWidth >> 1;
-        params.height = (int)(params.width * 128 / (float)75);
-        if (params.height < screenHeight) {
 
-            params.height = screenHeight;
-            params.width = (int)(75 * screenHeight / (float)128);
 
-            // Shift both images in order to move them in the middle of the screen (horizontally)
-            // -> This is needed coz the 'LinearLayout' allows child images to overstep its bounds
-            //    vertically but not horizontally. If not shift the other image will be partially
-            //    visible.
 
-            params.setMargins((screenWidth - (params.width << 1)) / 2, 0, 0, 0);
-            // ...note the left margin above has a negative value to shift images on the left
-        }
-        mContrastImage.setLayoutParams(params);
 
-        params = (LinearLayout.LayoutParams)compareImage.getLayoutParams();
-        params.width = screenWidth >> 1;
-        params.height = (int)(params.width * 480 / (float)640);
-        if (params.height < screenHeight) {
 
-            params.height = screenHeight;
-            params.width = (int)(640 * screenHeight / (float)480);
-        }
-        compareImage.setLayoutParams(params);
+
+
 
 
 

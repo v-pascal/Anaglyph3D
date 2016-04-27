@@ -71,7 +71,7 @@ public class ActivityWrapper implements ConnectRequest {
                         if (((MainActivity)curActivity).isReady()) {
 
                             // Start process activity
-                            startActivity(ProcessActivity.class, 0);
+                            startActivity(ProcessActivity.class, null, 0);
 
                             return Constants.CONN_REQUEST_ANSWER_TRUE;
                         }
@@ -112,7 +112,7 @@ public class ActivityWrapper implements ConnectRequest {
                     try {
                         // Start process activity (if not already started)
                         if (!get().getClass().equals(ProcessActivity.class))
-                            startActivity(ProcessActivity.class, 0);
+                            startActivity(ProcessActivity.class, null, 0);
                     }
                     catch (NullPointerException e) {
                         Logs.add(Logs.Type.F, "Wrong activity reference");
@@ -148,11 +148,14 @@ public class ActivityWrapper implements ConnectRequest {
     public static void set(Activity activity) { mCurActivity = new WeakReference<Activity>(activity); }
     public static Activity get() throws NullPointerException { return mCurActivity.get(); }
 
-    public static void startActivity(final Class activity, final int request) {
+    public static void startActivity(final Class activity, final Bundle data, final int request) {
         try {
 
             Activity curActivity = get();
             Intent intent = new Intent(curActivity, activity);
+            if (data != null)
+                intent.putExtra(Constants.DATA_ACTIVITY, data);
+
             curActivity.startActivityForResult(intent, request);
         }
         catch (NullPointerException e) {

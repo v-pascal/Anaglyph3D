@@ -15,6 +15,7 @@ public class Constants {
     public static final int RESULT_PROCESS_CANCELLED = 303; // Recording cancelled
     public static final int RESULT_DISPLAY_ALBUM = 304; // Display album with current video
 
+    public static final String DATA_ACTIVITY = "data"; // Bundle activity data key
     public static final String DATA_CONNECTION_ESTABLISHED = "connected"; // Connection flag key
 
 

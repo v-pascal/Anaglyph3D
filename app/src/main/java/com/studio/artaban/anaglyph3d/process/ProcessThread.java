@@ -13,6 +13,7 @@ import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.media.Frame;
 import com.studio.artaban.anaglyph3d.media.Video;
+import com.studio.artaban.anaglyph3d.process.configure.ContrastActivity;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 import com.studio.artaban.libGST.GstObject;
 
@@ -312,29 +313,14 @@ public class ProcessThread extends Thread {
 
                     else {
 
+                        // Load contrast activity
+                        Bundle data = new Bundle();
+                        data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
+                        data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
 
+                        ActivityWrapper.startActivity(ContrastActivity.class, data, 0);
 
-
-
-
-
-
-
-
-
-                        //load Contrast activity
-                        //ActivityWrapper.startActivity();
-
-
-
-
-
-
-
-
-
-
-
+                        //////
                         mStatus = Status.TRANSFER_VIDEO;
 
                         try {
@@ -345,7 +331,7 @@ public class ProcessThread extends Thread {
                             if (new FileInputStream(videoFile).read(videoBuffer) != videoBuffer.length)
                                 throw new IOException();
 
-                            Bundle data = new Bundle();
+                            data = new Bundle();
                             data.putByteArray(Video.DATA_KEY_BUFFER, videoBuffer);
 
                             // Send download video request (upload to remote device)
