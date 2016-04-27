@@ -21,14 +21,33 @@
 
     </android.support.design.widget.AppBarLayout>
 
+    <!--
+
+    <ViewStub
+        android:id="@+id/layout_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
     <include layout="@layout/content_contrast" />
+    -->
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
+        android:id="@+id/fab_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@android:drawable/ic_dialog_email" />
+        android:layout_gravity="center"
+        android:layout_marginRight="120px"
+        android:layout_marginEnd="120px"
+        app:backgroundTint="@android:color/black"
+        android:src="@drawable/ic_tune_white_48dp" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_validate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:onClick="onValidateContrast"
+        app:backgroundTint="@android:color/white"
+        android:src="@drawable/ic_done_black_48dp" />
 
 </android.support.design.widget.CoordinatorLayout>
