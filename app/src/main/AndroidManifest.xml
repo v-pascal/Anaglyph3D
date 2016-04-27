@@ -65,9 +65,19 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".album.VideoListActivity" />
         </activity>
-        <activity android:name=".process.ProcessActivity"
+        <activity
+            android:name=".process.ProcessActivity"
             android:configChanges="orientation|screenSize"
             android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".process.configure.ContrastActivity"
+            android:label="@string/title_activity_contrast"
+            android:parentActivityName=".process.ProcessActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.studio.artaban.anaglyph3d.process.ProcessActivity" />
+        </activity>
     </application>
 
 </manifest>

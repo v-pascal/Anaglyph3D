@@ -1,5 +1,6 @@
 package com.studio.artaban.anaglyph3d.process;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -95,9 +96,9 @@ public class ProcessThread extends Thread {
         WAIT_3D_VIDEO(0); // Wait 3D video received
 
         //
-        private final int mStringId;
-        Status(int id) { mStringId = id; }
-        public int getStringId() { return mStringId; }
+        private final int stringId;
+        Status(int id) { stringId = id; }
+        public int getStringId() { return stringId; }
     }
     private Step mStep = Step.CONTRAST;
     private Status mStatus = Status.INITIALIZATION;
@@ -153,14 +154,14 @@ public class ProcessThread extends Thread {
                 }
             }
 
-            // Update progress status (when needed)
-            ((ProcessActivity) ActivityWrapper.get()).onUpdateProgress();
+            Activity curActivity = ActivityWrapper.get();
+
+            // Update UI progress status (if possible)
+            if (curActivity.getClass().equals(ProcessActivity.class))
+                ((ProcessActivity) curActivity).onUpdateProgress();
         }
         catch (NullPointerException e) {
             Logs.add(Logs.Type.F, "Wrong activity reference");
-        }
-        catch (ClassCastException e) {
-            Logs.add(Logs.Type.F, "Unexpected activity reference");
         }
     }
 
@@ -287,22 +288,24 @@ public class ProcessThread extends Thread {
                     publishProgress(3 + ((localPicture)? 0:2), 4);
 
                     // Convert NV21 to ARGB picture file
-                    int width, height;
-                    if (Settings.getInstance().mOrientation) { // Portrait
 
-                        width = (localPicture)? mPictureSize.height:Frame.getInstance().getHeight();
-                        height = (localPicture)? mPictureSize.width:Frame.getInstance().getWidth();
-                    }
-                    else { // Landscape
+                    int width = (localPicture)? mPictureSize.width:Frame.getInstance().getWidth();
+                    int height = (localPicture)? mPictureSize.height:Frame.getInstance().getHeight();
+                    // -> Raw picture always in landscape orientation
 
-                        width = (localPicture)? mPictureSize.width:Frame.getInstance().getWidth();
-                        height = (localPicture)? mPictureSize.height:Frame.getInstance().getHeight();
-                    }
+                    Frame.Orientation orientation;
+                    if (Settings.getInstance().mOrientation) // Portrait
+                        orientation = (Settings.getInstance().mReverse)?
+                                Frame.Orientation.REVERSE_PORTRAIT: Frame.Orientation.PORTRAIT;
+                    else // Landscape
+                        orientation = (Settings.getInstance().mReverse)?
+                                Frame.Orientation.REVERSE_LANDSCAPE: Frame.Orientation.LANDSCAPE;
+
                     Frame.convertNV21toARGB(ActivityWrapper.DOCUMENTS_FOLDER + Constants.PROCESS_RAW_PICTURE_FILENAME,
                             width, height, ActivityWrapper.DOCUMENTS_FOLDER +
                                     ((localPicture)?
                                     Constants.PROCESS_LOCAL_PICTURE_FILENAME:
-                                    Constants.PROCESS_REMOTE_PICTURE_FILENAME));
+                                    Constants.PROCESS_REMOTE_PICTURE_FILENAME), orientation);
 
                     if (localPicture)
                         mStatus = Status.WAIT_PICTURE;
@@ -319,8 +322,8 @@ public class ProcessThread extends Thread {
 
 
 
-                        //load Contrast fragment
-
+                        //load Contrast activity
+                        //ActivityWrapper.startActivity();
 
 
 
@@ -415,6 +418,31 @@ public class ProcessThread extends Thread {
 
                         }
                     }
+                    break;
+                }
+                case SAVE_VIDEO: {
+
+
+
+
+                    sleep();
+
+
+
+
+                    break;
+                }
+                case WAIT_CONTRAST: // Wait contrast configuration or transfer
+                case TRANSFER_CONTRAST: {
+
+
+
+
+                    sleep();
+
+
+
+
                     break;
                 }
             }

@@ -13,7 +13,7 @@ import org.json.JSONObject;
 
 /**
  * Created by pascal on 21/04/16.
- * Frame class to manage frame conversion & transfer
+ * Frame class to manage frame transfer & conversion
  */
 public class Frame extends BufferRequest {
 
@@ -91,12 +91,25 @@ public class Frame extends BufferRequest {
     public int getHeight() { return mHeight; }
 
     //////
-    public static boolean convertNV21toARGB(String source, int width, int height, String destination) {
+    public enum Orientation {
+
+        LANDSCAPE ((short)0),
+        PORTRAIT ((short)1),
+        REVERSE_LANDSCAPE ((short)2),
+        REVERSE_PORTRAIT ((short)3);
+
+        //
+        private final short flipMethod; // GStreamer flip method (to apply orientation)
+        Orientation(short method) { flipMethod = method; }
+        public short getFlipMethod() { return flipMethod; }
+    };
+    public static boolean convertNV21toARGB(String source, int width, int height,
+                                            String destination, Orientation orientation) {
 
         int size = (width * height * 3) >> 1; // NV21 buffer size
         return ProcessThread.mGStreamer.launch("filesrc location=" + source + " blocksize=" + size +
-                " ! video/x-raw,format=NV21,width=" + width + ",height=" + height +
-                ",framerate=1/1 ! videoconvert ! video/x-raw,format=ARGB ! filesink location=" +
-                destination);
+                " ! video/x-raw,format=NV21,width=" + width + ",height=" + height + ",framerate=1/1" +
+                " ! videoflip method=" + orientation.getFlipMethod() + " ! videoconvert" +
+                " ! video/x-raw,format=ARGB ! filesink location=" + destination);
     }
 }

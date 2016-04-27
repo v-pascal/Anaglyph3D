@@ -19,11 +19,9 @@ import com.studio.artaban.libGST.GstObject;
 /**
  * Created by pascal on 12/04/16.
  * Activity to manage video recording and transferring using fragments:
- * _ Position fragment
- * _ Recorder fragment
- * _ Process fragment (status)
- * _ Contrast fragment
- * _ Synchronize fragment
+ * _ Position fragment: to inform user on devices position
+ * _ Recorder fragment: to start recording
+ * _ Process fragment: to make the video (status fragment)
  */
 public class ProcessActivity extends AppCompatActivity {
 
@@ -120,37 +118,32 @@ public class ProcessActivity extends AppCompatActivity {
 
                 if (processFragment != null)
                     processFragment.updateProgress();
-                //else // Contrast or Synchronize fragment opened (nothing to update)
+                else
+                    Logs.add(Logs.Type.F, "Unexpected fragment found");
             }
         });
     }
-
-    private InitializeRunnable mInitRunnable;
-    private class InitializeRunnable implements Runnable {
-
-        private Context mContext;
-        public InitializeRunnable(Context context) { mContext = context; }
-
-        @Override
-        public void run() {
-
-            // Initialize GStreamer library
-            if (ProcessThread.mGStreamer == null)
-                ProcessThread.mGStreamer = new GstObject(mContext);
-
-            // Notify initialization finished
-            synchronized (this) { notify(); }
-        }
-    };
     public void onInitialize() { // Initialize GStreamer library on UI thread
 
-        mInitRunnable = new InitializeRunnable(this);
-        synchronized (mInitRunnable) {
+        final Context context = this;
+        Runnable initRunnable = new Runnable() {
+            @Override
+            public void run() {
 
-            runOnUiThread(mInitRunnable);
+                // Initialize GStreamer library
+                if (ProcessThread.mGStreamer == null)
+                    ProcessThread.mGStreamer = new GstObject(context);
+
+                // Notify initialization finished
+                synchronized (this) { notify(); }
+            }
+        };
+        synchronized (initRunnable) {
+
+            runOnUiThread(initRunnable);
 
             // Wait initialization finish on UI thread
-            try { mInitRunnable.wait(); }
+            try { initRunnable.wait(); }
             catch (InterruptedException e) {
                 Logs.add(Logs.Type.E, e.getMessage());
             }

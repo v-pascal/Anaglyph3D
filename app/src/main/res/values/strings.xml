@@ -132,5 +132,6 @@
     <string name="status_wait_contrast">Waiting contrast &amp; brightness setting...</string>
     <string name="status_transfer_contrast">Transfer contrast &amp; brightness setting...</string>
     <string name="status_save_video">Save the transferred video...</string>
+    <string name="title_activity_contrast">Contrast &amp; brightness</string>
 
 </resources>
