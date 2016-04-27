@@ -110,6 +110,6 @@ public class Frame extends BufferRequest {
         return ProcessThread.mGStreamer.launch("filesrc location=" + source + " blocksize=" + size +
                 " ! video/x-raw,format=NV21,width=" + width + ",height=" + height + ",framerate=1/1" +
                 " ! videoflip method=" + orientation.getFlipMethod() + " ! videoconvert" +
-                " ! video/x-raw,format=ARGB ! filesink location=" + destination);
+                " ! video/x-raw,format=RGBA ! filesink location=" + destination);
     }
 }

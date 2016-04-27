@@ -383,41 +383,8 @@ public class ProcessThread extends Thread {
                             Video.getInstance().getBufferSize());
 
                     //////
-                    if (Video.getInstance().getTransferSize() == Video.getInstance().getBufferSize()) {
-                        if (!Settings.getInstance().isMaker()) {
-
-
-
-
-
-
-
-
-                            //mStatus = Status.WAIT_CONTRAST;
-                            //mStatus = Status.TRANSFER_CONTRAST;
-
-
-
-
-
-
-
-                        }
-                        else { // Maker
-
-
-
-
-
-
-                            //mStatus = Status.SAVE_VIDEO;
-
-
-
-
-
-                        }
-                    }
+                    if (Video.getInstance().getTransferSize() == Video.getInstance().getBufferSize())
+                        mStatus = (Settings.getInstance().isMaker())? Status.SAVE_VIDEO:Status.WAIT_CONTRAST;
                     break;
                 }
                 case WAIT_CONTRAST: // Wait contrast transfer or configuration
@@ -427,6 +394,7 @@ public class ProcessThread extends Thread {
 
 
                     sleep();
+
 
 
 
