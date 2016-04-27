@@ -420,7 +420,8 @@ public class ProcessThread extends Thread {
                     }
                     break;
                 }
-                case SAVE_VIDEO: {
+                case WAIT_CONTRAST: // Wait contrast transfer or configuration
+                case TRANSFER_CONTRAST: {
 
 
 
@@ -432,8 +433,7 @@ public class ProcessThread extends Thread {
 
                     break;
                 }
-                case WAIT_CONTRAST: // Wait contrast configuration or transfer
-                case TRANSFER_CONTRAST: {
+                case SAVE_VIDEO: {
 
 
 

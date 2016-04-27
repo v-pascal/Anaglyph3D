@@ -19,6 +19,8 @@ import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 public class ContrastActivity extends AppCompatActivity {
 
+    private ImageView mContrastImage;
+
     private int getActionBarHeight() { // Return height of the action bar (in pixel)
 
         TypedValue typedValue = new TypedValue();
@@ -26,7 +28,7 @@ public class ContrastActivity extends AppCompatActivity {
             return TypedValue.complexToDimensionPixelSize(typedValue.data,
                     getResources().getDisplayMetrics());
 
-        Logs.add(Logs.Type.W, "'actionBarSize' attribute not found");
+        Logs.add(Logs.Type.W, "'android.R.attr.actionBarSize' attribute not found");
         return 0;
     }
 
@@ -73,18 +75,18 @@ public class ContrastActivity extends AppCompatActivity {
 
 
 
-        ///////////////// Landscape
-
         final ViewStub stub = (ViewStub) findViewById(R.id.layout_container);
         stub.setLayoutResource(R.layout.contrast_landscape);
         final View root = stub.inflate();
+
+
+        ///////////////// Landscape
+
 
         final Point screenSize = new Point();
         getWindowManager().getDefaultDisplay().getSize(screenSize);
         int screenWidth = screenSize.x;
         int screenHeight = screenSize.y - getActionBarHeight();
-
-
 
 
 
@@ -97,9 +99,8 @@ public class ContrastActivity extends AppCompatActivity {
 
 
 
-
-        final ImageView contrastImage = (ImageView)root.findViewById(R.id.image_contrast);
-        params = (LinearLayout.LayoutParams)contrastImage.getLayoutParams();
+        mContrastImage = (ImageView)root.findViewById(R.id.image_contrast);
+        params = (LinearLayout.LayoutParams)mContrastImage.getLayoutParams();
         params.width = screenWidth >> 1;
         params.height = (int)(params.width * 128 / (float)75);
         if (params.height < screenHeight) {
@@ -115,7 +116,7 @@ public class ContrastActivity extends AppCompatActivity {
             params.setMargins((screenWidth - (params.width << 1)) / 2, 0, 0, 0);
             // ...note the left margin above has a negative value to shift images on the left
         }
-        contrastImage.setLayoutParams(params);
+        mContrastImage.setLayoutParams(params);
 
         final ImageView compareImage = (ImageView)root.findViewById(R.id.image_compare);
         params = (LinearLayout.LayoutParams)compareImage.getLayoutParams();
@@ -133,9 +134,32 @@ public class ContrastActivity extends AppCompatActivity {
 
 
 
+        // Load images
 
 
 
 
+
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+
+
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+
+
+
+
+
+
+        super.onSaveInstanceState(outState);
     }
 }
