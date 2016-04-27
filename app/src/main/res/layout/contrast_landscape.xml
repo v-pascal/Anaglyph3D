@@ -1,42 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:orientation="horizontal"
-        android:id="@+id/top_layout">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/left_device"/>
+            android:layout_gravity="center"
+            android:src="@drawable/left_device"
+            android:id="@+id/image_contrast"/>
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/right_device"/>
+            android:layout_gravity="center"
+            android:src="@drawable/right_device"
+            android:id="@+id/image_compare"/>
 
     </LinearLayout>
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/top_layout"
         android:orientation="horizontal">
 
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginLeft="64dp"
+            android:layout_marginStart="64dp"
+            android:src="@drawable/brightness"
+            android:id="@+id/brightness_icon"/>
 
-
-
-        <TextView
-            android:layout_width="wrap_content"
+        <SeekBar
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="testage"/>
+            android:layout_weight="1"
+            android:id="@+id/seek_brightness"/>
 
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginLeft="64dp"
+            android:layout_marginStart="64dp"
+            android:src="@drawable/contrast"/>
 
-
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/seek_contrast"/>
 
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>
