@@ -28,7 +28,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="start"
         app:backgroundTint="@android:color/black"
-        android:src="@drawable/ic_tune_white_48dp" />
+        android:src="@drawable/ic_invert_colors_white_48dp"
+        android:id="@+id/fab_apply" />
 
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"

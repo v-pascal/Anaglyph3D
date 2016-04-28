@@ -52,6 +52,7 @@
     <!-- Process error -->
     <string name="error_save_picture">Impossible de sauvegarder l\'image de configuration du contraste &amp; luminisité!</string>
     <string name="error_load_video">Impossible de charger la vidéo!</string>
+    <string name="error_contrast_failed">ATTENTION: Impossible d\'afficher les images de configuration du contraste &amp; luminosité! Etape annulée.</string>
 
     <!-- Process step -->
     <string name="step_contrast">Contraste &amp; luminosité</string>

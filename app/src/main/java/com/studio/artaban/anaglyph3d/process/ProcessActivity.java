@@ -1,6 +1,7 @@
 package com.studio.artaban.anaglyph3d.process;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
 import android.support.v4.app.FragmentTransaction;
@@ -188,6 +189,28 @@ public class ProcessActivity extends AppCompatActivity {
             Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                     ActivityWrapper.REQ_TYPE_CANCEL, null);
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+
+
+
+
+
+
+        //Check contrast or synchronization activity results:
+        // RESULT_PROCESS_CANCELLED
+        // RESULT_PROCESS_CONTRAST
+
+
+
+
+
+
+
     }
 
     @Override

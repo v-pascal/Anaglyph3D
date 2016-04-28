@@ -1,10 +1,16 @@
 package com.studio.artaban.anaglyph3d.process.configure;
 
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -13,10 +19,13 @@ import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.SeekBar;
+import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.media.Frame;
 
@@ -25,11 +34,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class ContrastActivity extends AppCompatActivity {
+public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
 
+    public static final String DATA_KEY_CONTRAST = "contrast";
+    public static final String DATA_KEY_BRIGHTNESS = "brightness";
+    private static final String DATA_KEY_CHANGED = "changed";
+
+    //////
     private ImageView mContrastImage;
     private Bitmap mContrastBitmap;
-    // Contrast image info
+    // Contrast & brightness image info
 
     private int mCompareWidth;
     private int mCompareHeight;
@@ -132,6 +146,8 @@ public class ContrastActivity extends AppCompatActivity {
 
 
 
+        //if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+
 
 
 
@@ -172,19 +188,65 @@ public class ContrastActivity extends AppCompatActivity {
 
 
 
+
+
+
+
+    }
+
+    private float mContrast = 1;
+    private float mBrightness = 0;
+    private boolean mChanged = false;
+
+    private FloatingActionButton mCancelButton;
+
+    private void applyContrastBrightness() { // Apply contrast & brightness settings
+
+        ColorMatrix matrix = new ColorMatrix(new float[] {
+
+                mContrast, 0, 0, 0, mBrightness,
+                0, mContrast, 0, 0, mBrightness,
+                0, 0, mContrast, 0, mBrightness,
+                0, 0, 0, 1, 0
+        });
+        Bitmap bitmap = Bitmap.createBitmap(mContrastBitmap.getWidth(), mContrastBitmap.getHeight(),
+                mContrastBitmap.getConfig());
+
+        Canvas canvas = new Canvas(bitmap);
+        Paint paint = new Paint();
+        paint.setColorFilter(new ColorMatrixColorFilter(matrix));
+        canvas.drawBitmap(mContrastBitmap, 0, 0, paint);
+
+        mContrastImage.setImageBitmap(bitmap);
     }
 
     //
-    public void onValidateContrast(View sender) {
+    private void onUpdateContrastBrightness(SeekBar seekBar) {
+        switch (seekBar.getId()) {
 
+            case R.id.seek_contrast:
+                mContrast = seekBar.getProgress() / 10;
+                break;
 
+            case R.id.seek_brightness:
+                mBrightness = seekBar.getProgress() - 255;
+                break;
+        }
+        applyContrastBrightness();
+        if (!mChanged) {
 
+            mChanged = true;
+            mCancelButton.setImageDrawable(getResources().getDrawable(
+                    R.drawable.ic_invert_colors_off_white_48dp));
+        }
+    }
+    public void onValidateContrast(View sender) { // Validate contrast & brightness settings
 
+        getIntent().putExtra(DATA_KEY_CONTRAST, mContrast);
+        getIntent().putExtra(DATA_KEY_BRIGHTNESS, mBrightness);
 
-
-
-
-
+        setResult(Constants.RESULT_PROCESS_CONTRAST);
+        finish();
     }
 
     //////
@@ -192,6 +254,9 @@ public class ContrastActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contrast);
+
+        // Set current activity
+        ActivityWrapper.set(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -209,13 +274,81 @@ public class ContrastActivity extends AppCompatActivity {
         if (appBar != null)
             appBar.setDisplayHomeAsUpEnabled(true);
 
-        //
-        final ViewStub stub = (ViewStub) findViewById(R.id.layout_container);
-        stub.setLayoutResource(R.layout.contrast_landscape);
+        // Set default activity result
+        setResult(Constants.RESULT_PROCESS_CANCELLED);
 
-        final View rootView = stub.inflate();
+        // Restore previous settings (if any)
+        if (savedInstanceState != null) {
+
+            mContrast = savedInstanceState.getFloat(DATA_KEY_CONTRAST);
+            mBrightness = savedInstanceState.getFloat(DATA_KEY_BRIGHTNESS);
+            mChanged = savedInstanceState.getBoolean(DATA_KEY_CHANGED);
+        }
+
+        // Set layout to display according orientation
+        final ViewStub stubView = (ViewStub) findViewById(R.id.layout_container);
+        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+            stubView.setLayoutResource(R.layout.contrast_landscape);
+        else
+            stubView.setLayoutResource(R.layout.contrast_landscape);
+
+        final View rootView = stubView.inflate();
         mContrastImage = (ImageView)rootView.findViewById(R.id.image_contrast);
         final ImageView compareImage = (ImageView)rootView.findViewById(R.id.image_compare);
+
+        // Set contrast seek bar position
+        final SeekBar contrastSeek = (SeekBar)rootView.findViewById(R.id.seek_contrast);
+        contrastSeek.setMax(100);
+
+
+
+
+
+        contrastSeek.setProgress(10 * (int)mContrast);
+        /*
+        if (mContrast < 1)
+            contrastSeek.setProgress(50 * (int)mContrast);
+        else if (mContrast > 1)
+            contrastSeek.setProgress();
+        else
+            contrastSeek.setProgress(50);
+            */
+
+
+
+
+
+        contrastSeek.setOnSeekBarChangeListener(this);
+
+        // Set brightness seek bar position
+        final SeekBar brightnessSeek = (SeekBar)rootView.findViewById(R.id.seek_brightness);
+        brightnessSeek.setMax(512);
+        brightnessSeek.setProgress((int)mBrightness + 255);
+        brightnessSeek.setOnSeekBarChangeListener(this);
+
+        // Configure floating button that allows user to cancel settings (and that informs user on
+        // which image the contrast & brightness configuration is applied)
+        mCancelButton = (FloatingActionButton)findViewById(R.id.fab_apply);
+        mCancelButton.setImageDrawable(getResources().getDrawable((!mChanged)?
+                R.drawable.ic_invert_colors_white_48dp:R.drawable.ic_invert_colors_off_white_48dp));
+        mCancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                mCancelButton.setImageDrawable(getResources().getDrawable(
+                        R.drawable.ic_invert_colors_white_48dp));
+
+                // Reset contrast & brightness settings
+                mContrast = 1;
+                mBrightness = 0;
+                mChanged = false;
+
+                contrastSeek.setProgress(10 * (int)mContrast);
+                brightnessSeek.setProgress((int)mBrightness + 255);
+
+                applyContrastBrightness();
+            }
+        });
 
 
 
@@ -233,6 +366,14 @@ public class ContrastActivity extends AppCompatActivity {
             ActivityWrapper.DOCUMENTS_FOLDER = documents.getAbsolutePath();
         else
             Logs.add(Logs.Type.F, "Failed to get documents folder");
+        Frame.getInstance().init();
+        Bundle data = new Bundle();
+        data.putInt(Frame.DATA_KEY_WIDTH, 640);
+        data.putInt(Frame.DATA_KEY_HEIGHT, 480);
+        getIntent().putExtra(Constants.DATA_ACTIVITY, data);
+
+
+
 
 
 
@@ -245,29 +386,32 @@ public class ContrastActivity extends AppCompatActivity {
         ////// Load images
         if (!loadImagesFromFiles(compareImage)) {
 
-
-
-
+            // Inform user
+            DisplayMessage.getInstance().toast(R.string.error_contrast_failed, Toast.LENGTH_LONG);
 
             finish();
             return;
         }
 
-
-
-
-
-
+        // Apply contrast & brightness settings
+        applyContrastBrightness();
 
         ////// Position images
         final Point screenSize = new Point();
         getWindowManager().getDefaultDisplay().getSize(screenSize);
         int screenHeight = screenSize.y - getActionBarHeight();
 
-        // Get control panel height at the screen bottom (in pixel)
+        // Get control panel height at the screen bottom according orientation (in pixel)
+
+
+
         final ImageView icon = (ImageView)rootView.findViewById(R.id.brightness_icon);
         LayoutParams params = (LayoutParams)icon.getLayoutParams();
         screenHeight -= params.height;
+
+
+
+
 
         positionImages(compareImage, screenSize.x, screenHeight);
 
@@ -290,22 +434,18 @@ public class ContrastActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-
-
-
-
-    }
-
-    @Override
     protected void onSaveInstanceState(Bundle outState) {
 
-
-
-
-
+        outState.putFloat(DATA_KEY_CONTRAST, mContrast);
+        outState.putFloat(DATA_KEY_BRIGHTNESS, mBrightness);
+        outState.putBoolean(DATA_KEY_CHANGED, mChanged);
 
         super.onSaveInstanceState(outState);
     }
+
+    //////
+    @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) { }
+    @Override public void onStartTrackingTouch(SeekBar seekBar) { onUpdateContrastBrightness(seekBar); }
+    @Override public void onStopTrackingTouch(SeekBar seekBar) { onUpdateContrastBrightness(seekBar); }
+
 }

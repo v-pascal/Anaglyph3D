@@ -117,6 +117,7 @@
     <!-- Process error -->
     <string name="error_save_picture">Failed to save picture to set contrast &amp; brightness!</string>
     <string name="error_load_video">Failed to load local video!</string>
+    <string name="error_contrast_failed">WARNING: Failed to display contrast &amp; brightness images! Step cancelled.</string>
 
     <!-- Process step -->
     <string name="step_contrast">Contrast &amp; brightness</string>
