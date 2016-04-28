@@ -29,7 +29,7 @@
         android:layout_gravity="start"
         app:backgroundTint="@android:color/black"
         android:src="@drawable/ic_invert_colors_white_48dp"
-        android:id="@+id/fab_apply" />
+        android:id="@+id/fab_cancel" />
 
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
@@ -37,6 +37,7 @@
         android:layout_gravity="center"
         android:onClick="onValidateContrast"
         app:backgroundTint="@android:color/white"
-        android:src="@drawable/ic_done_black_48dp" />
+        android:src="@drawable/ic_done_black_48dp"
+        android:id="@+id/fab_apply" />
 
 </android.support.design.widget.CoordinatorLayout>

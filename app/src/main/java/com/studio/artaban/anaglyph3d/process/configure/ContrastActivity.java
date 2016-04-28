@@ -10,11 +10,13 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
@@ -154,6 +156,7 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         ///////////////// Landscape
 
 
+        /*
         LayoutParams params = (LayoutParams)mContrastImage.getLayoutParams();
         params.width = screenWidth >> 1;
         params.height = (int)(params.width * mContrastBitmap.getHeight() / (float)mContrastBitmap.getWidth());
@@ -181,10 +184,39 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
             params.width = (int)(mCompareWidth * screenHeight / (float)mCompareHeight);
         }
         compareImage.setLayoutParams(params);
+        */
 
 
 
 
+        ///////////////// Portrait
+
+
+        LayoutParams params = (LayoutParams)mContrastImage.getLayoutParams();
+        params.height = screenHeight >> 1;
+        params.width = (int)(mContrastBitmap.getWidth() * screenHeight / (float)mContrastBitmap.getHeight());
+        if (params.width < screenWidth) {
+
+            params.width = screenWidth;
+            params.height = (int)(params.width * mContrastBitmap.getHeight() / (float)mContrastBitmap.getWidth());
+
+
+
+
+
+        }
+        mContrastImage.setLayoutParams(params);
+
+
+        params = (LayoutParams)compareImage.getLayoutParams();
+        params.height = screenHeight >> 1;
+        params.width = (int)(mCompareWidth * screenHeight / (float)mCompareHeight);
+        if (params.width < screenWidth) {
+
+            params.width = screenWidth;
+            params.height = (int)(params.width * mCompareHeight / (float)mCompareWidth);
+        }
+        compareImage.setLayoutParams(params);
 
 
 
@@ -209,6 +241,9 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
                 0, 0, mContrast, 0, mBrightness,
                 0, 0, 0, 1, 0
         });
+        // With: mContrast in [0;10] and 1 as default
+        //       mBrightness in [-255;255] and 0 as default
+
         Bitmap bitmap = Bitmap.createBitmap(mContrastBitmap.getWidth(), mContrastBitmap.getHeight(),
                 mContrastBitmap.getConfig());
 
@@ -225,7 +260,13 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         switch (seekBar.getId()) {
 
             case R.id.seek_contrast:
-                mContrast = seekBar.getProgress() / 10;
+                if (seekBar.getProgress() < 50)
+                    mContrast = seekBar.getProgress() / (float)50;
+                else
+                    mContrast = (9 * (seekBar.getProgress() - 50) / (float)50) + 1;
+
+                // With: Progress in [0;50] -> Contrast [0;1]
+                //       Progress in [50;100] -> Contrast [1;10]
                 break;
 
             case R.id.seek_brightness:
@@ -288,7 +329,7 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         // Set layout to display according orientation
         final ViewStub stubView = (ViewStub) findViewById(R.id.layout_container);
         if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-            stubView.setLayoutResource(R.layout.contrast_landscape);
+            stubView.setLayoutResource(R.layout.contrast_portrait);
         else
             stubView.setLayoutResource(R.layout.contrast_landscape);
 
@@ -299,36 +340,21 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         // Set contrast seek bar position
         final SeekBar contrastSeek = (SeekBar)rootView.findViewById(R.id.seek_contrast);
         contrastSeek.setMax(100);
-
-
-
-
-
-        contrastSeek.setProgress(10 * (int)mContrast);
-        /*
-        if (mContrast < 1)
+        if (mContrast < 1) // Contrast [0;1] -> Progress [0;50]
             contrastSeek.setProgress(50 * (int)mContrast);
-        else if (mContrast > 1)
-            contrastSeek.setProgress();
-        else
-            contrastSeek.setProgress(50);
-            */
-
-
-
-
-
+        else // Contrast [1;10] -> Progress [50;100]
+            contrastSeek.setProgress((int)(50 * (mContrast - 1) / (float)9) + 50);
         contrastSeek.setOnSeekBarChangeListener(this);
 
         // Set brightness seek bar position
         final SeekBar brightnessSeek = (SeekBar)rootView.findViewById(R.id.seek_brightness);
-        brightnessSeek.setMax(512);
+        brightnessSeek.setMax(510); // == 2 * 255
         brightnessSeek.setProgress((int)mBrightness + 255);
         brightnessSeek.setOnSeekBarChangeListener(this);
 
-        // Configure floating button that allows user to cancel settings (and that informs user on
+        // Configure the floating button that allows user to cancel settings (and that informs user on
         // which image the contrast & brightness configuration is applied)
-        mCancelButton = (FloatingActionButton)findViewById(R.id.fab_apply);
+        mCancelButton = (FloatingActionButton)findViewById(R.id.fab_cancel);
         mCancelButton.setImageDrawable(getResources().getDrawable((!mChanged)?
                 R.drawable.ic_invert_colors_white_48dp:R.drawable.ic_invert_colors_off_white_48dp));
         mCancelButton.setOnClickListener(new View.OnClickListener() {
@@ -343,13 +369,29 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
                 mBrightness = 0;
                 mChanged = false;
 
-                contrastSeek.setProgress(10 * (int)mContrast);
-                brightnessSeek.setProgress((int)mBrightness + 255);
+                contrastSeek.setProgress(50);
+                brightnessSeek.setProgress(255);
 
                 applyContrastBrightness();
             }
         });
+        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
 
+            CoordinatorLayout.LayoutParams fabParams =
+                    (CoordinatorLayout.LayoutParams)mCancelButton.getLayoutParams();
+
+            fabParams.setMargins(0, getActionBarHeight() + 8, 0, 0);
+            fabParams.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+            mCancelButton.setLayoutParams(fabParams);
+
+            // Set validate button position (not exactly in center)
+            final FloatingActionButton applyButton = (FloatingActionButton)findViewById(R.id.fab_apply);
+            ((CoordinatorLayout.LayoutParams)applyButton.getLayoutParams()).setMargins(0, 0, 0, 32);
+
+        }
+        else
+            ((CoordinatorLayout.LayoutParams)mCancelButton.getLayoutParams()).gravity =
+                    Gravity.START|Gravity.CENTER_VERTICAL;
 
 
 
@@ -402,35 +444,14 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         int screenHeight = screenSize.y - getActionBarHeight();
 
         // Get control panel height at the screen bottom according orientation (in pixel)
-
-
-
         final ImageView icon = (ImageView)rootView.findViewById(R.id.brightness_icon);
         LayoutParams params = (LayoutParams)icon.getLayoutParams();
-        screenHeight -= params.height;
-
-
-
-
+        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+            screenHeight -= params.height;
+        else
+            screenHeight -= params.height << 1;
 
         positionImages(compareImage, screenSize.x, screenHeight);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 
     @Override
