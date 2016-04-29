@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
+import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
@@ -81,14 +82,26 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         if (localFile.length() > remoteFile.length()) { // Set contrast & brightness to local picture...
 
             imageFile = localFile;
-            imageWidth = data.getInt(Frame.DATA_KEY_WIDTH);
-            imageHeight = data.getInt(Frame.DATA_KEY_HEIGHT);
+            if (Settings.getInstance().mOrientation) { // Portrait
+                imageWidth = data.getInt(Frame.DATA_KEY_HEIGHT);
+                imageHeight = data.getInt(Frame.DATA_KEY_WIDTH);
+            }
+            else { // Landscape
+                imageWidth = data.getInt(Frame.DATA_KEY_WIDTH);
+                imageHeight = data.getInt(Frame.DATA_KEY_HEIGHT);
+            }
         }
         else { // ...or to remote picture
 
             imageFile = remoteFile;
-            imageWidth = Frame.getInstance().getWidth();
-            imageHeight = Frame.getInstance().getHeight();
+            if (Settings.getInstance().mOrientation) { // Portrait
+                imageWidth = Frame.getInstance().getHeight();
+                imageHeight = Frame.getInstance().getWidth();
+            }
+            else { // Landscape
+                imageWidth = Frame.getInstance().getWidth();
+                imageHeight = Frame.getInstance().getHeight();
+            }
         }
 
         byte[] imageBuffer = new byte[(int)imageFile.length()];
@@ -112,14 +125,26 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         if (imageFile == localFile) {
 
             imageFile = remoteFile;
-            imageWidth = mCompareWidth = Frame.getInstance().getWidth();
-            imageHeight = mCompareHeight = Frame.getInstance().getHeight();
+            if (Settings.getInstance().mOrientation) { // Portrait
+                imageWidth = mCompareWidth = Frame.getInstance().getHeight();
+                imageHeight = mCompareHeight = Frame.getInstance().getWidth();
+            }
+            else { // Landscape
+                imageWidth = mCompareWidth = Frame.getInstance().getWidth();
+                imageHeight = mCompareHeight = Frame.getInstance().getHeight();
+            }
         }
         else {
 
             imageFile = localFile;
-            imageWidth = mCompareWidth = data.getInt(Frame.DATA_KEY_WIDTH);
-            imageHeight = mCompareHeight = data.getInt(Frame.DATA_KEY_HEIGHT);
+            if (Settings.getInstance().mOrientation) { // Portrait
+                imageWidth = mCompareWidth = data.getInt(Frame.DATA_KEY_HEIGHT);
+                imageHeight = mCompareHeight = data.getInt(Frame.DATA_KEY_WIDTH);
+            }
+            else { // Landscape
+                imageWidth = mCompareWidth = data.getInt(Frame.DATA_KEY_WIDTH);
+                imageHeight = mCompareHeight = data.getInt(Frame.DATA_KEY_HEIGHT);
+            }
         }
 
         imageBuffer = new byte[(int)imageFile.length()];
@@ -141,89 +166,69 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         return true;
     }
     private void positionImages(ImageView compareImage, int screenWidth, int screenHeight) {
-
-
-
-
-
-
-
-        //if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-
-
-
-
-        ///////////////// Landscape
-
-
-        /*
-        LayoutParams params = (LayoutParams)mContrastImage.getLayoutParams();
-        params.width = screenWidth >> 1;
-        params.height = (int)(params.width * mContrastBitmap.getHeight() / (float)mContrastBitmap.getWidth());
-        if (params.height < screenHeight) {
-
-            params.height = screenHeight;
-            params.width = (int)(mContrastBitmap.getWidth() * screenHeight / (float)mContrastBitmap.getHeight());
-
-            // Shift both images in order to move them in the middle of the screen (horizontally)
-            // -> This is needed coz the 'LinearLayout' allows child images to overstep its bounds
-            //    vertically but not horizontally. If not shift the other image will be partially
-            //    visible.
-
-            params.setMargins((screenWidth - (params.width << 1)) / 2, 0, 0, 0);
-            // ...note the left margin above has a negative value to shift images on the left
-        }
-        mContrastImage.setLayoutParams(params);
-
-        params = (LayoutParams)compareImage.getLayoutParams();
-        params.width = screenWidth >> 1;
-        params.height = (int)(params.width * mCompareHeight / (float)mCompareWidth);
-        if (params.height < screenHeight) {
-
-            params.height = screenHeight;
-            params.width = (int)(mCompareWidth * screenHeight / (float)mCompareHeight);
-        }
-        compareImage.setLayoutParams(params);
-        */
-
-
-
-
-        ///////////////// Portrait
-
+        // Position contrast & compare images according the orientation
 
         LayoutParams params = (LayoutParams)mContrastImage.getLayoutParams();
-        params.height = screenHeight >> 1;
-        params.width = (int)(mContrastBitmap.getWidth() * screenHeight / (float)mContrastBitmap.getHeight());
-        if (params.width < screenWidth) {
+        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
 
-            params.width = screenWidth;
+            params.height = screenHeight >> 1;
+            params.width = (int)(params.height * mContrastBitmap.getWidth() / (float)mContrastBitmap.getHeight());
+            if (params.width < screenWidth) {
+
+                params.width = screenWidth;
+                params.height = (int)(params.width * mContrastBitmap.getHeight() / (float)mContrastBitmap.getWidth());
+
+                // Shift both images in order to move them in the middle of the screen (vertically)
+                // -> This is needed coz a 'LinearLayout' oriented vertically allows child images to
+                //    overstep its bounds horizontally but not vertically. If not shift the other image
+                //    will be partially visible.
+
+                params.setMargins(0, (screenHeight >> 1) - params.height, 0, 0);
+                // ...note the top margin above has a negative value to shift images to the top
+            }
+        }
+        else { // Landscape
+
+            params.width = screenWidth >> 1;
             params.height = (int)(params.width * mContrastBitmap.getHeight() / (float)mContrastBitmap.getWidth());
+            if (params.height < screenHeight) {
 
+                params.height = screenHeight;
+                params.width = (int)(mContrastBitmap.getWidth() * screenHeight / (float)mContrastBitmap.getHeight());
 
+                // Shift both images in order to move them in the middle of the screen (horizontally)
+                // -> This is needed coz a 'LinearLayout' oriented horizontally allows child images to
+                //    overstep its bounds vertically but not horizontally. If not shift the other image
+                //    will be partially visible.
 
-
-
+                params.setMargins((screenWidth - (params.width << 1)) / 2, 0, 0, 0);
+                // ...note the left margin above has a negative value to shift images to the left
+            }
         }
         mContrastImage.setLayoutParams(params);
 
-
         params = (LayoutParams)compareImage.getLayoutParams();
-        params.height = screenHeight >> 1;
-        params.width = (int)(mCompareWidth * screenHeight / (float)mCompareHeight);
-        if (params.width < screenWidth) {
+        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
 
-            params.width = screenWidth;
+            params.height = screenHeight >> 1;
+            params.width = (int)(params.height * mCompareWidth / (float)mCompareHeight);
+            if (params.width < screenWidth) {
+
+                params.width = screenWidth;
+                params.height = (int)(params.width * mCompareHeight / (float)mCompareWidth);
+            }
+        }
+        else { // Landscape
+
+            params.width = screenWidth >> 1;
             params.height = (int)(params.width * mCompareHeight / (float)mCompareWidth);
+            if (params.height < screenHeight) {
+
+                params.height = screenHeight;
+                params.width = (int)(mCompareWidth * screenHeight / (float)mCompareHeight);
+            }
         }
         compareImage.setLayoutParams(params);
-
-
-
-
-
-
-
     }
 
     private float mContrast = 1;
@@ -241,8 +246,10 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
                 0, 0, mContrast, 0, mBrightness,
                 0, 0, 0, 1, 0
         });
-        // With: mContrast in [0;10] and 1 as default
-        //       mBrightness in [-255;255] and 0 as default
+        // With: Contrast in [0;10] and 1 as default
+        //       Brightness in [-255;255] and 0 as default
+        // So: Contrast 0...1...10 => Progress 0...50...100
+        //     Brightness -255...0...255 => Progress 0...255...510
 
         Bitmap bitmap = Bitmap.createBitmap(mContrastBitmap.getWidth(), mContrastBitmap.getHeight(),
                 mContrastBitmap.getConfig());
@@ -355,8 +362,8 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         // Configure the floating button that allows user to cancel settings (and that informs user on
         // which image the contrast & brightness configuration is applied)
         mCancelButton = (FloatingActionButton)findViewById(R.id.fab_cancel);
-        mCancelButton.setImageDrawable(getResources().getDrawable((!mChanged)?
-                R.drawable.ic_invert_colors_white_48dp:R.drawable.ic_invert_colors_off_white_48dp));
+        mCancelButton.setImageDrawable(getResources().getDrawable((!mChanged) ?
+                R.drawable.ic_invert_colors_white_48dp : R.drawable.ic_invert_colors_off_white_48dp));
         mCancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -393,38 +400,6 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
             ((CoordinatorLayout.LayoutParams)mCancelButton.getLayoutParams()).gravity =
                     Gravity.START|Gravity.CENTER_VERTICAL;
 
-
-
-
-
-
-
-
-
-
-
-        File documents = getExternalFilesDir(null);
-        if (documents != null)
-            ActivityWrapper.DOCUMENTS_FOLDER = documents.getAbsolutePath();
-        else
-            Logs.add(Logs.Type.F, "Failed to get documents folder");
-        Frame.getInstance().init();
-        Bundle data = new Bundle();
-        data.putInt(Frame.DATA_KEY_WIDTH, 640);
-        data.putInt(Frame.DATA_KEY_HEIGHT, 480);
-        getIntent().putExtra(Constants.DATA_ACTIVITY, data);
-
-
-
-
-
-
-
-
-
-
-
-
         ////// Load images
         if (!loadImagesFromFiles(compareImage)) {
 
@@ -447,9 +422,9 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         final ImageView icon = (ImageView)rootView.findViewById(R.id.brightness_icon);
         LayoutParams params = (LayoutParams)icon.getLayoutParams();
         if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-            screenHeight -= params.height;
-        else
             screenHeight -= params.height << 1;
+        else
+            screenHeight -= params.height;
 
         positionImages(compareImage, screenSize.x, screenHeight);
     }
@@ -465,8 +440,11 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
     }
 
     //////
-    @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) { }
-    @Override public void onStartTrackingTouch(SeekBar seekBar) { onUpdateContrastBrightness(seekBar); }
-    @Override public void onStopTrackingTouch(SeekBar seekBar) { onUpdateContrastBrightness(seekBar); }
+    @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        if (fromUser)
+            onUpdateContrastBrightness(seekBar);
+    }
+    @Override public void onStartTrackingTouch(SeekBar seekBar) { }
+    @Override public void onStopTrackingTouch(SeekBar seekBar) { }
 
 }

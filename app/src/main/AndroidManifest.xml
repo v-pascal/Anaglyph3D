@@ -29,7 +29,6 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <!--
         <activity
             android:name=".ConnectActivity"
             android:configChanges="orientation|screenSize">
@@ -38,7 +37,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> -->
+        </activity>
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize"
@@ -70,7 +69,6 @@
             android:name=".process.ProcessActivity"
             android:configChanges="orientation|screenSize"
             android:parentActivityName=".MainActivity" />
-        <!--
         <activity
             android:name=".process.configure.ContrastActivity"
             android:label="@string/title_activity_contrast"
@@ -79,20 +77,6 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.studio.artaban.anaglyph3d.process.ProcessActivity" />
-        </activity> -->
-        <activity
-            android:name=".process.configure.ContrastActivity"
-            android:label="@string/title_activity_contrast"
-            android:theme="@style/Theme.AppCompat.NoActionBar">
-
-
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-
-
-
         </activity>
     </application>
 
