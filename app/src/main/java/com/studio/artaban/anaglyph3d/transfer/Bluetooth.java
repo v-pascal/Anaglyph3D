@@ -36,8 +36,8 @@ public class Bluetooth {
         CONNECTING, // Slave mode
         CONNECTED   // Processing connection
     }
-    public static final int MAX_SEND_BUFFER = 1024;
-    public static final int MAX_RECEIVE_BUFFER = MAX_SEND_BUFFER >> 2; // Receive buffer must be > send buffer
+    public static final int MAX_SEND_BUFFER = 4096;
+    public static final int MAX_RECEIVE_BUFFER = MAX_SEND_BUFFER >> 3; // Receive buffer must be > send buffer
 
     private BluetoothAdapter mAdapter;
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {

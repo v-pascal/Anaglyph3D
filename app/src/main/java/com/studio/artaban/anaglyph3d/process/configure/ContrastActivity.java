@@ -439,6 +439,22 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         super.onSaveInstanceState(outState);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+
+
+
+
+        //Inform user skip contrast step?
+
+
+
+
+
+    }
+
     //////
     @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (fromUser)

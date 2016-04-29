@@ -316,20 +316,27 @@ public class ProcessThread extends Thread {
 
 
 
-                        /*
 
+
+
+
+
+
+                        /*
                         // Load contrast activity
                         Bundle data = new Bundle();
                         data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
                         data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
 
                         ActivityWrapper.startActivity(ContrastActivity.class, data, 0);
-
-
-
-
                         */
+
                         Bundle data = new Bundle();
+
+
+
+
+
 
 
 
@@ -409,6 +416,7 @@ public class ProcessThread extends Thread {
 
 
                     sleep();
+
 
 
 

@@ -84,6 +84,7 @@ public abstract class BufferRequest implements ConnectRequest {
             @Override
             public void run() {
 
+                int waitEvery = 0;
                 for (int sent = 0; sent < mBuffer.length; sent += Bluetooth.MAX_SEND_BUFFER) {
                     int send = ((sent + Bluetooth.MAX_SEND_BUFFER) < mBuffer.length)?
                             Bluetooth.MAX_SEND_BUFFER:mBuffer.length - sent;
@@ -95,6 +96,14 @@ public abstract class BufferRequest implements ConnectRequest {
                         break;
                     }
                     mTransferSize += send;
+
+                    if (++waitEvery == 30) { // Wait 100 ms every 30 buffers sent
+                        try { Thread.sleep(100, 0); }
+                        catch (InterruptedException e) {
+                            Logs.add(Logs.Type.W, e.getMessage());
+                        }
+                        waitEvery = 0;
+                    }
                 }
             }
         }).start();
