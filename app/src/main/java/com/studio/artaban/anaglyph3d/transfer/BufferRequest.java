@@ -97,7 +97,7 @@ public abstract class BufferRequest implements ConnectRequest {
                     }
                     mTransferSize += send;
 
-                    if (++waitEvery == 30) { // Wait 100 ms every 30 buffers sent
+                    if (++waitEvery == 50) { // Wait 100 ms every 50 packets sent
                         try { Thread.sleep(100, 0); }
                         catch (InterruptedException e) {
                             Logs.add(Logs.Type.W, e.getMessage());
@@ -107,6 +107,14 @@ public abstract class BufferRequest implements ConnectRequest {
                 }
             }
         }).start();
+    }
+    public boolean send(int missing) { // Send only bytes not received by the remote device
+                                       // -> After the maximum time limit to receive buffer has expired
+
+        return Connectivity.getInstance().send(mBuffer, mBuffer.length - missing, missing);
+
+        // BUG: Sometime the remote device will not receive the entire buffer after having sent it from
+        //      method above. A new request has been added to avoid this issue (see 'Connectivity' class)
     }
 
     //
