@@ -130,7 +130,7 @@
 
         <ProgressBar
             android:layout_width="match_parent"
-            android:layout_height="8dp"
+            android:layout_height="4dp"
             style="@android:style/Widget.ProgressBar.Horizontal"
             android:progressDrawable="@drawable/process_progress"
             android:id="@+id/status_progress" />
