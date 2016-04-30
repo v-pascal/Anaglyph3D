@@ -48,6 +48,7 @@
     <string name="reverse_disabled">ATTENTION: Impossible de retourner l\'écran sur ce périphérique!</string>
     <string name="status_label">Statut:</string>
     <string name="title_activity_contrast">Contraste &amp; luminosité</string>
+    <string name="ask_skip_contrast">Etes-vous sûr de vouloir passer cette étape?</string>
 
     <!-- Process error -->
     <string name="error_save_picture">Impossible de sauvegarder l\'image de configuration du contraste &amp; luminisité!</string>

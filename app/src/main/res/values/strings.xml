@@ -113,6 +113,7 @@
     <string name="reverse_disabled">WARNING: Impossible to reverse screen on this device!</string>
     <string name="status_label">Status:</string>
     <string name="title_activity_contrast">Contrast &amp; brightness</string>
+    <string name="ask_skip_contrast">Are you sure you want to skip this step?</string>
 
     <!-- Process error -->
     <string name="error_save_picture">Failed to save picture to set contrast &amp; brightness!</string>

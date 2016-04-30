@@ -1,5 +1,6 @@
 package com.studio.artaban.anaglyph3d.process.configure;
 
+import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -12,11 +13,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
@@ -37,7 +40,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
+public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener,
+        DialogInterface.OnClickListener {
 
     public static final String DATA_KEY_CONTRAST = "contrast";
     public static final String DATA_KEY_BRIGHTNESS = "brightness";
@@ -296,6 +300,12 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         setResult(Constants.RESULT_PROCESS_CONTRAST);
         finish();
     }
+    private void onCancel() {
+
+        // Ask user to skip contrast & brightness step
+        DisplayMessage.getInstance().alert(R.string.title_warning, R.string.ask_skip_contrast,
+                null, true, this);
+    }
 
     //////
     @Override
@@ -439,20 +449,22 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         super.onSaveInstanceState(outState);
     }
 
+    @Override public void onBackPressed() { onCancel(); }
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.home) {
 
+            onCancel();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
-
-
-
-        //Inform user skip contrast step?
-
-
-
-
-
+    //////
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        if (which == DialogInterface.BUTTON_POSITIVE)
+            finish();
     }
 
     //////

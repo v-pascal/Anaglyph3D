@@ -205,6 +205,8 @@ public class ProcessActivity extends AppCompatActivity {
         // RESULT_PROCESS_CANCELLED
         // RESULT_PROCESS_CONTRAST
 
+        //getIntent().putExtra(DATA_KEY_CONTRAST, mContrast);
+        //getIntent().putExtra(DATA_KEY_BRIGHTNESS, mBrightness);
 
 
 
