@@ -119,6 +119,7 @@
     <string name="error_save_picture">Failed to save picture to set contrast &amp; brightness!</string>
     <string name="error_load_video">Failed to load local video!</string>
     <string name="error_contrast_failed">WARNING: Failed to display contrast &amp; brightness images! Step cancelled.</string>
+    <string name="error_save_video">Failed to save transferred video!</string>
 
     <!-- Process step -->
     <string name="step_contrast">Contrast &amp; brightness</string>
@@ -135,5 +136,9 @@
     <string name="status_wait_contrast">Waiting contrast &amp; brightness setting...</string>
     <string name="status_transfer_contrast">Transfer contrast &amp; brightness setting...</string>
     <string name="status_save_video">Save the transferred video...</string>
+    <string name="status_extract_left">Left camera video extracting...</string>
+    <string name="status_extract_right">Right camera video extracting...</string>
+    <string name="status_merge_fps">Matching frame per second...</string>
+    <string name="status_extract_audio">Extracting audio from video...</string>
 
 </resources>

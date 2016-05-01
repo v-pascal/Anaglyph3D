@@ -3,6 +3,8 @@ package com.studio.artaban.anaglyph3d.media;
 import android.os.Bundle;
 
 import com.studio.artaban.anaglyph3d.data.Constants;
+import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.process.ProcessThread;
 import com.studio.artaban.anaglyph3d.transfer.BufferRequest;
 import com.studio.artaban.anaglyph3d.transfer.ConnectRequest;
 
@@ -39,6 +41,15 @@ public class Video extends BufferRequest {
     }
 
     //////
+    private static final String AUDIO_WAV_FILENAME = "audio.wav";
+
+    public static boolean extractFramesRGBA(String file, Frame.Orientation orientation, String frames) {
+
+        return ProcessThread.mGStreamer.launch("filesrc location=\"" + file + "\" ! decodebin" +
+                " ! videoflip method= method=" + orientation.getFlipMethod() + " ! videoconvert" +
+                " ! video/x-raw,format=RGBA ! multifilesink location=\"" + frames + "\"");
+    }
+    public static void mergeFPS() {
 
 
 
@@ -47,4 +58,12 @@ public class Video extends BufferRequest {
 
 
 
+
+    }
+    public static boolean extractAudio(String file) {
+
+        return ProcessThread.mGStreamer.launch("filesrc location=\"" + file + "\" ! decodebin" +
+                " ! audioconvert ! wavenc ! filesink location=\"" + ActivityWrapper.DOCUMENTS_FOLDER +
+                AUDIO_WAV_FILENAME + "\"");
+    }
 }

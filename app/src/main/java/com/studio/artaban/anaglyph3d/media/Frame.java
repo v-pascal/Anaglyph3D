@@ -102,13 +102,13 @@ public class Frame extends BufferRequest {
         Orientation(short method) { flipMethod = method; }
         public short getFlipMethod() { return flipMethod; }
     };
-    public static boolean convertNV21toARGB(String source, int width, int height,
+    public static boolean convertNV21toRGBA(String source, int width, int height,
                                             String destination, Orientation orientation) {
 
         int size = (width * height * 3) >> 1; // NV21 buffer size
-        return ProcessThread.mGStreamer.launch("filesrc location=" + source + " blocksize=" + size +
+        return ProcessThread.mGStreamer.launch("filesrc location=\"" + source + "\" blocksize=" + size +
                 " ! video/x-raw,format=NV21,width=" + width + ",height=" + height + ",framerate=1/1" +
                 " ! videoflip method=" + orientation.getFlipMethod() + " ! videoconvert" +
-                " ! video/x-raw,format=RGBA ! filesink location=" + destination);
+                " ! video/x-raw,format=RGBA ! filesink location=\"" + destination + "\"");
     }
 }

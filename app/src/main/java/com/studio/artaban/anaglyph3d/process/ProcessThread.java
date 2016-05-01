@@ -75,13 +75,15 @@ public class ProcessThread extends Thread {
         WAIT_VIDEO (R.string.status_transfer_video), // Wait until video has been received
 
         SAVE_VIDEO (R.string.status_save_video), // Save remote video
-        EXTRACT_FRAMES_LEFT(0), // Extract ARGB pictures from left camera
-        EXTRACT_FRAMES_RIGHT(0), // Extract ARGB pictures from right camera
-        EXTRACT_AUDIO(0), // Extract audio from one of the videos
-        MERGE_FPS(0), // Remove the too many RGB pictures from camera video with bigger FPS
+        EXTRACT_FRAMES_LEFT (R.string.status_extract_left), // Extract ARGB pictures from left camera
+        EXTRACT_FRAMES_RIGHT (R.string.status_extract_right), // Extract ARGB pictures from right camera
+        MERGE_FPS (R.string.status_merge_fps), // Remove the too many RGB pictures from camera video with bigger FPS
+
+        WAIT_SYNCHRO (Constants.NO_DATA), // Wait synchro configuration
+        EXTRACT_AUDIO (R.string.status_extract_audio), // Extract audio from one of the videos
 
         TRANSFER_CONTRAST (R.string.status_transfer_contrast), // Transfer the contrast & brightness (from device which is not the maker)
-        WAIT_CONTRAST (R.string.status_wait_contrast), // Wait until contrast & brightness have been received
+        WAIT_CONTRAST (R.string.status_wait_contrast), // Wait until contrast & brightness has been received
 
         ////// Frames conversion step
 
@@ -103,10 +105,39 @@ public class ProcessThread extends Thread {
     }
     private Step mStep = Step.CONTRAST;
     private Status mStatus = Status.INITIALIZATION;
+    private boolean mLocalAudio = true; // To define from which video to extract the audio (after synchronization)
 
-    public static GstObject mGStreamer;
+    private Frame.Orientation getOrientation() { // Return frame orientation according settings
+
+        if (Settings.getInstance().mOrientation) // Portrait
+            return (Settings.getInstance().mReverse)?
+                    Frame.Orientation.REVERSE_PORTRAIT: Frame.Orientation.PORTRAIT;
+        else // Landscape
+            return (Settings.getInstance().mReverse)?
+                    Frame.Orientation.REVERSE_LANDSCAPE: Frame.Orientation.LANDSCAPE;
+    }
+
+    public static GstObject mGStreamer; // GStreamer object used to manipulate pictures & videos
 
     //
+    public void applySynchronization(int origin, boolean local) {
+
+
+
+
+
+
+
+        //mLocalAudio = local;
+        //mStatus = Status.EXTRACT_AUDIO;
+
+
+
+
+
+
+    }
+
     public static class ProgressStatus {
 
         public String message = "";
@@ -145,6 +176,7 @@ public class ProcessThread extends Thread {
 
                     // Heavy process
                     case CONVERT_PICTURE:
+                    case SAVE_VIDEO:
                     case EXTRACT_FRAMES_LEFT:
                     case EXTRACT_FRAMES_RIGHT:
                     case EXTRACT_AUDIO: {
@@ -179,7 +211,7 @@ public class ProcessThread extends Thread {
     public void run() {
 
         Logs.add(Logs.Type.V, "Process thread started");
-        boolean localPicture = true; // To define which picture to process (local or remote)
+        boolean local = true; // To define which picture/video to process (local or remote)
 
         while (!mAbort) {
             switch (mStatus) {
@@ -204,7 +236,7 @@ public class ProcessThread extends Thread {
                     }
 
                     //////
-                    localPicture = true;
+                    local = true;
                     if (!Settings.getInstance().isMaker())
                         mStatus = Status.SAVE_PICTURE;
 
@@ -237,7 +269,7 @@ public class ProcessThread extends Thread {
                     if (Frame.getInstance().getTransferSize() == Frame.getInstance().getBufferSize()) {
                         if (!Settings.getInstance().isMaker()) {
 
-                            localPicture = false;
+                            local = false;
                             mStatus = Status.SAVE_PICTURE;
                         }
                         else { // Maker
@@ -252,11 +284,11 @@ public class ProcessThread extends Thread {
                 ////// Called twice: for both local and remote pictures
                 case SAVE_PICTURE: {
 
-                    publishProgress(2 + ((localPicture)? 0:2), 4);
+                    publishProgress(2 + ((local)? 0:2), 4);
 
                     // Save NV21 local/remote raw picture file
                     try {
-                        byte[] raw = (localPicture)? mPictureRaw:Frame.getInstance().getBuffer();
+                        byte[] raw = (local)? mPictureRaw:Frame.getInstance().getBuffer();
                         File rawFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
                                 Constants.PROCESS_RAW_PICTURE_FILENAME);
 
@@ -286,29 +318,21 @@ public class ProcessThread extends Thread {
                 }
                 case CONVERT_PICTURE: {
 
-                    publishProgress(3 + ((localPicture)? 0:2), 4);
+                    publishProgress(3 + ((local)? 0:2), 4);
 
                     // Convert NV21 to ARGB picture file
 
-                    int width = (localPicture)? mPictureSize.width:Frame.getInstance().getWidth();
-                    int height = (localPicture)? mPictureSize.height:Frame.getInstance().getHeight();
+                    int width = (local)? mPictureSize.width:Frame.getInstance().getWidth();
+                    int height = (local)? mPictureSize.height:Frame.getInstance().getHeight();
                     // -> Raw picture always in landscape orientation
 
-                    Frame.Orientation orientation;
-                    if (Settings.getInstance().mOrientation) // Portrait
-                        orientation = (Settings.getInstance().mReverse)?
-                                Frame.Orientation.REVERSE_PORTRAIT: Frame.Orientation.PORTRAIT;
-                    else // Landscape
-                        orientation = (Settings.getInstance().mReverse)?
-                                Frame.Orientation.REVERSE_LANDSCAPE: Frame.Orientation.LANDSCAPE;
-
-                    Frame.convertNV21toARGB(ActivityWrapper.DOCUMENTS_FOLDER + Constants.PROCESS_RAW_PICTURE_FILENAME,
+                    Frame.convertNV21toRGBA(ActivityWrapper.DOCUMENTS_FOLDER + Constants.PROCESS_RAW_PICTURE_FILENAME,
                             width, height, ActivityWrapper.DOCUMENTS_FOLDER +
-                                    ((localPicture)?
-                                    Constants.PROCESS_LOCAL_PICTURE_FILENAME:
-                                    Constants.PROCESS_REMOTE_PICTURE_FILENAME), orientation);
+                                    ((local) ?
+                                            Constants.PROCESS_LOCAL_PICTURE_FILENAME :
+                                            Constants.PROCESS_REMOTE_PICTURE_FILENAME), getOrientation());
 
-                    if (localPicture)
+                    if (local)
                         mStatus = Status.WAIT_PICTURE;
 
                     else {
@@ -380,7 +404,14 @@ public class ProcessThread extends Thread {
 
 
 
+
+
+
                     sleep();
+                    publishProgress(0, 1);
+
+
+
 
 
 
@@ -390,10 +421,88 @@ public class ProcessThread extends Thread {
                 }
                 case SAVE_VIDEO: {
 
+                    sleep();
+                    publishProgress(0, 1);
 
+                    // Save transferred video file
+                    try {
+                        byte[] raw = Video.getInstance().getBuffer();
+                        File videoFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
+                                Constants.PROCESS_REMOTE_VIDEO_FILENAME);
 
+                        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(videoFile));
+                        bos.write(raw);
+                        bos.flush();
+                        bos.close();
+
+                        local = true;
+                        mStatus = Status.EXTRACT_FRAMES_LEFT;
+                    }
+                    catch (IOException e) {
+
+                        Logs.add(Logs.Type.E, "Failed to save remote video");
+                        mAbort = true;
+
+                        // Inform user
+                        DisplayMessage.getInstance().alert(R.string.title_error, R.string.error_save_video,
+                                null, false, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        ActivityWrapper.stopActivity(ProcessActivity.class,
+                                                Constants.NO_DATA);
+                                    }
+                                });
+                    }
+                    break;
+                }
+                case EXTRACT_FRAMES_LEFT:
+                case EXTRACT_FRAMES_RIGHT: {
 
                     sleep();
+                    publishProgress(0, 1);
+
+                    Video.extractFramesRGBA(ActivityWrapper.DOCUMENTS_FOLDER + ((local)?
+                                    Constants.PROCESS_VIDEO_3GP_FILENAME:
+                                    Constants.PROCESS_REMOTE_VIDEO_FILENAME),
+                            getOrientation(), ActivityWrapper.DOCUMENTS_FOLDER + ((local)?
+                                    Constants.PROCESS_LOCAL_FRAMES_FILENAME:
+                                    Constants.PROCESS_REMOTE_FRAMES_FILENAME));
+
+                    //////
+                    mStatus = (local)? Status.EXTRACT_FRAMES_RIGHT:Status.MERGE_FPS;
+                    local = false;
+                    break;
+                }
+                case MERGE_FPS: {
+
+                    sleep();
+                    publishProgress(0, 1);
+
+                    Video.mergeFPS();
+
+                    //////
+                    mStatus = Status.EXTRACT_AUDIO;
+                    break;
+                }
+                case WAIT_SYNCHRO: {
+
+                    sleep();
+                    break;
+                }
+                case EXTRACT_AUDIO: {
+
+                    sleep();
+                    publishProgress(0, 1);
+
+                    Video.extractAudio((mLocalAudio)?
+                            Constants.PROCESS_VIDEO_3GP_FILENAME:
+                            Constants.PROCESS_REMOTE_VIDEO_FILENAME);
+
+
+
+
+
+
 
 
 

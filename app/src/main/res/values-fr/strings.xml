@@ -54,6 +54,7 @@
     <string name="error_save_picture">Impossible de sauvegarder l\'image de configuration du contraste &amp; luminisité!</string>
     <string name="error_load_video">Impossible de charger la vidéo!</string>
     <string name="error_contrast_failed">ATTENTION: Impossible d\'afficher les images de configuration du contraste &amp; luminosité! Etape annulée.</string>
+    <string name="error_save_video">Impossible de sauvegarder la vidéo ainsi transférée!</string>
 
     <!-- Process step -->
     <string name="step_contrast">Contraste &amp; luminosité</string>
@@ -70,5 +71,9 @@
     <string name="status_wait_contrast">Contraste &amp; luminosité en attente...</string>
     <string name="status_transfer_contrast">Transfert du contraste &amp; luminosité...</string>
     <string name="status_save_video">Sauvegarde de la vidéo transférée...</string>
+    <string name="status_extract_left">Extraction de la vidéo gauche...</string>
+    <string name="status_extract_right">Extraction de la vidéo droite...</string>
+    <string name="status_merge_fps">Correspondance des images par seconde...</string>
+    <string name="status_extract_audio">Extraction de l\'audio...</string>
 
 </resources>
