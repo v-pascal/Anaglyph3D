@@ -113,13 +113,17 @@
     <string name="reverse_disabled">WARNING: Impossible to reverse screen on this device!</string>
     <string name="status_label">Status:</string>
     <string name="title_activity_contrast">Contrast &amp; brightness</string>
+    <string name="title_activity_synchro">Synchronization</string>
     <string name="ask_skip_contrast">Are you sure you want to skip this step?</string>
 
     <!-- Process error -->
     <string name="error_save_picture">Failed to save picture to set contrast &amp; brightness!</string>
     <string name="error_load_video">Failed to load local video!</string>
-    <string name="error_contrast_failed">WARNING: Failed to display contrast &amp; brightness images! Step cancelled.</string>
+    <string name="error_contrast_failed">WARNING: Failed to display contrast &amp; brightness image! Step cancelled.</string>
     <string name="error_save_video">Failed to save transferred video!</string>
+    <string name="error_convert_contrast">Failed to convert contrast &amp; brightness image!</string>
+    <string name="error_extract_frames">Failed to extract frames from the video!</string>
+    <string name="error_extract_audio">Failed to extract audio from the video!</string>
 
     <!-- Process step -->
     <string name="step_contrast">Contrast &amp; brightness</string>
@@ -140,5 +144,12 @@
     <string name="status_extract_right">Right camera video extracting...</string>
     <string name="status_merge_fps">Matching frame per second...</string>
     <string name="status_extract_audio">Extracting audio from video...</string>
+
+
+
+    <string name="section_format">Hello World from section: %1$d</string>
+
+
+
 
 </resources>

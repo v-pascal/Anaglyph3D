@@ -203,10 +203,15 @@ public class ProcessActivity extends AppCompatActivity {
 
         //Check contrast or synchronization activity results:
         // RESULT_PROCESS_CANCELLED
+
         // RESULT_PROCESS_CONTRAST
+        // RESULT_PROCESS_SYNCHRO
 
         //getIntent().putExtra(DATA_KEY_CONTRAST, mContrast);
         //getIntent().putExtra(DATA_KEY_BRIGHTNESS, mBrightness);
+
+        //mProcessThread.applyContrastBrightness();
+        //mProcessThread.applySynchronization();
 
 
 

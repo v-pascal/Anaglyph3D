@@ -78,6 +78,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.studio.artaban.anaglyph3d.process.ProcessActivity" />
         </activity>
+        <activity
+            android:name=".process.configure.SynchroActivity"
+            android:label="@string/title_activity_synchro"
+            android:parentActivityName=".process.ProcessActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.studio.artaban.anaglyph3d.process.ProcessActivity" />
+        </activity>
     </application>
 
 </manifest>

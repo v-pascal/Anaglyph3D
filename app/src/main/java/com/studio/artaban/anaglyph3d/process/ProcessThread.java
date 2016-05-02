@@ -14,6 +14,7 @@ import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.media.Frame;
 import com.studio.artaban.anaglyph3d.media.Video;
 import com.studio.artaban.anaglyph3d.process.configure.ContrastActivity;
+import com.studio.artaban.anaglyph3d.process.configure.SynchroActivity;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 import com.studio.artaban.libGST.GstObject;
 
@@ -28,6 +29,9 @@ import java.io.IOException;
  * Process thread (runnable thread)
  */
 public class ProcessThread extends Thread {
+
+    public static final String DATA_KEY_FRAME_COUNT = "frameCount";
+    // Data keys
 
     public ProcessThread(Camera.Size size, byte[] raw) {
         mPictureSize = size;
@@ -104,8 +108,11 @@ public class ProcessThread extends Thread {
         public int getStringId() { return stringId; }
     }
     private Step mStep = Step.CONTRAST;
-    private Status mStatus = Status.INITIALIZATION;
+    private volatile Status mStatus = Status.INITIALIZATION;
+
     private boolean mLocalAudio = true; // To define from which video to extract the audio (after synchronization)
+    private float mContrast = 1; // Contrast configured by the user
+    private float mBrightness = 0; // Brightness configured by the user
 
     private Frame.Orientation getOrientation() { // Return frame orientation according settings
 
@@ -119,8 +126,8 @@ public class ProcessThread extends Thread {
 
     public static GstObject mGStreamer; // GStreamer object used to manipulate pictures & videos
 
-    //
-    public void applySynchronization(int origin, boolean local) {
+    //////
+    public void applySynchronization(int offset, boolean local) {
 
 
 
@@ -128,16 +135,30 @@ public class ProcessThread extends Thread {
 
 
 
-        //mLocalAudio = local;
-        //mStatus = Status.EXTRACT_AUDIO;
+
+
+        // apply configuration here
 
 
 
 
 
 
+
+
+
+
+        //////
+        mLocalAudio = local;
+        mStatus = Status.EXTRACT_AUDIO;
+    }
+    public void applyContrastBrightness(float contrast, float brightness) {
+
+        mContrast = contrast;
+        mBrightness = brightness;
     }
 
+    //
     public static class ProgressStatus {
 
         public String message = "";
@@ -326,12 +347,26 @@ public class ProcessThread extends Thread {
                     int height = (local)? mPictureSize.height:Frame.getInstance().getHeight();
                     // -> Raw picture always in landscape orientation
 
-                    Frame.convertNV21toRGBA(ActivityWrapper.DOCUMENTS_FOLDER + Constants.PROCESS_RAW_PICTURE_FILENAME,
+                    if (!Frame.convertNV21toRGBA(ActivityWrapper.DOCUMENTS_FOLDER + Constants.PROCESS_RAW_PICTURE_FILENAME,
                             width, height, ActivityWrapper.DOCUMENTS_FOLDER +
                                     ((local) ?
                                             Constants.PROCESS_LOCAL_PICTURE_FILENAME :
-                                            Constants.PROCESS_REMOTE_PICTURE_FILENAME), getOrientation());
+                                            Constants.PROCESS_REMOTE_PICTURE_FILENAME), getOrientation())) {
 
+                        Logs.add(Logs.Type.E, "Failed to convert contrast picture");
+                        mAbort = true;
+
+                        // Inform user
+                        DisplayMessage.getInstance().alert(R.string.title_error, R.string.error_convert_contrast,
+                                null, false, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        ActivityWrapper.stopActivity(ProcessActivity.class,
+                                                Constants.NO_DATA);
+                                    }
+                                });
+                        break;
+                    }
                     if (local)
                         mStatus = Status.WAIT_PICTURE;
 
@@ -461,12 +496,27 @@ public class ProcessThread extends Thread {
                     sleep();
                     publishProgress(0, 1);
 
-                    Video.extractFramesRGBA(ActivityWrapper.DOCUMENTS_FOLDER + ((local)?
+                    if (!Video.extractFramesRGBA(ActivityWrapper.DOCUMENTS_FOLDER + ((local)?
                                     Constants.PROCESS_VIDEO_3GP_FILENAME:
                                     Constants.PROCESS_REMOTE_VIDEO_FILENAME),
                             getOrientation(), ActivityWrapper.DOCUMENTS_FOLDER + ((local)?
                                     Constants.PROCESS_LOCAL_FRAMES_FILENAME:
-                                    Constants.PROCESS_REMOTE_FRAMES_FILENAME));
+                                    Constants.PROCESS_REMOTE_FRAMES_FILENAME))) {
+
+                        Logs.add(Logs.Type.E, "Failed to extract video frames");
+                        mAbort = true;
+
+                        // Inform user
+                        DisplayMessage.getInstance().alert(R.string.title_error, R.string.error_extract_frames,
+                                null, false, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        ActivityWrapper.stopActivity(ProcessActivity.class,
+                                                Constants.NO_DATA);
+                                    }
+                                });
+                        break;
+                    }
 
                     //////
                     mStatus = (local)? Status.EXTRACT_FRAMES_RIGHT:Status.MERGE_FPS;
@@ -478,10 +528,16 @@ public class ProcessThread extends Thread {
                     sleep();
                     publishProgress(0, 1);
 
-                    Video.mergeFPS();
+                    int frameCount = Video.mergeFPS();
+
+                    // Load synchronization activity
+                    Bundle data = new Bundle();
+                    data.putInt(DATA_KEY_FRAME_COUNT, frameCount);
+
+                    ActivityWrapper.startActivity(SynchroActivity.class, data, 0);
 
                     //////
-                    mStatus = Status.EXTRACT_AUDIO;
+                    mStatus = Status.WAIT_SYNCHRO;
                     break;
                 }
                 case WAIT_SYNCHRO: {
@@ -494,12 +550,42 @@ public class ProcessThread extends Thread {
                     sleep();
                     publishProgress(0, 1);
 
-                    Video.extractAudio((mLocalAudio)?
+                    if (!Video.extractAudio((mLocalAudio)?
                             Constants.PROCESS_VIDEO_3GP_FILENAME:
-                            Constants.PROCESS_REMOTE_VIDEO_FILENAME);
+                            Constants.PROCESS_REMOTE_VIDEO_FILENAME)) {
+
+                        Logs.add(Logs.Type.E, "Failed to extract video audio");
+                        mAbort = true;
+
+                        // Inform user
+                        DisplayMessage.getInstance().alert(R.string.title_error, R.string.error_extract_audio,
+                                null, false, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        ActivityWrapper.stopActivity(ProcessActivity.class,
+                                                Constants.NO_DATA);
+                                    }
+                                });
+                        break;
+                    }
+
+                    //////
+                    mStatus = Status.APPLY_FRAME_CHANGES;
+                    break;
+                }
+                case APPLY_FRAME_CHANGES: {
 
 
 
+
+
+
+
+
+
+                    sleep();
+                    publishProgress(Frame.getInstance().getTransferSize(),
+                            Frame.getInstance().getBufferSize());
 
 
 

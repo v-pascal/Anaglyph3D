@@ -14,7 +14,8 @@ public class Constants {
     public static final int RESULT_RESTART_CONNECTION = 302; // Active connect activity result
     public static final int RESULT_PROCESS_CANCELLED = 303; // Recording cancelled result
     public static final int RESULT_PROCESS_CONTRAST = 304; // Contrast validated result
-    public static final int RESULT_DISPLAY_ALBUM = 305; // Display album with current 3D video result
+    public static final int RESULT_PROCESS_SYNCHRO = 305; // Synchronization validated result
+    public static final int RESULT_DISPLAY_ALBUM = 306; // Display album with current 3D video result
 
     public static final String DATA_ACTIVITY = "data"; // Bundle activity data key
     public static final String DATA_CONNECTION_ESTABLISHED = "connected"; // Connection flag key
@@ -60,11 +61,15 @@ public class Constants {
     public static final String PROCESS_VIDEO_3GP_FILENAME = "/video.3gp";
     public static final String PROCESS_RAW_PICTURE_FILENAME = "/local.nv21";
     public static final String PROCESS_LOCAL_PICTURE_FILENAME = "/local.rgba";
-
     public static final String PROCESS_REMOTE_PICTURE_FILENAME = "/remote.rgba";
     public static final String PROCESS_REMOTE_VIDEO_FILENAME = "/remote.3gp";
 
-    public static final String PROCESS_LOCAL_FRAMES_FILENAME = "/local%d.rgba";
-    public static final String PROCESS_REMOTE_FRAMES_FILENAME = "/remote%d.rgba";
+    public static final String PROCESS_LOCAL_PREFIX = "/local";
+    public static final String PROCESS_REMOTE_PREFIX = "/remote";
+    public static final String PROCESS_RGBA_EXTENSION = ".rgba";
+
+    public static final String PROCESS_LOCAL_FRAMES_FILENAME = PROCESS_LOCAL_PREFIX + "%d" + PROCESS_RGBA_EXTENSION;
+    public static final String PROCESS_REMOTE_FRAMES_FILENAME = PROCESS_REMOTE_PREFIX + "%d" + PROCESS_RGBA_EXTENSION;
+    // NOTE: Cannot use '%04d' coz the 'multifile' GStreamer plugin only works with '%d' format on Android !!!
 
 }
