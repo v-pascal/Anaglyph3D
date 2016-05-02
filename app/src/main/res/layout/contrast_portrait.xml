@@ -32,10 +32,10 @@
         <ImageView
             android:layout_width="46dp"
             android:layout_height="46dp"
-            android:layout_marginLeft="64dp"
-            android:layout_marginStart="64dp"
-            android:layout_marginRight="32dp"
-            android:layout_marginEnd="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginEnd="16dp"
             android:padding="5dp"
             android:src="@drawable/brightness"
             android:id="@+id/brightness_icon"/>
@@ -56,8 +56,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="64dp"
-            android:layout_marginEnd="64dp"
+            android:layout_marginRight="32dp"
+            android:layout_marginEnd="32dp"
             android:layout_gravity="center_vertical"
             android:text="+"/>
 
@@ -71,10 +71,10 @@
         <ImageView
             android:layout_width="46dp"
             android:layout_height="46dp"
-            android:layout_marginLeft="64dp"
-            android:layout_marginStart="64dp"
-            android:layout_marginRight="32dp"
-            android:layout_marginEnd="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginEnd="16dp"
             android:padding="5dp"
             android:src="@drawable/contrast"/>
 
@@ -94,8 +94,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="64dp"
-            android:layout_marginEnd="64dp"
+            android:layout_marginRight="32dp"
+            android:layout_marginEnd="32dp"
             android:layout_gravity="center_vertical"
             android:text="+"/>
 

@@ -597,7 +597,8 @@ public class ProcessThread extends Thread {
                     break;
                 }
             }
-            mAbort = !Connectivity.getInstance().isConnected();
+            if (!mAbort)
+                mAbort = !Connectivity.getInstance().isConnected();
         }
         Logs.add(Logs.Type.I, "Process thread stopped");
     }
