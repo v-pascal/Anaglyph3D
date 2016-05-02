@@ -49,8 +49,8 @@ public class Video extends BufferRequest {
     public static boolean extractFramesRGBA(String file, Frame.Orientation orientation, String frames) {
 
         return ProcessThread.mGStreamer.launch("filesrc location=\"" + file + "\" ! decodebin" +
-                " ! videoflip method=" + orientation.getFlipMethod() + " ! videoconvert" +
-                " ! video/x-raw,format=RGBA ! multifilesink location=\"" + frames + "\"");
+                        " ! videoflip method=" + orientation.getFlipMethod() + " ! videoconvert" +
+                        " ! video/x-raw,format=RGBA ! multifilesink location=\"" + frames + "\"");
     }
     public static int mergeFPS() { // Remove the too many frames from video with bigger FPS
 
