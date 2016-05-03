@@ -64,7 +64,7 @@
     <string name="step_contrast">Contraste &amp; luminosité</string>
     <string name="step_video">Transfert &amp; extraction des vidéos</string>
     <string name="step_frames">Conversion des images</string>
-    <string name="step_anaglyph">Création &amp; transfert de la video 3D</string>
+    <string name="step_anaglyph">Création &amp; transfert de la vidéo 3D</string>
 
     <!-- Process status -->
     <string name="status_initialize">Initialisation du processus...</string>

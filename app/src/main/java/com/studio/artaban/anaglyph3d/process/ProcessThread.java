@@ -525,6 +525,16 @@ public class ProcessThread extends Thread {
                 }
                 case MERGE_FPS: {
 
+
+
+
+
+
+
+
+
+
+
                     sleep();
                     publishProgress(0, 1);
 
@@ -535,6 +545,15 @@ public class ProcessThread extends Thread {
                     data.putInt(DATA_KEY_FRAME_COUNT, frameCount);
 
                     ActivityWrapper.startActivity(SynchroActivity.class, data, 0);
+
+
+
+
+
+
+
+
+
 
                     //////
                     mStatus = Status.WAIT_SYNCHRO;

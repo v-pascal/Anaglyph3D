@@ -1,6 +1,8 @@
 package com.studio.artaban.anaglyph3d.transfer;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
@@ -9,7 +11,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
-import java.nio.ByteBuffer;
 
 /**
  * Created by pascal on 26/04/16.
@@ -58,62 +59,10 @@ public abstract class BufferRequest implements ConnectRequest {
         if (buffer.size() == 0)
             return ReceiveResult.NONE; // Nothing has been received
 
-
-
-
-
-
-
-
-
-        if (((mBuffer.length - mTransferSize) >= (Bluetooth.MAX_SEND_BUFFER - 4)) &&
-                (buffer.size() < Bluetooth.MAX_SEND_BUFFER))
-            return ReceiveResult.NONE;
-
-
-
-
-        if ((mBuffer.length - mTransferSize) <= (Bluetooth.MAX_SEND_BUFFER - 4)) {
-
-            ByteBuffer bufferOffset = ByteBuffer.wrap(buffer.toByteArray(), 0, 4);
-            System.arraycopy(buffer.toByteArray(), 4, mBuffer, bufferOffset.getInt(), buffer.size() - 4);
-            mTransferSize += buffer.size() - 4;
-        }
-        else if ((buffer.size() % Bluetooth.MAX_SEND_BUFFER) == 0) {
-
-            for (int offset = 0; offset < buffer.size(); offset += Bluetooth.MAX_SEND_BUFFER) {
-
-                ByteBuffer bufferOffset = ByteBuffer.wrap(buffer.toByteArray(), offset, 4);
-                System.arraycopy(buffer.toByteArray(), offset + 4, mBuffer, bufferOffset.getInt(),
-                        Bluetooth.MAX_SEND_BUFFER - 4);
-                mTransferSize += Bluetooth.MAX_SEND_BUFFER - 4;
-            }
-        }
-        else
-            return ReceiveResult.NONE;
-
-        buffer.reset();
-
-
-
-
-
-
-
-
-
-
         // Fill buffer received
-        //System.arraycopy(buffer.toByteArray(), 0, mBuffer, mTransferSize, buffer.size());
-        //mTransferSize += buffer.size();
-        //buffer.reset();
-
-
-
-
-
-
-
+        System.arraycopy(buffer.toByteArray(), 0, mBuffer, mTransferSize, buffer.size());
+        mTransferSize += buffer.size();
+        buffer.reset();
 
         if (mTransferSize == mBuffer.length)
             return ReceiveResult.SUCCESS; // Buffer fully received
@@ -123,12 +72,6 @@ public abstract class BufferRequest implements ConnectRequest {
 
         Logs.add(Logs.Type.D, mRequestId + " - Received: " + mTransferSize + "/" + mBuffer.length);
         return ReceiveResult.PARTIAL; // ...buffer not fully received yet
-
-
-
-
-
-
     }
 
     //////
@@ -139,41 +82,15 @@ public abstract class BufferRequest implements ConnectRequest {
 
         mTransferSize = 0;
 
-        new Thread(new Runnable() {
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
 
                 int waitEvery = 0;
-                for (int sent = 0; sent < mBuffer.length; sent += Bluetooth.MAX_SEND_BUFFER - 4) {
-                /*
                 for (int sent = 0; sent < mBuffer.length; sent += Bluetooth.MAX_SEND_BUFFER) {
-                    int send = ((sent + Bluetooth.MAX_SEND_BUFFER) < mBuffer.length)?
-                            Bluetooth.MAX_SEND_BUFFER:mBuffer.length - sent;
-
-                    // Send buffer packet
-                    if (!Connectivity.getInstance().send(mBuffer, sent, send)) {
-
-                        Logs.add(Logs.Type.E, "Failed to send buffer packet");
-                        break;
-                    }
-                    mTransferSize += send;
-                    */
-
-
-
-
-
-                    int send = ((sent + Bluetooth.MAX_SEND_BUFFER - 4) < mBuffer.length)?
-                            Bluetooth.MAX_SEND_BUFFER - 4:mBuffer.length - sent;
-
-                    // Send offset
-                    ByteBuffer bufferOffset = ByteBuffer.allocate(4);
-                    bufferOffset.putInt(sent);
-                    if (!Connectivity.getInstance().send(bufferOffset.array(), 0, 4)) {
-
-                        Logs.add(Logs.Type.E, "Failed to send buffer offset");
-                        break;
-                    }
+                    int send = ((sent + Bluetooth.MAX_SEND_BUFFER) < mBuffer.length) ?
+                            Bluetooth.MAX_SEND_BUFFER : mBuffer.length - sent;
 
                     // Send buffer packet
                     if (!Connectivity.getInstance().send(mBuffer, sent, send)) {
@@ -183,24 +100,17 @@ public abstract class BufferRequest implements ConnectRequest {
                     }
                     mTransferSize += send;
 
-
-
-
-
-
-
-
-
-                    if (++waitEvery == 50) { // Wait 100 ms every 50 packets sent
-                        try { Thread.sleep(100, 0); }
-                        catch (InterruptedException e) {
+                    if (++waitEvery == 25) { // Wait 50 ms every 25 packets sent
+                        try {
+                            Thread.sleep(50, 0);
+                        } catch (InterruptedException e) {
                             Logs.add(Logs.Type.W, e.getMessage());
                         }
                         waitEvery = 0;
                     }
                 }
             }
-        }).start();
+        }, 500);
     }
     public boolean send(int missing) { // Send only bytes not received by the remote device
                                        // -> After the maximum time limit to receive buffer has expired
