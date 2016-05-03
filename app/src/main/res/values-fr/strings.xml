@@ -62,7 +62,7 @@
 
     <!-- Process step -->
     <string name="step_contrast">Contraste &amp; luminosité</string>
-    <string name="step_video">Transfert &amp; extraction des videos</string>
+    <string name="step_video">Transfert &amp; extraction des vidéos</string>
     <string name="step_frames">Conversion des images</string>
     <string name="step_anaglyph">Création &amp; transfert de la video 3D</string>
 
@@ -71,7 +71,7 @@
     <string name="status_save_raw">Stocke l\'image du contraste &amp; luminosité...</string>
     <string name="status_convert_raw">Convertit l\'image du contraste &amp; luminosité...</string>
     <string name="status_transfer_raw">Transfert de l\'image du contraste &amp; luminosité</string>
-    <string name="status_transfer_video">Transfert de la video</string>
+    <string name="status_transfer_video">Transfert de la vidéo</string>
     <string name="status_wait_contrast">Contraste &amp; luminosité en attente...</string>
     <string name="status_transfer_contrast">Transfert du contraste &amp; luminosité...</string>
     <string name="status_save_video">Sauvegarde de la vidéo transférée...</string>

@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
 
 /**
  * Created by pascal on 26/04/16.
@@ -57,10 +58,62 @@ public abstract class BufferRequest implements ConnectRequest {
         if (buffer.size() == 0)
             return ReceiveResult.NONE; // Nothing has been received
 
-        // Fill buffer received
-        System.arraycopy(buffer.toByteArray(), 0, mBuffer, mTransferSize, buffer.size());
-        mTransferSize += buffer.size();
+
+
+
+
+
+
+
+
+        if (((mBuffer.length - mTransferSize) >= (Bluetooth.MAX_SEND_BUFFER - 4)) &&
+                (buffer.size() < Bluetooth.MAX_SEND_BUFFER))
+            return ReceiveResult.NONE;
+
+
+
+
+        if ((mBuffer.length - mTransferSize) <= (Bluetooth.MAX_SEND_BUFFER - 4)) {
+
+            ByteBuffer bufferOffset = ByteBuffer.wrap(buffer.toByteArray(), 0, 4);
+            System.arraycopy(buffer.toByteArray(), 4, mBuffer, bufferOffset.getInt(), buffer.size() - 4);
+            mTransferSize += buffer.size() - 4;
+        }
+        else if ((buffer.size() % Bluetooth.MAX_SEND_BUFFER) == 0) {
+
+            for (int offset = 0; offset < buffer.size(); offset += Bluetooth.MAX_SEND_BUFFER) {
+
+                ByteBuffer bufferOffset = ByteBuffer.wrap(buffer.toByteArray(), offset, 4);
+                System.arraycopy(buffer.toByteArray(), offset + 4, mBuffer, bufferOffset.getInt(),
+                        Bluetooth.MAX_SEND_BUFFER - 4);
+                mTransferSize += Bluetooth.MAX_SEND_BUFFER - 4;
+            }
+        }
+        else
+            return ReceiveResult.NONE;
+
         buffer.reset();
+
+
+
+
+
+
+
+
+
+
+        // Fill buffer received
+        //System.arraycopy(buffer.toByteArray(), 0, mBuffer, mTransferSize, buffer.size());
+        //mTransferSize += buffer.size();
+        //buffer.reset();
+
+
+
+
+
+
+
 
         if (mTransferSize == mBuffer.length)
             return ReceiveResult.SUCCESS; // Buffer fully received
@@ -70,6 +123,12 @@ public abstract class BufferRequest implements ConnectRequest {
 
         Logs.add(Logs.Type.D, mRequestId + " - Received: " + mTransferSize + "/" + mBuffer.length);
         return ReceiveResult.PARTIAL; // ...buffer not fully received yet
+
+
+
+
+
+
     }
 
     //////
@@ -85,6 +144,8 @@ public abstract class BufferRequest implements ConnectRequest {
             public void run() {
 
                 int waitEvery = 0;
+                for (int sent = 0; sent < mBuffer.length; sent += Bluetooth.MAX_SEND_BUFFER - 4) {
+                /*
                 for (int sent = 0; sent < mBuffer.length; sent += Bluetooth.MAX_SEND_BUFFER) {
                     int send = ((sent + Bluetooth.MAX_SEND_BUFFER) < mBuffer.length)?
                             Bluetooth.MAX_SEND_BUFFER:mBuffer.length - sent;
@@ -96,6 +157,39 @@ public abstract class BufferRequest implements ConnectRequest {
                         break;
                     }
                     mTransferSize += send;
+                    */
+
+
+
+
+
+                    int send = ((sent + Bluetooth.MAX_SEND_BUFFER - 4) < mBuffer.length)?
+                            Bluetooth.MAX_SEND_BUFFER - 4:mBuffer.length - sent;
+
+                    // Send offset
+                    ByteBuffer bufferOffset = ByteBuffer.allocate(4);
+                    bufferOffset.putInt(sent);
+                    if (!Connectivity.getInstance().send(bufferOffset.array(), 0, 4)) {
+
+                        Logs.add(Logs.Type.E, "Failed to send buffer offset");
+                        break;
+                    }
+
+                    // Send buffer packet
+                    if (!Connectivity.getInstance().send(mBuffer, sent, send)) {
+
+                        Logs.add(Logs.Type.E, "Failed to send buffer packet");
+                        break;
+                    }
+                    mTransferSize += send;
+
+
+
+
+
+
+
+
 
                     if (++waitEvery == 50) { // Wait 100 ms every 50 packets sent
                         try { Thread.sleep(100, 0); }

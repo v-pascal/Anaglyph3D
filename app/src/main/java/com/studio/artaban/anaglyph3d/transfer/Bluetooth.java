@@ -243,10 +243,7 @@ public class Bluetooth {
             if (mOutStream == null)
                 return;
 
-            try {
-                mOutStream.write(buffer, start, len);
-                mOutStream.flush();
-            }
+            try { mOutStream.write(buffer, start, len); }
             catch (IOException e) {
                 Logs.add(Logs.Type.E, "Failed to write: " + e.toString());
             }

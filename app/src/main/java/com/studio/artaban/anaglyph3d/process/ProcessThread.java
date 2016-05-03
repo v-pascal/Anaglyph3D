@@ -341,7 +341,7 @@ public class ProcessThread extends Thread {
 
                     publishProgress(3 + ((local)? 0:2), 4);
 
-                    // Convert NV21 to ARGB picture file
+                    // Convert NV21 to RGBA picture file
 
                     int width = (local)? mPictureSize.width:Frame.getInstance().getWidth();
                     int height = (local)? mPictureSize.height:Frame.getInstance().getHeight();
@@ -385,7 +385,7 @@ public class ProcessThread extends Thread {
                         try {
                             // Load local video buffer
                             File videoFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
-                                    Constants.PROCESS_VIDEO_3GP_FILENAME);
+                                    Constants.PROCESS_LOCAL_VIDEO_FILENAME);
                             byte[] videoBuffer = new byte[(int)videoFile.length()];
                             if (new FileInputStream(videoFile).read(videoBuffer) != videoBuffer.length)
                                 throw new IOException();
@@ -497,7 +497,7 @@ public class ProcessThread extends Thread {
                     publishProgress(0, 1);
 
                     if (!Video.extractFramesRGBA(ActivityWrapper.DOCUMENTS_FOLDER + ((local)?
-                                    Constants.PROCESS_VIDEO_3GP_FILENAME:
+                                    Constants.PROCESS_LOCAL_VIDEO_FILENAME:
                                     Constants.PROCESS_REMOTE_VIDEO_FILENAME),
                             getOrientation(), ActivityWrapper.DOCUMENTS_FOLDER + ((local)?
                                     Constants.PROCESS_LOCAL_FRAMES_FILENAME:
@@ -551,7 +551,7 @@ public class ProcessThread extends Thread {
                     publishProgress(0, 1);
 
                     if (!Video.extractAudio((mLocalAudio)?
-                            Constants.PROCESS_VIDEO_3GP_FILENAME:
+                            Constants.PROCESS_LOCAL_VIDEO_FILENAME:
                             Constants.PROCESS_REMOTE_VIDEO_FILENAME)) {
 
                         Logs.add(Logs.Type.E, "Failed to extract video audio");

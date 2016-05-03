@@ -5,6 +5,7 @@ import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.content.Context;
+import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -159,12 +160,16 @@ public class CameraView extends SurfaceView
     private void stopPreview() {
 
         // Stop camera preview
-        mCamera.stopPreview();
-        try { mCamera.setPreviewDisplay(null); }
-        catch (IOException e) {
-            Logs.add(Logs.Type.W, "Failed to remove preview display");
+        synchronized (mRawPicture) {
+
+            mTakePicture = false;
+            mCamera.stopPreview();
+            try { mCamera.setPreviewDisplay(null); }
+            catch (IOException e) {
+                Logs.add(Logs.Type.W, "Failed to remove preview display");
+            }
+            mCamera.setPreviewCallback(null);
         }
-        mCamera.setPreviewCallback(null);
         mCamera.unlock();
     }
     private boolean prepareRecording() {
@@ -179,7 +184,7 @@ public class CameraView extends SurfaceView
 
         mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
         mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         mMediaRecorder.setVideoSize(Settings.getInstance().mResolution.width,
@@ -200,7 +205,7 @@ public class CameraView extends SurfaceView
         // BUG: Not working! Start recording failed if defined.
 
         mMediaRecorder.setOutputFile(ActivityWrapper.DOCUMENTS_FOLDER +
-                Constants.PROCESS_VIDEO_3GP_FILENAME);
+                Constants.PROCESS_LOCAL_VIDEO_FILENAME);
 
         try { mMediaRecorder.prepare(); }
         catch (IOException e) {
@@ -233,7 +238,7 @@ public class CameraView extends SurfaceView
 
     private MediaRecorder mMediaRecorder;
     private Size mPreviewSize;
-    private boolean mTakePicture;
+    private volatile boolean mTakePicture;
     private byte[] mRawPicture;
 
     private void create() {
@@ -338,7 +343,10 @@ public class CameraView extends SurfaceView
 
                     @Override
                     public void onPreviewFrame(byte[] data, Camera camera) {
-                        System.arraycopy(data, 0, mRawPicture, 0, data.length);
+                        synchronized (mRawPicture) {
+                            if (mTakePicture)
+                                System.arraycopy(data, 0, mRawPicture, 0, data.length);
+                        }
                     }
                 });
 

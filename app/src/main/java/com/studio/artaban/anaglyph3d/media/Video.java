@@ -54,6 +54,7 @@ public class Video extends BufferRequest {
     }
     public static int mergeFPS() { // Remove the too many frames from video with bigger FPS
 
+        /*
         File frames = new File(ActivityWrapper.DOCUMENTS_FOLDER);
         File[] files = frames.listFiles();
 
@@ -133,6 +134,17 @@ public class Video extends BufferRequest {
             }
         }
         return (frameCount - removed); // Return frame count result
+        */
+
+
+
+
+
+        return 0;
+
+
+
+
     }
     public static boolean extractAudio(String file) {
 

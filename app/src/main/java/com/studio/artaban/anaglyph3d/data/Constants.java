@@ -46,7 +46,7 @@ public class Constants {
     public static final int CONFIG_PERFORMANCE_LOOP = 4096; // Loop count for performance calculation
 
     public static final boolean CONFIG_DEFAULT_ORIENTATION = true; // Default orientation (portrait)
-    public static final short CONFIG_DEFAULT_DURATION = 10;//60; // Default duration (in seconds)
+    public static final short CONFIG_DEFAULT_DURATION = 60; // Default duration (in seconds)
     public static final int CONFIG_MIN_DURATION = 10; // Minimum duration (in seconds)
     public static final int CONFIG_MAX_DURATION = 180; // Maximum duration (in seconds)
 
@@ -58,11 +58,11 @@ public class Constants {
     ////// Process
     public static final short PROCESS_WAIT_TRANSFER = 500; // Progress loop sleep (in milliseconds)
 
-    public static final String PROCESS_VIDEO_3GP_FILENAME = "/video.3gp";
-    public static final String PROCESS_RAW_PICTURE_FILENAME = "/local.nv21";
+    public static final String PROCESS_RAW_PICTURE_FILENAME = "/raw.nv21";
+    public static final String PROCESS_LOCAL_VIDEO_FILENAME = "/local.mp4";
+    public static final String PROCESS_REMOTE_VIDEO_FILENAME = "/remote.mp4";
     public static final String PROCESS_LOCAL_PICTURE_FILENAME = "/local.rgba";
     public static final String PROCESS_REMOTE_PICTURE_FILENAME = "/remote.rgba";
-    public static final String PROCESS_REMOTE_VIDEO_FILENAME = "/remote.3gp";
 
     public static final String PROCESS_LOCAL_PREFIX = "/local";
     public static final String PROCESS_REMOTE_PREFIX = "/remote";
