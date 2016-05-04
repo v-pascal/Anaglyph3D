@@ -14,12 +14,8 @@ import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
-import com.studio.artaban.anaglyph3d.media.Frame;
-import com.studio.artaban.anaglyph3d.media.Video;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 import com.studio.artaban.libGST.GstObject;
-
-import java.io.File;
 
 /**
  * Created by pascal on 12/04/16.

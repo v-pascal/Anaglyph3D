@@ -45,13 +45,14 @@
     <string name="not_discoverable">ATTENTION: L\'autorisation de visibilité Bluetooth a expiré! Redémarrez l\'application pour l\'autoriser à nouveau.</string>
     <string name="devices_distance">Distance entre les caméras:\n6cm - 7cm</string>
     <string name="device_not_ready">ATTENTION: Démarrage de l\'enregistrement impossible! La caméra distante n\'est pas prête.</string>
-    <string name="reverse_disabled">ATTENTION: Impossible de retourner l\'écran sur ce périphérique!</string>
+    <string name="reverse_disabled">ATTENTION: Impossible de retourner l\'écran! Vérifiez la configuration de votre périphérique.</string>
     <string name="status_label">Statut:</string>
     <string name="title_activity_contrast">Contraste &amp; luminosité</string>
     <string name="title_activity_synchro">Synchronisation</string>
     <string name="ask_skip_contrast">Etes-vous sûr de vouloir passer cette étape?</string>
 
     <!-- Process error -->
+    <string name="error_start_recording">ERREUR: Enregistrement vidéo impossible! Ce média est en cours d\'utilisation. Redémarrer votre périphérique pour fixer ce problème.</string>
     <string name="error_save_picture">Impossible de sauvegarder l\'image de configuration du contraste &amp; luminisité!</string>
     <string name="error_load_video">Impossible de charger la vidéo!</string>
     <string name="error_contrast_failed">ATTENTION: Impossible d\'afficher les images de configuration du contraste &amp; luminosité! Etape annulée.</string>

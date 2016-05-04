@@ -538,7 +538,12 @@ public class ProcessThread extends Thread {
                     sleep();
                     publishProgress(0, 1);
 
-                    int frameCount = Video.mergeFPS();
+
+
+                    //int frameCount = Video.mergeFPS();
+                    int frameCount = 5;
+
+
 
                     // Load synchronization activity
                     Bundle data = new Bundle();

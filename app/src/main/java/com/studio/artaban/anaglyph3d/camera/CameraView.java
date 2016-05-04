@@ -13,6 +13,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
@@ -137,12 +138,23 @@ public class CameraView extends SurfaceView
             }
         }, Constants.CONN_WAIT_DELAY << 1);
     }
+    private boolean startRecorder() {
+
+        try { mMediaRecorder.start(); }
+        catch (Exception e) {
+
+            Logs.add(Logs.Type.E, "Failed to start recorder");
+            DisplayMessage.getInstance().toast(R.string.error_start_recording, Toast.LENGTH_LONG);
+            return false;
+        }
+        return true;
+    }
     public void startRecording() {
         if (Settings.getInstance().isMaker()) {
 
             // Stop camera preview then start recording
             stopPreview();
-            mMediaRecorder.start();
+            startRecorder();
         }
         else { // Start recording (camera preview already stopped)
 
@@ -150,7 +162,7 @@ public class CameraView extends SurfaceView
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    mMediaRecorder.start();
+                    startRecorder();
                 }
             }, Constants.CONN_WAIT_DELAY);
         }

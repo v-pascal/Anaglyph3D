@@ -110,13 +110,14 @@
     <string name="devices_distance">Distance between cameras:\n6cm - 7cm</string>
     <string name="device_not_ready">WARNING: Failed to start recording! Remote device not ready.</string>
     <string name="image_desc_counter" translatable="false">Downcount image</string>
-    <string name="reverse_disabled">WARNING: Impossible to reverse screen on this device!</string>
+    <string name="reverse_disabled">WARNING: Unable to reverse screen! Check your device settings.</string>
     <string name="status_label">Status:</string>
     <string name="title_activity_contrast">Contrast &amp; brightness</string>
     <string name="title_activity_synchro">Synchronization</string>
     <string name="ask_skip_contrast">Are you sure you want to skip this step?</string>
 
     <!-- Process error -->
+    <string name="error_start_recording">ERROR: Unable to start recording! A media resource is in use. Restart your device to fix this.</string>
     <string name="error_save_picture">Failed to save picture to set contrast &amp; brightness!</string>
     <string name="error_load_video">Failed to load local video!</string>
     <string name="error_contrast_failed">WARNING: Failed to display contrast &amp; brightness image! Step cancelled.</string>

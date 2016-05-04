@@ -325,11 +325,22 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
             }
             else // Default status bar color (API < 21)
                 toolbar.setBackgroundColor(Color.argb(255, 30, 30, 30));
+
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onCancel();
+                }
+            });
+            // See why this listener in bug description below...
         }
 
-        final ActionBar appBar = getSupportActionBar();
+        ActionBar appBar = getSupportActionBar();
         if (appBar != null)
             appBar.setDisplayHomeAsUpEnabled(true);
+            // BUG: This method should call 'onOptionsItemSelected' when back icon is pressed but do
+            //      not it !?! Defining 'setNavigationOnClickListener' on toolbar in code just above
+            //      will fix this.
 
         // Set default activity result
         setResult(Constants.RESULT_PROCESS_CANCELLED);
