@@ -407,7 +407,7 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
             CoordinatorLayout.LayoutParams fabParams =
                     (CoordinatorLayout.LayoutParams)mCancelButton.getLayoutParams();
 
-            fabParams.setMargins(0, getActionBarHeight() + 8, 0, 0);
+            fabParams.setMargins(0, getActionBarHeight() + 16, 0, 0);
             fabParams.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
             mCancelButton.setLayoutParams(fabParams);
 

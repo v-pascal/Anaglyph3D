@@ -143,8 +143,11 @@
     <string name="status_save_video">Save the transferred video...</string>
     <string name="status_extract_left">Left camera video extracting...</string>
     <string name="status_extract_right">Right camera video extracting...</string>
-    <string name="status_merge_fps">Matching frame per second...</string>
+    <string name="status_rename_left">Renaming left frame files</string>
+    <string name="status_rename_right">Renaming right frame files</string>
+    <string name="status_merge_fps">Matching frame per second</string>
     <string name="status_extract_audio">Extracting audio from video...</string>
+    <string name="status_frames_conversion">Frames conversion</string>
 
 
 

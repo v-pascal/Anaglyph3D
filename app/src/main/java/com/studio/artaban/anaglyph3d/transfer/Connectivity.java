@@ -80,8 +80,6 @@ public class Connectivity {
     private boolean mDisconnectRequest = false;
     private boolean mDisconnectError = false;
 
-    private boolean mMissingBuffer = false; // Define if a missing buffer request has been sent
-
     private class TransferElement {
 
         public ConnectRequest handler;
@@ -202,7 +200,6 @@ public class Connectivity {
         if (reply.handler.getRequestBuffer(reply.type) == ConnectRequest.BufferType.TO_RECEIVE) {
 
             mRequestBuffer = reply; // Store buffer request
-            mMissingBuffer = false;
             mStatus = Status.WAIT_BUFFER;
         }
         return true;
@@ -231,11 +228,6 @@ public class Connectivity {
 
     private String mPendingRequest = null; // Pending request received during a reply wait
 
-    ////// Missing buffer request format: A****
-    // _ A -> Request ID (character on 2 bytes)
-    // _ **** -> Missing bytes count (integer value on 4 bytes)
-    private static final short MISSING_REQUEST_SIZE = 6; // 2 + 4 bytes
-
     // Receive request or reply
     private String receive(boolean reply) {
 
@@ -251,22 +243,6 @@ public class Connectivity {
             size = mRead.size(); // Needed when received request & reply in same time
 
         if (size > 0) {
-
-            ////// Check if received a missing buffer request
-            if (size == MISSING_REQUEST_SIZE) {
-
-                Logs.add(Logs.Type.W, "Missing buffer request received");
-
-                ByteBuffer missingRequest = ByteBuffer.wrap(mRead.toByteArray());
-                ConnectRequest handler = getHandlerInstance(missingRequest.getChar());
-                if ((handler != null) && (handler instanceof BufferRequest)) {
-
-                    ((BufferRequest)handler).send(missingRequest.getInt());
-                    mRead.reset();
-                }
-                return null;
-            }
-            //////
 
             String message;
             try { message = mRead.toString("UTF-8"); }
@@ -493,7 +469,6 @@ public class Connectivity {
                             mRequestBuffer = mRequests.get(0); // Store buffer request
                             mRequests.remove(0);
 
-                            mMissingBuffer = false;
                             mStatus = Connectivity.Status.WAIT_BUFFER;
                         }
                         else // ...will receive reply
@@ -563,30 +538,36 @@ public class Connectivity {
                         case NONE: {
 
                             if (mMaxWait-- == 0) {
-                                if (mMissingBuffer) { // Missing buffer request already sent
 
-                                    Logs.add(Logs.Type.E, "The time limit to receive buffer has expired");
-                                    mDisconnectError = true;
-                                    close();
+                                Logs.add(Logs.Type.E, "The time limit to receive buffer has expired");
+
+
+
+
+
+
+
+
+
+                                switch (mRequestBuffer.handler.getRequestId()) {
+                                    case ConnectRequest.REQ_FRAME:
+                                        Frame frame = (Frame)mRequestBuffer.handler;
+                                        Logs.add(Logs.Type.E, frame.getTransferSize() + " / " + frame.getBufferSize());
+                                        break;
+                                    case ConnectRequest.REQ_VIDEO:
+                                        Video video = (Video)mRequestBuffer.handler;
+                                        Logs.add(Logs.Type.E, video.getTransferSize() + " / " + video.getBufferSize());
+                                        break;
                                 }
-                                else {
 
-                                    Logs.add(Logs.Type.W, "Missing buffer bytes");
 
-                                    // Send missing buffer request (avoid to close when missing some bytes)
-                                    ByteBuffer missingRequest = ByteBuffer.allocate(MISSING_REQUEST_SIZE);
-                                    missingRequest.putChar(mRequestBuffer.handler.getRequestId());
-                                    BufferRequest request = (BufferRequest)mRequestBuffer.handler;
-                                    missingRequest.putInt(request.getBufferSize() - request.getTransferSize());
-                                    mBluetooth.write(missingRequest.array(), 0, MISSING_REQUEST_SIZE);
 
-                                    // BUG: Sometime the device will not receive the entire buffer even if
-                                    //      it has been fully sent by the remote device. To avoid to close
-                                    //      the connection due to this issue, a missing buffer request has
-                                    //      been added to force the remote device to resend missing bytes.
 
-                                    mMaxWait = mRequestBuffer.handler.getMaxWaitReply(mRequestBuffer.type);
-                                }
+
+
+
+                                mDisconnectError = true;
+                                close();
                             }
                             break;
                         }

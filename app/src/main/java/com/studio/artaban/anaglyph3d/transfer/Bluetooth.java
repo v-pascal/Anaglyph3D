@@ -186,8 +186,8 @@ public class Bluetooth {
                     mSocket.close();
             }
             catch (IOException e) {
-                Logs.add(Logs.Type.W, "Failed to close " + ((mSecure) ? "secure" : "insecure") + " socket (connect): " +
-                        e.toString());
+                Logs.add(Logs.Type.W, "Failed to close " + ((mSecure) ? "secure" : "insecure") +
+                        " socket (connect): " + e.toString());
             }
         }
     };
@@ -238,10 +238,10 @@ public class Bluetooth {
             }
         }
 
-        public void write(byte[] buffer, int start, int len) {
+        public boolean write(byte[] buffer, int start, int len) {
 
             if (mOutStream == null)
-                return;
+                return false;
 
             try {
                 mOutStream.write(buffer, start, len);
@@ -249,7 +249,9 @@ public class Bluetooth {
             }
             catch (IOException e) {
                 Logs.add(Logs.Type.E, "Failed to write: " + e.toString());
+                return false;
             }
+            return true;
         }
     };
 
@@ -372,10 +374,9 @@ public class Bluetooth {
             Logs.add(Logs.Type.W, "Failed to write: Wrong " + mStatus + " status");
             return false;
         }
-        ProcessThread process;
-        synchronized (mProcessing) { process = mProcessing; }
-        process.write(buffer, start, len);
-        return true;
+        synchronized (mProcessing) {
+            return mProcessing.write(buffer, start, len);
+        }
     }
     public synchronized int read(ByteArrayOutputStream buffer) {
 
@@ -383,18 +384,21 @@ public class Bluetooth {
             Logs.add(Logs.Type.W, "Failed to read: Wrong " + mStatus + " status");
             return Constants.NO_DATA;
         }
-        int bytes = mReceived.size();
-        if (bytes > 0) {
+        synchronized (mReceived) {
 
-            try {
-                buffer.write(mReceived.toByteArray());
-                mReceived.reset();
+            int bytes = mReceived.size();
+            if (bytes > 0) {
+
+                try {
+                    buffer.write(mReceived.toByteArray());
+                    mReceived.reset();
+                }
+                catch (IOException e) {
+                    Logs.add(Logs.Type.E, "Failed to read: " + e.toString());
+                }
             }
-            catch (IOException e) {
-                Logs.add(Logs.Type.E, "Failed to read: " + e.toString());
-            }
+            return bytes;
         }
-        return bytes;
     }
 
     //

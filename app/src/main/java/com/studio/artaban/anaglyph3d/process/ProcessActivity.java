@@ -17,6 +17,8 @@ import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 import com.studio.artaban.libGST.GstObject;
 
+import java.io.File;
+
 /**
  * Created by pascal on 12/04/16.
  * Activity to manage video recording and transferring using fragments:
@@ -61,9 +63,6 @@ public class ProcessActivity extends AppCompatActivity {
         // Set unspecified orientation (default device orientation)
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
-        // Remove fullscreen mode
-        //getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-
         // Start process thread
         mProcessThread = new ProcessThread(picSize, picRaw);
         mProcessThread.start();
@@ -80,14 +79,6 @@ public class ProcessActivity extends AppCompatActivity {
         // Send start request to remote device
         Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                 ActivityWrapper.REQ_TYPE_START, null);
-
-        // Set fullscreen mode
-        //int flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
-        //if (Build.VERSION.SDK_INT >= 19)
-        //    flags |= View.SYSTEM_UI_FLAG_IMMERSIVE; // Force to keep fullscreen even if touched
-        //getWindow().getDecorView().setSystemUiVisibility(flags);
-
-        // BUG: Make a crash on some device when the screen is touched (e.g 'Samsung Galaxy Trend Lite')
     }
     public void onReversePosition(View sender) {
 
@@ -159,6 +150,13 @@ public class ProcessActivity extends AppCompatActivity {
 
         // Set current activity
         ActivityWrapper.set(this);
+
+        // Remove all temporary files from storage B4 processing
+        File storage = new File(ActivityWrapper.DOCUMENTS_FOLDER);
+        for (File file : storage.listFiles()) {
+            if (file.isFile())
+                file.delete();
+        }
 
         // Set orientation
         Settings.getInstance().mReverse = false;

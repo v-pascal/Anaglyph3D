@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.studio.artaban.anaglyph3d.data.Constants;
+import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 import org.json.JSONException;
@@ -45,7 +46,26 @@ public abstract class BufferRequest implements ConnectRequest {
         }
     }
 
-    @Override public final short getMaxWaitReply(byte type) { return Constants.CONN_MAXWAIT_DEFAULT; }
+
+
+
+
+
+
+
+
+    //@Override public final short getMaxWaitReply(byte type) { return Constants.CONN_MAXWAIT_DEFAULT; }
+    @Override public final short getMaxWaitReply(byte type) { return 500; }
+
+
+
+
+
+
+
+
+
+
 
     @Override
     public final ReceiveResult receiveReply(byte type, String reply) {
@@ -60,10 +80,18 @@ public abstract class BufferRequest implements ConnectRequest {
             return ReceiveResult.NONE; // Nothing has been received
 
         // Fill buffer received
-        System.arraycopy(buffer.toByteArray(), 0, mBuffer, mTransferSize, buffer.size());
-        mTransferSize += buffer.size();
-        buffer.reset();
+        try {
+            System.arraycopy(buffer.toByteArray(), 0, mBuffer, mTransferSize, buffer.size());
+            mTransferSize += buffer.size();
+            buffer.reset();
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
 
+            Logs.add(Logs.Type.F, e.getMessage());
+            return ReceiveResult.ERROR;
+        }
+
+        //
         if (mTransferSize == mBuffer.length)
             return ReceiveResult.SUCCESS; // Buffer fully received
 
@@ -82,6 +110,43 @@ public abstract class BufferRequest implements ConnectRequest {
 
         mTransferSize = 0;
 
+
+
+
+
+        ActivityWrapper.get().runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                int waitEvery = 0;
+                for (int sent = 0; sent < mBuffer.length; sent += Bluetooth.MAX_SEND_BUFFER) {
+                    int send = ((sent + Bluetooth.MAX_SEND_BUFFER) < mBuffer.length) ?
+                            Bluetooth.MAX_SEND_BUFFER : mBuffer.length - sent;
+
+                    // Send buffer packet
+                    if (!Connectivity.getInstance().send(mBuffer, sent, send)) {
+
+                        Logs.add(Logs.Type.E, "Failed to send buffer packet");
+                        break;
+                    }
+                    mTransferSize += send;
+
+                    if (++waitEvery == 25) { // Wait 50 ms every 25 packets sent
+                        try {
+                            Thread.sleep(50, 0);
+                        } catch (InterruptedException e) {
+                            Logs.add(Logs.Type.W, e.getMessage());
+                        }
+                        waitEvery = 0;
+                    }
+                }
+            }
+        });
+
+
+
+        /*
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(new Runnable() {
             @Override
@@ -111,14 +176,7 @@ public abstract class BufferRequest implements ConnectRequest {
                 }
             }
         }, 500);
-    }
-    public boolean send(int missing) { // Send only bytes not received by the remote device
-                                       // -> After the maximum time limit to receive buffer has expired
-
-        return Connectivity.getInstance().send(mBuffer, mBuffer.length - missing, missing);
-
-        // BUG: Sometime the remote device will not receive the entire buffer after having sent it from
-        //      method above. A new request has been added to avoid this issue (see 'Connectivity' class)
+        */
     }
 
     //

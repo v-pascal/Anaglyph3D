@@ -78,7 +78,10 @@
     <string name="status_save_video">Sauvegarde de la vidéo transférée...</string>
     <string name="status_extract_left">Extraction de la vidéo gauche...</string>
     <string name="status_extract_right">Extraction de la vidéo droite...</string>
-    <string name="status_merge_fps">Correspondance des images par seconde...</string>
+    <string name="status_rename_left">Renommage des fichiers images gauche</string>
+    <string name="status_rename_right">Renommage des fichiers images droite</string>
+    <string name="status_merge_fps">Correspondance des images par seconde</string>
     <string name="status_extract_audio">Extraction de l\'audio...</string>
+    <string name="status_frames_conversion">Conversion des images</string>
 
 </resources>

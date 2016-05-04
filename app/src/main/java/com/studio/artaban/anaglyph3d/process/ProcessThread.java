@@ -64,41 +64,30 @@ public class ProcessThread extends Thread {
 
         ////// Contrast & brightness step
         INITIALIZATION (R.string.status_initialize), // Initialize process (GStreamer)
-
-        // Progress for each bytes transferred...
         TRANSFER_PICTURE (R.string.status_transfer_raw), // Transfer picture (to remote device which is not the maker)
         WAIT_PICTURE (R.string.status_transfer_raw), // Wait until contrast & brightness picture has been received (to device which is not the maker)
-
         SAVE_PICTURE (R.string.status_save_raw), // Save raw picture into local file
         CONVERT_PICTURE (R.string.status_convert_raw), // Convert local picture from NV21 to ARGB
 
         ////// Video transfer & extraction step
-
-        // Progress for each bytes transferred...
         TRANSFER_VIDEO (R.string.status_transfer_video), // Transfer video
         WAIT_VIDEO (R.string.status_transfer_video), // Wait until video has been received
-
         SAVE_VIDEO (R.string.status_save_video), // Save remote video
         EXTRACT_FRAMES_LEFT (R.string.status_extract_left), // Extract ARGB pictures from left camera
         EXTRACT_FRAMES_RIGHT (R.string.status_extract_right), // Extract ARGB pictures from right camera
+        RENAME_FRAMES_LEFT (R.string.status_rename_left), // Rename left frame files
+        RENAME_FRAMES_RIGHT (R.string.status_rename_right), // Rename right frame files
         MERGE_FPS (R.string.status_merge_fps), // Remove the too many RGB pictures from camera video with bigger FPS
-
         WAIT_SYNCHRO (Constants.NO_DATA), // Wait synchro configuration
         EXTRACT_AUDIO (R.string.status_extract_audio), // Extract audio from one of the videos
-
         TRANSFER_CONTRAST (R.string.status_transfer_contrast), // Transfer the contrast & brightness (from device which is not the maker)
         WAIT_CONTRAST (R.string.status_wait_contrast), // Wait until contrast & brightness has been received
 
         ////// Frames conversion step
-
-        // Progress for each pictures extracted from videos...
-        APPLY_FRAME_CHANGES(0), // Color frame (in blue or red), and apply contrast & brightness
+        FRAMES_CONVERSION(R.string.status_frames_conversion), // Color frame (in blue or red), and apply contrast & brightness
 
         ////// Make & transfer 3D video step
-
         MAKE_3D_VIDEO(0), // Make the anaglyph 3D video
-
-        // Progress for each bytes transferred...
         TRANSFER_3D_VIDEO(0), // Transfer 3D video (to remote device which is not the maker)
         WAIT_3D_VIDEO(0); // Wait 3D video received
 
@@ -180,6 +169,10 @@ public class ProcessThread extends Thread {
                 mProgress.step = mStep;
 
                 switch (mStatus) {
+
+                    case RENAME_FRAMES_LEFT:
+                    case RENAME_FRAMES_RIGHT:
+                    case MERGE_FPS:
 
                     case WAIT_VIDEO:
                     case TRANSFER_VIDEO:
@@ -519,49 +512,56 @@ public class ProcessThread extends Thread {
                     }
 
                     //////
-                    mStatus = (local)? Status.EXTRACT_FRAMES_RIGHT:Status.MERGE_FPS;
-                    local = false;
+                    if (local) {
+
+                        local = false; // Extract right video frames
+                        mStatus = Status.EXTRACT_FRAMES_RIGHT;
+                    }
+                    else {
+
+                        Video.getInstance().renameFrameFiles(true);
+                        mStatus = Status.RENAME_FRAMES_LEFT;
+                    }
                     break;
                 }
+                case RENAME_FRAMES_LEFT:
+                case RENAME_FRAMES_RIGHT:
                 case MERGE_FPS: {
 
-
-
-
-
-
-
-
-
-
-
                     sleep();
-                    publishProgress(0, 1);
-
-
-
-                    //int frameCount = Video.mergeFPS();
-                    int frameCount = 5;
-
-
-
-                    // Load synchronization activity
-                    Bundle data = new Bundle();
-                    data.putInt(DATA_KEY_FRAME_COUNT, frameCount);
-
-                    ActivityWrapper.startActivity(SynchroActivity.class, data, 0);
-
-
-
-
-
-
-
-
-
+                    publishProgress(Video.getInstance().getProceedFrame(),
+                            Video.getInstance().getTotalFrame());
 
                     //////
-                    mStatus = Status.WAIT_SYNCHRO;
+                    if (Video.getInstance().getProceedFrame() == Video.getInstance().getTotalFrame()) {
+                        switch (mStatus) {
+
+                            case RENAME_FRAMES_LEFT: {
+
+                                Video.getInstance().renameFrameFiles(false);
+                                mStatus = Status.RENAME_FRAMES_RIGHT;
+                                break;
+                            }
+                            case RENAME_FRAMES_RIGHT: {
+
+                                Video.getInstance().mergeFrameFiles();
+                                mStatus = Status.MERGE_FPS;
+                                break;
+                            }
+                            case MERGE_FPS: {
+
+                                // Load synchronization activity
+                                Bundle data = new Bundle();
+                                data.putInt(DATA_KEY_FRAME_COUNT, Video.getInstance().getFrameCount());
+
+                                ActivityWrapper.startActivity(SynchroActivity.class, data, 0);
+
+                                //////
+                                mStatus = Status.WAIT_SYNCHRO;
+                                break;
+                            }
+                        }
+                    }
                     break;
                 }
                 case WAIT_SYNCHRO: {
@@ -594,10 +594,10 @@ public class ProcessThread extends Thread {
                     }
 
                     //////
-                    mStatus = Status.APPLY_FRAME_CHANGES;
+                    mStatus = Status.FRAMES_CONVERSION;
                     break;
                 }
-                case APPLY_FRAME_CHANGES: {
+                case FRAMES_CONVERSION: {
 
 
 
@@ -608,8 +608,9 @@ public class ProcessThread extends Thread {
 
 
                     sleep();
-                    publishProgress(Frame.getInstance().getTransferSize(),
-                            Frame.getInstance().getBufferSize());
+                    publishProgress(0, 1);
+
+
 
 
 
