@@ -145,6 +145,7 @@ public class ActivityWrapper implements ConnectRequest {
 
     public static String DOCUMENTS_FOLDER; // Application folder path
     public static int ACTION_BAR_HEIGHT; // Action bar height (in pixel)
+    public static int FAB_SIZE; // Floating Action Button size (in pixel)
 
     //////
     public static void set(Activity activity) { mCurActivity = new WeakReference<Activity>(activity); }

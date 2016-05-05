@@ -34,11 +34,13 @@
 
     <ImageView
         android:id="@+id/left_scroll"
+        android:adjustViewBounds="true"
         android:src="@drawable/slide_left"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <ImageView
         android:id="@+id/right_scroll"
+        android:adjustViewBounds="true"
         android:src="@drawable/slide_right"
         android:alpha="0"
         android:layout_width="match_parent"
@@ -55,7 +57,8 @@
             android:layout_height="wrap_content">
 
             <ImageView
-                android:id="@+id/frame_view"
+                android:id="@+id/frame_compare"
+                android:onClick="onChangeFrame"
 
 
                 android:src="@drawable/back_landscape_right"
@@ -64,9 +67,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
             <ImageView
-                android:id="@+id/frame_change"
+                android:onClick="onChangeFrame"
                 android:src="@drawable/ic_touch_app_white_96dp"
-                android:layout_alignBottom="@id/frame_view"
+                android:layout_alignBottom="@id/frame_compare"
                 android:layout_centerHorizontal="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
