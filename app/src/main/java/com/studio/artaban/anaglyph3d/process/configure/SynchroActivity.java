@@ -1,7 +1,10 @@
 package com.studio.artaban.anaglyph3d.process.configure;
 
+import android.content.DialogInterface;
+import android.graphics.Color;
+import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -10,15 +13,36 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.view.animation.Animation;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.data.Constants;
+import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
+import com.studio.artaban.anaglyph3d.process.ProcessThread;
+
+import java.io.File;
 
 public class SynchroActivity extends AppCompatActivity {
+
+    public static final String DATA_KEY_SYNCHRO_OFFSET = "offset";
+    public static final String DATA_KEY_SYNCHRO_LOCAL = "local";
+
+    //////
+    private short mOffset; // Frame count to shift from the origin
+    private boolean mLocalVideo; // Local video from which to apply the synchro (false for remote)
+
+
+
+
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -35,6 +59,33 @@ public class SynchroActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
 
+
+
+
+
+    //
+    public void onValidateSynchro(View sender) { // Validate synchronization setting
+
+        getIntent().putExtra(DATA_KEY_SYNCHRO_OFFSET, mOffset);
+        getIntent().putExtra(DATA_KEY_SYNCHRO_LOCAL, mLocalVideo);
+
+        setResult(Constants.RESULT_PROCESS_SYNCHRO);
+        finish();
+    }
+    private void onCancel() {
+
+        // Ask user to skip synchronization step
+        DisplayMessage.getInstance().alert(R.string.title_warning, R.string.ask_skip_step, null,
+                true, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == DialogInterface.BUTTON_POSITIVE)
+                            finish();
+                    }
+                });
+    }
+
+    //////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +93,85 @@ public class SynchroActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (toolbar != null) {
+            if (Build.VERSION.SDK_INT >= 21) {
+                toolbar.setBackgroundColor(Color.BLACK);
+                getWindow().setNavigationBarColor(Color.BLACK);
+                getWindow().setStatusBarColor(Color.BLACK);
+            }
+            else // Default status bar color (API < 21)
+                toolbar.setBackgroundColor(Color.argb(255, 30, 30, 30));
+
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onCancel();
+                }
+            });
+            // See why this listener in bug description below...
+        }
+
+        ActionBar appBar = getSupportActionBar();
+        if (appBar != null)
+            appBar.setDisplayHomeAsUpEnabled(true);
+            // BUG: This method should call 'onOptionsItemSelected' when back icon is pressed but do
+            //      not it !?! Defining 'setNavigationOnClickListener' on toolbar in code just above
+            //      will fix this.
+
+
+
+
+
+
+
+        Bundle data = new Bundle();
+        data.putInt(ProcessThread.DATA_KEY_FRAME_COUNT, 14);
+        getIntent().putExtra(Constants.DATA_ACTIVITY, data);
+        File documents = getExternalFilesDir(null);
+        if (documents != null)
+            ActivityWrapper.DOCUMENTS_FOLDER = documents.getAbsolutePath();
+        else
+            Logs.add(Logs.Type.F, "Failed to get documents folder");
+        TypedValue typedValue = new TypedValue();
+        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, typedValue, true))
+            ActivityWrapper.ACTION_BAR_HEIGHT = TypedValue.complexToDimensionPixelSize(typedValue.data,
+                    getResources().getDisplayMetrics());
+        else {
+            ActivityWrapper.ACTION_BAR_HEIGHT = 0;
+            Logs.add(Logs.Type.W, "'android.R.attr.actionBarSize' attribute not found");
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        ////// Portrait
+
+        final ImageView leftSlide = (ImageView)findViewById(R.id.left_scroll);
+        final ImageView rightSlide = (ImageView)findViewById(R.id.right_scroll);
+        leftSlide.setTranslationY((float)ActivityWrapper.ACTION_BAR_HEIGHT + Constants.ACTION_BAR_LAG);
+        rightSlide.setTranslationY((float)ActivityWrapper.ACTION_BAR_HEIGHT + Constants.ACTION_BAR_LAG);
+
+
+
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_apply);
+
+
+
+
+
+
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -50,16 +179,30 @@ public class SynchroActivity extends AppCompatActivity {
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                if (position == 0)
+                    rightSlide.setAlpha(positionOffset);
             }
+            @Override public void onPageSelected(int position) { }
+            @Override public void onPageScrollStateChanged(int state) { }
         });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     }
 

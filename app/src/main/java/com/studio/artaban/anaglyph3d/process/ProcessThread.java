@@ -116,7 +116,7 @@ public class ProcessThread extends Thread {
     public static GstObject mGStreamer; // GStreamer object used to manipulate pictures & videos
 
     //////
-    public void applySynchronization(int offset, boolean local) {
+    public void applySynchronization(short offset, boolean local) {
 
 
 

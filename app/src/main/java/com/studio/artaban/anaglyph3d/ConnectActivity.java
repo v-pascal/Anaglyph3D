@@ -6,6 +6,7 @@ import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -59,6 +60,17 @@ public class ConnectActivity extends AppCompatActivity {
             ActivityWrapper.DOCUMENTS_FOLDER = documents.getAbsolutePath();
         else
             Logs.add(Logs.Type.F, "Failed to get documents folder");
+
+        // Get action bar height
+        TypedValue typedValue = new TypedValue();
+        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, typedValue, true))
+            ActivityWrapper.ACTION_BAR_HEIGHT = TypedValue.complexToDimensionPixelSize(typedValue.data,
+                    getResources().getDisplayMetrics());
+        else {
+
+            ActivityWrapper.ACTION_BAR_HEIGHT = 0;
+            Logs.add(Logs.Type.W, "'android.R.attr.actionBarSize' attribute not found");
+        }
 
         // Add and set app bar
         final Toolbar appBar = (Toolbar)findViewById(R.id.appBar);

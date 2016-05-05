@@ -142,7 +142,9 @@ public class ActivityWrapper implements ConnectRequest {
 
     //////
     private static WeakReference<Activity> mCurActivity; // Activity reference
+
     public static String DOCUMENTS_FOLDER; // Application folder path
+    public static int ACTION_BAR_HEIGHT; // Action bar height (in pixel)
 
     //////
     public static void set(Activity activity) { mCurActivity = new WeakReference<Activity>(activity); }

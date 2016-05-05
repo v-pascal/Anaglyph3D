@@ -49,7 +49,7 @@
     <string name="status_label">Statut:</string>
     <string name="title_activity_contrast">Contraste &amp; luminosité</string>
     <string name="title_activity_synchro">Synchronisation</string>
-    <string name="ask_skip_contrast">Etes-vous sûr de vouloir passer cette étape?</string>
+    <string name="ask_skip_step">Etes-vous sûr de vouloir passer cette étape?</string>
 
     <!-- Process error -->
     <string name="error_start_recording">ERREUR: Enregistrement vidéo impossible! Ce média est en cours d\'utilisation. Redémarrer votre périphérique pour fixer ce problème.</string>

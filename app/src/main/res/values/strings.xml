@@ -114,7 +114,7 @@
     <string name="status_label">Status:</string>
     <string name="title_activity_contrast">Contrast &amp; brightness</string>
     <string name="title_activity_synchro">Synchronization</string>
-    <string name="ask_skip_contrast">Are you sure you want to skip this step?</string>
+    <string name="ask_skip_step">Are you sure you want to skip this step?</string>
 
     <!-- Process error -->
     <string name="error_start_recording">ERROR: Unable to start recording! A media resource is in use. Restart your device to fix this.</string>

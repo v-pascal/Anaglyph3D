@@ -16,7 +16,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -39,8 +38,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener,
-        DialogInterface.OnClickListener {
+public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
 
     public static final String DATA_KEY_CONTRAST = "contrast";
     public static final String DATA_KEY_BRIGHTNESS = "brightness";
@@ -55,16 +53,6 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
     private int mCompareHeight;
     // Size of the compare image
 
-    private int getActionBarHeight() { // Return height of the action bar (in pixel)
-
-        TypedValue typedValue = new TypedValue();
-        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, typedValue, true))
-            return TypedValue.complexToDimensionPixelSize(typedValue.data,
-                    getResources().getDisplayMetrics());
-
-        Logs.add(Logs.Type.W, "'android.R.attr.actionBarSize' attribute not found");
-        return 0;
-    }
     private boolean loadImagesFromFiles(ImageView compareImage) { // Load both images from RGBA files
 
         File localFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
@@ -302,8 +290,14 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
     private void onCancel() {
 
         // Ask user to skip contrast & brightness step
-        DisplayMessage.getInstance().alert(R.string.title_warning, R.string.ask_skip_contrast,
-                null, true, this);
+        DisplayMessage.getInstance().alert(R.string.title_warning, R.string.ask_skip_step, null,
+                true, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == DialogInterface.BUTTON_POSITIVE)
+                            finish();
+                    }
+                });
     }
 
     //////
@@ -341,9 +335,6 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
             // BUG: This method should call 'onOptionsItemSelected' when back icon is pressed but do
             //      not it !?! Defining 'setNavigationOnClickListener' on toolbar in code just above
             //      will fix this.
-
-        // Set default activity result
-        setResult(Constants.RESULT_PROCESS_CANCELLED);
 
         // Restore previous settings (if any)
         if (savedInstanceState != null) {
@@ -407,7 +398,7 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
             CoordinatorLayout.LayoutParams fabParams =
                     (CoordinatorLayout.LayoutParams)mCancelButton.getLayoutParams();
 
-            fabParams.setMargins(0, getActionBarHeight() + 16, 0, 0);
+            fabParams.setMargins(0, ActivityWrapper.ACTION_BAR_HEIGHT + Constants.ACTION_BAR_LAG, 0, 0);
             fabParams.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
             mCancelButton.setLayoutParams(fabParams);
 
@@ -436,7 +427,7 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         ////// Position images
         final Point screenSize = new Point();
         getWindowManager().getDefaultDisplay().getSize(screenSize);
-        int screenHeight = screenSize.y - getActionBarHeight();
+        int screenHeight = screenSize.y - ActivityWrapper.ACTION_BAR_HEIGHT;
 
         // Get control panel height at the screen bottom according orientation (in pixel)
         final ImageView icon = (ImageView)rootView.findViewById(R.id.brightness_icon);
@@ -468,13 +459,6 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    //////
-    @Override
-    public void onClick(DialogInterface dialog, int which) {
-        if (which == DialogInterface.BUTTON_POSITIVE)
-            finish();
     }
 
     //////
