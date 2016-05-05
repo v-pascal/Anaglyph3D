@@ -32,9 +32,11 @@ import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
-import com.studio.artaban.anaglyph3d.process.ProcessThread;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SynchroActivity extends AppCompatActivity {
 
@@ -43,138 +45,78 @@ public class SynchroActivity extends AppCompatActivity {
     public static final String DATA_KEY_SYNCHRO_LOCAL = "local";
     // Data keys
 
+    private static final int MAX_OFFSET = 50; // Offset limit == frame count - MAX_OFFSET
+
     //////
     private short mOffset = 0; // Frame count to shift from the origin (synchro result)
     private boolean mLocalVideo = true; // Local video from which to apply the synchro (false for remote)
-
     private int mFrameCount = 0;
 
-
-    //private ImageView mFrameCompare; // Image to compare to the synchronization frame
-
-
-
-
-
-
-
-
-
-
-
-
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
-    //private FramesPagerAdapter mFramesPagerAdapter;
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
     private ViewPager mViewPager;
 
+    //
+    public static class FrameHolderFragment extends Fragment {
 
+        public static final String ARG_FRAME_POSITION = "framePosition";
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        //public static final String ARG_SECTION_NUMBER = "section_number";
+        public static FrameHolderFragment newInstance(int position) {
 
-        public PlaceholderFragment() {
-
-        }
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
+            FrameHolderFragment fragment = new FrameHolderFragment();
             Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            args.putInt(ARG_FRAME_POSITION, position);
             fragment.setArguments(args);
             return fragment;
         }
-        */
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
+
             View rootView = inflater.inflate(R.layout.fragment_synchro, container, false);
+
+
+
+
+
             TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            //textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
-            textView.setText(getString(R.string.section_format));
+            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_FRAME_POSITION)));
+
+
+
+
+
+
             return rootView;
         }
     }
+    private class FramesPagerAdapter extends FragmentPagerAdapter {
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class FramesPagerAdapter extends FragmentPagerAdapter {
+        private WeakReference<FrameHolderFragment>[] mFragmentList = new WeakReference[mFrameCount];
 
-        private PlaceholderFragment fragment1;
-        private PlaceholderFragment fragment2;
-        private PlaceholderFragment fragment3;
-
-        private int curFrame;
-
-        public FramesPagerAdapter(FragmentManager fm) {
-            super(fm);
-
-            fragment1 = new PlaceholderFragment();
-            //Bundle args1 = new Bundle();
-            //args1.putInt(PlaceholderFragment.ARG_SECTION_NUMBER, 1);
-            //fragment1.setArguments(args1);
-
-            fragment2 = new PlaceholderFragment();
-            //Bundle args2 = new Bundle();
-            //args2.putInt(PlaceholderFragment.ARG_SECTION_NUMBER, 2);
-            //fragment2.setArguments(args2);
-
-            fragment3 = new PlaceholderFragment();
-            //Bundle args3 = new Bundle();
-            //args3.putInt(PlaceholderFragment.ARG_SECTION_NUMBER, 3);
-            //fragment3.setArguments(args3);
-
-            reset();
-        }
+        public FramesPagerAdapter(FragmentManager fm) { super(fm); }
         public void reset() {
 
-            curFrame = 0;
+
 
 
 
 
         }
 
-        @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            //return PlaceholderFragment.newInstance(position + 1);
-            switch (position) {
+        @Override public Fragment getItem(int position) {
 
-                case 0: return fragment1;
-                case 1: return fragment2;
-                case 2:
-                default:
-                    return fragment3;
+            FrameHolderFragment item = null;
+            if (mFragmentList[position] != null)
+                item = (FrameHolderFragment)mFragmentList[position].get();
+
+            if (item == null) {
+
+                item = FrameHolderFragment.newInstance(position + 1);
+                mFragmentList[position] = new WeakReference<FrameHolderFragment>(item);
             }
+            return item;
         }
-
-        @Override
-        public int getCount() { return mFrameCount; }
+        @Override public int getCount() { return mFrameCount; }
     }
 
 
@@ -182,14 +124,52 @@ public class SynchroActivity extends AppCompatActivity {
 
 
 
+/*
+        byte[] imageBuffer = new byte[(int)imageFile.length()];
+        try {
+            if (new FileInputStream(imageFile).read(imageBuffer) == imageBuffer.length) {
+
+                mContrastBitmap = Bitmap.createBitmap(imageWidth, imageHeight, Bitmap.Config.ARGB_8888);
+                mContrastBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(imageBuffer));
+                mContrastImage.setImageBitmap(mContrastBitmap);
+            }
+            else
+                throw new IOException();
+        }
+        catch (IOException e) {
+
+            Logs.add(Logs.Type.E, "Failed to load picture file: " + imageFile.getAbsolutePath());
+            return false;
+        }
 
 
 
 
+    private void applyContrastBrightness() { // Apply contrast & brightness settings
 
+        ColorMatrix matrix = new ColorMatrix(new float[] {
 
+                mContrast, 0, 0, 0, mBrightness,
+                0, mContrast, 0, 0, mBrightness,
+                0, 0, mContrast, 0, mBrightness,
+                0, 0, 0, 1, 0
+        });
+        // With: Contrast in [0;10] and 1 as default
+        //       Brightness in [-255;255] and 0 as default
+        // So: Contrast 0...1...10 => Progress 0...50...100
+        //     Brightness -255...0...255 => Progress 0...255...510
 
+        Bitmap bitmap = Bitmap.createBitmap(mContrastBitmap.getWidth(), mContrastBitmap.getHeight(),
+                mContrastBitmap.getConfig());
 
+        Canvas canvas = new Canvas(bitmap);
+        Paint paint = new Paint();
+        paint.setColorFilter(new ColorMatrixColorFilter(matrix));
+        canvas.drawBitmap(mContrastBitmap, 0, 0, paint);
+
+        mContrastImage.setImageBitmap(bitmap);
+    }
+*/
 
 
 
@@ -277,7 +257,7 @@ public class SynchroActivity extends AppCompatActivity {
 
 
         Bundle datas = new Bundle();
-        datas.putInt(DATA_KEY_FRAME_COUNT, 3);
+        datas.putInt(DATA_KEY_FRAME_COUNT, 1000);
         getIntent().putExtra(Constants.DATA_ACTIVITY, datas);
         File documents = getExternalFilesDir(null);
         if (documents != null)
@@ -318,7 +298,7 @@ public class SynchroActivity extends AppCompatActivity {
         }
         Bundle data = getIntent().getExtras().getBundle(Constants.DATA_ACTIVITY);
         if (data != null)
-            mFrameCount = data.getInt(DATA_KEY_FRAME_COUNT);
+            mFrameCount = data.getInt(DATA_KEY_FRAME_COUNT) - MAX_OFFSET;
 
 
 
@@ -415,14 +395,7 @@ public class SynchroActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
-    @Override public void onBackPressed() { onCancel(); }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.home) {
-
-            onCancel();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    @Override public void onBackPressed() {
+        onCancel();
     }
 }

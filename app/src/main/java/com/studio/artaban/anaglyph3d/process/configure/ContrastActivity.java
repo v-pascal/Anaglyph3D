@@ -450,15 +450,8 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         super.onSaveInstanceState(outState);
     }
 
-    @Override public void onBackPressed() { onCancel(); }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.home) {
-
-            onCancel();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    @Override public void onBackPressed() {
+        onCancel();
     }
 
     //////

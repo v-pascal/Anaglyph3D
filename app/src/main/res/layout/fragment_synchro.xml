@@ -13,4 +13,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
+    <ImageView
+        android:layout_centerInParent="true"
+        android:src="@drawable/right_glass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
 </RelativeLayout>
