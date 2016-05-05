@@ -30,9 +30,6 @@ import java.io.IOException;
  */
 public class ProcessThread extends Thread {
 
-    public static final String DATA_KEY_FRAME_COUNT = "frameCount";
-    // Data keys
-
     public ProcessThread(Camera.Size size, byte[] raw) {
         mPictureSize = size;
         mPictureRaw = raw;
@@ -552,7 +549,8 @@ public class ProcessThread extends Thread {
 
                                 // Load synchronization activity
                                 Bundle data = new Bundle();
-                                data.putInt(DATA_KEY_FRAME_COUNT, Video.getInstance().getFrameCount());
+                                data.putInt(SynchroActivity.DATA_KEY_FRAME_COUNT,
+                                        Video.getInstance().getFrameCount());
 
                                 ActivityWrapper.startActivity(SynchroActivity.class, data, 0);
 
