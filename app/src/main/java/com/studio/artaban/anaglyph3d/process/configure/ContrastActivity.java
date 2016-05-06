@@ -17,7 +17,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
@@ -97,14 +96,12 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
 
         byte[] imageBuffer = new byte[(int)imageFile.length()];
         try {
-            if (new FileInputStream(imageFile).read(imageBuffer) == imageBuffer.length) {
-
-                mContrastBitmap = Bitmap.createBitmap(imageWidth, imageHeight, Bitmap.Config.ARGB_8888);
-                mContrastBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(imageBuffer));
-                mContrastImage.setImageBitmap(mContrastBitmap);
-            }
-            else
+            if (new FileInputStream(imageFile).read(imageBuffer) != imageBuffer.length)
                 throw new IOException();
+
+            mContrastBitmap = Bitmap.createBitmap(imageWidth, imageHeight, Bitmap.Config.ARGB_8888);
+            mContrastBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(imageBuffer));
+            mContrastImage.setImageBitmap(mContrastBitmap);
         }
         catch (IOException e) {
 
@@ -140,14 +137,12 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
 
         imageBuffer = new byte[(int)imageFile.length()];
         try {
-            if (new FileInputStream(imageFile).read(imageBuffer) == imageBuffer.length) {
-
-                Bitmap compareBitmap = Bitmap.createBitmap(imageWidth, imageHeight, Bitmap.Config.ARGB_8888);
-                compareBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(imageBuffer));
-                compareImage.setImageBitmap(compareBitmap);
-            }
-            else
+            if (new FileInputStream(imageFile).read(imageBuffer) != imageBuffer.length)
                 throw new IOException();
+
+            Bitmap compareBitmap = Bitmap.createBitmap(imageWidth, imageHeight, Bitmap.Config.ARGB_8888);
+            compareBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(imageBuffer));
+            compareImage.setImageBitmap(compareBitmap);
         }
         catch (IOException e) {
 
