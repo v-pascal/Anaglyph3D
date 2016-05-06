@@ -9,6 +9,7 @@ public class Constants {
     public static final int NO_DATA = -1; // No value (integer)
     public static final short ACTION_BAR_LAG = 24; // Lag between action bar height (in pixel)
     public static final short FAB_SIZE_DPI = 56; // Floating Actionbar Button size (in dpi)
+    public static final int LARGE_SCREEN_HEIGHT = 480; // Height a screen considered as large (in pixel)
 
     ////// Activity
     public static final int RESULT_QUIT_APPLICATION = 300; // Quit application requested result

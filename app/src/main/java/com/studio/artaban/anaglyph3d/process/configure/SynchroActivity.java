@@ -1,6 +1,7 @@
 package com.studio.artaban.anaglyph3d.process.configure;
 
 import android.content.DialogInterface;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -23,7 +24,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
@@ -105,52 +105,9 @@ public class SynchroActivity extends AppCompatActivity {
                                  Bundle savedInstanceState) {
 
             View rootView = inflater.inflate(R.layout.fragment_synchro, container, false);
-
             TextView framePosition = (TextView) rootView.findViewById(R.id.frame_position);
             framePosition.setText("#" + getArguments().getInt(DATA_KEY_SYNCHRO_OFFSET));
             mFrameImage = (ImageView)rootView.findViewById(R.id.frame_image);
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)mFrameImage.getLayoutParams();
-
-            int frameWidth, frameHeight;
-            if (Settings.getInstance().mOrientation) { // Portrait
-
-                frameWidth = Settings.getInstance().mResolution.height;
-                frameHeight = Settings.getInstance().mResolution.width;
-            }
-            else { // Landscape
-
-                frameWidth = Settings.getInstance().mResolution.width;
-                frameHeight = Settings.getInstance().mResolution.height;
-            }
-            final Point screenSize = new Point();
-            getActivity().getWindowManager().getDefaultDisplay().getSize(screenSize);
-
-
-
-
-
-
-
-            ////// Portrait
-
-            params.width = screenSize.x;
-            params.height = (int)(screenSize.x * frameHeight / (float)frameWidth);
-            if (params.height < (screenSize.y - ActivityWrapper.ACTION_BAR_HEIGHT)) {
-
-                params.height = screenSize.y - ActivityWrapper.ACTION_BAR_HEIGHT;
-                params.width = (int)(params.height * frameWidth / (float)frameHeight);
-            }
-
-
-
-
-
-
-
-
-
-
-
             return rootView;
         }
 
@@ -160,8 +117,50 @@ public class SynchroActivity extends AppCompatActivity {
 
             Bitmap bitmap = openBitmapFile(getArguments().getInt(DATA_KEY_SYNCHRO_OFFSET),
                     getArguments().getBoolean(DATA_KEY_SYNCHRO_LOCAL));
-            if (bitmap != null)
+            if (bitmap != null) {
+
                 mFrameImage.setImageBitmap(bitmap);
+
+
+
+
+
+
+
+
+
+                final Point screenSize = new Point();
+                getActivity().getWindowManager().getDefaultDisplay().getSize(screenSize);
+
+                int frameWidth, frameHeight;
+                if (Settings.getInstance().mOrientation) { // Portrait
+
+                    frameWidth = Settings.getInstance().mResolution.height;
+                    frameHeight = Settings.getInstance().mResolution.width;
+                }
+                else { // Landscape
+
+                    frameWidth = Settings.getInstance().mResolution.width;
+                    frameHeight = Settings.getInstance().mResolution.height;
+                }
+                float scale = screenSize.x / (float)frameWidth;
+                if ((scale < 1f) && (!Settings.getInstance().mOrientation))
+                    return;
+
+                if ((frameHeight * scale) > (screenSize.y - ActivityWrapper.ACTION_BAR_HEIGHT))
+                    scale = (screenSize.y - ActivityWrapper.ACTION_BAR_HEIGHT) / (float)frameHeight;
+
+                mFrameImage.setScaleX(scale);
+                mFrameImage.setScaleY(scale);
+
+
+
+
+
+
+
+
+            }
         }
     }
     private class FramesPagerAdapter extends FragmentStatePagerAdapter {
@@ -300,6 +299,8 @@ public class SynchroActivity extends AppCompatActivity {
 
 
 
+
+
         // Restore previous settings (if any)
         if (savedInstanceState != null) {
 
@@ -309,15 +310,6 @@ public class SynchroActivity extends AppCompatActivity {
         Bundle data = getIntent().getExtras().getBundle(Constants.DATA_ACTIVITY);
         if (data != null)
             mFrameCount = data.getInt(DATA_KEY_FRAME_COUNT) - FRAME_REMAINING;
-
-
-
-
-
-
-
-        ////// Portrait
-
 
         // Position slide info images
         final ImageView leftSlide = (ImageView)findViewById(R.id.left_scroll);
@@ -333,46 +325,57 @@ public class SynchroActivity extends AppCompatActivity {
 
         final Point screenSize = new Point();
         getWindowManager().getDefaultDisplay().getSize(screenSize);
-        if (screenSize.x > 480) // Large screen device
-            params.width = (screenSize.x >> 1) - (margin << 1);
-            // == 50% of the screen width
-        else // Normal screen device
-            params.width = screenSize.x - ActivityWrapper.FAB_SIZE - (margin << 2);
+        int frameWidth, frameHeight;
+        if (Settings.getInstance().mOrientation) { // Portrait
+
+            frameWidth = Settings.getInstance().mResolution.height;
+            frameHeight = Settings.getInstance().mResolution.width;
+        }
+        else { // Landscape
+
+            frameWidth = Settings.getInstance().mResolution.width;
+            frameHeight = Settings.getInstance().mResolution.height;
+        }
+        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+
+            ////// Portrait
+            if (screenSize.x > Constants.LARGE_SCREEN_HEIGHT) // Large screen device
+                params.width = (screenSize.x >> 1) - (margin << 1);
+                // == 50% of the screen width
+            else // Normal screen device
+                params.width = screenSize.x - ActivityWrapper.FAB_SIZE - (margin << 2);
             // == screen width less 'fab' size
 
-        if (Settings.getInstance().mOrientation) // Portrait
-            params.height = (int)(params.width * Settings.getInstance().mResolution.width /
-                    (float)Settings.getInstance().mResolution.height);
-        else // Landscape
-            params.height = (int)(params.width * Settings.getInstance().mResolution.height /
-                    (float)Settings.getInstance().mResolution.width);
+            params.height = (int)(params.width * frameHeight / (float)frameWidth);
+            int screenHeight = screenSize.y - ActivityWrapper.ACTION_BAR_HEIGHT;
+            if ((3 * (params.height + (margin << 1))) > screenHeight) { // Maximum 1/3 of the screen height
 
-        int screenHeight = screenSize.y - ActivityWrapper.ACTION_BAR_HEIGHT;
-        if ((3 * (params.height + (margin << 1))) > screenHeight) { // Maximum 1/3 of the screen height
+                params.height = (int)((screenHeight / 3.0f) - (margin << 1));
+                params.width = (int)(params.height * frameWidth / (float)frameHeight);
+            }
+        }
+        else { ////// Landscape
 
-            params.height = (int)((screenHeight / 3.0f) - (margin << 1));
             if (Settings.getInstance().mOrientation) // Portrait
-                params.width = (int)(params.height * Settings.getInstance().mResolution.height /
-                        (float)Settings.getInstance().mResolution.width);
+                params.height = (screenSize.y - ActivityWrapper.ACTION_BAR_HEIGHT) >> 1;
+                // 50% of screen height
             else // Landscape
-                params.width = (int)(params.height * Settings.getInstance().mResolution.width /
-                        (float)Settings.getInstance().mResolution.height);
+                params.height = (int)((screenSize.y - ActivityWrapper.ACTION_BAR_HEIGHT) / 3f);
+                // 1/3 of the screen height
+
+            params.width = (int)(params.height * frameWidth / (float)frameHeight);
+            if (params.width > (screenSize.x >> 1)) { // Maximum 50% of screen width
+
+                params.width = screenSize.x >> 1;
+                params.height = (int)(params.width * frameHeight / (float)frameWidth);
+            }
         }
         Bitmap bmpCompare = openBitmapFile(0, !mLocalVideo);
         if (bmpCompare != null)
             mCompareImage.setImageBitmap(bmpCompare);
         mCompareImage.setLayoutParams(params);
 
-
-
-
-
-
-
-
-
-
-
+        // Initialize pager view
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(new FramesPagerAdapter(getSupportFragmentManager()));
         if (mOffset != 0) {
@@ -389,16 +392,6 @@ public class SynchroActivity extends AppCompatActivity {
             @Override public void onPageSelected(int position) { mOffset = (short)position; }
             @Override public void onPageScrollStateChanged(int state) { }
         });
-
-
-
-
-
-
-
-
-
-
     }
 
     @Override

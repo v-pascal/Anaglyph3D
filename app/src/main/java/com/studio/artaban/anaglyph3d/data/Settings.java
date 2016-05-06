@@ -110,7 +110,7 @@ public class Settings implements ConnectRequest {
         boolean init = mResolutions.isEmpty();
         mResolutions.clear();
         mPosition = false;
-        mOrientation = false;
+        mOrientation = true;
         mDuration = 10;
 
         if (!CameraView.getAvailableResolutions(mResolutions))

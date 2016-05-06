@@ -10,4 +10,9 @@
         <item name="android:textStyle">normal</item>
     </style>
 
+    <style name="TextAppearancePosition" parent="@android:style/TextAppearance.Large">
+        <item name="android:textSize">48sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>
