@@ -54,6 +54,33 @@ public class SynchroActivity extends AppCompatActivity {
     private int mFrameCount = 0;
 
     private ViewPager mViewPager;
+    private ImageView mCompareImage;
+
+    private static Bitmap openBitmapFile(int position, boolean local) { // Return bitmap from RGBA file
+
+        File bmpFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + "/" + ((local)?
+                        Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX) +
+                String.format("%04d", position) + Constants.PROCESS_RGBA_EXTENSION);
+
+        Bitmap bitmap = null;
+        byte[] bmpBuffer = new byte[(int)bmpFile.length()];
+        try {
+            if (new FileInputStream(bmpFile).read(bmpBuffer) != bmpBuffer.length)
+                throw new IOException();
+
+            if (Settings.getInstance().mOrientation) // Portrait
+                bitmap = Bitmap.createBitmap(Settings.getInstance().mResolution.height,
+                        Settings.getInstance().mResolution.width, Bitmap.Config.ARGB_8888);
+            else // Landscape
+                bitmap = Bitmap.createBitmap(Settings.getInstance().mResolution.width,
+                        Settings.getInstance().mResolution.height, Bitmap.Config.ARGB_8888);
+            bitmap.copyPixelsFromBuffer(ByteBuffer.wrap(bmpBuffer));
+        }
+        catch (IOException e) {
+            Logs.add(Logs.Type.E, "Failed to load RGBA file: " + bmpFile.getAbsolutePath());
+        }
+        return bitmap;
+    }
 
     //
     public static class PlaceholderFragment extends Fragment {
@@ -72,34 +99,6 @@ public class SynchroActivity extends AppCompatActivity {
         //
         private ImageView mFrameImage;
 
-        private Bitmap openBitmapFile() {
-
-            File bmpFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + "/" +
-                    ((getArguments().getBoolean(DATA_KEY_SYNCHRO_LOCAL))?
-                    Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX) +
-                    String.format("%04d", getArguments().getInt(DATA_KEY_SYNCHRO_OFFSET)) +
-                    Constants.PROCESS_RGBA_EXTENSION);
-
-            Bitmap bitmap = null;
-            byte[] bmpBuffer = new byte[(int)bmpFile.length()];
-            try {
-                if (new FileInputStream(bmpFile).read(bmpBuffer) != bmpBuffer.length)
-                    throw new IOException();
-
-                if (Settings.getInstance().mOrientation) // Portrait
-                    bitmap = Bitmap.createBitmap(Settings.getInstance().mResolution.height,
-                            Settings.getInstance().mResolution.width, Bitmap.Config.ARGB_8888);
-                else // Landscape
-                    bitmap = Bitmap.createBitmap(Settings.getInstance().mResolution.width,
-                            Settings.getInstance().mResolution.height, Bitmap.Config.ARGB_8888);
-                bitmap.copyPixelsFromBuffer(ByteBuffer.wrap(bmpBuffer));
-            }
-            catch (IOException e) {
-                Logs.add(Logs.Type.E, "Failed to load RGBA file: " + bmpFile.getAbsolutePath());
-            }
-            return bitmap;
-        }
-
         //////
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -110,6 +109,7 @@ public class SynchroActivity extends AppCompatActivity {
             TextView framePosition = (TextView) rootView.findViewById(R.id.frame_position);
             framePosition.setText("#" + getArguments().getInt(DATA_KEY_SYNCHRO_OFFSET));
             mFrameImage = (ImageView)rootView.findViewById(R.id.frame_image);
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)mFrameImage.getLayoutParams();
 
             int frameWidth, frameHeight;
             if (Settings.getInstance().mOrientation) { // Portrait
@@ -122,6 +122,9 @@ public class SynchroActivity extends AppCompatActivity {
                 frameWidth = Settings.getInstance().mResolution.width;
                 frameHeight = Settings.getInstance().mResolution.height;
             }
+            final Point screenSize = new Point();
+            getActivity().getWindowManager().getDefaultDisplay().getSize(screenSize);
+
 
 
 
@@ -130,8 +133,13 @@ public class SynchroActivity extends AppCompatActivity {
 
             ////// Portrait
 
+            params.width = screenSize.x;
+            params.height = (int)(screenSize.x * frameHeight / (float)frameWidth);
+            if (params.height < (screenSize.y - ActivityWrapper.ACTION_BAR_HEIGHT)) {
 
-
+                params.height = screenSize.y - ActivityWrapper.ACTION_BAR_HEIGHT;
+                params.width = (int)(params.height * frameWidth / (float)frameHeight);
+            }
 
 
 
@@ -150,7 +158,8 @@ public class SynchroActivity extends AppCompatActivity {
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
 
-            Bitmap bitmap = openBitmapFile();
+            Bitmap bitmap = openBitmapFile(getArguments().getInt(DATA_KEY_SYNCHRO_OFFSET),
+                    getArguments().getBoolean(DATA_KEY_SYNCHRO_LOCAL));
             if (bitmap != null)
                 mFrameImage.setImageBitmap(bitmap);
         }
@@ -272,7 +281,8 @@ public class SynchroActivity extends AppCompatActivity {
             ActivityWrapper.ACTION_BAR_HEIGHT = 0;
             Logs.add(Logs.Type.W, "'android.R.attr.actionBarSize' attribute not found");
         }
-        ActivityWrapper.FAB_SIZE = Math.round(56 * (getResources().getDisplayMetrics().xdpi/DisplayMetrics.DENSITY_DEFAULT));
+        ActivityWrapper.FAB_SIZE = Math.round(Constants.FAB_SIZE_DPI *
+                (getResources().getDisplayMetrics().xdpi/DisplayMetrics.DENSITY_DEFAULT));
         Settings.getInstance().initResolutions();
 
 
@@ -316,9 +326,9 @@ public class SynchroActivity extends AppCompatActivity {
         rightSlide.setTranslationY((float) ActivityWrapper.ACTION_BAR_HEIGHT + Constants.ACTION_BAR_LAG);
 
         // Position frame image to compare
-        final ImageView frameCompare = (ImageView)findViewById(R.id.frame_compare);
+        mCompareImage = (ImageView)findViewById(R.id.frame_compare);
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_apply);
-        LayoutParams params = (LayoutParams)frameCompare.getLayoutParams();
+        LayoutParams params = (LayoutParams)mCompareImage.getLayoutParams();
         int margin = ((CoordinatorLayout.LayoutParams)fab.getLayoutParams()).rightMargin;
 
         final Point screenSize = new Point();
@@ -338,7 +348,7 @@ public class SynchroActivity extends AppCompatActivity {
                     (float)Settings.getInstance().mResolution.width);
 
         int screenHeight = screenSize.y - ActivityWrapper.ACTION_BAR_HEIGHT;
-        if ((3 * (params.height + (margin << 1))) > screenHeight) {
+        if ((3 * (params.height + (margin << 1))) > screenHeight) { // Maximum 1/3 of the screen height
 
             params.height = (int)((screenHeight / 3.0f) - (margin << 1));
             if (Settings.getInstance().mOrientation) // Portrait
@@ -348,7 +358,12 @@ public class SynchroActivity extends AppCompatActivity {
                 params.width = (int)(params.height * Settings.getInstance().mResolution.width /
                         (float)Settings.getInstance().mResolution.height);
         }
-        frameCompare.setLayoutParams(params);
+        Bitmap bmpCompare = openBitmapFile(0, !mLocalVideo);
+        if (bmpCompare != null)
+            mCompareImage.setImageBitmap(bmpCompare);
+        mCompareImage.setLayoutParams(params);
+
+
 
 
 
