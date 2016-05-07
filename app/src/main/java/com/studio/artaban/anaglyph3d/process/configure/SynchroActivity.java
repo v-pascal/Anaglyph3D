@@ -16,8 +16,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -186,61 +184,6 @@ public class SynchroActivity extends AppCompatActivity {
 
             appBar.setDisplayHomeAsUpEnabled(true);
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        Bundle datas = new Bundle();
-        datas.putInt(DATA_KEY_FRAME_COUNT, 70);
-        getIntent().putExtra(Constants.DATA_ACTIVITY, datas);
-
-        File documents = getExternalFilesDir(null);
-        if (documents != null)
-            ActivityWrapper.DOCUMENTS_FOLDER = documents.getAbsolutePath();
-        else
-            Logs.add(Logs.Type.F, "Failed to get documents folder");
-        TypedValue typedValue = new TypedValue();
-        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, typedValue, true))
-            ActivityWrapper.ACTION_BAR_HEIGHT = TypedValue.complexToDimensionPixelSize(typedValue.data,
-                    getResources().getDisplayMetrics());
-        else {
-            ActivityWrapper.ACTION_BAR_HEIGHT = 0;
-            Logs.add(Logs.Type.W, "'android.R.attr.actionBarSize' attribute not found");
-        }
-        ActivityWrapper.FAB_SIZE = Math.round(Constants.FAB_SIZE_DPI *
-                (getResources().getDisplayMetrics().xdpi/ DisplayMetrics.DENSITY_DEFAULT));
-        Settings.getInstance().initResolutions();
-
-
-
-
-
-
-
-
-
-        Logs.add(Logs.Type.E, "Size: " + getResources().getDimension(R.dimen.test));
-
-
-
-
-
-
-
 
         // Restore previous settings (if any)
         if (savedInstanceState != null) {

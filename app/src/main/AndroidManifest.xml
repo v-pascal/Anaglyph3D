@@ -31,7 +31,6 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <!--
         <activity
             android:name=".ConnectActivity"
             android:configChanges="orientation|screenSize">
@@ -40,7 +39,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> -->
+        </activity>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
@@ -81,18 +80,7 @@
         <activity
             android:name=".process.configure.SynchroActivity"
             android:label="@string/title_activity_synchro"
-            android:theme="@style/Theme.AppCompat">
-
-
-
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-
-
-
-        </activity>
+            android:theme="@style/Theme.AppCompat"/>
     </application>
 
 </manifest>
