@@ -11,15 +11,13 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -117,50 +115,8 @@ public class SynchroActivity extends AppCompatActivity {
 
             Bitmap bitmap = openBitmapFile(getArguments().getInt(DATA_KEY_SYNCHRO_OFFSET),
                     getArguments().getBoolean(DATA_KEY_SYNCHRO_LOCAL));
-            if (bitmap != null) {
-
+            if (bitmap != null)
                 mFrameImage.setImageBitmap(bitmap);
-
-
-
-
-
-
-
-
-
-                final Point screenSize = new Point();
-                getActivity().getWindowManager().getDefaultDisplay().getSize(screenSize);
-
-                int frameWidth, frameHeight;
-                if (Settings.getInstance().mOrientation) { // Portrait
-
-                    frameWidth = Settings.getInstance().mResolution.height;
-                    frameHeight = Settings.getInstance().mResolution.width;
-                }
-                else { // Landscape
-
-                    frameWidth = Settings.getInstance().mResolution.width;
-                    frameHeight = Settings.getInstance().mResolution.height;
-                }
-                float scale = screenSize.x / (float)frameWidth;
-                if ((scale < 1f) && (!Settings.getInstance().mOrientation))
-                    return;
-
-                if ((frameHeight * scale) > (screenSize.y - ActivityWrapper.ACTION_BAR_HEIGHT))
-                    scale = (screenSize.y - ActivityWrapper.ACTION_BAR_HEIGHT) / (float)frameHeight;
-
-                mFrameImage.setScaleX(scale);
-                mFrameImage.setScaleY(scale);
-
-
-
-
-
-
-
-
-            }
         }
     }
     private class FramesPagerAdapter extends FragmentStatePagerAdapter {
@@ -188,16 +144,9 @@ public class SynchroActivity extends AppCompatActivity {
         mOffset = 0;
 
         // Update UI
-
-
-
-
-
-
-
-
-
-
+        Bitmap bmpCompare = openBitmapFile(0, !mLocalVideo);
+        if (bmpCompare != null)
+            mCompareImage.setImageBitmap(bmpCompare);
 
         mViewPager.setCurrentItem(mOffset, false);
     }
@@ -223,83 +172,18 @@ public class SynchroActivity extends AppCompatActivity {
         // Set current activity
         ActivityWrapper.set(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (toolbar != null) {
+        ActionBar appBar = getSupportActionBar();
+        if (appBar != null) {
+
             if (Build.VERSION.SDK_INT >= 21) {
-                toolbar.setBackgroundColor(Color.BLACK);
                 getWindow().setNavigationBarColor(Color.BLACK);
                 getWindow().setStatusBarColor(Color.BLACK);
             }
             else // Default status bar color (API < 21)
-                toolbar.setBackgroundColor(Color.argb(255, 30, 30, 30));
+                appBar.setBackgroundDrawable(getResources().getDrawable(R.color.api_16_black));
 
-            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onCancel();
-                }
-            });
-            // See why this listener in bug description below...
-        }
-
-        ActionBar appBar = getSupportActionBar();
-        if (appBar != null)
             appBar.setDisplayHomeAsUpEnabled(true);
-            // BUG: This method should call 'onOptionsItemSelected' when back icon is pressed but do
-            //      not it !?! Defining 'setNavigationOnClickListener' on toolbar in code just above
-            //      will fix this.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        Bundle datas = new Bundle();
-        datas.putInt(DATA_KEY_FRAME_COUNT, 93);
-        getIntent().putExtra(Constants.DATA_ACTIVITY, datas);
-        File documents = getExternalFilesDir(null);
-        if (documents != null)
-            ActivityWrapper.DOCUMENTS_FOLDER = documents.getAbsolutePath();
-        else
-            Logs.add(Logs.Type.F, "Failed to get documents folder");
-        TypedValue typedValue = new TypedValue();
-        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, typedValue, true))
-            ActivityWrapper.ACTION_BAR_HEIGHT = TypedValue.complexToDimensionPixelSize(typedValue.data,
-                    getResources().getDisplayMetrics());
-        else {
-            ActivityWrapper.ACTION_BAR_HEIGHT = 0;
-            Logs.add(Logs.Type.W, "'android.R.attr.actionBarSize' attribute not found");
         }
-        ActivityWrapper.FAB_SIZE = Math.round(Constants.FAB_SIZE_DPI *
-                (getResources().getDisplayMetrics().xdpi/DisplayMetrics.DENSITY_DEFAULT));
-        Settings.getInstance().initResolutions();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         // Restore previous settings (if any)
         if (savedInstanceState != null) {
@@ -314,8 +198,8 @@ public class SynchroActivity extends AppCompatActivity {
         // Position slide info images
         final ImageView leftSlide = (ImageView)findViewById(R.id.left_scroll);
         final ImageView rightSlide = (ImageView)findViewById(R.id.right_scroll);
-        leftSlide.setTranslationY((float)ActivityWrapper.ACTION_BAR_HEIGHT + Constants.ACTION_BAR_LAG);
-        rightSlide.setTranslationY((float) ActivityWrapper.ACTION_BAR_HEIGHT + Constants.ACTION_BAR_LAG);
+        leftSlide.setTranslationY(getResources().getDimension(R.dimen.synchro_slide_lag));
+        rightSlide.setTranslationY(getResources().getDimension(R.dimen.synchro_slide_lag));
 
         // Position frame image to compare
         mCompareImage = (ImageView)findViewById(R.id.frame_compare);
@@ -403,7 +287,14 @@ public class SynchroActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
-    @Override public void onBackPressed() {
-        onCancel();
+    @Override public void onBackPressed() { onCancel(); }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+
+            onCancel();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

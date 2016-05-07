@@ -8,15 +8,14 @@ import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.ImageView;
@@ -151,72 +150,8 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         }
         return true;
     }
-    private void positionImages(ImageView compareImage, int screenWidth, int screenHeight) {
-        // Position contrast & compare images according the orientation
 
-        LayoutParams params = (LayoutParams)mContrastImage.getLayoutParams();
-        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-
-            params.height = screenHeight >> 1;
-            params.width = (int)(params.height * mContrastBitmap.getWidth() / (float)mContrastBitmap.getHeight());
-            if (params.width < screenWidth) {
-
-                params.width = screenWidth;
-                params.height = (int)(params.width * mContrastBitmap.getHeight() / (float)mContrastBitmap.getWidth());
-
-                // Shift both images in order to move them in the middle of the screen (vertically)
-                // -> This is needed coz a 'LinearLayout' oriented vertically allows child images to
-                //    overstep its bounds horizontally but not vertically. If not shift the other image
-                //    will be partially visible.
-
-                params.setMargins(0, (screenHeight >> 1) - params.height, 0, 0);
-                // ...note the top margin above has a negative value to shift images to the top
-            }
-        }
-        else { // Landscape
-
-            params.width = screenWidth >> 1;
-            params.height = (int)(params.width * mContrastBitmap.getHeight() / (float)mContrastBitmap.getWidth());
-            if (params.height < screenHeight) {
-
-                params.height = screenHeight;
-                params.width = (int)(mContrastBitmap.getWidth() * screenHeight / (float)mContrastBitmap.getHeight());
-
-                // Shift both images in order to move them in the middle of the screen (horizontally)
-                // -> This is needed coz a 'LinearLayout' oriented horizontally allows child images to
-                //    overstep its bounds vertically but not horizontally. If not shift the other image
-                //    will be partially visible.
-
-                params.setMargins((screenWidth - (params.width << 1)) / 2, 0, 0, 0);
-                // ...note the left margin above has a negative value to shift images to the left
-            }
-        }
-        mContrastImage.setLayoutParams(params);
-
-        params = (LayoutParams)compareImage.getLayoutParams();
-        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-
-            params.height = screenHeight >> 1;
-            params.width = (int)(params.height * mCompareWidth / (float)mCompareHeight);
-            if (params.width < screenWidth) {
-
-                params.width = screenWidth;
-                params.height = (int)(params.width * mCompareHeight / (float)mCompareWidth);
-            }
-        }
-        else { // Landscape
-
-            params.width = screenWidth >> 1;
-            params.height = (int)(params.width * mCompareHeight / (float)mCompareWidth);
-            if (params.height < screenHeight) {
-
-                params.height = screenHeight;
-                params.width = (int)(mCompareWidth * screenHeight / (float)mCompareHeight);
-            }
-        }
-        compareImage.setLayoutParams(params);
-    }
-
+    //////
     private float mContrast = 1;
     private float mBrightness = 0;
     private boolean mChanged = false;
@@ -304,32 +239,18 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         // Set current activity
         ActivityWrapper.set(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (toolbar != null) {
+        ActionBar appBar = getSupportActionBar();
+        if (appBar != null) {
+
             if (Build.VERSION.SDK_INT >= 21) {
-                toolbar.setBackgroundColor(Color.BLACK);
                 getWindow().setNavigationBarColor(Color.BLACK);
                 getWindow().setStatusBarColor(Color.BLACK);
             }
             else // Default status bar color (API < 21)
-                toolbar.setBackgroundColor(Color.argb(255, 30, 30, 30));
+                appBar.setBackgroundDrawable(getResources().getDrawable(R.color.api_16_black));
 
-            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onCancel();
-                }
-            });
-            // See why this listener in bug description below...
-        }
-
-        ActionBar appBar = getSupportActionBar();
-        if (appBar != null)
             appBar.setDisplayHomeAsUpEnabled(true);
-            // BUG: This method should call 'onOptionsItemSelected' when back icon is pressed but do
-            //      not it !?! Defining 'setNavigationOnClickListener' on toolbar in code just above
-            //      will fix this.
+        }
 
         // Restore previous settings (if any)
         if (savedInstanceState != null) {
@@ -388,20 +309,9 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
                 applyContrastBrightness();
             }
         });
-        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-
-            CoordinatorLayout.LayoutParams fabParams =
-                    (CoordinatorLayout.LayoutParams)mCancelButton.getLayoutParams();
-
-            fabParams.setMargins(0, ActivityWrapper.ACTION_BAR_HEIGHT + Constants.ACTION_BAR_LAG, 0, 0);
-            fabParams.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
-            mCancelButton.setLayoutParams(fabParams);
-
-            // Set validate button position (not exactly in center)
-            final FloatingActionButton applyButton = (FloatingActionButton)findViewById(R.id.fab_apply);
-            ((CoordinatorLayout.LayoutParams)applyButton.getLayoutParams()).setMargins(0, 0, 0, 32);
-
-        }
+        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+            ((CoordinatorLayout.LayoutParams)mCancelButton.getLayoutParams()).gravity =
+                    Gravity.TOP | Gravity.CENTER_HORIZONTAL;
         else
             ((CoordinatorLayout.LayoutParams)mCancelButton.getLayoutParams()).gravity =
                     Gravity.START|Gravity.CENTER_VERTICAL;
@@ -419,20 +329,14 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         // Apply contrast & brightness settings
         applyContrastBrightness();
 
-        ////// Position images
-        final Point screenSize = new Point();
-        getWindowManager().getDefaultDisplay().getSize(screenSize);
-        int screenHeight = screenSize.y - ActivityWrapper.ACTION_BAR_HEIGHT;
+        // Set validate button position (not exactly in center when device in portrait)
+        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
 
-        // Get control panel height at the screen bottom according orientation (in pixel)
-        final ImageView icon = (ImageView)rootView.findViewById(R.id.brightness_icon);
-        LayoutParams params = (LayoutParams)icon.getLayoutParams();
-        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-            screenHeight -= params.height << 1;
-        else
-            screenHeight -= params.height;
-
-        positionImages(compareImage, screenSize.x, screenHeight);
+            final ImageView icon = (ImageView)rootView.findViewById(R.id.brightness_icon);
+            LayoutParams params = (LayoutParams)icon.getLayoutParams();
+            final FloatingActionButton applyButton = (FloatingActionButton)findViewById(R.id.fab_apply);
+            applyButton.setTranslationY(-params.height);
+        }
     }
 
     @Override
@@ -445,8 +349,15 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         super.onSaveInstanceState(outState);
     }
 
-    @Override public void onBackPressed() {
-        onCancel();
+    @Override public void onBackPressed() { onCancel(); }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+
+            onCancel();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     //////
@@ -456,5 +367,4 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
     }
     @Override public void onStartTrackingTouch(SeekBar seekBar) { }
     @Override public void onStopTrackingTouch(SeekBar seekBar) { }
-
 }

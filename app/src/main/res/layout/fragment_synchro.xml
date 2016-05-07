@@ -2,18 +2,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
-
-    android:background="@android:color/holo_green_light"
-
-
+    android:background="@android:color/black"
     tools:context="com.studio.artaban.anaglyph3d.process.configure.SynchroActivity$PlaceholderFragment">
 
     <ImageView
         android:id="@+id/frame_image"
         android:layout_centerInParent="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:adjustViewBounds="true"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <TextView
         android:id="@+id/frame_position"
