@@ -142,6 +142,7 @@ public class ProcessThread extends Thread {
 
         mContrast = contrast;
         mBrightness = brightness;
+        mStatus = Status.TRANSFER_CONTRAST;
     }
 
     //
@@ -362,7 +363,7 @@ public class ProcessThread extends Thread {
 
                     else {
 
-                        // Load contrast activity
+                        // Load contrast activity //////////////////////////////////////////////////
                         Bundle data = new Bundle();
                         data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
                         data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
@@ -422,10 +423,7 @@ public class ProcessThread extends Thread {
                         mStatus = (Settings.getInstance().isMaker())? Status.SAVE_VIDEO:Status.WAIT_CONTRAST;
                     break;
                 }
-                case WAIT_CONTRAST: // Wait contrast transfer or configuration
-                case TRANSFER_CONTRAST: {
-
-
+                case WAIT_CONTRAST: { // Wait contrast configuration or transfer for the maker
 
 
 
@@ -433,9 +431,35 @@ public class ProcessThread extends Thread {
 
 
                     sleep();
-                    publishProgress(0, 1);
+
+                    // if Maker
+                    // -> Wait 'applyContrastBrightness' call from connectivity thread (receive)
+                    // else
+                    // -> Wait contrast configuration (wait 'applyContrastBrightness' call from process activity)
+
+                    // NOTHING ELSE TO DO (status will be updated in 'applyContrastBrightness')
 
 
+
+
+
+                    break;
+                }
+                case TRANSFER_CONTRAST: {
+
+
+
+
+
+
+                    sleep();
+
+                    // if Maker
+                    // -> contrast has been received ('applyContrastBrightness' called from connectivity thread)
+                    // -> mStatus = FRAMES_CONVERSION
+                    // else
+                    // -> send contrast & brightness to remote
+                    // -> mStatus = WAIT_3D_VIDEO
 
 
 
@@ -547,7 +571,7 @@ public class ProcessThread extends Thread {
                             }
                             case MERGE_FPS: {
 
-                                // Load synchronization activity
+                                // Load synchronization activity ///////////////////////////////////
                                 Bundle data = new Bundle();
                                 data.putInt(SynchroActivity.DATA_KEY_FRAME_COUNT,
                                         Video.getInstance().getFrameCount());
@@ -562,7 +586,7 @@ public class ProcessThread extends Thread {
                     }
                     break;
                 }
-                case WAIT_SYNCHRO: {
+                case WAIT_SYNCHRO: { // Wait synchro configuration (maker only)
 
                     sleep();
                     break;
@@ -592,7 +616,7 @@ public class ProcessThread extends Thread {
                     }
 
                     //////
-                    mStatus = Status.FRAMES_CONVERSION;
+                    mStatus = Status.WAIT_CONTRAST;
                     break;
                 }
                 case FRAMES_CONVERSION: {
@@ -601,15 +625,7 @@ public class ProcessThread extends Thread {
 
 
 
-
-
-
                     sleep();
-                    publishProgress(0, 1);
-
-
-
-
 
 
 

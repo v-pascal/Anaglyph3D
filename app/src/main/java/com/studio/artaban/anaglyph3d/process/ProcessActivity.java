@@ -10,9 +10,12 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
+import com.studio.artaban.anaglyph3d.process.configure.ContrastActivity;
+import com.studio.artaban.anaglyph3d.process.configure.SynchroActivity;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 import com.studio.artaban.libGST.GstObject;
 
@@ -187,32 +190,30 @@ public class ProcessActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != 0)
+            return;
 
+        switch (resultCode) {
+            case Constants.RESULT_PROCESS_CONTRAST: {
 
+                mProcessThread.applyContrastBrightness(
+                        data.getFloatExtra(ContrastActivity.DATA_KEY_CONTRAST,
+                                ContrastActivity.DEFAULT_CONTRAST),
+                        data.getFloatExtra(ContrastActivity.DATA_KEY_BRIGHTNESS,
+                                ContrastActivity.DEFAULT_BRIGHTNESS));
+                break;
+            }
+            case Constants.RESULT_PROCESS_SYNCHRO: {
 
-
-
-
-
-        //Check contrast or synchronization activity results:
-        // RESULT_CANCELLED
-
-        // RESULT_PROCESS_CONTRAST
-        //getIntent().putExtra(DATA_KEY_CONTRAST, mContrast);
-        //getIntent().putExtra(DATA_KEY_BRIGHTNESS, mBrightness);
-        //mProcessThread.applyContrastBrightness();
-
-        // RESULT_PROCESS_SYNCHRO
-        //getIntent().putExtra(DATA_KEY_SYNCHRO_OFFSET, mOffset);
-        //getIntent().putExtra(DATA_KEY_SYNCHRO_LOCAL, mLocalVideo);
-        //mProcessThread.applySynchronization();
-
-
-
-
-
-
+                mProcessThread.applySynchronization(data.getShortExtra(SynchroActivity.DATA_KEY_SYNCHRO_OFFSET,
+                                SynchroActivity.DEFAULT_OFFSET),
+                        data.getBooleanExtra(SynchroActivity.DATA_KEY_SYNCHRO_LOCAL,
+                                SynchroActivity.DEFAULT_LOCAL));
+                break;
+            }
+        }
     }
 
     @Override

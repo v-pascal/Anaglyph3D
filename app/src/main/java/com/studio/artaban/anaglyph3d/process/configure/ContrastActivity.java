@@ -1,6 +1,7 @@
 package com.studio.artaban.anaglyph3d.process.configure;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -41,6 +42,11 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
     public static final String DATA_KEY_CONTRAST = "contrast";
     public static final String DATA_KEY_BRIGHTNESS = "brightness";
     private static final String DATA_KEY_CHANGED = "changed";
+    // Data keys
+
+    public static final float DEFAULT_CONTRAST = 1f;
+    public static final float DEFAULT_BRIGHTNESS = 0f;
+    // Default values
 
     //////
     private ImageView mContrastImage;
@@ -150,12 +156,20 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         }
         return true;
     }
+    private void setResult() {
+
+        Intent intent = new Intent();
+        intent.putExtra(DATA_KEY_CONTRAST, mContrast);
+        intent.putExtra(DATA_KEY_BRIGHTNESS, mBrightness);
+
+        setResult(Constants.RESULT_PROCESS_CONTRAST, intent);
+    }
 
     //////
-    private float mContrast = 1;
-    private float mBrightness = 0;
-    private boolean mChanged = false;
+    private float mContrast = DEFAULT_CONTRAST;
+    private float mBrightness = DEFAULT_BRIGHTNESS;
 
+    private boolean mChanged = false;
     private FloatingActionButton mCancelButton;
 
     private void applyContrastBrightness() { // Apply contrast & brightness settings
@@ -211,10 +225,7 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
     }
     public void onValidateContrast(View sender) { // Validate contrast & brightness settings
 
-        getIntent().putExtra(DATA_KEY_CONTRAST, mContrast);
-        getIntent().putExtra(DATA_KEY_BRIGHTNESS, mBrightness);
-
-        setResult(Constants.RESULT_PROCESS_CONTRAST);
+        setResult();
         finish();
     }
     private void onCancel() {
@@ -252,6 +263,9 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
             appBar.setDisplayHomeAsUpEnabled(true);
         }
 
+        // Set default result
+        setResult();
+
         // Restore previous settings (if any)
         if (savedInstanceState != null) {
 
@@ -274,10 +288,10 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         // Set contrast seek bar position
         final SeekBar contrastSeek = (SeekBar)rootView.findViewById(R.id.seek_contrast);
         contrastSeek.setMax(100);
-        if (mContrast < 1) // Contrast [0;1] -> Progress [0;50]
+        if (mContrast < DEFAULT_CONTRAST) // Contrast [0;1] -> Progress [0;50]
             contrastSeek.setProgress(50 * (int)mContrast);
         else // Contrast [1;10] -> Progress [50;100]
-            contrastSeek.setProgress((int)(50 * (mContrast - 1) / (float)9) + 50);
+            contrastSeek.setProgress((int)(50 * (mContrast - DEFAULT_CONTRAST) / (float)9) + 50);
         contrastSeek.setOnSeekBarChangeListener(this);
 
         // Set brightness seek bar position
@@ -299,8 +313,8 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
                         R.drawable.ic_invert_colors_white_48dp));
 
                 // Reset contrast & brightness settings
-                mContrast = 1;
-                mBrightness = 0;
+                mContrast = DEFAULT_CONTRAST;
+                mBrightness = DEFAULT_BRIGHTNESS;
                 mChanged = false;
 
                 contrastSeek.setProgress(50);

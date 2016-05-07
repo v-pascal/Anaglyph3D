@@ -1,6 +1,7 @@
 package com.studio.artaban.anaglyph3d.process.configure;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -44,11 +45,16 @@ public class SynchroActivity extends AppCompatActivity {
     public static final String DATA_KEY_SYNCHRO_LOCAL = "local";
     // Data keys
 
+    public static final short DEFAULT_OFFSET = 0;
+    public static final boolean DEFAULT_LOCAL = true;
+    // Default values
+
     private static final int FRAME_REMAINING = 24; // Offset limit == frame count - FRAME_REMAINING
 
     //////
-    private short mOffset = 0; // Frame count to shift from the origin (synchro result)
-    private boolean mLocalVideo = true; // Local video from which to apply the synchro (false for remote)
+    private short mOffset = DEFAULT_OFFSET; // Frame count to shift from the origin (synchro result)
+    private boolean mLocalVideo = DEFAULT_LOCAL; // Local video from which to apply the synchro (false for remote)
+
     private int mFrameCount = 0;
 
     private ViewPager mViewPager;
@@ -78,6 +84,14 @@ public class SynchroActivity extends AppCompatActivity {
             Logs.add(Logs.Type.E, "Failed to load RGBA file: " + bmpFile.getAbsolutePath());
         }
         return bitmap;
+    }
+    private void setResult() {
+
+        Intent intent = new Intent();
+        intent.putExtra(DATA_KEY_SYNCHRO_OFFSET, mOffset);
+        intent.putExtra(DATA_KEY_SYNCHRO_LOCAL, mLocalVideo);
+
+        setResult(Constants.RESULT_PROCESS_SYNCHRO, intent);
     }
 
     //
@@ -132,10 +146,7 @@ public class SynchroActivity extends AppCompatActivity {
     //
     public void onValidateSynchro(View sender) { // Validate synchronization setting
 
-        getIntent().putExtra(DATA_KEY_SYNCHRO_OFFSET, mOffset);
-        getIntent().putExtra(DATA_KEY_SYNCHRO_LOCAL, mLocalVideo);
-
-        setResult(Constants.RESULT_PROCESS_SYNCHRO);
+        setResult();
         finish();
     }
     public void onChangeFrame(View sender) {
@@ -184,6 +195,9 @@ public class SynchroActivity extends AppCompatActivity {
 
             appBar.setDisplayHomeAsUpEnabled(true);
         }
+
+        // Set default result
+        setResult();
 
         // Restore previous settings (if any)
         if (savedInstanceState != null) {
@@ -273,8 +287,14 @@ public class SynchroActivity extends AppCompatActivity {
                 if (position == 0)
                     rightSlide.setAlpha(positionOffset);
             }
-            @Override public void onPageSelected(int position) { mOffset = (short)position; }
-            @Override public void onPageScrollStateChanged(int state) { }
+
+            @Override
+            public void onPageSelected(int position) {
+                mOffset = (short) position;
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) { }
         });
     }
 
