@@ -604,7 +604,6 @@ public class ProcessThread extends Thread {
 
 
 
-
                     sleep();
                     publishProgress(0, 1);
 
