@@ -87,52 +87,6 @@ public class Settings implements ConnectRequest {
         return true;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-    public boolean initResolutions() {
-
-        boolean init = mResolutions.isEmpty();
-        mResolutions.clear();
-        mPosition = false;
-        mOrientation = true;
-        mDuration = 10;
-
-        if (!CameraView.getAvailableResolutions(mResolutions))
-            return false;
-
-        if (init)
-            mResolution = mResolutions.get(0); // 640 * 480
-        return true;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // Data
     private boolean mMaster; // Master device which has priority (false for slave device)
     private String mRemoteDevice; // Remote device info
