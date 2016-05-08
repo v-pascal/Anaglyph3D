@@ -198,7 +198,7 @@ public class ProcessActivity extends AppCompatActivity {
         switch (resultCode) {
             case Constants.RESULT_PROCESS_CONTRAST: {
 
-                mProcessThread.applyContrastBrightness(
+                ProcessThread.applyContrastBrightness(
                         data.getFloatExtra(ContrastActivity.DATA_KEY_CONTRAST,
                                 ContrastActivity.DEFAULT_CONTRAST),
                         data.getFloatExtra(ContrastActivity.DATA_KEY_BRIGHTNESS,
@@ -227,9 +227,12 @@ public class ProcessActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
 
-        if ((mProcessThread != null) && (mProcessThread.isAlive()))
+        super.onDestroy();
+        if ((mProcessThread != null) && (mProcessThread.isAlive())) {
+
             mProcessThread.release();
+            mProcessThread = null;
+        }
     }
 }

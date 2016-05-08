@@ -48,7 +48,7 @@
     <string name="reverse_disabled">ATTENTION: Impossible de retourner l\'écran! Vérifiez la configuration de votre périphérique.</string>
     <string name="status_label">Statut:</string>
     <string name="title_activity_contrast">Contraste &amp; luminosité</string>
-    <string name="title_activity_synchro">Synchronisation</string>
+    <string name="title_activity_synchro">Synchronisation (optionnel)</string>
     <string name="ask_skip_step">Etes-vous sûr de vouloir passer cette étape?</string>
 
     <!-- Process error -->
@@ -83,5 +83,8 @@
     <string name="status_merge_fps">Correspondance des images par seconde</string>
     <string name="status_extract_audio">Extraction de l\'audio...</string>
     <string name="status_frames_conversion">Conversion des images</string>
+    <string name="status_wait_anaglyph">Vidéo 3D en attente...</string>
+    <string name="status_make_anaglyph">Montage de la vidéo 3D en cours...</string>
+    <string name="status_transfer_anaglyph">Transfert de la vidéo 3D</string>
 
 </resources>

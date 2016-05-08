@@ -178,6 +178,36 @@ public class Video extends BufferRequest {
             }
         }).start();
     }
+    public void convertFrames(final float contrast, final float brightness, final short offset) {
+
+        mProceedFrame = 0;
+        mTotalFrame = 1;
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            }
+        }).start();
+    }
 
     //////
     private static final String AUDIO_WAV_FILENAME = "audio.wav";

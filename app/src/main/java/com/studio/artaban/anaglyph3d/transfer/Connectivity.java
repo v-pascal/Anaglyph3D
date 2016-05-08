@@ -14,6 +14,7 @@ import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.media.Frame;
 import com.studio.artaban.anaglyph3d.media.Video;
+import com.studio.artaban.anaglyph3d.process.ProcessThread;
 import com.studio.artaban.anaglyph3d.transfer.ConnectRequest.ReceiveResult;
 
 import java.io.ByteArrayOutputStream;
@@ -44,6 +45,7 @@ public class Connectivity {
             case ConnectRequest.REQ_ACTIVITY: return ActivityWrapper.getInstance();
             case ConnectRequest.REQ_FRAME: return Frame.getInstance();
             case ConnectRequest.REQ_VIDEO: return Video.getInstance();
+            case ConnectRequest.REQ_PROCESS: return ProcessThread.getInstance();
 
             ////////////////////////////////////////////////////////////////////////////////////////
             default:
@@ -549,6 +551,9 @@ public class Connectivity {
 
 
 
+
+
+
                                 switch (mRequestBuffer.handler.getRequestId()) {
                                     case ConnectRequest.REQ_FRAME:
                                         Frame frame = (Frame)mRequestBuffer.handler;
@@ -559,6 +564,8 @@ public class Connectivity {
                                         Logs.add(Logs.Type.E, video.getTransferSize() + " / " + video.getBufferSize());
                                         break;
                                 }
+
+
 
 
 

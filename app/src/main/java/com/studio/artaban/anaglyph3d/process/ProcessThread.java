@@ -15,10 +15,15 @@ import com.studio.artaban.anaglyph3d.media.Frame;
 import com.studio.artaban.anaglyph3d.media.Video;
 import com.studio.artaban.anaglyph3d.process.configure.ContrastActivity;
 import com.studio.artaban.anaglyph3d.process.configure.SynchroActivity;
+import com.studio.artaban.anaglyph3d.transfer.ConnectRequest;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 import com.studio.artaban.libGST.GstObject;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -81,12 +86,12 @@ public class ProcessThread extends Thread {
         WAIT_CONTRAST (R.string.status_wait_contrast), // Wait until contrast & brightness has been received
 
         ////// Frames conversion step
-        FRAMES_CONVERSION(R.string.status_frames_conversion), // Color frame (in blue or red), and apply contrast & brightness
+        FRAMES_CONVERSION (R.string.status_frames_conversion), // Color frame (in blue or red), and apply contrast & brightness
 
         ////// Make & transfer 3D video step
-        MAKE_3D_VIDEO(0), // Make the anaglyph 3D video
-        TRANSFER_3D_VIDEO(0), // Transfer 3D video (to remote device which is not the maker)
-        WAIT_3D_VIDEO(0); // Wait 3D video received
+        MAKE_3D_VIDEO (R.string.status_make_anaglyph), // Make the anaglyph 3D video
+        TRANSFER_3D_VIDEO (R.string.status_transfer_anaglyph), // Transfer 3D video (to remote device which is not the maker)
+        WAIT_3D_VIDEO (R.string.status_wait_anaglyph); // Wait 3D video received
 
         //
         private final int stringId;
@@ -97,8 +102,10 @@ public class ProcessThread extends Thread {
     private volatile Status mStatus = Status.INITIALIZATION;
 
     private boolean mLocalAudio = true; // To define from which video to extract the audio (after synchronization)
-    private float mContrast = 1; // Contrast configured by the user
-    private float mBrightness = 0; // Brightness configured by the user
+
+    private static float mContrast = 1; // Contrast configured by the user
+    private static float mBrightness = 0; // Brightness configured by the user
+    private short mSynchroOffset = 0; // Synchronization offset configured by the user
 
     private Frame.Orientation getOrientation() { // Return frame orientation according settings
 
@@ -111,38 +118,71 @@ public class ProcessThread extends Thread {
     }
 
     public static GstObject mGStreamer; // GStreamer object used to manipulate pictures & videos
+    private static boolean mConfigured = false; // Flag to know if user has configured the contrast & brightness
 
     //////
     public void applySynchronization(short offset, boolean local) {
-
-
-
-
-
-
-
-
-
-        // apply configuration here
-
-
-
-
-
-
-
-
-
-
-        //////
+        mSynchroOffset = offset;
         mLocalAudio = local;
+
         mStatus = Status.EXTRACT_AUDIO;
     }
-    public void applyContrastBrightness(float contrast, float brightness) {
-
+    public static void applyContrastBrightness(float contrast, float brightness) {
         mContrast = contrast;
         mBrightness = brightness;
-        mStatus = Status.TRANSFER_CONTRAST;
+
+        mConfigured = true;
+    }
+
+    //////
+    private static ContrastTransfer mTransfer;
+    public static ContrastTransfer getInstance() { return mTransfer; }
+
+    private static class ContrastTransfer implements ConnectRequest {
+
+        @Override public char getRequestId() { return ConnectRequest.REQ_PROCESS; }
+        @Override public boolean getRequestMerge() { return false; }
+        @Override public BufferType getRequestBuffer(byte type) { return BufferType.NONE; }
+        @Override public short getMaxWaitReply(byte type) { return Constants.CONN_MAXWAIT_DEFAULT; }
+        @Override
+        public String getRequest(byte type, Bundle data) {
+            try {
+
+                JSONObject request = new JSONObject();
+                request.put(ContrastActivity.DATA_KEY_CONTRAST, mContrast);
+                request.put(ContrastActivity.DATA_KEY_BRIGHTNESS, mBrightness);
+
+                return request.toString();
+            }
+            catch (JSONException e) {
+                Logs.add(Logs.Type.E, e.getMessage());
+            }
+            return null;
+        }
+        @Override
+        public String getReply(byte type, String request, PreviousMaster previous) {
+            try {
+
+                JSONObject config = new JSONObject(request);
+                mContrast = (float)config.getDouble(ContrastActivity.DATA_KEY_CONTRAST);
+                mBrightness = (float)config.getDouble(ContrastActivity.DATA_KEY_BRIGHTNESS);
+
+                return Constants.CONN_REQUEST_ANSWER_TRUE;
+            }
+            catch (JSONException e) {
+                Logs.add(Logs.Type.E, e.getMessage());
+            }
+            return null;
+        }
+
+        @Override
+        public ReceiveResult receiveReply(byte type, String reply) {
+            return (reply.equals(Constants.CONN_REQUEST_ANSWER_TRUE))?
+                    ReceiveResult.SUCCESS:ReceiveResult.ERROR;
+        }
+        @Override public ReceiveResult receiveBuffer(ByteArrayOutputStream buffer) {
+            return ReceiveResult.ERROR; // Unexpected call
+        }
     }
 
     //
@@ -168,6 +208,7 @@ public class ProcessThread extends Thread {
 
                 switch (mStatus) {
 
+                    case FRAMES_CONVERSION:
                     case RENAME_FRAMES_LEFT:
                     case RENAME_FRAMES_RIGHT:
                     case MERGE_FPS:
@@ -186,7 +227,12 @@ public class ProcessThread extends Thread {
                         //break; // ...indeterminate below
                     }
 
-                    // Heavy process
+                    // Heavy process or undefined duration process
+                    case WAIT_3D_VIDEO:
+
+                    case WAIT_CONTRAST:
+                    case TRANSFER_CONTRAST:
+
                     case CONVERT_PICTURE:
                     case SAVE_VIDEO:
                     case EXTRACT_FRAMES_LEFT:
@@ -249,6 +295,7 @@ public class ProcessThread extends Thread {
 
                     //////
                     local = true;
+                    mConfigured = false;
                     if (!Settings.getInstance().isMaker())
                         mStatus = Status.SAVE_PICTURE;
 
@@ -423,49 +470,42 @@ public class ProcessThread extends Thread {
                         mStatus = (Settings.getInstance().isMaker())? Status.SAVE_VIDEO:Status.WAIT_CONTRAST;
                     break;
                 }
+                case TRANSFER_CONTRAST:
                 case WAIT_CONTRAST: { // Wait contrast configuration or transfer for the maker
 
-
-
-
-
-
                     sleep();
+                    publishProgress(0, 1);
 
-                    // if Maker
-                    // -> Wait 'applyContrastBrightness' call from connectivity thread (receive)
-                    // else
-                    // -> Wait contrast configuration (wait 'applyContrastBrightness' call from process activity)
+                    if (mStatus == Status.TRANSFER_CONTRAST) {
+                        if (Settings.getInstance().isMaker()) {
 
-                    // NOTHING ELSE TO DO (status will be updated in 'applyContrastBrightness')
+                            // Contrast & brightness configuration has been received
+                            Video.getInstance().convertFrames(mContrast, mBrightness, mSynchroOffset);
+                            mStatus = Status.FRAMES_CONVERSION;
+                        }
+                        else {
 
+                            // Send contrast & brightness configuration to remote device
+                            Connectivity.getInstance().addRequest(mTransfer, (byte)0, null);
 
+                            //////
+                            mStatus = Status.WAIT_3D_VIDEO;
+                            publishProgress(0, 1);
+                        }
+                    }
+                    //else {
 
+                    // IF Maker
+                    // Wait 'applyContrastBrightness' call from connectivity thread (once received)
+                    // ELSE
+                    // Wait contrast configuration (wait 'applyContrastBrightness' call from process activity)
 
-
-                    break;
-                }
-                case TRANSFER_CONTRAST: {
-
-
-
-
-
-
-                    sleep();
-
-                    // if Maker
-                    // -> contrast has been received ('applyContrastBrightness' called from connectivity thread)
-                    // -> mStatus = FRAMES_CONVERSION
-                    // else
-                    // -> send contrast & brightness to remote
-                    // -> mStatus = WAIT_3D_VIDEO
-
-
-
-
-
-
+                    // ...Nothing else to do (status will be updated 'applyContrastBrightness' via code below)
+                    // }
+                    if (mConfigured) {
+                        mConfigured = false;
+                        mStatus = Status.TRANSFER_CONTRAST;
+                    }
                     break;
                 }
                 case SAVE_VIDEO: {
@@ -580,6 +620,7 @@ public class ProcessThread extends Thread {
 
                                 //////
                                 mStatus = Status.WAIT_SYNCHRO;
+                                publishProgress(0, 1);
                                 break;
                             }
                         }
@@ -593,7 +634,6 @@ public class ProcessThread extends Thread {
                 }
                 case EXTRACT_AUDIO: {
 
-                    sleep();
                     publishProgress(0, 1);
 
                     if (!Video.extractAudio((mLocalAudio)?
@@ -621,11 +661,57 @@ public class ProcessThread extends Thread {
                 }
                 case FRAMES_CONVERSION: {
 
+                    sleep();
+                    publishProgress(Video.getInstance().getProceedFrame(),
+                            Video.getInstance().getTotalFrame());
+
+                    //////
+                    if (Video.getInstance().getProceedFrame() == Video.getInstance().getTotalFrame())
+                        mStatus = Status.MAKE_3D_VIDEO;
+                    break;
+                }
+                case MAKE_3D_VIDEO: {
+
+                    publishProgress(0, 1);
+                    if (!Video.makeAnaglyphVideo()) {
+
+
+
+
+
+
+                    }
+
+                    //////
+                    mStatus = Status.TRANSFER_3D_VIDEO;
+                    break;
+                }
+                case WAIT_3D_VIDEO: { // Wait 3D video transfer (receiving)
+
+
 
 
 
 
                     sleep();
+
+
+
+
+
+
+
+                    break;
+                }
+                case TRANSFER_3D_VIDEO: {
+
+
+
+
+
+
+                    sleep();
+
 
 
 

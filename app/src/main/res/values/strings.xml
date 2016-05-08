@@ -113,7 +113,7 @@
     <string name="reverse_disabled">WARNING: Unable to reverse screen! Check your device settings.</string>
     <string name="status_label">Status:</string>
     <string name="title_activity_contrast">Contrast &amp; brightness</string>
-    <string name="title_activity_synchro">Synchronization</string>
+    <string name="title_activity_synchro">Synchronization (optional)</string>
     <string name="ask_skip_step">Are you sure you want to skip this step?</string>
 
     <!-- Process error -->
@@ -148,12 +148,8 @@
     <string name="status_merge_fps">Matching frame per second</string>
     <string name="status_extract_audio">Extracting audio from video...</string>
     <string name="status_frames_conversion">Frames conversion</string>
-
-
-
-    <string name="section_format">Hello World from section: %1$d</string>
-
-
-
+    <string name="status_wait_anaglyph">Waiting anaglyph 3D video...</string>
+    <string name="status_make_anaglyph">Making anaglyph 3D video...</string>
+    <string name="status_transfer_anaglyph">Transfer anaglyph 3D video</string>
 
 </resources>
