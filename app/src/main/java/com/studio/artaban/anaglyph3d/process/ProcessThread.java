@@ -268,6 +268,7 @@ public class ProcessThread extends Thread {
     public void run() {
 
         Logs.add(Logs.Type.V, "Process thread started");
+        int frameCount = 0;
         boolean local = true; // To define which picture/video to process (local or remote)
                               // ...and more
         while (!mAbort) {
@@ -467,7 +468,8 @@ public class ProcessThread extends Thread {
                         if (Settings.getInstance().isMaker()) {
 
                             // Contrast & brightness configuration has been received
-                            Video.getInstance().convertFrames(mContrast, mBrightness, mSynchroOffset);
+                            Video.getInstance().convertFrames(mContrast, mBrightness,
+                                    mSynchroOffset, mLocalAudio);
                             mStatus = Status.FRAMES_CONVERSION;
                         }
                         else {
@@ -600,8 +602,8 @@ public class ProcessThread extends Thread {
 
                                 // Load synchronization activity ///////////////////////////////////
                                 Bundle data = new Bundle();
-                                data.putInt(SynchroActivity.DATA_KEY_FRAME_COUNT,
-                                        Video.getInstance().getFrameCount());
+                                frameCount = Video.getInstance().getFrameCount();
+                                data.putInt(SynchroActivity.DATA_KEY_FRAME_COUNT, frameCount);
 
                                 ActivityWrapper.startActivity(SynchroActivity.class, data, 0);
 
@@ -662,7 +664,10 @@ public class ProcessThread extends Thread {
                 case MAKE_3D_VIDEO: {
 
                     publishProgress(0, 1);
-                    if (!Video.makeAnaglyphVideo(local)) {
+                    if (!Video.makeAnaglyphVideo(local, frameCount, ActivityWrapper.DOCUMENTS_FOLDER +
+                            ((mLocalAudio)?
+                            Constants.PROCESS_LOCAL_FRAMES_FILENAME:
+                            Constants.PROCESS_REMOTE_FRAMES_FILENAME))) {
 
                         Logs.add(Logs.Type.E, "Failed to make anaglyph video");
                         mAbort = true;
@@ -678,8 +683,8 @@ public class ProcessThread extends Thread {
                                 });
                         break;
                     }
-                    if (local) {
-                        local = false;
+                    if (local) { // Check 'jpegStep' (first step)
+                        local = false; // ...make final video (last step)
                         break;
                     }
 

@@ -3,6 +3,7 @@ package com.studio.artaban.anaglyph3d.media;
 import android.os.Bundle;
 
 import com.studio.artaban.anaglyph3d.data.Constants;
+import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.process.ProcessThread;
 import com.studio.artaban.anaglyph3d.transfer.BufferRequest;
@@ -181,7 +182,8 @@ public class Video extends BufferRequest {
             }
         }).start();
     }
-    public void convertFrames(final float contrast, final float brightness, final short offset) {
+    public void convertFrames(final float contrast, final float brightness,
+                              final short offset, final boolean local) {
 
         mProceedFrame = 0;
         mTotalFrame = 1;
@@ -208,12 +210,15 @@ public class Video extends BufferRequest {
 
 
 
+
+
+
             }
         }).start();
     }
 
     //////
-    private static final String AUDIO_WAV_FILENAME = "audio.wav";
+    private static final String AUDIO_WAV_FILENAME = "/audio.wav";
 
     public static boolean extractFramesRGBA(String file, Frame.Orientation orientation, String frames) {
 
@@ -227,26 +232,32 @@ public class Video extends BufferRequest {
                 " ! audioconvert ! wavenc ! filesink location=\"" + ActivityWrapper.DOCUMENTS_FOLDER +
                 AUDIO_WAV_FILENAME + "\"");
     }
-    public static boolean makeAnaglyphVideo(boolean jpegStep) {
+    public static boolean makeAnaglyphVideo(boolean jpegStep, int frameCount, String files) {
 
+        int frameWidth, frameHeight;
+        if (Settings.getInstance().mOrientation) { // Portrait
 
+            frameWidth = Settings.getInstance().mResolution.height;
+            frameHeight = Settings.getInstance().mResolution.width;
+        }
+        else { // Landscape
 
-
-
-
-
-        /*
-        gst-launch-1.0 multifilesrc location="img%d.rgba" index=0 caps="video/x-raw,format=RGBA,width=480,height=640,framerate=1/1" ! decodebin ! videoconvert ! jpegenc ! multifilesink location=img%d.jpg
-        gst-launch-1.0 webmmux name=mux ! filesink location=anaglyph.webm multifilesrc location="img%d.jpg" index=0 caps="image/jpeg,width=480,height=640,framerate=591/60" ! jpegdec ! videoconvert ! vp8enc ! queue ! mux.video_0 filesrc location=portrait.wav ! decodebin ! audioconvert ! vorbisenc ! queue ! mux.audio_0
-        */
-
-
-
-
-
-
-
-        return true;
+            frameWidth = Settings.getInstance().mResolution.width;
+            frameHeight = Settings.getInstance().mResolution.height;
+        }
+        if (jpegStep)
+            return ProcessThread.mGStreamer.launch("multifilesrc location=\"" + files + "\" index=0" +
+                    " caps=\"video/x-raw,format=RGBA,width=" + frameWidth + ",height=" + frameHeight +
+                    ",framerate=1/1\" ! decodebin ! videoconvert ! jpegenc ! multifilesink" +
+                    " location=\"" + ActivityWrapper.DOCUMENTS_FOLDER + "/img%d.jpg\"");
+        else
+            return ProcessThread.mGStreamer.launch("webmmux name=mux ! filesink" +
+                    " location=\"" + ActivityWrapper.DOCUMENTS_FOLDER + Constants.PROCESS_3D_VIDEO_FILENAME +
+                    "\" multifilesrc location=\"img%d.jpg\" index=0 caps=\"image/jpeg,width=" + frameWidth +
+                    ",height=" + frameHeight + ",framerate=" + frameCount + "/" + Settings.getInstance().mDuration +
+                    "\" ! jpegdec ! videoconvert ! vp8enc ! queue ! mux.video_0 filesrc" +
+                    " location=\"" + ActivityWrapper.DOCUMENTS_FOLDER + AUDIO_WAV_FILENAME + "\" ! decodebin" +
+                    " ! audioconvert ! vorbisenc ! queue ! mux.audio_0");
     }
     public static boolean sendFile(String file) {
         try {
