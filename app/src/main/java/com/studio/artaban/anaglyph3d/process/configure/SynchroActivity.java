@@ -288,13 +288,8 @@ public class SynchroActivity extends AppCompatActivity {
                     rightSlide.setAlpha(positionOffset);
             }
 
-            @Override
-            public void onPageSelected(int position) {
-                mOffset = (short) position;
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) { }
+            @Override public void onPageSelected(int position) { mOffset = (short) position; }
+            @Override public void onPageScrollStateChanged(int state) { }
         });
     }
 

@@ -201,7 +201,8 @@ public class Video extends BufferRequest {
 
 
 
-
+                // Apply conversion on local files
+                // Remove !local files
 
 
 
@@ -253,11 +254,12 @@ public class Video extends BufferRequest {
         else
             return ProcessThread.mGStreamer.launch("webmmux name=mux ! filesink" +
                     " location=\"" + ActivityWrapper.DOCUMENTS_FOLDER + Constants.PROCESS_3D_VIDEO_FILENAME +
-                    "\" multifilesrc location=\"img%d.jpg\" index=0 caps=\"image/jpeg,width=" + frameWidth +
-                    ",height=" + frameHeight + ",framerate=" + frameCount + "/" + Settings.getInstance().mDuration +
+                    "\" multifilesrc location=\"" + ActivityWrapper.DOCUMENTS_FOLDER + "/img%d.jpg\" index=0" +
+                    " caps=\"image/jpeg,width=" + frameWidth + ",height=" + frameHeight +
+                    ",framerate=" + frameCount + "/" + Settings.getInstance().mDuration +
                     "\" ! jpegdec ! videoconvert ! vp8enc ! queue ! mux.video_0 filesrc" +
-                    " location=\"" + ActivityWrapper.DOCUMENTS_FOLDER + AUDIO_WAV_FILENAME + "\" ! decodebin" +
-                    " ! audioconvert ! vorbisenc ! queue ! mux.audio_0");
+                    " location=\"" + ActivityWrapper.DOCUMENTS_FOLDER + AUDIO_WAV_FILENAME +
+                    "\" ! decodebin ! audioconvert ! vorbisenc ! queue ! mux.audio_0");
     }
     public static boolean sendFile(String file) {
         try {
