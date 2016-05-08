@@ -65,6 +65,8 @@ public class Constants {
     public static final String PROCESS_LOCAL_PICTURE_FILENAME = "/local.rgba";
     public static final String PROCESS_REMOTE_PICTURE_FILENAME = "/remote.rgba";
 
+    public static final String PROCESS_3D_VIDEO_FILENAME = "/video.webm";
+
     public static final String PROCESS_LOCAL_PREFIX = "local";
     public static final String PROCESS_REMOTE_PREFIX = "remote";
     public static final String PROCESS_RGBA_EXTENSION = ".rgba";

@@ -7,11 +7,14 @@ import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.process.ProcessThread;
 import com.studio.artaban.anaglyph3d.transfer.BufferRequest;
 import com.studio.artaban.anaglyph3d.transfer.ConnectRequest;
+import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -223,5 +226,46 @@ public class Video extends BufferRequest {
         return ProcessThread.mGStreamer.launch("filesrc location=\"" + file + "\" ! decodebin" +
                 " ! audioconvert ! wavenc ! filesink location=\"" + ActivityWrapper.DOCUMENTS_FOLDER +
                 AUDIO_WAV_FILENAME + "\"");
+    }
+    public static boolean makeAnaglyphVideo(boolean jpegStep) {
+
+
+
+
+
+
+
+        /*
+        gst-launch-1.0 multifilesrc location="img%d.rgba" index=0 caps="video/x-raw,format=RGBA,width=480,height=640,framerate=1/1" ! decodebin ! videoconvert ! jpegenc ! multifilesink location=img%d.jpg
+        gst-launch-1.0 webmmux name=mux ! filesink location=anaglyph.webm multifilesrc location="img%d.jpg" index=0 caps="image/jpeg,width=480,height=640,framerate=591/60" ! jpegdec ! videoconvert ! vp8enc ! queue ! mux.video_0 filesrc location=portrait.wav ! decodebin ! audioconvert ! vorbisenc ! queue ! mux.audio_0
+        */
+
+
+
+
+
+
+
+        return true;
+    }
+    public static boolean sendFile(String file) {
+        try {
+
+            // Load video file buffer
+            File videoFile = new File(file);
+            byte[] videoBuffer = new byte[(int)videoFile.length()];
+            if (new FileInputStream(videoFile).read(videoBuffer) != videoBuffer.length)
+                return false;
+
+            Bundle data = new Bundle();
+            data.putByteArray(Video.DATA_KEY_BUFFER, videoBuffer);
+
+            // Send download video request (upload to remote device)
+            Connectivity.getInstance().addRequest(Video.getInstance(), Video.REQ_TYPE_DOWNLOAD, data);
+            return true;
+        }
+        catch (IOException e) {
+            return false;
+        }
     }
 }

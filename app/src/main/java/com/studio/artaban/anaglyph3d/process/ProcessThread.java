@@ -25,7 +25,6 @@ import org.json.JSONObject;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -270,7 +269,7 @@ public class ProcessThread extends Thread {
 
         Logs.add(Logs.Type.V, "Process thread started");
         boolean local = true; // To define which picture/video to process (local or remote)
-
+                              // ...and more
         while (!mAbort) {
             switch (mStatus) {
 
@@ -385,7 +384,8 @@ public class ProcessThread extends Thread {
                     int height = (local)? mPictureSize.height:Frame.getInstance().getHeight();
                     // -> Raw picture always in landscape orientation
 
-                    if (!Frame.convertNV21toRGBA(ActivityWrapper.DOCUMENTS_FOLDER + Constants.PROCESS_RAW_PICTURE_FILENAME,
+                    if (!Frame.convertNV21toRGBA(ActivityWrapper.DOCUMENTS_FOLDER +
+                                    Constants.PROCESS_RAW_PICTURE_FILENAME,
                             width, height, ActivityWrapper.DOCUMENTS_FOLDER +
                                     ((local) ?
                                             Constants.PROCESS_LOCAL_PICTURE_FILENAME :
@@ -420,25 +420,9 @@ public class ProcessThread extends Thread {
                         //////
                         mStatus = Status.TRANSFER_VIDEO;
 
-                        try {
-                            // Load local video buffer
-                            File videoFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
-                                    Constants.PROCESS_LOCAL_VIDEO_FILENAME);
-                            byte[] videoBuffer = new byte[(int)videoFile.length()];
-                            if (new FileInputStream(videoFile).read(videoBuffer) != videoBuffer.length)
-                                throw new IOException();
-
-                            data = new Bundle();
-                            data.putByteArray(Video.DATA_KEY_BUFFER, videoBuffer);
-
-                            // Send download video request (upload to remote device)
-                            Connectivity.getInstance().addRequest(Video.getInstance(),
-                                    Video.REQ_TYPE_DOWNLOAD, data);
-
-                            publishProgress(Video.getInstance().getTransferSize(),
-                                    Video.getInstance().getBufferSize());
-                        }
-                        catch (IOException e) {
+                        // Send local video file to remote device
+                        if (!Video.sendFile(ActivityWrapper.DOCUMENTS_FOLDER +
+                                Constants.PROCESS_LOCAL_VIDEO_FILENAME)) {
 
                             Logs.add(Logs.Type.E, "Failed to load video file");
                             mAbort = true;
@@ -453,6 +437,9 @@ public class ProcessThread extends Thread {
                                         }
                                     });
                         }
+                        else
+                            publishProgress(Video.getInstance().getTransferSize(),
+                                    Video.getInstance().getBufferSize());
                     }
                     break;
                 }
@@ -666,14 +653,89 @@ public class ProcessThread extends Thread {
                             Video.getInstance().getTotalFrame());
 
                     //////
-                    if (Video.getInstance().getProceedFrame() == Video.getInstance().getTotalFrame())
+                    if (Video.getInstance().getProceedFrame() == Video.getInstance().getTotalFrame()) {
+                        local = true;
                         mStatus = Status.MAKE_3D_VIDEO;
+                    }
                     break;
                 }
                 case MAKE_3D_VIDEO: {
 
                     publishProgress(0, 1);
-                    if (!Video.makeAnaglyphVideo()) {
+                    if (!Video.makeAnaglyphVideo(local)) {
+
+                        Logs.add(Logs.Type.E, "Failed to make anaglyph video");
+                        mAbort = true;
+
+                        // Inform user
+                        DisplayMessage.getInstance().alert(R.string.title_error, R.string.error_make_video,
+                                null, false, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        ActivityWrapper.stopActivity(ProcessActivity.class,
+                                                Constants.NO_DATA);
+                                    }
+                                });
+                        break;
+                    }
+                    if (local) {
+                        local = false;
+                        break;
+                    }
+
+                    //////
+                    mStatus = Status.TRANSFER_3D_VIDEO;
+
+                    // Send 3D video to remote device
+                    if (!Video.sendFile(ActivityWrapper.DOCUMENTS_FOLDER +
+                            Constants.PROCESS_3D_VIDEO_FILENAME)) {
+
+                        Logs.add(Logs.Type.E, "Failed to load 3D anaglyph video file");
+                        mAbort = true;
+
+                        // Inform user
+                        DisplayMessage.getInstance().alert(R.string.title_error, R.string.error_load_anaglyph,
+                                null, false, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        ActivityWrapper.stopActivity(ProcessActivity.class,
+                                                Constants.NO_DATA);
+                                    }
+                                });
+                    }
+                    else
+                        publishProgress(Video.getInstance().getTransferSize(),
+                                Video.getInstance().getBufferSize());
+                    break;
+                }
+                case WAIT_3D_VIDEO: { // Wait 3D video transfer (receiving)
+
+                    sleep();
+                    if (Video.getInstance().getTransferSize() != Video.getInstance().getBufferSize())
+                        mStatus = Status.TRANSFER_3D_VIDEO;
+                        // This must happen once at least (a video cannot be downloaded during a 'sleep')
+
+                    break;
+                }
+                case TRANSFER_3D_VIDEO: {
+
+                    sleep();
+                    publishProgress(Video.getInstance().getTransferSize(),
+                            Video.getInstance().getBufferSize());
+
+                    //////
+                    if (Video.getInstance().getTransferSize() == Video.getInstance().getBufferSize()) {
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -681,43 +743,6 @@ public class ProcessThread extends Thread {
 
 
                     }
-
-                    //////
-                    mStatus = Status.TRANSFER_3D_VIDEO;
-                    break;
-                }
-                case WAIT_3D_VIDEO: { // Wait 3D video transfer (receiving)
-
-
-
-
-
-
-                    sleep();
-
-
-
-
-
-
-
-                    break;
-                }
-                case TRANSFER_3D_VIDEO: {
-
-
-
-
-
-
-                    sleep();
-
-
-
-
-
-
-
                     break;
                 }
             }

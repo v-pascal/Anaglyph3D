@@ -60,6 +60,8 @@
     <string name="error_convert_contrast">Impossible de convertir l\'image de configuration du contraste &amp; luminosité!</string>
     <string name="error_extract_frames">Impossible d\'extraire les images de la vidéo!</string>
     <string name="error_extract_audio">Impossible d\'extraire l\'audio de la vidéo!</string>
+    <string name="error_make_video">Echec durant le montage de la vidéo 3D anaglyphe!</string>
+    <string name="error_load_anaglyph">Impossible de charger la vidéo anaglyphe 3D!</string>
 
     <!-- Process step -->
     <string name="step_contrast">Contraste &amp; luminosité</string>

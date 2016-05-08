@@ -125,6 +125,8 @@
     <string name="error_convert_contrast">Failed to convert contrast &amp; brightness image!</string>
     <string name="error_extract_frames">Failed to extract frames from the video!</string>
     <string name="error_extract_audio">Failed to extract audio from the video!</string>
+    <string name="error_make_video">Failed to make the anaglyph 3D video!</string>
+    <string name="error_load_anaglyph">Failed to load 3D anaglyph video!</string>
 
     <!-- Process step -->
     <string name="step_contrast">Contrast &amp; brightness</string>
