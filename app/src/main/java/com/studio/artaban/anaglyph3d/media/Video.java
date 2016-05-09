@@ -49,8 +49,8 @@ public class Video extends BufferRequest {
     }
 
     //////
-    private volatile int mTotalFrame = 1;
-    private volatile int mProceedFrame = 0;
+    private int mTotalFrame = 1;
+    private int mProceedFrame = 0;
 
     private int mFrameCount = 0;
 
@@ -271,10 +271,10 @@ public class Video extends BufferRequest {
                 return false;
 
             Bundle data = new Bundle();
-            data.putByteArray(Video.DATA_KEY_BUFFER, videoBuffer);
+            data.putByteArray(DATA_KEY_BUFFER, videoBuffer);
 
             // Send download video request (upload to remote device)
-            Connectivity.getInstance().addRequest(Video.getInstance(), Video.REQ_TYPE_DOWNLOAD, data);
+            Connectivity.getInstance().addRequest(getInstance(), REQ_TYPE_DOWNLOAD, data);
             return true;
         }
         catch (IOException e) {

@@ -104,7 +104,7 @@ public abstract class BufferRequest implements ConnectRequest {
 
     //////
     private byte[] mBuffer = new byte[1]; // Must be defined (see 'getBufferSize' method)
-    private volatile int mTransferSize = 0;
+    private int mTransferSize = 0;
 
     private void send() { // Send buffer
 

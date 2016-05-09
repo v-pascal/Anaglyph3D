@@ -58,7 +58,7 @@ public class Connectivity {
     private final ByteArrayOutputStream mRead = new ByteArrayOutputStream();
     private boolean mAbort = true;
 
-    public volatile boolean mListenDevice = false; // false: Try to connect (master), true: Listen (slave)
+    public boolean mListenDevice = false; // false: Try to connect (master), true: Listen (slave)
 
     public final ArrayList<String> mNotMatchingDevices = new ArrayList<>();
     // Array containing device info that camera resolutions do not match with current ones

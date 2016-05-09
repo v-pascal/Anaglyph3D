@@ -98,12 +98,13 @@ public class ProcessThread extends Thread {
         public int getStringId() { return stringId; }
     }
     private Step mStep = Step.CONTRAST;
-    private volatile Status mStatus = Status.INITIALIZATION;
+    private Status mStatus = Status.INITIALIZATION;
 
     private boolean mLocalAudio = true; // To define from which video to extract the audio (after synchronization)
+    private boolean mConfigured = false; // Flag to know if user has configured the contrast & brightness
 
-    private static float mContrast = 1; // Contrast configured by the user
-    private static float mBrightness = 0; // Brightness configured by the user
+    private float mContrast = 1; // Contrast configured by the user
+    private float mBrightness = 0; // Brightness configured by the user
     private short mSynchroOffset = 0; // Synchronization offset configured by the user
 
     private Frame.Orientation getOrientation() { // Return frame orientation according settings
@@ -117,7 +118,6 @@ public class ProcessThread extends Thread {
     }
 
     public static GstObject mGStreamer; // GStreamer object used to manipulate pictures & videos
-    private static boolean mConfigured = false; // Flag to know if user has configured the contrast & brightness
 
     //////
     public void applySynchronization(short offset, boolean local) {
@@ -126,7 +126,7 @@ public class ProcessThread extends Thread {
 
         mStatus = Status.EXTRACT_AUDIO;
     }
-    public static void applyContrastBrightness(float contrast, float brightness) {
+    public void applyContrastBrightness(float contrast, float brightness) {
         mContrast = contrast;
         mBrightness = brightness;
 
@@ -137,7 +137,7 @@ public class ProcessThread extends Thread {
     private static ContrastTransfer mTransfer;
     public static ContrastTransfer getInstance() { return mTransfer; }
 
-    private static class ContrastTransfer implements ConnectRequest {
+    private class ContrastTransfer implements ConnectRequest {
 
         @Override public char getRequestId() { return ConnectRequest.REQ_PROCESS; }
         @Override public boolean getRequestMerge() { return false; }
@@ -163,8 +163,8 @@ public class ProcessThread extends Thread {
             try {
 
                 JSONObject config = new JSONObject(request);
-                mContrast = (float)config.getDouble(ContrastActivity.DATA_KEY_CONTRAST);
-                mBrightness = (float)config.getDouble(ContrastActivity.DATA_KEY_BRIGHTNESS);
+                applyContrastBrightness((float)config.getDouble(ContrastActivity.DATA_KEY_CONTRAST),
+                        (float)config.getDouble(ContrastActivity.DATA_KEY_BRIGHTNESS));
 
                 return Constants.CONN_REQUEST_ANSWER_TRUE;
             }

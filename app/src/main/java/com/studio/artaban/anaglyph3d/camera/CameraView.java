@@ -250,7 +250,7 @@ public class CameraView extends SurfaceView
 
     private MediaRecorder mMediaRecorder;
     private Size mPreviewSize;
-    private volatile boolean mTakePicture;
+    private boolean mTakePicture;
     private byte[] mRawPicture;
 
     private void create() {

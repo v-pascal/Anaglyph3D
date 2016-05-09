@@ -153,12 +153,24 @@ public class ProcessActivity extends AppCompatActivity {
         // Set current activity
         ActivityWrapper.set(this);
 
+
+
+
+
+
+
         // Remove all temporary files from storage B4 processing
         File storage = new File(ActivityWrapper.DOCUMENTS_FOLDER);
         for (File file : storage.listFiles()) {
             if (file.isFile())
                 file.delete();
         }
+
+
+
+
+
+
 
         // Set orientation
         Settings.getInstance().mReverse = false;
@@ -198,7 +210,7 @@ public class ProcessActivity extends AppCompatActivity {
         switch (resultCode) {
             case Constants.RESULT_PROCESS_CONTRAST: {
 
-                ProcessThread.applyContrastBrightness(
+                mProcessThread.applyContrastBrightness(
                         data.getFloatExtra(ContrastActivity.DATA_KEY_CONTRAST,
                                 ContrastActivity.DEFAULT_CONTRAST),
                         data.getFloatExtra(ContrastActivity.DATA_KEY_BRIGHTNESS,
