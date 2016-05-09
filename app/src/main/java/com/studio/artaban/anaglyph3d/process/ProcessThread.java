@@ -101,12 +101,14 @@ public class ProcessThread extends Thread {
     private Step mStep = Step.CONTRAST;
     private Status mStatus = Status.INITIALIZATION;
 
-    private boolean mLocalAudio = true; // To define from which video to extract the audio (after synchronization)
     private static boolean mConfigured = false; // Flag to know if user has configured the contrast & brightness
 
-    private static float mContrast = 1; // Contrast configured by the user
-    private static float mBrightness = 0; // Brightness configured by the user
+    private static float mContrast = ContrastActivity.DEFAULT_CONTRAST; // Contrast configured by the user
+    private static float mBrightness = ContrastActivity.DEFAULT_BRIGHTNESS; // Brightness configured by the user
+    private static boolean mLocalFrame = ContrastActivity.DEFAULT_LOCAL_FRAME; // Flag to know on which frames to apply contrast
+
     private short mSynchroOffset = 0; // Synchronization offset configured by the user
+    private boolean mLocalAudio = true; // To define from which video to extract the audio (after synchronization)
 
     private Frame.Orientation getOrientation() { // Return frame orientation according settings
 
@@ -127,9 +129,10 @@ public class ProcessThread extends Thread {
 
         mStatus = Status.EXTRACT_AUDIO;
     }
-    public static void applyContrastBrightness(float contrast, float brightness) {
+    public static void applyContrastBrightness(float contrast, float brightness, boolean local) {
         mContrast = contrast;
         mBrightness = brightness;
+        mLocalFrame = local;
 
         mConfigured = true;
     }
@@ -155,6 +158,7 @@ public class ProcessThread extends Thread {
                 JSONObject request = new JSONObject();
                 request.put(ContrastActivity.DATA_KEY_CONTRAST, mContrast);
                 request.put(ContrastActivity.DATA_KEY_BRIGHTNESS, mBrightness);
+                request.put(ContrastActivity.DATA_KEY_LOCAL, mLocalFrame);
 
                 return request.toString();
             }
@@ -169,7 +173,8 @@ public class ProcessThread extends Thread {
 
                 JSONObject config = new JSONObject(request);
                 applyContrastBrightness((float)config.getDouble(ContrastActivity.DATA_KEY_CONTRAST),
-                        (float)config.getDouble(ContrastActivity.DATA_KEY_BRIGHTNESS));
+                        (float)config.getDouble(ContrastActivity.DATA_KEY_BRIGHTNESS),
+                        config.getBoolean(ContrastActivity.DATA_KEY_LOCAL));
 
                 return Constants.CONN_REQUEST_ANSWER_TRUE;
             }
@@ -477,8 +482,9 @@ public class ProcessThread extends Thread {
 
                             data.contrast = mContrast;
                             data.brightness = mBrightness;
+                            data.local = mLocalFrame;
                             data.offset = mSynchroOffset;
-                            data.local = mLocalAudio;
+                            data.localSync = mLocalAudio;
                             data.count = frameCount;
 
                             Video.getInstance().convertFrames(data);

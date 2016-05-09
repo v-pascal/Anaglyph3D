@@ -1,13 +1,19 @@
 package com.studio.artaban.anaglyph3d.media;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Paint;
 import android.os.Bundle;
 
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.process.ProcessThread;
+import com.studio.artaban.anaglyph3d.process.configure.ContrastActivity;
 import com.studio.artaban.anaglyph3d.transfer.BufferRequest;
 import com.studio.artaban.anaglyph3d.transfer.ConnectRequest;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
@@ -16,6 +22,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -188,8 +195,11 @@ public class Video extends BufferRequest {
 
         public float contrast; // Configured contrast
         public float brightness; // Configured brightness
+        public boolean local; // Flag to define on which frames to apply contrast & brightness
+
         public short offset; // Configured synchronization
-        public boolean local; // Flag to define on which frames to apply synchronization
+        public boolean localSync; // Flag to define on which frames to apply synchronization
+
         public int count; // Frames count
     }
     public void convertFrames(final ConvertData data) {
@@ -208,7 +218,7 @@ public class Video extends BufferRequest {
                 if (data.offset > 0) {
                     mTotalFrame += data.count;
 
-                    String framePath = ActivityWrapper.DOCUMENTS_FOLDER + "/" + ((data.local)?
+                    String framePath = ActivityWrapper.DOCUMENTS_FOLDER + "/" + ((data.localSync)?
                             Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX);
                     for (int i = 0; i < data.count; ++i) {
 
@@ -225,60 +235,105 @@ public class Video extends BufferRequest {
                 }
 
                 ////// Apply conversion on frame files
-                Integer frameWidth = null, frameHeight = null;
-                Settings.getFrameResolution(frameWidth, frameHeight);
+                int frameWidth = Settings.getInstance().getResolutionWidth();
+                int frameHeight = Settings.getInstance().getResolutionHeight();
 
                 Bitmap localBitmap = Bitmap.createBitmap(frameWidth, frameHeight, Bitmap.Config.ARGB_8888);
                 Bitmap remoteBitmap = Bitmap.createBitmap(frameWidth, frameHeight, Bitmap.Config.ARGB_8888);
 
+                boolean applyContrast =
+                        (data.brightness > ContrastActivity.DEFAULT_BRIGHTNESS) ||
+                        (data.brightness < ContrastActivity.DEFAULT_BRIGHTNESS) ||
+                        (data.contrast > ContrastActivity.DEFAULT_CONTRAST) ||
+                        (data.contrast < ContrastActivity.DEFAULT_CONTRAST); // ...compare float values
+
+                byte[] buffer = new byte[localBitmap.getByteCount()];
                 for (int i = 0; i < data.count; ++i) {
 
+                    ++mProceedFrame;
                     String fileIndex = String.format("%04d", i);
-                    File file = new File(ActivityWrapper.DOCUMENTS_FOLDER + "/" +
+
+                    // Get local frame buffer
+                    File localFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + "/" +
                             Constants.PROCESS_LOCAL_PREFIX + fileIndex + Constants.PROCESS_RGBA_EXTENSION);
-
-
-
-
-
-
-                    //localBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(frameBuffer));
-                    /*
-                    File bmpFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + "/" + ((local)?
-                                    Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX) +
-                            String.format("%04d", position) + Constants.PROCESS_RGBA_EXTENSION);
-
-                    Bitmap bitmap = null;
-                    byte[] bmpBuffer = new byte[(int)bmpFile.length()];
                     try {
-                        if (new FileInputStream(bmpFile).read(bmpBuffer) != bmpBuffer.length)
+                        if (new FileInputStream(localFile).read(buffer) != buffer.length)
                             throw new IOException();
-
-                        if (Settings.getInstance().mOrientation) // Portrait
-                            bitmap = Bitmap.createBitmap(Settings.getInstance().mResolution.height,
-                                    Settings.getInstance().mResolution.width, Bitmap.Config.ARGB_8888);
-                        else // Landscape
-                            bitmap = Bitmap.createBitmap(Settings.getInstance().mResolution.width,
-                                    Settings.getInstance().mResolution.height, Bitmap.Config.ARGB_8888);
-                        bitmap.copyPixelsFromBuffer(ByteBuffer.wrap(bmpBuffer));
+                        localBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(buffer));
                     }
                     catch (IOException e) {
-                        Logs.add(Logs.Type.E, "Failed to load RGBA file: " + bmpFile.getAbsolutePath());
+                        Logs.add(Logs.Type.F, "Failed to load RGBA file: " + localFile.getAbsolutePath());
+                        continue;
                     }
-                    return bitmap;
-                    */
 
+                    // Get remote frame buffer
+                    File remoteFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + "/" +
+                            Constants.PROCESS_REMOTE_PREFIX + fileIndex + Constants.PROCESS_RGBA_EXTENSION);
+                    try {
+                        if (new FileInputStream(remoteFile).read(buffer) != buffer.length)
+                            throw new IOException();
+                        remoteBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(buffer));
+                    }
+                    catch (IOException e) {
+                        Logs.add(Logs.Type.F, "Failed to load RGBA file: " + remoteFile.getAbsolutePath());
+                        continue;
+                    }
 
+                    // Apply contrast & brightness
+                    Bitmap bmpContrastLocal, bmpContrastRemote;
+                    if (applyContrast) {
 
+                        if (!data.local) {
+                            // -> '!data.local' instead of 'data.local' coz a local frame on the remote
+                            //    device == local frame on current device
+                            bmpContrastLocal = ContrastActivity.applyContrastBrightness(localBitmap,
+                                    data.contrast, data.brightness);
+                            bmpContrastRemote = remoteBitmap;
+                        }
+                        else {
+                            bmpContrastLocal = localBitmap;
+                            bmpContrastRemote = ContrastActivity.applyContrastBrightness(remoteBitmap,
+                                    data.contrast, data.brightness);
+                        }
+                    }
+                    else {
+                        bmpContrastLocal = localBitmap;
+                        bmpContrastRemote = remoteBitmap;
+                    }
 
+                    // Merge frame buffer (according position)
+                    if (!Settings.getInstance().mPosition) { // Swap local & remote bitmap frame
 
+                        Bitmap swap = bmpContrastLocal;
+                        bmpContrastLocal = bmpContrastRemote;
+                        bmpContrastRemote = swap;
+                    }
+                    for (int height = 0; height < frameHeight; ++height) {
+                        for (int width = 0; width < frameWidth; ++width) {
 
+                            int pixel = (width + (height * frameWidth)) << 2;
+                            int localPixel = bmpContrastLocal.getPixel(width , height);
+                            int remotePixel = bmpContrastRemote.getPixel(width, height);
 
+                            buffer[pixel + 0] = (byte)(localPixel  & 0x00ff0000); // R
+                            buffer[pixel + 1] = (byte)(remotePixel & 0x0000ff00); // G
+                            buffer[pixel + 2] = (byte)(remotePixel & 0x000000ff); // B
+                        }
+                    }
 
+                    // Save converted frame file
+                    File syncFile = (data.localSync)? localFile:remoteFile;
+
+                    try { new FileOutputStream(syncFile).write(buffer); }
+                    catch (IOException e) {
+                        Logs.add(Logs.Type.F, "Failed to save anaglyph frame file: " +
+                                syncFile.getAbsolutePath());
+                        break;
+                    }
                 }
 
                 ////// Remove remaining frame files
-                Storage.removeFiles("^" + ((!data.local)?
+                Storage.removeFiles("^" + ((!data.localSync)?
                         Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX) +
                         "+[0-9]*[0-9]\\" + Constants.PROCESS_RGBA_EXTENSION + "$");
 
@@ -304,8 +359,8 @@ public class Video extends BufferRequest {
     }
     public static boolean makeAnaglyphVideo(boolean jpegStep, int frameCount, String files) {
 
-        Integer frameWidth = null, frameHeight = null;
-        Settings.getFrameResolution(frameWidth, frameHeight);
+        int frameWidth = Settings.getInstance().getResolutionWidth();
+        int frameHeight = Settings.getInstance().getResolutionHeight();
         if (jpegStep)
             return ProcessThread.mGStreamer.launch("multifilesrc location=\"" + files + "\" index=0" +
                     " caps=\"video/x-raw,format=RGBA,width=" + frameWidth + ",height=" + frameHeight +

@@ -32,7 +32,7 @@ public class Settings implements ConnectRequest {
     public static Settings getInstance() { return ourInstance; }
     private Settings() { }
 
-    // Data keys
+    ////// Data keys
     public static final String DATA_KEY_REMOTE_DEVICE = "remote";
     public static final String DATA_KEY_POSITION = "position";
 
@@ -64,22 +64,12 @@ public class Settings implements ConnectRequest {
         return resolutions;
     }
     public String getResolution() {
-        return (!Settings.getInstance().mOrientation)?
+        return (!mOrientation)?
                 mResolution.width + Constants.CONFIG_RESOLUTION_SEPARATOR + mResolution.height:
                 mResolution.height + Constants.CONFIG_RESOLUTION_SEPARATOR + mResolution.width;
     }
-    public static void getFrameResolution(Integer width, Integer height) {
-        if (getInstance().mOrientation) { // Portrait
-
-            width = new Integer(getInstance().mResolution.height);
-            height = new Integer(getInstance().mResolution.width);
-        }
-        else { // Landscape
-
-            width = new Integer(getInstance().mResolution.width);
-            height = new Integer(getInstance().mResolution.height);
-        }
-    }
+    public int getResolutionWidth() { return (mOrientation)? mResolution.height:mResolution.width; }
+    public int getResolutionHeight() { return (mOrientation)? mResolution.width:mResolution.height; }
 
     // Setter
     public boolean setResolution(String resolution, String[] list) {

@@ -42,12 +42,40 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
 
     public static final String DATA_KEY_CONTRAST = "contrast";
     public static final String DATA_KEY_BRIGHTNESS = "brightness";
+    public static final String DATA_KEY_LOCAL = "local";
+
     private static final String DATA_KEY_CHANGED = "changed";
     // Data keys
 
     public static final float DEFAULT_CONTRAST = 1f;
     public static final float DEFAULT_BRIGHTNESS = 0f;
+    public static final boolean DEFAULT_LOCAL_FRAME = true;
     // Default values
+
+    public static Bitmap applyContrastBrightness(Bitmap curBitmap, float contrast, float brightness) {
+
+        ColorMatrix matrix = new ColorMatrix(new float[] {
+
+                contrast, 0, 0, 0, brightness,
+                0, contrast, 0, 0, brightness,
+                0, 0, contrast, 0, brightness,
+                0, 0, 0, 1, 0
+        });
+        // With: Contrast in [0;10] and 1 as default
+        //       Brightness in [-255;255] and 0 as default
+        // So: Contrast 0...1...10 => Progress 0...50...100
+        //     Brightness -255...0...255 => Progress 0...255...510
+
+        Bitmap bitmap = Bitmap.createBitmap(curBitmap.getWidth(), curBitmap.getHeight(),
+                curBitmap.getConfig());
+
+        Canvas canvas = new Canvas(bitmap);
+        Paint paint = new Paint();
+        paint.setColorFilter(new ColorMatrixColorFilter(matrix));
+        canvas.drawBitmap(curBitmap, 0, 0, paint);
+
+        return bitmap;
+    }
 
     //////
     private ImageView mContrastImage;
@@ -84,6 +112,7 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
                 imageWidth = data.getInt(Frame.DATA_KEY_WIDTH);
                 imageHeight = data.getInt(Frame.DATA_KEY_HEIGHT);
             }
+            mLocalFrame = true;
         }
         else { // ...or to remote picture
 
@@ -96,6 +125,7 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
                 imageWidth = Frame.getInstance().getWidth();
                 imageHeight = Frame.getInstance().getHeight();
             }
+            mLocalFrame = false;
         }
 
         byte[] imageBuffer = new byte[(int)imageFile.length()];
@@ -109,7 +139,7 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         }
         catch (IOException e) {
 
-            Logs.add(Logs.Type.E, "Failed to load picture file: " + imageFile.getAbsolutePath());
+            Logs.add(Logs.Type.F, "Failed to load picture file: " + imageFile.getAbsolutePath());
             return false;
         }
 
@@ -150,7 +180,7 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         }
         catch (IOException e) {
 
-            Logs.add(Logs.Type.E, "Failed to load picture file: " + imageFile.getAbsolutePath());
+            Logs.add(Logs.Type.F, "Failed to load picture file: " + imageFile.getAbsolutePath());
             return false;
         }
         return true;
@@ -160,6 +190,7 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         Intent intent = new Intent();
         intent.putExtra(DATA_KEY_CONTRAST, mContrast);
         intent.putExtra(DATA_KEY_BRIGHTNESS, mBrightness);
+        intent.putExtra(DATA_KEY_LOCAL, mLocalFrame);
 
         setResult(Constants.RESULT_PROCESS_CONTRAST, intent);
     }
@@ -167,34 +198,10 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
     //////
     private float mContrast = DEFAULT_CONTRAST;
     private float mBrightness = DEFAULT_BRIGHTNESS;
+    private boolean mLocalFrame = DEFAULT_LOCAL_FRAME;
 
     private boolean mChanged = false;
     private FloatingActionButton mCancelButton;
-
-    private void applyContrastBrightness() { // Apply contrast & brightness settings
-
-        ColorMatrix matrix = new ColorMatrix(new float[] {
-
-                mContrast, 0, 0, 0, mBrightness,
-                0, mContrast, 0, 0, mBrightness,
-                0, 0, mContrast, 0, mBrightness,
-                0, 0, 0, 1, 0
-        });
-        // With: Contrast in [0;10] and 1 as default
-        //       Brightness in [-255;255] and 0 as default
-        // So: Contrast 0...1...10 => Progress 0...50...100
-        //     Brightness -255...0...255 => Progress 0...255...510
-
-        Bitmap bitmap = Bitmap.createBitmap(mContrastBitmap.getWidth(), mContrastBitmap.getHeight(),
-                mContrastBitmap.getConfig());
-
-        Canvas canvas = new Canvas(bitmap);
-        Paint paint = new Paint();
-        paint.setColorFilter(new ColorMatrixColorFilter(matrix));
-        canvas.drawBitmap(mContrastBitmap, 0, 0, paint);
-
-        mContrastImage.setImageBitmap(bitmap);
-    }
 
     //
     private void onUpdateContrastBrightness(SeekBar seekBar) {
@@ -214,7 +221,7 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
                 mBrightness = seekBar.getProgress() - 255;
                 break;
         }
-        applyContrastBrightness();
+        mContrastImage.setImageBitmap(applyContrastBrightness(mContrastBitmap, mContrast, mBrightness));
         if (!mChanged) {
 
             mChanged = true;
@@ -319,7 +326,8 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
                 contrastSeek.setProgress(50);
                 brightnessSeek.setProgress(255);
 
-                applyContrastBrightness();
+                mContrastImage.setImageBitmap(applyContrastBrightness(mContrastBitmap,
+                        DEFAULT_CONTRAST, DEFAULT_BRIGHTNESS));
             }
         });
         if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
@@ -340,7 +348,7 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         }
 
         // Apply contrast & brightness settings
-        applyContrastBrightness();
+        mContrastImage.setImageBitmap(applyContrastBrightness(mContrastBitmap, mContrast, mBrightness));
 
         // Set validate button position (not exactly in center when device in portrait)
         if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {

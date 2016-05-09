@@ -199,7 +199,9 @@ public class ProcessActivity extends AppCompatActivity {
                         data.getFloatExtra(ContrastActivity.DATA_KEY_CONTRAST,
                                 ContrastActivity.DEFAULT_CONTRAST),
                         data.getFloatExtra(ContrastActivity.DATA_KEY_BRIGHTNESS,
-                                ContrastActivity.DEFAULT_BRIGHTNESS));
+                                ContrastActivity.DEFAULT_BRIGHTNESS),
+                        data.getBooleanExtra(ContrastActivity.DATA_KEY_LOCAL,
+                                ContrastActivity.DEFAULT_LOCAL_FRAME));
                 break;
             }
             case Constants.RESULT_PROCESS_SYNCHRO: {
