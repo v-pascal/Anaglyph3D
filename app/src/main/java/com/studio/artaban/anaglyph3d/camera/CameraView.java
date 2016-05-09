@@ -21,6 +21,7 @@ import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
+import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.process.ProcessActivity;
 
 import java.io.IOException;
@@ -216,8 +217,7 @@ public class CameraView extends SurfaceView
         //mMediaRecorder.setVideoFrameRate(Settings.getInstance().mFps);
         // BUG: Not working! Start recording failed if defined.
 
-        mMediaRecorder.setOutputFile(ActivityWrapper.DOCUMENTS_FOLDER +
-                Constants.PROCESS_LOCAL_VIDEO_FILENAME);
+        mMediaRecorder.setOutputFile(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_LOCAL_VIDEO);
 
         try { mMediaRecorder.prepare(); }
         catch (IOException e) {

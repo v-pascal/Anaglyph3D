@@ -4,7 +4,7 @@ package com.studio.artaban.anaglyph3d.data;
  * Created by pascal on 21/03/16.
  * Application constants
  */
-public class Constants {
+public final class Constants {
 
     public static final int NO_DATA = -1; // No value (integer)
     public static final short FAB_SIZE_DPI = 56; // Floating Actionbar Button size (in dpi)
@@ -58,14 +58,7 @@ public class Constants {
 
     ////// Process
     public static final short PROCESS_WAIT_TRANSFER = 500; // Progress loop sleep (in milliseconds)
-
-    public static final String PROCESS_RAW_PICTURE_FILENAME = "/raw.nv21";
-    public static final String PROCESS_LOCAL_VIDEO_FILENAME = "/local.mp4";
-    public static final String PROCESS_REMOTE_VIDEO_FILENAME = "/remote.mp4";
-    public static final String PROCESS_LOCAL_PICTURE_FILENAME = "/local.rgba";
-    public static final String PROCESS_REMOTE_PICTURE_FILENAME = "/remote.rgba";
-
-    public static final String PROCESS_3D_VIDEO_FILENAME = "/video.webm";
+    public static final short PROCESS_MAX_FPS = 15; // Maximum FPS expected (used to define storage space need)
 
     public static final String PROCESS_LOCAL_PREFIX = "local";
     public static final String PROCESS_REMOTE_PREFIX = "remote";

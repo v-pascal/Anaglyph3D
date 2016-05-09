@@ -18,6 +18,7 @@ import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
+import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 import java.io.File;
@@ -164,5 +165,6 @@ public class ConnectActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Connectivity.getInstance().destroy();
+        Storage.removeTempFiles();
     }
 }

@@ -30,6 +30,7 @@ import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
+import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.media.Frame;
 
 import java.io.File;
@@ -59,10 +60,8 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
 
     private boolean loadImagesFromFiles(ImageView compareImage) { // Load both images from RGBA files
 
-        File localFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
-                Constants.PROCESS_LOCAL_PICTURE_FILENAME);
-        File remoteFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
-                Constants.PROCESS_REMOTE_PICTURE_FILENAME);
+        File localFile = new File(ActivityWrapper.DOCUMENTS_FOLDER, Storage.FILENAME_LOCAL_PICTURE);
+        File remoteFile = new File(ActivityWrapper.DOCUMENTS_FOLDER, Storage.FILENAME_REMOTE_PICTURE);
 
         Bundle data = getIntent().getExtras().getBundle(Constants.DATA_ACTIVITY);
         if (data == null) {

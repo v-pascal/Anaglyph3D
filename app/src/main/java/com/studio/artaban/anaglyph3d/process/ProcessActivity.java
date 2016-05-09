@@ -14,6 +14,7 @@ import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
+import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.process.configure.ContrastActivity;
 import com.studio.artaban.anaglyph3d.process.configure.SynchroActivity;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
@@ -153,24 +154,8 @@ public class ProcessActivity extends AppCompatActivity {
         // Set current activity
         ActivityWrapper.set(this);
 
-
-
-
-
-
-
         // Remove all temporary files from storage B4 processing
-        File storage = new File(ActivityWrapper.DOCUMENTS_FOLDER);
-        for (File file : storage.listFiles()) {
-            if (file.isFile())
-                file.delete();
-        }
-
-
-
-
-
-
+        Storage.removeTempFiles();
 
         // Set orientation
         Settings.getInstance().mReverse = false;
@@ -210,7 +195,7 @@ public class ProcessActivity extends AppCompatActivity {
         switch (resultCode) {
             case Constants.RESULT_PROCESS_CONTRAST: {
 
-                mProcessThread.applyContrastBrightness(
+                ProcessThread.applyContrastBrightness(
                         data.getFloatExtra(ContrastActivity.DATA_KEY_CONTRAST,
                                 ContrastActivity.DEFAULT_CONTRAST),
                         data.getFloatExtra(ContrastActivity.DATA_KEY_BRIGHTNESS,

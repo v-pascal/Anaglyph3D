@@ -5,6 +5,7 @@ import android.os.Bundle;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.process.ProcessThread;
 import com.studio.artaban.anaglyph3d.transfer.BufferRequest;
 import com.studio.artaban.anaglyph3d.transfer.ConnectRequest;
@@ -135,12 +136,10 @@ public class Video extends BufferRequest {
                 final String prefix;
                 int toRemove;
                 if (mLocalCount > mRemoteCount) {
-
                     toRemove = mLocalCount / ((mLocalCount - mRemoteCount) + 1);
                     prefix = Constants.PROCESS_LOCAL_PREFIX;
                 }
                 else {
-
                     toRemove = mRemoteCount / ((mRemoteCount - mLocalCount) + 1);
                     prefix = Constants.PROCESS_REMOTE_PREFIX;
                 }
@@ -253,7 +252,7 @@ public class Video extends BufferRequest {
                     " location=\"" + ActivityWrapper.DOCUMENTS_FOLDER + "/img%d.jpg\"");
         else
             return ProcessThread.mGStreamer.launch("webmmux name=mux ! filesink" +
-                    " location=\"" + ActivityWrapper.DOCUMENTS_FOLDER + Constants.PROCESS_3D_VIDEO_FILENAME +
+                    " location=\"" + ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_3D_VIDEO +
                     "\" multifilesrc location=\"" + ActivityWrapper.DOCUMENTS_FOLDER + "/img%d.jpg\" index=0" +
                     " caps=\"image/jpeg,width=" + frameWidth + ",height=" + frameHeight +
                     ",framerate=" + frameCount + "/" + Settings.getInstance().mDuration +

@@ -11,6 +11,7 @@ import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
+import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.media.Frame;
 import com.studio.artaban.anaglyph3d.media.Video;
 import com.studio.artaban.anaglyph3d.process.configure.ContrastActivity;
@@ -101,10 +102,10 @@ public class ProcessThread extends Thread {
     private Status mStatus = Status.INITIALIZATION;
 
     private boolean mLocalAudio = true; // To define from which video to extract the audio (after synchronization)
-    private boolean mConfigured = false; // Flag to know if user has configured the contrast & brightness
+    private static boolean mConfigured = false; // Flag to know if user has configured the contrast & brightness
 
-    private float mContrast = 1; // Contrast configured by the user
-    private float mBrightness = 0; // Brightness configured by the user
+    private static float mContrast = 1; // Contrast configured by the user
+    private static float mBrightness = 0; // Brightness configured by the user
     private short mSynchroOffset = 0; // Synchronization offset configured by the user
 
     private Frame.Orientation getOrientation() { // Return frame orientation according settings
@@ -126,7 +127,7 @@ public class ProcessThread extends Thread {
 
         mStatus = Status.EXTRACT_AUDIO;
     }
-    public void applyContrastBrightness(float contrast, float brightness) {
+    public static void applyContrastBrightness(float contrast, float brightness) {
         mContrast = contrast;
         mBrightness = brightness;
 
@@ -135,9 +136,13 @@ public class ProcessThread extends Thread {
 
     //////
     private static ContrastTransfer mTransfer;
-    public static ContrastTransfer getInstance() { return mTransfer; }
+    public static ContrastTransfer getInstance() {
+        if (mTransfer == null)
+            mTransfer = new ContrastTransfer();
 
-    private class ContrastTransfer implements ConnectRequest {
+        return mTransfer;
+    }
+    private static class ContrastTransfer implements ConnectRequest {
 
         @Override public char getRequestId() { return ConnectRequest.REQ_PROCESS; }
         @Override public boolean getRequestMerge() { return false; }
@@ -349,7 +354,7 @@ public class ProcessThread extends Thread {
                     try {
                         byte[] raw = (local)? mPictureRaw:Frame.getInstance().getBuffer();
                         File rawFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
-                                Constants.PROCESS_RAW_PICTURE_FILENAME);
+                                Storage.FILENAME_RAW_PICTURE);
 
                         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(rawFile));
                         bos.write(raw);
@@ -386,11 +391,11 @@ public class ProcessThread extends Thread {
                     // -> Raw picture always in landscape orientation
 
                     if (!Frame.convertNV21toRGBA(ActivityWrapper.DOCUMENTS_FOLDER +
-                                    Constants.PROCESS_RAW_PICTURE_FILENAME,
+                                    Storage.FILENAME_RAW_PICTURE,
                             width, height, ActivityWrapper.DOCUMENTS_FOLDER +
                                     ((local) ?
-                                            Constants.PROCESS_LOCAL_PICTURE_FILENAME :
-                                            Constants.PROCESS_REMOTE_PICTURE_FILENAME), getOrientation())) {
+                                    Storage.FILENAME_LOCAL_PICTURE :
+                                    Storage.FILENAME_REMOTE_PICTURE), getOrientation())) {
 
                         Logs.add(Logs.Type.E, "Failed to convert contrast picture");
                         mAbort = true;
@@ -423,7 +428,7 @@ public class ProcessThread extends Thread {
 
                         // Send local video file to remote device
                         if (!Video.sendFile(ActivityWrapper.DOCUMENTS_FOLDER +
-                                Constants.PROCESS_LOCAL_VIDEO_FILENAME)) {
+                                Storage.FILENAME_LOCAL_VIDEO)) {
 
                             Logs.add(Logs.Type.E, "Failed to load video file");
                             mAbort = true;
@@ -506,7 +511,7 @@ public class ProcessThread extends Thread {
                     try {
                         byte[] raw = Video.getInstance().getBuffer();
                         File videoFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
-                                Constants.PROCESS_REMOTE_VIDEO_FILENAME);
+                                Storage.FILENAME_REMOTE_VIDEO);
 
                         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(videoFile));
                         bos.write(raw);
@@ -540,8 +545,8 @@ public class ProcessThread extends Thread {
                     publishProgress(0, 1);
 
                     if (!Video.extractFramesRGBA(ActivityWrapper.DOCUMENTS_FOLDER + ((local)?
-                                    Constants.PROCESS_LOCAL_VIDEO_FILENAME:
-                                    Constants.PROCESS_REMOTE_VIDEO_FILENAME),
+                                    Storage.FILENAME_LOCAL_VIDEO:
+                                    Storage.FILENAME_REMOTE_VIDEO),
                             getOrientation(), ActivityWrapper.DOCUMENTS_FOLDER + ((local)?
                                     Constants.PROCESS_LOCAL_FRAMES_FILENAME:
                                     Constants.PROCESS_REMOTE_FRAMES_FILENAME))) {
@@ -626,8 +631,8 @@ public class ProcessThread extends Thread {
                     publishProgress(0, 1);
 
                     if (!Video.extractAudio((mLocalAudio)?
-                            Constants.PROCESS_LOCAL_VIDEO_FILENAME:
-                            Constants.PROCESS_REMOTE_VIDEO_FILENAME)) {
+                            Storage.FILENAME_LOCAL_VIDEO:
+                            Storage.FILENAME_REMOTE_VIDEO)) {
 
                         Logs.add(Logs.Type.E, "Failed to extract video audio");
                         mAbort = true;
@@ -692,8 +697,7 @@ public class ProcessThread extends Thread {
                     mStatus = Status.TRANSFER_3D_VIDEO;
 
                     // Send 3D video to remote device
-                    if (!Video.sendFile(ActivityWrapper.DOCUMENTS_FOLDER +
-                            Constants.PROCESS_3D_VIDEO_FILENAME)) {
+                    if (!Video.sendFile(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_3D_VIDEO)) {
 
                         Logs.add(Logs.Type.E, "Failed to load 3D anaglyph video file");
                         mAbort = true;
