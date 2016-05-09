@@ -62,6 +62,7 @@
     <string name="error_extract_audio">Impossible d\'extraire l\'audio de la vidéo!</string>
     <string name="error_make_video">Echec durant le montage de la vidéo 3D anaglyphe!</string>
     <string name="error_load_anaglyph">Impossible de charger la vidéo anaglyphe 3D!</string>
+    <string name="error_storage_available">Mémoire de stockage insuffisante! Avec les paramètres actuels la taille mémoire suivante est nécessaire:</string>
 
     <!-- Process step -->
     <string name="step_contrast">Contraste &amp; luminosité</string>

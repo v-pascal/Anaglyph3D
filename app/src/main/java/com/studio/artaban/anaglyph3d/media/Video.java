@@ -1,5 +1,6 @@
 package com.studio.artaban.anaglyph3d.media;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 
 import com.studio.artaban.anaglyph3d.data.Constants;
@@ -17,6 +18,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 /**
@@ -181,8 +183,16 @@ public class Video extends BufferRequest {
             }
         }).start();
     }
-    public void convertFrames(final float contrast, final float brightness,
-                              final short offset, final boolean local) {
+
+    public static class ConvertData {
+
+        public float contrast; // Configured contrast
+        public float brightness; // Configured brightness
+        public short offset; // Configured synchronization
+        public boolean local; // Flag to define on which frames to apply synchronization
+        public int count; // Frames count
+    }
+    public void convertFrames(final ConvertData data) {
 
         mProceedFrame = 0;
         mTotalFrame = 1;
@@ -191,6 +201,72 @@ public class Video extends BufferRequest {
             @Override
             public void run() {
 
+                // Define progress bounds
+                mTotalFrame = data.count + 1; // + 1 -> for removing files step (last operation)
+
+                ////// Rename frame files to apply synchronization (if needed)
+                if (data.offset > 0) {
+                    mTotalFrame += data.count;
+
+                    String framePath = ActivityWrapper.DOCUMENTS_FOLDER + "/" + ((data.local)?
+                            Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX);
+                    for (int i = 0; i < data.count; ++i) {
+
+                        File frame = new File(framePath + String.format("%04d", i) +
+                                Constants.PROCESS_RGBA_EXTENSION);
+                        if (data.offset > i)
+                            frame.delete();
+                        else
+                            frame.renameTo(new File(framePath + String.format("%04d", i - data.offset) +
+                                    Constants.PROCESS_RGBA_EXTENSION));
+
+                        ++mProceedFrame;
+                    }
+                }
+
+                ////// Apply conversion on frame files
+                Integer frameWidth = null, frameHeight = null;
+                Settings.getFrameResolution(frameWidth, frameHeight);
+
+                Bitmap localBitmap = Bitmap.createBitmap(frameWidth, frameHeight, Bitmap.Config.ARGB_8888);
+                Bitmap remoteBitmap = Bitmap.createBitmap(frameWidth, frameHeight, Bitmap.Config.ARGB_8888);
+
+                for (int i = 0; i < data.count; ++i) {
+
+                    String fileIndex = String.format("%04d", i);
+                    File file = new File(ActivityWrapper.DOCUMENTS_FOLDER + "/" +
+                            Constants.PROCESS_LOCAL_PREFIX + fileIndex + Constants.PROCESS_RGBA_EXTENSION);
+
+
+
+
+
+
+                    //localBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(frameBuffer));
+                    /*
+                    File bmpFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + "/" + ((local)?
+                                    Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX) +
+                            String.format("%04d", position) + Constants.PROCESS_RGBA_EXTENSION);
+
+                    Bitmap bitmap = null;
+                    byte[] bmpBuffer = new byte[(int)bmpFile.length()];
+                    try {
+                        if (new FileInputStream(bmpFile).read(bmpBuffer) != bmpBuffer.length)
+                            throw new IOException();
+
+                        if (Settings.getInstance().mOrientation) // Portrait
+                            bitmap = Bitmap.createBitmap(Settings.getInstance().mResolution.height,
+                                    Settings.getInstance().mResolution.width, Bitmap.Config.ARGB_8888);
+                        else // Landscape
+                            bitmap = Bitmap.createBitmap(Settings.getInstance().mResolution.width,
+                                    Settings.getInstance().mResolution.height, Bitmap.Config.ARGB_8888);
+                        bitmap.copyPixelsFromBuffer(ByteBuffer.wrap(bmpBuffer));
+                    }
+                    catch (IOException e) {
+                        Logs.add(Logs.Type.E, "Failed to load RGBA file: " + bmpFile.getAbsolutePath());
+                    }
+                    return bitmap;
+                    */
 
 
 
@@ -199,20 +275,14 @@ public class Video extends BufferRequest {
 
 
 
+                }
 
-                // Apply conversion on local files
-                // Remove !local files
+                ////// Remove remaining frame files
+                Storage.removeFiles("^" + ((!data.local)?
+                        Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX) +
+                        "+[0-9]*[0-9]\\" + Constants.PROCESS_RGBA_EXTENSION + "$");
 
-
-
-
-
-
-
-
-
-
-
+                mProceedFrame = mTotalFrame;
             }
         }).start();
     }
@@ -234,17 +304,8 @@ public class Video extends BufferRequest {
     }
     public static boolean makeAnaglyphVideo(boolean jpegStep, int frameCount, String files) {
 
-        int frameWidth, frameHeight;
-        if (Settings.getInstance().mOrientation) { // Portrait
-
-            frameWidth = Settings.getInstance().mResolution.height;
-            frameHeight = Settings.getInstance().mResolution.width;
-        }
-        else { // Landscape
-
-            frameWidth = Settings.getInstance().mResolution.width;
-            frameHeight = Settings.getInstance().mResolution.height;
-        }
+        Integer frameWidth = null, frameHeight = null;
+        Settings.getFrameResolution(frameWidth, frameHeight);
         if (jpegStep)
             return ProcessThread.mGStreamer.launch("multifilesrc location=\"" + files + "\" index=0" +
                     " caps=\"video/x-raw,format=RGBA,width=" + frameWidth + ",height=" + frameHeight +

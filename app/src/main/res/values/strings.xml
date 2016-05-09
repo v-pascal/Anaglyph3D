@@ -127,6 +127,7 @@
     <string name="error_extract_audio">Failed to extract audio from the video!</string>
     <string name="error_make_video">Failed to make the anaglyph 3D video!</string>
     <string name="error_load_anaglyph">Failed to load 3D anaglyph video!</string>
+    <string name="error_storage_available">Not enough storage memory space available! With current settings the next memory size is needed:</string>
 
     <!-- Process step -->
     <string name="step_contrast">Contrast &amp; brightness</string>

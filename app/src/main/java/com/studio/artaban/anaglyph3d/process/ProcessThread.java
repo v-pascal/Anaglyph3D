@@ -473,8 +473,15 @@ public class ProcessThread extends Thread {
                         if (Settings.getInstance().isMaker()) {
 
                             // Contrast & brightness configuration has been received
-                            Video.getInstance().convertFrames(mContrast, mBrightness,
-                                    mSynchroOffset, mLocalAudio);
+                            Video.ConvertData data = new Video.ConvertData();
+
+                            data.contrast = mContrast;
+                            data.brightness = mBrightness;
+                            data.offset = mSynchroOffset;
+                            data.local = mLocalAudio;
+                            data.count = frameCount;
+
+                            Video.getInstance().convertFrames(data);
                             mStatus = Status.FRAMES_CONVERSION;
                         }
                         else {
@@ -630,9 +637,9 @@ public class ProcessThread extends Thread {
 
                     publishProgress(0, 1);
 
-                    if (!Video.extractAudio((mLocalAudio)?
-                            Storage.FILENAME_LOCAL_VIDEO:
-                            Storage.FILENAME_REMOTE_VIDEO)) {
+                    if (!Video.extractAudio((!mLocalAudio)? // Extract sound from '!mLocalAudio' coz
+                            Storage.FILENAME_LOCAL_VIDEO: // if shift frames from local video, remote
+                            Storage.FILENAME_REMOTE_VIDEO)) { // video sound will be synchronized!
 
                         Logs.add(Logs.Type.E, "Failed to extract video audio");
                         mAbort = true;
@@ -661,7 +668,7 @@ public class ProcessThread extends Thread {
 
                     //////
                     if (Video.getInstance().getProceedFrame() == Video.getInstance().getTotalFrame()) {
-                        local = true;
+                        local = true; // 'jpegStep' step
                         mStatus = Status.MAKE_3D_VIDEO;
                     }
                     break;
@@ -722,7 +729,7 @@ public class ProcessThread extends Thread {
                     sleep();
                     if (Video.getInstance().getTransferSize() != Video.getInstance().getBufferSize())
                         mStatus = Status.TRANSFER_3D_VIDEO;
-                        // This must happen once at least (a video cannot be downloaded during a 'sleep')
+                        // This must happen once at least (a video cannot be downloaded during one 'sleep')
 
                     break;
                 }

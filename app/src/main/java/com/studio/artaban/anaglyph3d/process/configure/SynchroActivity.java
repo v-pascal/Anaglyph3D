@@ -223,17 +223,9 @@ public class SynchroActivity extends AppCompatActivity {
 
         final Point screenSize = new Point();
         getWindowManager().getDefaultDisplay().getSize(screenSize);
-        int frameWidth, frameHeight;
-        if (Settings.getInstance().mOrientation) { // Portrait
+        Integer frameWidth = null, frameHeight = null;
+        Settings.getFrameResolution(frameWidth, frameHeight);
 
-            frameWidth = Settings.getInstance().mResolution.height;
-            frameHeight = Settings.getInstance().mResolution.width;
-        }
-        else { // Landscape
-
-            frameWidth = Settings.getInstance().mResolution.width;
-            frameHeight = Settings.getInstance().mResolution.height;
-        }
         if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
 
             ////// Portrait

@@ -133,9 +133,8 @@ public abstract class BufferRequest implements ConnectRequest {
                     mTransferSize += send;
 
                     if (++waitEvery == 25) { // Wait 50 ms every 25 packets sent
-                        try {
-                            Thread.sleep(50, 0);
-                        } catch (InterruptedException e) {
+                        try { Thread.sleep(50, 0); }
+                        catch (InterruptedException e) {
                             Logs.add(Logs.Type.W, e.getMessage());
                         }
                         waitEvery = 0;

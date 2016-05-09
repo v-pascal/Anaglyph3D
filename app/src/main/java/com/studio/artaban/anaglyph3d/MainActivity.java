@@ -23,6 +23,7 @@ import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
+import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 public class MainActivity extends AppCompatActivity
@@ -74,6 +75,21 @@ public class MainActivity extends AppCompatActivity
             }
         }
         mNavItemSelected = Constants.NO_DATA;
+    }
+    private boolean checkMemorySpace() { // Return if storage memory space is enough to process (maker)
+
+        if (Settings.getInstance().isMaker()) {
+            long storageNeed = Storage.isStorageEnough();
+
+            if (storageNeed != 0) {
+                // Inform user
+                DisplayMessage.getInstance().alert(R.string.title_warning, R.string.error_storage_available,
+                        String.format("%.2f Go", storageNeed / (float)1000000000), false, null);
+
+                return false;
+            }
+        }
+        return true;
     }
 
     //
@@ -132,10 +148,13 @@ public class MainActivity extends AppCompatActivity
         if (mReadySent)
             return false; // Avoid to reopen process activity
 
-        // Check if activity is ready to start recording
-        // -> Menu not displayed and activity not in pause
+        // Check if activity is ready to start recording:
+        // -> Activity not in pause
+        // -> Menu not displayed
+        // -> Storage memory space enough (for maker only)
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if ((drawer != null) && (!drawer.isDrawerOpen(GravityCompat.START)) && (!mInPause)) {
+        if ((drawer != null) && (!drawer.isDrawerOpen(GravityCompat.START)) &&
+                (!mInPause) && (checkMemorySpace())) {
 
             mReadySent = true;
             return true; // ...will open process activity
@@ -218,25 +237,36 @@ public class MainActivity extends AppCompatActivity
             Logs.add(Logs.Type.F, "Unexpected request code");
             return;
         }
-        if (resultCode == Constants.RESULT_LOST_CONNECTION)
-            finish(); // Lost connection (back to connect activity)
+        switch (resultCode) {
+            case Constants.RESULT_LOST_CONNECTION: {
 
-        else if (resultCode == Constants.RESULT_QUIT_APPLICATION) {
+                finish(); // Lost connection (back to connect activity)
+                break;
+            }
+            case Constants.RESULT_QUIT_APPLICATION: {
 
-            setResult(Constants.RESULT_QUIT_APPLICATION);
-            finish();
-        }
-        else if (resultCode == Constants.RESULT_DISPLAY_ALBUM) {
-
-
-
-
-
-
+                setResult(Constants.RESULT_QUIT_APPLICATION);
+                finish();
+                break;
+            }
+            case Constants.RESULT_DISPLAY_ALBUM: {
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+                break;
+            }
         }
     }
 
@@ -266,11 +296,13 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onClick(View view) { // Start recording
+        if (checkMemorySpace()) {
 
-        // Add connectivity request to check if remote device is ready...
-        Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
-                ActivityWrapper.REQ_TYPE_READY, null);
+            // Add connectivity request to check if remote device is ready...
+            Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                    ActivityWrapper.REQ_TYPE_READY, null);
 
-        // ...let's start the process activity if so
+            // ...let's start the process activity if so
+        }
     }
 }

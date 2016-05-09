@@ -68,6 +68,18 @@ public class Settings implements ConnectRequest {
                 mResolution.width + Constants.CONFIG_RESOLUTION_SEPARATOR + mResolution.height:
                 mResolution.height + Constants.CONFIG_RESOLUTION_SEPARATOR + mResolution.width;
     }
+    public static void getFrameResolution(Integer width, Integer height) {
+        if (getInstance().mOrientation) { // Portrait
+
+            width = new Integer(getInstance().mResolution.height);
+            height = new Integer(getInstance().mResolution.width);
+        }
+        else { // Landscape
+
+            width = new Integer(getInstance().mResolution.width);
+            height = new Integer(getInstance().mResolution.height);
+        }
+    }
 
     // Setter
     public boolean setResolution(String resolution, String[] list) {
