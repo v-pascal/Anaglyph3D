@@ -72,7 +72,7 @@
             android:name=".process.ProcessActivity"
             android:launchMode="singleTop"
             android:configChanges="orientation|screenSize"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"/>
         <activity
             android:name=".process.configure.ContrastActivity"
             android:label="@string/title_activity_contrast"

@@ -82,10 +82,6 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
     private Bitmap mContrastBitmap;
     // Contrast & brightness image info
 
-    private int mCompareWidth;
-    private int mCompareHeight;
-    // Size of the compare image
-
     private boolean loadImagesFromFiles(ImageView compareImage) { // Load both images from RGBA files
 
         File localFile = new File(ActivityWrapper.DOCUMENTS_FOLDER, Storage.FILENAME_LOCAL_PICTURE);
@@ -148,24 +144,24 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
 
             imageFile = remoteFile;
             if (Settings.getInstance().mOrientation) { // Portrait
-                imageWidth = mCompareWidth = Frame.getInstance().getHeight();
-                imageHeight = mCompareHeight = Frame.getInstance().getWidth();
+                imageWidth = Frame.getInstance().getHeight();
+                imageHeight = Frame.getInstance().getWidth();
             }
             else { // Landscape
-                imageWidth = mCompareWidth = Frame.getInstance().getWidth();
-                imageHeight = mCompareHeight = Frame.getInstance().getHeight();
+                imageWidth = Frame.getInstance().getWidth();
+                imageHeight = Frame.getInstance().getHeight();
             }
         }
         else {
 
             imageFile = localFile;
             if (Settings.getInstance().mOrientation) { // Portrait
-                imageWidth = mCompareWidth = data.getInt(Frame.DATA_KEY_HEIGHT);
-                imageHeight = mCompareHeight = data.getInt(Frame.DATA_KEY_WIDTH);
+                imageWidth = data.getInt(Frame.DATA_KEY_HEIGHT);
+                imageHeight = data.getInt(Frame.DATA_KEY_WIDTH);
             }
             else { // Landscape
-                imageWidth = mCompareWidth = data.getInt(Frame.DATA_KEY_WIDTH);
-                imageHeight = mCompareHeight = data.getInt(Frame.DATA_KEY_HEIGHT);
+                imageWidth = data.getInt(Frame.DATA_KEY_WIDTH);
+                imageHeight = data.getInt(Frame.DATA_KEY_HEIGHT);
             }
         }
 

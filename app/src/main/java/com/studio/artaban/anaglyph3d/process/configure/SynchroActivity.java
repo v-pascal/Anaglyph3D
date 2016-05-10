@@ -1,6 +1,5 @@
 package com.studio.artaban.anaglyph3d.process.configure;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
@@ -30,7 +29,6 @@ import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
-import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 import java.io.File;
@@ -161,18 +159,6 @@ public class SynchroActivity extends AppCompatActivity {
 
         mViewPager.setAdapter(new FramesPagerAdapter(getSupportFragmentManager()));
     }
-    private void onCancel() {
-
-        // Ask user to skip synchronization step
-        DisplayMessage.getInstance().alert(R.string.title_warning, R.string.ask_skip_step, null,
-                true, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (which == DialogInterface.BUTTON_POSITIVE)
-                            finish();
-                    }
-                });
-    }
 
     //////
     @Override
@@ -294,12 +280,11 @@ public class SynchroActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
-    @Override public void onBackPressed() { onCancel(); }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
 
-            onCancel();
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -1,10 +1,6 @@
 package com.studio.artaban.anaglyph3d.media;
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Paint;
 import android.os.Bundle;
 
 import com.studio.artaban.anaglyph3d.data.Constants;
@@ -170,6 +166,7 @@ public class Video extends BufferRequest {
                 mTotalFrame = files.length;
                 Arrays.sort(files); // Sort frame files
 
+                ////// Rename frame files according removed frame files
                 int removed = 0, frameCount = 0;
                 for (File file: files) {
 
@@ -216,7 +213,7 @@ public class Video extends BufferRequest {
 
                 ////// Rename frame files to apply synchronization (if needed)
                 if (data.offset > 0) {
-                    mTotalFrame += data.count;
+                    mTotalFrame += data.count - data.offset;
 
                     String framePath = ActivityWrapper.DOCUMENTS_FOLDER + "/" + ((data.localSync)?
                             Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX);
@@ -232,6 +229,9 @@ public class Video extends BufferRequest {
 
                         ++mProceedFrame;
                     }
+
+                    // Apply conversion to synchronized frames only
+                    data.count -= data.offset;
                 }
 
                 ////// Apply conversion on frame files
@@ -279,7 +279,7 @@ public class Video extends BufferRequest {
                         continue;
                     }
 
-                    // Apply contrast & brightness
+                    // Apply contrast & brightness (if requested)
                     Bitmap bmpContrastLocal, bmpContrastRemote;
                     if (applyContrast) {
 
@@ -312,12 +312,12 @@ public class Video extends BufferRequest {
                         for (int width = 0; width < frameWidth; ++width) {
 
                             int pixel = (width + (height * frameWidth)) << 2;
-                            int localPixel = bmpContrastLocal.getPixel(width , height);
+                            int localPixel = bmpContrastLocal.getPixel(width, height);
                             int remotePixel = bmpContrastRemote.getPixel(width, height);
 
-                            buffer[pixel + 0] = (byte)(localPixel  & 0x00ff0000); // R
-                            buffer[pixel + 1] = (byte)(remotePixel & 0x0000ff00); // G
-                            buffer[pixel + 2] = (byte)(remotePixel & 0x000000ff); // B
+                            buffer[pixel + 0] = (byte)((localPixel  & 0x00ff0000) >> 16); // R
+                            buffer[pixel + 1] = (byte)((remotePixel & 0x0000ff00) >> 8);  // G
+                            buffer[pixel + 2] = (byte)(remotePixel  & 0x000000ff);        // B
                         }
                     }
 
@@ -328,8 +328,23 @@ public class Video extends BufferRequest {
                     catch (IOException e) {
                         Logs.add(Logs.Type.F, "Failed to save anaglyph frame file: " +
                                 syncFile.getAbsolutePath());
-                        break;
                     }
+
+
+
+
+
+
+
+
+                    // Rename from local0000.rgba -> local0.rgba
+
+
+
+
+
+
+
                 }
 
                 ////// Remove remaining frame files
@@ -337,7 +352,8 @@ public class Video extends BufferRequest {
                         Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX) +
                         "+[0-9]*[0-9]\\" + Constants.PROCESS_RGBA_EXTENSION + "$");
 
-                mProceedFrame = mTotalFrame;
+                ++mProceedFrame;
+
             }
         }).start();
     }

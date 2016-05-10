@@ -108,7 +108,7 @@ public class ProcessThread extends Thread {
     private static boolean mLocalFrame = ContrastActivity.DEFAULT_LOCAL_FRAME; // Flag to know on which frames to apply contrast
 
     private short mSynchroOffset = 0; // Synchronization offset configured by the user
-    private boolean mLocalAudio = true; // To define from which video to extract the audio (after synchronization)
+    private boolean mLocalSync = true; // To define from which video to extract the audio (after synchronization)
 
     private Frame.Orientation getOrientation() { // Return frame orientation according settings
 
@@ -125,7 +125,7 @@ public class ProcessThread extends Thread {
     //////
     public void applySynchronization(short offset, boolean local) {
         mSynchroOffset = offset;
-        mLocalAudio = local;
+        mLocalSync = local;
 
         mStatus = Status.EXTRACT_AUDIO;
     }
@@ -429,6 +429,7 @@ public class ProcessThread extends Thread {
                         ActivityWrapper.startActivity(ContrastActivity.class, data, 0);
 
                         //////
+                        mStep = Step.VIDEO;
                         mStatus = Status.TRANSFER_VIDEO;
 
                         // Send local video file to remote device
@@ -484,7 +485,7 @@ public class ProcessThread extends Thread {
                             data.brightness = mBrightness;
                             data.local = mLocalFrame;
                             data.offset = mSynchroOffset;
-                            data.localSync = mLocalAudio;
+                            data.localSync = mLocalSync;
                             data.count = frameCount;
 
                             Video.getInstance().convertFrames(data);
@@ -496,6 +497,7 @@ public class ProcessThread extends Thread {
                             Connectivity.getInstance().addRequest(mTransfer, (byte)0, null);
 
                             //////
+                            mStep = Step.MAKE;
                             mStatus = Status.WAIT_3D_VIDEO;
                             publishProgress(0, 1);
                         }
@@ -588,6 +590,7 @@ public class ProcessThread extends Thread {
                     else {
 
                         Video.getInstance().renameFrameFiles(true);
+                        mStep = Step.FRAMES;
                         mStatus = Status.RENAME_FRAMES_LEFT;
                     }
                     break;
@@ -643,7 +646,7 @@ public class ProcessThread extends Thread {
 
                     publishProgress(0, 1);
 
-                    if (!Video.extractAudio((!mLocalAudio)? // Extract sound from '!mLocalAudio' coz
+                    if (!Video.extractAudio((!mLocalSync)? // Extract sound from '!mLocalSync' coz
                             Storage.FILENAME_LOCAL_VIDEO: // if shift frames from local video, remote
                             Storage.FILENAME_REMOTE_VIDEO)) { // video sound will be synchronized!
 
@@ -674,7 +677,9 @@ public class ProcessThread extends Thread {
 
                     //////
                     if (Video.getInstance().getProceedFrame() == Video.getInstance().getTotalFrame()) {
+
                         local = true; // 'jpegStep' step
+                        mStep = Step.MAKE;
                         mStatus = Status.MAKE_3D_VIDEO;
                     }
                     break;
@@ -682,8 +687,8 @@ public class ProcessThread extends Thread {
                 case MAKE_3D_VIDEO: {
 
                     publishProgress(0, 1);
-                    if (!Video.makeAnaglyphVideo(local, frameCount, ActivityWrapper.DOCUMENTS_FOLDER +
-                            ((mLocalAudio)?
+                    if (!Video.makeAnaglyphVideo(local, frameCount - mSynchroOffset,
+                            ActivityWrapper.DOCUMENTS_FOLDER + ((mLocalSync)?
                             Constants.PROCESS_LOCAL_FRAMES_FILENAME:
                             Constants.PROCESS_REMOTE_FRAMES_FILENAME))) {
 
