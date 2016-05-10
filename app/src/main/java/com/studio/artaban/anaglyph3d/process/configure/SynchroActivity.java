@@ -47,14 +47,14 @@ public class SynchroActivity extends AppCompatActivity {
     public static final boolean DEFAULT_LOCAL = true;
     // Default values
 
-    private static final int FRAME_REMAINING = 24; // Offset limit == frame count - FRAME_REMAINING
+    private static final int FRAME_REMAINING = Constants.PROCESS_MAX_FPS;
+    // Offset limit == frame count - FRAME_REMAINING
 
     //////
     private short mOffset = DEFAULT_OFFSET; // Frame count to shift from the origin (synchro result)
     private boolean mLocalVideo = DEFAULT_LOCAL; // Local video from which to apply the synchro (false for remote)
 
     private int mFrameCount = 0;
-
     private ViewPager mViewPager;
     private ImageView mCompareImage;
 
@@ -82,14 +82,6 @@ public class SynchroActivity extends AppCompatActivity {
             Logs.add(Logs.Type.E, "Failed to load RGBA file: " + bmpFile.getAbsolutePath());
         }
         return bitmap;
-    }
-    private void setResult() {
-
-        Intent intent = new Intent();
-        intent.putExtra(DATA_KEY_SYNCHRO_OFFSET, mOffset);
-        intent.putExtra(DATA_KEY_SYNCHRO_LOCAL, mLocalVideo);
-
-        setResult(Constants.RESULT_PROCESS_SYNCHRO, intent);
     }
 
     //
@@ -144,7 +136,11 @@ public class SynchroActivity extends AppCompatActivity {
     //
     public void onValidateSynchro(View sender) { // Validate synchronization setting
 
-        setResult();
+        Intent intent = new Intent();
+        intent.putExtra(DATA_KEY_SYNCHRO_OFFSET, mOffset);
+        intent.putExtra(DATA_KEY_SYNCHRO_LOCAL, mLocalVideo);
+
+        setResult(RESULT_OK, intent);
         finish();
     }
     public void onChangeFrame(View sender) {
@@ -181,9 +177,6 @@ public class SynchroActivity extends AppCompatActivity {
 
             appBar.setDisplayHomeAsUpEnabled(true);
         }
-
-        // Set default result
-        setResult();
 
         // Restore previous settings (if any)
         if (savedInstanceState != null) {

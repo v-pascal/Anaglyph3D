@@ -20,8 +20,6 @@ import com.studio.artaban.anaglyph3d.process.configure.SynchroActivity;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 import com.studio.artaban.libGST.GstObject;
 
-import java.io.File;
-
 /**
  * Created by pascal on 12/04/16.
  * Activity to manage video recording and transferring using fragments:
@@ -189,27 +187,36 @@ public class ProcessActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode != 0)
-            return;
+        ActivityWrapper.set(this); // Set current activity
 
-        switch (resultCode) {
-            case Constants.RESULT_PROCESS_CONTRAST: {
+        switch (requestCode) {
+            case Constants.PROCESS_REQUEST_CONTRAST: {
 
-                ProcessThread.applyContrastBrightness(
-                        data.getFloatExtra(ContrastActivity.DATA_KEY_CONTRAST,
-                                ContrastActivity.DEFAULT_CONTRAST),
-                        data.getFloatExtra(ContrastActivity.DATA_KEY_BRIGHTNESS,
-                                ContrastActivity.DEFAULT_BRIGHTNESS),
-                        data.getBooleanExtra(ContrastActivity.DATA_KEY_LOCAL,
-                                ContrastActivity.DEFAULT_LOCAL_FRAME));
+                if (resultCode == RESULT_OK)
+                    ProcessThread.applyContrastBrightness(
+                            data.getFloatExtra(ContrastActivity.DATA_KEY_CONTRAST,
+                                    ContrastActivity.DEFAULT_CONTRAST),
+                            data.getFloatExtra(ContrastActivity.DATA_KEY_BRIGHTNESS,
+                                    ContrastActivity.DEFAULT_BRIGHTNESS),
+                            data.getBooleanExtra(ContrastActivity.DATA_KEY_LOCAL,
+                                    ContrastActivity.DEFAULT_LOCAL_FRAME));
+                else
+                    ProcessThread.applyContrastBrightness(ContrastActivity.DEFAULT_CONTRAST,
+                            ContrastActivity.DEFAULT_BRIGHTNESS,
+                            ContrastActivity.DEFAULT_LOCAL_FRAME);
                 break;
             }
-            case Constants.RESULT_PROCESS_SYNCHRO: {
+            case Constants.PROCESS_REQUEST_SYNCHRO: {
 
-                mProcessThread.applySynchronization(data.getShortExtra(SynchroActivity.DATA_KEY_SYNCHRO_OFFSET,
-                                SynchroActivity.DEFAULT_OFFSET),
-                        data.getBooleanExtra(SynchroActivity.DATA_KEY_SYNCHRO_LOCAL,
-                                SynchroActivity.DEFAULT_LOCAL));
+                if (resultCode == RESULT_OK)
+                    mProcessThread.applySynchronization(
+                            data.getShortExtra(SynchroActivity.DATA_KEY_SYNCHRO_OFFSET,
+                                    SynchroActivity.DEFAULT_OFFSET),
+                            data.getBooleanExtra(SynchroActivity.DATA_KEY_SYNCHRO_LOCAL,
+                                    SynchroActivity.DEFAULT_LOCAL));
+                else
+                    mProcessThread.applySynchronization(SynchroActivity.DEFAULT_OFFSET,
+                            SynchroActivity.DEFAULT_LOCAL);
                 break;
             }
         }

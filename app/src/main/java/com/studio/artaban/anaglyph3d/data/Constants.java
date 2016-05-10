@@ -14,9 +14,7 @@ public final class Constants {
     public static final int RESULT_QUIT_APPLICATION = 300; // Quit application requested result
     public static final int RESULT_LOST_CONNECTION = 301; // Connection lost result
     public static final int RESULT_RESTART_CONNECTION = 302; // Active connect activity result
-    public static final int RESULT_PROCESS_CONTRAST = 303; // Contrast validated result
-    public static final int RESULT_PROCESS_SYNCHRO = 304; // Synchronization validated result
-    public static final int RESULT_DISPLAY_ALBUM = 305; // Display album with current 3D video result
+    public static final int RESULT_DISPLAY_ALBUM = 303; // Display album with current 3D video result
 
     public static final String DATA_ACTIVITY = "data"; // Bundle activity data key
     public static final String DATA_CONNECTION_ESTABLISHED = "connected"; // Connection flag key
@@ -57,6 +55,9 @@ public final class Constants {
 
 
     ////// Process
+    public static final int PROCESS_REQUEST_CONTRAST = 1; // Contrast & brightness activity request code
+    public static final int PROCESS_REQUEST_SYNCHRO = 2; // Synchronization activity request code
+
     public static final short PROCESS_WAIT_TRANSFER = 500; // Progress loop sleep (in milliseconds)
     public static final short PROCESS_MAX_FPS = 15; // Maximum FPS expected (used to define storage space need)
 
@@ -64,7 +65,7 @@ public final class Constants {
     public static final String PROCESS_REMOTE_PREFIX = "remote";
     public static final String PROCESS_RGBA_EXTENSION = ".rgba";
 
-    public static final String PROCESS_LOCAL_FRAMES_FILENAME = "/" + PROCESS_LOCAL_PREFIX + "%04d" + PROCESS_RGBA_EXTENSION;
-    public static final String PROCESS_REMOTE_FRAMES_FILENAME = "/" + PROCESS_REMOTE_PREFIX + "%04d" + PROCESS_RGBA_EXTENSION;
+    public static final String PROCESS_LOCAL_FRAMES = "/" + PROCESS_LOCAL_PREFIX + "%04d" + PROCESS_RGBA_EXTENSION;
+    public static final String PROCESS_REMOTE_FRAMES = "/" + PROCESS_REMOTE_PREFIX + "%04d" + PROCESS_RGBA_EXTENSION;
 
 }

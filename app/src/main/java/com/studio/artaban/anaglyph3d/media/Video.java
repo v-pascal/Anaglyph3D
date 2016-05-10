@@ -66,9 +66,6 @@ public class Video extends BufferRequest {
     public int getFrameCount() { return mFrameCount; }
 
     //
-    private int mLocalCount = 0;
-    private int mRemoteCount = 0;
-
     public void mergeFrameFiles() {
 
         mProceedFrame = 0;
@@ -78,9 +75,41 @@ public class Video extends BufferRequest {
             @Override
             public void run() {
 
-                if (mLocalCount == mRemoteCount) {
+                ////// Get local & remote frame count
+                File frames = new File(ActivityWrapper.DOCUMENTS_FOLDER);
+                File[] files = frames.listFiles(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String filename) {
 
-                    mFrameCount = mLocalCount;
+                        // BUG: Only +[0-9] regex is not matching! Not greedy by default !?! See below...
+                        if (filename.matches("^" + Constants.PROCESS_LOCAL_PREFIX + "+[0-9]*[0-9]\\" +
+                                Constants.PROCESS_RGBA_EXTENSION + "$"))
+                            return true;
+
+                        return false;
+                    }
+                });
+                int localCount = files.length;
+
+                frames = new File(ActivityWrapper.DOCUMENTS_FOLDER);
+                files = frames.listFiles(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String filename) {
+
+                        // BUG: Only +[0-9] regex is not matching! Not greedy by default !?! See below...
+                        if (filename.matches("^" + Constants.PROCESS_REMOTE_PREFIX + "+[0-9]*[0-9]\\" +
+                                Constants.PROCESS_RGBA_EXTENSION + "$"))
+                            return true;
+
+                        return false;
+                    }
+                });
+                int remoteCount = files.length;
+
+                // Check if needed to set FPS matching
+                if (localCount == remoteCount) {
+
+                    mFrameCount = localCount;
                     mProceedFrame = mTotalFrame; // 1/1
                     return; // No frame to remove
                 }
@@ -88,18 +117,18 @@ public class Video extends BufferRequest {
                 ////// Remove the too many frames from video with bigger FPS
                 final String prefix;
                 int toRemove;
-                if (mLocalCount > mRemoteCount) {
-                    toRemove = mLocalCount / ((mLocalCount - mRemoteCount) + 1);
+                if (localCount > remoteCount) {
+                    toRemove = localCount / ((localCount - remoteCount) + 1);
                     prefix = Constants.PROCESS_LOCAL_PREFIX;
                 }
                 else {
-                    toRemove = mRemoteCount / ((mRemoteCount - mLocalCount) + 1);
+                    toRemove = remoteCount / ((remoteCount - localCount) + 1);
                     prefix = Constants.PROCESS_REMOTE_PREFIX;
                 }
                 ++toRemove; // Avoid to remove the last frame file (do not remove one file more)
 
-                File frames = new File(ActivityWrapper.DOCUMENTS_FOLDER);
-                File[] files = frames.listFiles(new FilenameFilter() {
+                frames = new File(ActivityWrapper.DOCUMENTS_FOLDER);
+                files = frames.listFiles(new FilenameFilter() {
                     @Override
                     public boolean accept(File dir, String filename) {
 

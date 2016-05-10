@@ -89,7 +89,8 @@ public class ProcessThread extends Thread {
         ////// Make & transfer 3D video step
         MAKE_3D_VIDEO (R.string.status_make_anaglyph), // Make the anaglyph 3D video
         TRANSFER_3D_VIDEO (R.string.status_transfer_anaglyph), // Transfer 3D video (to remote device which is not the maker)
-        WAIT_3D_VIDEO (R.string.status_wait_anaglyph); // Wait 3D video received
+        WAIT_3D_VIDEO (R.string.status_wait_anaglyph), // Wait 3D video received
+        SAVE_3D_VIDEO (R.string.status_save_anaglyph);
 
         //
         private final int stringId;
@@ -215,6 +216,7 @@ public class ProcessThread extends Thread {
 
                 switch (mStatus) {
 
+                    case TRANSFER_3D_VIDEO:
                     case FRAMES_CONVERSION:
                     case MERGE_FPS:
 
@@ -234,6 +236,7 @@ public class ProcessThread extends Thread {
 
                     // Heavy process or undefined duration process
                     case WAIT_3D_VIDEO:
+                    case MAKE_3D_VIDEO:
 
                     case WAIT_CONTRAST:
                     case TRANSFER_CONTRAST:
@@ -422,7 +425,8 @@ public class ProcessThread extends Thread {
                         data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
                         data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
 
-                        ActivityWrapper.startActivity(ContrastActivity.class, data, 0);
+                        ActivityWrapper.startActivity(ContrastActivity.class, data,
+                                Constants.PROCESS_REQUEST_CONTRAST);
 
                         //////
                         mStep = Step.VIDEO;
@@ -490,7 +494,7 @@ public class ProcessThread extends Thread {
                         else {
 
                             // Send contrast & brightness configuration to remote device
-                            Connectivity.getInstance().addRequest(mTransfer, (byte)0, null);
+                            Connectivity.getInstance().addRequest(getInstance(), (byte)0, null);
 
                             //////
                             mStep = Step.MAKE;
@@ -559,8 +563,8 @@ public class ProcessThread extends Thread {
                                     Storage.FILENAME_LOCAL_VIDEO:
                                     Storage.FILENAME_REMOTE_VIDEO),
                             getOrientation(), ActivityWrapper.DOCUMENTS_FOLDER + ((local)?
-                                    Constants.PROCESS_LOCAL_FRAMES_FILENAME:
-                                    Constants.PROCESS_REMOTE_FRAMES_FILENAME))) {
+                                    Constants.PROCESS_LOCAL_FRAMES:
+                                    Constants.PROCESS_REMOTE_FRAMES))) {
 
                         Logs.add(Logs.Type.E, "Failed to extract video frames");
                         mAbort = true;
@@ -605,11 +609,11 @@ public class ProcessThread extends Thread {
                         frameCount = Video.getInstance().getFrameCount();
                         data.putInt(SynchroActivity.DATA_KEY_FRAME_COUNT, frameCount);
 
-                        ActivityWrapper.startActivity(SynchroActivity.class, data, 0);
+                        ActivityWrapper.startActivity(SynchroActivity.class, data,
+                                Constants.PROCESS_REQUEST_SYNCHRO);
 
                         //////
                         mStatus = Status.WAIT_SYNCHRO;
-                        publishProgress(0, 1);
                     }
                     break;
                 }
@@ -622,9 +626,10 @@ public class ProcessThread extends Thread {
 
                     publishProgress(0, 1);
 
-                    if (!Video.extractAudio((!mLocalSync)? // Extract sound from '!mLocalSync' coz
-                            Storage.FILENAME_LOCAL_VIDEO: // if shift frames from local video, remote
-                            Storage.FILENAME_REMOTE_VIDEO)) { // video sound will be synchronized!
+                    if (!Video.extractAudio(ActivityWrapper.DOCUMENTS_FOLDER +
+                            ((!mLocalSync)? // Extract sound from '!mLocalSync' coz if shift frames
+                            Storage.FILENAME_LOCAL_VIDEO: // from local video, remote video sound will
+                            Storage.FILENAME_REMOTE_VIDEO))) { // be synchronized!
 
                         Logs.add(Logs.Type.E, "Failed to extract video audio");
                         mAbort = true;
@@ -665,8 +670,8 @@ public class ProcessThread extends Thread {
                     publishProgress(0, 1);
                     if (!Video.makeAnaglyphVideo(local, frameCount - mSynchroOffset,
                             ActivityWrapper.DOCUMENTS_FOLDER + ((mLocalSync)?
-                            Constants.PROCESS_LOCAL_FRAMES_FILENAME:
-                            Constants.PROCESS_REMOTE_FRAMES_FILENAME))) {
+                            Constants.PROCESS_LOCAL_FRAMES:
+                            Constants.PROCESS_REMOTE_FRAMES))) {
 
                         Logs.add(Logs.Type.E, "Failed to make anaglyph video");
                         mAbort = true;
@@ -735,6 +740,9 @@ public class ProcessThread extends Thread {
 
 
 
+
+                        // !Maker
+                        // mStatus = Status.SAVE_3D_VIDEO;
 
 
 

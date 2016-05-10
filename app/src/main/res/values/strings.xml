@@ -152,5 +152,6 @@
     <string name="status_wait_anaglyph">Waiting anaglyph 3D video...</string>
     <string name="status_make_anaglyph">Making anaglyph 3D video...</string>
     <string name="status_transfer_anaglyph">Transfer anaglyph 3D video</string>
+    <string name="status_save_anaglyph">Saving anaglyph 3D video file...</string>
 
 </resources>

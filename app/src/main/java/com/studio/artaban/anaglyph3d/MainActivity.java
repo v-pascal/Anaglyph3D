@@ -226,10 +226,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        // Set current activity
-        ActivityWrapper.set(this);
+        super.onActivityResult(requestCode, resultCode, data);
+        ActivityWrapper.set(this); // Set current activity
 
         displayPosition(); // In case it has changed
 

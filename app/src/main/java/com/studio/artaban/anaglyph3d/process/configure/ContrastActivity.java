@@ -181,15 +181,6 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         }
         return true;
     }
-    private void setResult() {
-
-        Intent intent = new Intent();
-        intent.putExtra(DATA_KEY_CONTRAST, mContrast);
-        intent.putExtra(DATA_KEY_BRIGHTNESS, mBrightness);
-        intent.putExtra(DATA_KEY_LOCAL, mLocalFrame);
-
-        setResult(Constants.RESULT_PROCESS_CONTRAST, intent);
-    }
 
     //////
     private float mContrast = DEFAULT_CONTRAST;
@@ -227,7 +218,12 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
     }
     public void onValidateContrast(View sender) { // Validate contrast & brightness settings
 
-        setResult();
+        Intent intent = new Intent();
+        intent.putExtra(DATA_KEY_CONTRAST, mContrast);
+        intent.putExtra(DATA_KEY_BRIGHTNESS, mBrightness);
+        intent.putExtra(DATA_KEY_LOCAL, mLocalFrame);
+
+        setResult(RESULT_OK, intent);
         finish();
     }
     private void onCancel() {
@@ -264,9 +260,6 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
 
             appBar.setDisplayHomeAsUpEnabled(true);
         }
-
-        // Set default result
-        setResult();
 
         // Restore previous settings (if any)
         if (savedInstanceState != null) {
