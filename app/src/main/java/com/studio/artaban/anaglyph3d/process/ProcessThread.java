@@ -77,8 +77,6 @@ public class ProcessThread extends Thread {
         SAVE_VIDEO (R.string.status_save_video), // Save remote video
         EXTRACT_FRAMES_LEFT (R.string.status_extract_left), // Extract ARGB pictures from left camera
         EXTRACT_FRAMES_RIGHT (R.string.status_extract_right), // Extract ARGB pictures from right camera
-        RENAME_FRAMES_LEFT (R.string.status_rename_left), // Rename left frame files
-        RENAME_FRAMES_RIGHT (R.string.status_rename_right), // Rename right frame files
         MERGE_FPS (R.string.status_merge_fps), // Remove the too many RGB pictures from camera video with bigger FPS
         WAIT_SYNCHRO (Constants.NO_DATA), // Wait synchro configuration
         EXTRACT_AUDIO (R.string.status_extract_audio), // Extract audio from one of the videos
@@ -218,8 +216,6 @@ public class ProcessThread extends Thread {
                 switch (mStatus) {
 
                     case FRAMES_CONVERSION:
-                    case RENAME_FRAMES_LEFT:
-                    case RENAME_FRAMES_RIGHT:
                     case MERGE_FPS:
 
                     case WAIT_VIDEO:
@@ -589,14 +585,12 @@ public class ProcessThread extends Thread {
                     }
                     else {
 
-                        Video.getInstance().renameFrameFiles(true);
+                        Video.getInstance().mergeFrameFiles();
                         mStep = Step.FRAMES;
-                        mStatus = Status.RENAME_FRAMES_LEFT;
+                        mStatus = Status.MERGE_FPS;
                     }
                     break;
                 }
-                case RENAME_FRAMES_LEFT:
-                case RENAME_FRAMES_RIGHT:
                 case MERGE_FPS: {
 
                     sleep();
@@ -605,35 +599,17 @@ public class ProcessThread extends Thread {
 
                     //////
                     if (Video.getInstance().getProceedFrame() == Video.getInstance().getTotalFrame()) {
-                        switch (mStatus) {
 
-                            case RENAME_FRAMES_LEFT: {
+                        // Load synchronization activity ///////////////////////////////////
+                        Bundle data = new Bundle();
+                        frameCount = Video.getInstance().getFrameCount();
+                        data.putInt(SynchroActivity.DATA_KEY_FRAME_COUNT, frameCount);
 
-                                Video.getInstance().renameFrameFiles(false);
-                                mStatus = Status.RENAME_FRAMES_RIGHT;
-                                break;
-                            }
-                            case RENAME_FRAMES_RIGHT: {
+                        ActivityWrapper.startActivity(SynchroActivity.class, data, 0);
 
-                                Video.getInstance().mergeFrameFiles();
-                                mStatus = Status.MERGE_FPS;
-                                break;
-                            }
-                            case MERGE_FPS: {
-
-                                // Load synchronization activity ///////////////////////////////////
-                                Bundle data = new Bundle();
-                                frameCount = Video.getInstance().getFrameCount();
-                                data.putInt(SynchroActivity.DATA_KEY_FRAME_COUNT, frameCount);
-
-                                ActivityWrapper.startActivity(SynchroActivity.class, data, 0);
-
-                                //////
-                                mStatus = Status.WAIT_SYNCHRO;
-                                publishProgress(0, 1);
-                                break;
-                            }
-                        }
+                        //////
+                        mStatus = Status.WAIT_SYNCHRO;
+                        publishProgress(0, 1);
                     }
                     break;
                 }

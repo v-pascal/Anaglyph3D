@@ -69,58 +69,6 @@ public class Video extends BufferRequest {
     private int mLocalCount = 0;
     private int mRemoteCount = 0;
 
-    public void renameFrameFiles(final boolean local) {
-
-        mProceedFrame = 0;
-        mTotalFrame = 1;
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                ////// Count frame files
-                File frames = new File(ActivityWrapper.DOCUMENTS_FOLDER);
-                File[] files = frames.listFiles(new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String filename) {
-
-                        // BUG: Only +[0-9] regex is not matching! Not greedy by default !?! See below...
-                        if (filename.matches("^" + ((local)?
-                                Constants.PROCESS_LOCAL_PREFIX:
-                                Constants.PROCESS_REMOTE_PREFIX) + "+[0-9]*[0-9]\\" +
-                                Constants.PROCESS_RGBA_EXTENSION + "$"))
-                            return true;
-
-                        return false;
-                    }
-                });
-                mTotalFrame = files.length;
-
-                String prefix;
-                if (local) {
-                    mLocalCount = mTotalFrame;
-                    prefix = Constants.PROCESS_LOCAL_PREFIX;
-                }
-                else {
-                    mRemoteCount = mTotalFrame;
-                    prefix = Constants.PROCESS_REMOTE_PREFIX;
-                }
-                int startIndex = ActivityWrapper.DOCUMENTS_FOLDER.length() + 1 + prefix.length();
-                                                                        // + 1 -> "/"
-                ////// Rename frame files
-                for (File file: files) {
-                    int fileIndex = Integer.parseInt(file.getAbsolutePath().substring(startIndex,
-                            file.getAbsolutePath().lastIndexOf('.')));
-
-                    // Rename frame file from local%d.rgba to local%04d.rgba (needed to sort files correctly)
-                    file.renameTo(new File(ActivityWrapper.DOCUMENTS_FOLDER + "/" + prefix +
-                            String.format("%04d", fileIndex) + Constants.PROCESS_RGBA_EXTENSION));
-
-                    ++mProceedFrame;
-                }
-            }
-        }).start();
-    }
     public void mergeFrameFiles() {
 
         mProceedFrame = 0;
@@ -166,7 +114,7 @@ public class Video extends BufferRequest {
                 mTotalFrame = files.length;
                 Arrays.sort(files); // Sort frame files
 
-                ////// Rename frame files according removed frame files
+                ////// Rename & remove frame files according files removal above
                 int removed = 0, frameCount = 0;
                 for (File file: files) {
 
@@ -184,6 +132,7 @@ public class Video extends BufferRequest {
                     ++mProceedFrame;
                 }
                 mFrameCount = (frameCount - removed);
+
             }
         }).start();
     }
@@ -329,22 +278,6 @@ public class Video extends BufferRequest {
                         Logs.add(Logs.Type.F, "Failed to save anaglyph frame file: " +
                                 syncFile.getAbsolutePath());
                     }
-
-
-
-
-
-
-
-
-                    // Rename from local0000.rgba -> local0.rgba
-
-
-
-
-
-
-
                 }
 
                 ////// Remove remaining frame files

@@ -64,8 +64,7 @@ public final class Constants {
     public static final String PROCESS_REMOTE_PREFIX = "remote";
     public static final String PROCESS_RGBA_EXTENSION = ".rgba";
 
-    public static final String PROCESS_LOCAL_FRAMES_FILENAME = "/" + PROCESS_LOCAL_PREFIX + "%d" + PROCESS_RGBA_EXTENSION;
-    public static final String PROCESS_REMOTE_FRAMES_FILENAME = "/" + PROCESS_REMOTE_PREFIX + "%d" + PROCESS_RGBA_EXTENSION;
-    // NOTE: Cannot use '%04d' coz the 'multifile' GStreamer plugin only works with '%d' format on Android !!!
+    public static final String PROCESS_LOCAL_FRAMES_FILENAME = "/" + PROCESS_LOCAL_PREFIX + "%04d" + PROCESS_RGBA_EXTENSION;
+    public static final String PROCESS_REMOTE_FRAMES_FILENAME = "/" + PROCESS_REMOTE_PREFIX + "%04d" + PROCESS_RGBA_EXTENSION;
 
 }
