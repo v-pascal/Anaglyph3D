@@ -321,20 +321,21 @@ public class Video extends BufferRequest {
     }
 
     //////
-    private static final String AUDIO_WAV_FILENAME = "/audio.wav";
-
     public static boolean extractFramesRGBA(String file, Frame.Orientation orientation, String frames) {
 
         return ProcessThread.mGStreamer.launch("filesrc location=\"" + file + "\" ! decodebin" +
                         " ! videoflip method=" + orientation.getFlipMethod() + " ! videoconvert" +
                         " ! video/x-raw,format=RGBA ! multifilesink location=\"" + frames + "\"");
     }
+
+    private static final String AUDIO_WAV_FILENAME = "/audio.wav";
     public static boolean extractAudio(String file) {
 
         return ProcessThread.mGStreamer.launch("filesrc location=\"" + file + "\" ! decodebin" +
                 " ! audioconvert ! wavenc ! filesink location=\"" + ActivityWrapper.DOCUMENTS_FOLDER +
                 AUDIO_WAV_FILENAME + "\"");
     }
+
     public static boolean makeAnaglyphVideo(boolean jpegStep, int frameCount, String files) {
 
         int frameWidth = Settings.getInstance().getResolutionWidth();
@@ -354,6 +355,7 @@ public class Video extends BufferRequest {
                     " location=\"" + ActivityWrapper.DOCUMENTS_FOLDER + AUDIO_WAV_FILENAME +
                     "\" ! decodebin ! audioconvert ! vorbisenc ! queue ! mux.audio_0");
     }
+
     public static boolean sendFile(String file) {
         try {
 

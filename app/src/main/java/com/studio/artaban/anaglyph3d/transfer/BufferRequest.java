@@ -1,8 +1,6 @@
 package com.studio.artaban.anaglyph3d.transfer;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
@@ -46,32 +44,11 @@ public abstract class BufferRequest implements ConnectRequest {
         }
     }
 
-
-
-
-
-
-
-
-
-    //@Override public final short getMaxWaitReply(byte type) { return Constants.CONN_MAXWAIT_DEFAULT; }
-    @Override public final short getMaxWaitReply(byte type) { return 500; }
-
-
-
-
-
-
-
-
-
-
+    @Override public final short getMaxWaitReply(byte type) { return Constants.CONN_MAXWAIT_DEFAULT; }
 
     @Override
     public final ReceiveResult receiveReply(byte type, String reply) {
-
-        send(); // Send buffer
-        return ReceiveResult.SUCCESS;
+        return (send())? ReceiveResult.SUCCESS:ReceiveResult.ERROR;
     }
     @Override
     public final ReceiveResult receiveBuffer(ByteArrayOutputStream buffer) {
@@ -106,76 +83,45 @@ public abstract class BufferRequest implements ConnectRequest {
     private byte[] mBuffer = new byte[1]; // Must be defined (see 'getBufferSize' method)
     private int mTransferSize = 0;
 
-    private void send() { // Send buffer
+    private boolean send() { // Send buffer...
 
         mTransferSize = 0;
 
+        try {
+            ActivityWrapper.get().runOnUiThread(new Runnable() { // ...via UI thread
+                @Override
+                public void run() {
 
+                    int waitEvery = 0;
+                    for (int sent = 0; sent < mBuffer.length; sent += Bluetooth.MAX_SEND_BUFFER) {
+                        int send = ((sent + Bluetooth.MAX_SEND_BUFFER) < mBuffer.length) ?
+                                Bluetooth.MAX_SEND_BUFFER : mBuffer.length - sent;
 
+                        // Send buffer packet
+                        if (!Connectivity.getInstance().send(mBuffer, sent, send)) {
 
-
-        ActivityWrapper.get().runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-
-                int waitEvery = 0;
-                for (int sent = 0; sent < mBuffer.length; sent += Bluetooth.MAX_SEND_BUFFER) {
-                    int send = ((sent + Bluetooth.MAX_SEND_BUFFER) < mBuffer.length) ?
-                            Bluetooth.MAX_SEND_BUFFER : mBuffer.length - sent;
-
-                    // Send buffer packet
-                    if (!Connectivity.getInstance().send(mBuffer, sent, send)) {
-
-                        Logs.add(Logs.Type.E, "Failed to send buffer packet");
-                        break;
-                    }
-                    mTransferSize += send;
-
-                    if (++waitEvery == 25) { // Wait 50 ms every 25 packets sent
-                        try { Thread.sleep(50, 0); }
-                        catch (InterruptedException e) {
-                            Logs.add(Logs.Type.W, e.getMessage());
+                            Logs.add(Logs.Type.E, "Failed to send buffer packet");
+                            break;
                         }
-                        waitEvery = 0;
+                        mTransferSize += send;
+
+                        if (++waitEvery == 25) { // Wait 50 ms every 25 packets sent
+                            try { Thread.sleep(50, 0); }
+                            catch (InterruptedException e) {
+                                Logs.add(Logs.Type.W, e.getMessage());
+                            }
+                            waitEvery = 0;
+                        }
                     }
                 }
-            }
-        });
+            });
+            return true;
+        }
+        catch (NullPointerException e) {
 
-
-
-        /*
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-
-                int waitEvery = 0;
-                for (int sent = 0; sent < mBuffer.length; sent += Bluetooth.MAX_SEND_BUFFER) {
-                    int send = ((sent + Bluetooth.MAX_SEND_BUFFER) < mBuffer.length) ?
-                            Bluetooth.MAX_SEND_BUFFER : mBuffer.length - sent;
-
-                    // Send buffer packet
-                    if (!Connectivity.getInstance().send(mBuffer, sent, send)) {
-
-                        Logs.add(Logs.Type.E, "Failed to send buffer packet");
-                        break;
-                    }
-                    mTransferSize += send;
-
-                    if (++waitEvery == 25) { // Wait 50 ms every 25 packets sent
-                        try {
-                            Thread.sleep(50, 0);
-                        } catch (InterruptedException e) {
-                            Logs.add(Logs.Type.W, e.getMessage());
-                        }
-                        waitEvery = 0;
-                    }
-                }
-            }
-        }, 500);
-        */
+            Logs.add(Logs.Type.F, "Wrong activity reference");
+            return false;
+        }
     }
 
     //

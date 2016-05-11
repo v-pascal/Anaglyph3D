@@ -542,37 +542,6 @@ public class Connectivity {
                             if (mMaxWait-- == 0) {
 
                                 Logs.add(Logs.Type.E, "The time limit to receive buffer has expired");
-
-
-
-
-
-
-
-
-
-
-
-
-                                switch (mRequestBuffer.handler.getRequestId()) {
-                                    case ConnectRequest.REQ_FRAME:
-                                        Frame frame = (Frame)mRequestBuffer.handler;
-                                        Logs.add(Logs.Type.E, frame.getTransferSize() + " / " + frame.getBufferSize());
-                                        break;
-                                    case ConnectRequest.REQ_VIDEO:
-                                        Video video = (Video)mRequestBuffer.handler;
-                                        Logs.add(Logs.Type.E, video.getTransferSize() + " / " + video.getBufferSize());
-                                        break;
-                                }
-
-
-
-
-
-
-
-
-
                                 mDisconnectError = true;
                                 close();
                             }
