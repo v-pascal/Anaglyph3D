@@ -278,13 +278,17 @@ public class Video extends BufferRequest {
                         bmpContrastRemote = remoteBitmap;
                     }
 
-                    // Merge frame buffer (according position)
-                    if (!Settings.getInstance().mPosition) { // Swap local & remote bitmap frame
+                    // Merge frame buffer (according camera position)
+                    if (Settings.getInstance().mPosition) { // Here is code to apply anaglyph color!
 
+                        // Swap local & remote bitmap frame
                         Bitmap swap = bmpContrastLocal;
                         bmpContrastLocal = bmpContrastRemote;
                         bmpContrastRemote = swap;
                     }
+                    // - Left camera will be blue
+                    // - Right camera will be red
+
                     for (int height = 0; height < frameHeight; ++height) {
                         for (int width = 0; width < frameWidth; ++width) {
 

@@ -361,35 +361,12 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
     }
 
     @Override public void onBackPressed() { onCancel(); }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.contrast, menu);
-        return true;
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+        if (item.getItemId() == android.R.id.home) {
 
-            case android.R.id.home:
-                onCancel();
-                return true;
-
-            case R.id.action_contrast:
-
-
-
-
-
-
-
-
-
-
-
-
-                return true;
+            onCancel();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }

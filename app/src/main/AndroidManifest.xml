@@ -76,11 +76,11 @@
         <activity
             android:name=".process.configure.ContrastActivity"
             android:label="@string/title_activity_contrast"
-            android:theme="@style/Theme.AppCompat"/>
+            android:theme="@style/Theme.AppCompat" />
         <activity
             android:name=".process.configure.SynchroActivity"
             android:label="@string/title_activity_synchro"
-            android:theme="@style/Theme.AppCompat"/>
+            android:theme="@style/Theme.AppCompat" />
     </application>
 
 </manifest>
