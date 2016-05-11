@@ -16,6 +16,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
@@ -360,12 +361,35 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
     }
 
     @Override public void onBackPressed() { onCancel(); }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.contrast, menu);
+        return true;
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
+        switch (item.getItemId()) {
 
-            onCancel();
-            return true;
+            case android.R.id.home:
+                onCancel();
+                return true;
+
+            case R.id.action_contrast:
+
+
+
+
+
+
+
+
+
+
+
+
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }

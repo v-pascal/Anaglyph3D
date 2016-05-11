@@ -217,6 +217,7 @@ public class CameraView extends SurfaceView
         //mMediaRecorder.setVideoFrameRate(Settings.getInstance().mFps);
         // BUG: Not working! Start recording failed if defined.
 
+        mMediaRecorder.setVideoEncodingBitRate(3000000);
         mMediaRecorder.setOutputFile(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_LOCAL_VIDEO);
 
         try { mMediaRecorder.prepare(); }

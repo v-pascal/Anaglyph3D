@@ -51,7 +51,11 @@ public class Settings implements ConnectRequest {
     public boolean isMaster() { return mMaster; }
     public boolean isMaker() { return mMaker; }
     public String getRemoteDevice() { // Return remote device name
-        return mRemoteDevice.substring(0, mRemoteDevice.indexOf(Constants.BLUETOOTH_DEVICES_SEPARATOR));
+
+        if (mRemoteDevice != null)
+            return mRemoteDevice.substring(0, mRemoteDevice.indexOf(Constants.BLUETOOTH_DEVICES_SEPARATOR));
+
+        return null;
     }
     public String[] getResolutions() {
 

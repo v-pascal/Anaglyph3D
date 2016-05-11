@@ -50,6 +50,7 @@
     <string name="title_activity_contrast">Contraste &amp; luminosité</string>
     <string name="title_activity_synchro">Synchronisation (optionnel)</string>
     <string name="ask_skip_step">Etes-vous sûr de vouloir passer cette étape?</string>
+    <string name="menu_contrast">Contraste</string>
 
     <!-- Process error -->
     <string name="error_start_recording">ERREUR: Enregistrement vidéo impossible! Ce média est en cours d\'utilisation. Redémarrer votre périphérique pour fixer ce problème.</string>

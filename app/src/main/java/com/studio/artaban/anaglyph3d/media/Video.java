@@ -96,7 +96,6 @@ public class Video extends BufferRequest {
                     @Override
                     public boolean accept(File dir, String filename) {
 
-                        // BUG: Only +[0-9] regex is not matching! Not greedy by default !?! See below...
                         if (filename.matches("^" + Constants.PROCESS_REMOTE_PREFIX + "+[0-9]*[0-9]\\" +
                                 Constants.PROCESS_RGBA_EXTENSION + "$"))
                             return true;
