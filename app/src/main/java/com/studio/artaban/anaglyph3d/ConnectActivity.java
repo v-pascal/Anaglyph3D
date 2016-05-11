@@ -1,5 +1,6 @@
 package com.studio.artaban.anaglyph3d;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
@@ -76,34 +77,31 @@ public class ConnectActivity extends AppCompatActivity {
         // Add and set app bar
         final Toolbar appBar = (Toolbar)findViewById(R.id.appBar);
         setSupportActionBar(appBar);
-        if (appBar != null) {
-            if (Build.VERSION.SDK_INT >= 21) {
-                appBar.setBackgroundColor(Color.BLACK);
-                getWindow().setNavigationBarColor(Color.BLACK);
-                getWindow().setStatusBarColor(Color.BLACK);
-            }
-            else // Default status bar color (API < 21)
-                appBar.setBackgroundColor(Color.argb(255, 30, 30, 30));
+        assert appBar != null;
+        if (Build.VERSION.SDK_INT >= 21) {
+            appBar.setBackgroundColor(Color.BLACK);
+            getWindow().setNavigationBarColor(Color.BLACK);
+            getWindow().setStatusBarColor(Color.BLACK);
         }
+        else // Default status bar color (API < 21)
+            appBar.setBackgroundColor(Color.argb(255, 30, 30, 30));
 
         // Add toolbar image menu click listener
         final ImageView albumMenu = (ImageView)findViewById(R.id.album_menu);
-        if (albumMenu != null) {
-            albumMenu.setOnClickListener(new View.OnClickListener() {
+        assert albumMenu != null;
+        albumMenu.setOnClickListener(new View.OnClickListener() {
 
-                @Override
-                public void onClick(View v) {
+            @Override
+            public void onClick(View v) {
 
-                    // Stop connectivity (do not attempt to connect when video album is displayed)
-                    Connectivity.getInstance().stop();
+                // Stop connectivity (do not attempt to connect when video album is displayed)
+                Connectivity.getInstance().stop();
 
-                    // Display album activity
-                    Intent intent = new Intent(getApplicationContext(), VideoListActivity.class);
-                    intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, false);
-                    startActivityForResult(intent, 0);
-                }
-            });
-        }
+                // Display album activity
+                Intent intent = new Intent(getApplicationContext(), VideoListActivity.class);
+                startActivityForResult(intent, 0);
+            }
+        });
 
         // Start connectivity
         if (!Connectivity.getInstance().start(this)) {

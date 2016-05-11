@@ -139,7 +139,6 @@ public class ActivityWrapper implements ConnectRequest {
         return ReceiveResult.ERROR; // Unexpected call
     }
 
-
     //////
     private static WeakReference<Activity> mCurActivity; // Activity reference
 

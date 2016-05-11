@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity
                 // Display album activity
                 Intent intent = new Intent(this, VideoListActivity.class);
                 intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, true);
+
                 startActivityForResult(intent, 0);
                 break;
             }
@@ -173,19 +174,18 @@ public class MainActivity extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if (toolbar != null) {
-            if (Build.VERSION.SDK_INT >= 21) {
-                toolbar.setBackgroundColor(Color.BLACK);
-                getWindow().setNavigationBarColor(Color.BLACK);
-                getWindow().setStatusBarColor(Color.BLACK);
-            }
-            else // Default status bar color (API < 21)
-                toolbar.setBackgroundColor(Color.argb(255, 30, 30, 30));
+        assert toolbar != null;
+        if (Build.VERSION.SDK_INT >= 21) {
+            toolbar.setBackgroundColor(Color.BLACK);
+            getWindow().setNavigationBarColor(Color.BLACK);
+            getWindow().setStatusBarColor(Color.BLACK);
         }
+        else // Default status bar color (API < 21)
+            toolbar.setBackgroundColor(Color.argb(255, 30, 30, 30));
 
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        if (fab != null)
-            fab.setOnClickListener(this);
+        assert fab != null;
+        fab.setOnClickListener(this);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer != null) {
@@ -250,20 +250,12 @@ public class MainActivity extends AppCompatActivity
             }
             case Constants.RESULT_DISPLAY_ALBUM: {
 
+                // Display album activity to add the new video into the album
+                Intent intent = new Intent(this, VideoListActivity.class);
+                intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, true);
+                intent.putExtra(Constants.DATA_NEW_VIDEO, true);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+                startActivityForResult(intent, 0);
                 break;
             }
         }

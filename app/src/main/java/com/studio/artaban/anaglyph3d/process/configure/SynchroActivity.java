@@ -187,6 +187,8 @@ public class SynchroActivity extends AppCompatActivity {
         Bundle data = getIntent().getExtras().getBundle(Constants.DATA_ACTIVITY);
         if (data != null)
             mFrameCount = data.getInt(DATA_KEY_FRAME_COUNT) - FRAME_REMAINING;
+        else
+            Logs.add(Logs.Type.F, "No frame count defined");
 
         // Position slide info images
         final ImageView leftSlide = (ImageView)findViewById(R.id.left_scroll);
@@ -197,6 +199,7 @@ public class SynchroActivity extends AppCompatActivity {
         // Position frame image to compare
         mCompareImage = (ImageView)findViewById(R.id.frame_compare);
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_apply);
+        assert fab != null;
         LayoutParams params = (LayoutParams)mCompareImage.getLayoutParams();
         int margin = ((CoordinatorLayout.LayoutParams)fab.getLayoutParams()).rightMargin;
 

@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.dummy.DummyContent;
+import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 
 import java.util.List;
 
@@ -44,16 +45,47 @@ public class VideoListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_list);
 
+        // Set current activity
+        ActivityWrapper.set(this);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if (Build.VERSION.SDK_INT >= 21) {
-            toolbar.setBackgroundColor(Color.BLACK);
-            getWindow().setNavigationBarColor(Color.BLACK);
-            getWindow().setStatusBarColor(Color.BLACK);
+        if (toolbar != null) {
+
+            if (Build.VERSION.SDK_INT >= 21) {
+                toolbar.setBackgroundColor(Color.BLACK);
+                getWindow().setNavigationBarColor(Color.BLACK);
+                getWindow().setStatusBarColor(Color.BLACK);
+            }
+            else
+                toolbar.setBackgroundColor(Color.argb(255,30,30,30)); // Default status bar color (API < 21)
+
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
-        else
-            toolbar.setBackgroundColor(Color.argb(255,30,30,30)); // Default status bar color (API < 21)
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // Load video album (DB)
+
+
+
+
+
+
+        // Check if new entry is requested
+        if (getIntent().getBooleanExtra(Constants.DATA_NEW_VIDEO, false)) {
+
+            // Add new video into the album
+
+
+
+
+        }
+
+
+
+
+
+
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -63,6 +95,12 @@ public class VideoListActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+
+
+
+
+
 
         View recyclerView = findViewById(R.id.video_list);
         assert recyclerView != null;
@@ -78,7 +116,7 @@ public class VideoListActivity extends AppCompatActivity {
 
         // Check connection
         if (!getIntent().getBooleanExtra(Constants.DATA_CONNECTION_ESTABLISHED, false))
-            setResult(Constants.RESULT_RESTART_CONNECTION); // Should restart connection (not connected)
+            setResult(Constants.RESULT_RESTART_CONNECTION); // Must restart connection (not connected)
     }
 
     @Override

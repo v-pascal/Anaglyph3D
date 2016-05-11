@@ -251,7 +251,6 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
 
         ActionBar appBar = getSupportActionBar();
         if (appBar != null) {
-
             if (Build.VERSION.SDK_INT >= 21) {
                 getWindow().setNavigationBarColor(Color.BLACK);
                 getWindow().setStatusBarColor(Color.BLACK);

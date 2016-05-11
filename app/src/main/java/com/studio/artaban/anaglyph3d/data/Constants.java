@@ -16,8 +16,10 @@ public final class Constants {
     public static final int RESULT_RESTART_CONNECTION = 302; // Active connect activity result
     public static final int RESULT_DISPLAY_ALBUM = 303; // Display album with current 3D video result
 
+    // Data keys
     public static final String DATA_ACTIVITY = "data"; // Bundle activity data key
     public static final String DATA_CONNECTION_ESTABLISHED = "connected"; // Connection flag key
+    public static final String DATA_NEW_VIDEO = "newVideo"; // Add new video entry into album
 
 
     ////// Connectivity
