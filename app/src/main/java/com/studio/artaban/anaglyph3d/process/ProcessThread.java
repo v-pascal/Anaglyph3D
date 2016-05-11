@@ -277,7 +277,6 @@ public class ProcessThread extends Thread {
     public void run() {
 
         Logs.add(Logs.Type.V, "Process thread started");
-        int frameCount = 0;
         boolean local = true; // To define which picture/video to process (local or remote)
                               // ...and more
         while (!mAbort) {
@@ -486,7 +485,6 @@ public class ProcessThread extends Thread {
                             data.local = mLocalFrame;
                             data.offset = mSynchroOffset;
                             data.localSync = mLocalSync;
-                            data.count = frameCount;
 
                             Video.getInstance().convertFrames(data);
                             mStatus = Status.FRAMES_CONVERSION;
@@ -606,8 +604,8 @@ public class ProcessThread extends Thread {
 
                         // Load synchronization activity ///////////////////////////////////
                         Bundle data = new Bundle();
-                        frameCount = Video.getInstance().getFrameCount();
-                        data.putInt(SynchroActivity.DATA_KEY_FRAME_COUNT, frameCount);
+                        data.putInt(SynchroActivity.DATA_KEY_FRAME_COUNT,
+                                Video.getInstance().getFrameCount());
 
                         ActivityWrapper.startActivity(SynchroActivity.class, data,
                                 Constants.PROCESS_REQUEST_SYNCHRO);
@@ -668,7 +666,7 @@ public class ProcessThread extends Thread {
                 case MAKE_3D_VIDEO: {
 
                     publishProgress(0, 1);
-                    if (!Video.makeAnaglyphVideo(local, frameCount - mSynchroOffset,
+                    if (!Video.makeAnaglyphVideo(local, Video.getInstance().getFrameCount(),
                             ActivityWrapper.DOCUMENTS_FOLDER + ((mLocalSync)?
                             Constants.PROCESS_LOCAL_FRAMES:
                             Constants.PROCESS_REMOTE_FRAMES))) {

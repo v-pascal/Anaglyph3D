@@ -115,16 +115,17 @@ public class Video extends BufferRequest {
 
                 ////// Remove the too many frames from video with bigger FPS
                 final String prefix;
-                int toRemove;
+                float deleteLag = 1f; // Used to know which frame file to delete
                 if (localCount > remoteCount) {
-                    toRemove = localCount / ((localCount - remoteCount) + 1);
+                    deleteLag -= remoteCount / (float)localCount;
                     prefix = Constants.PROCESS_LOCAL_PREFIX;
+                    mFrameCount = remoteCount;
                 }
                 else {
-                    toRemove = remoteCount / ((remoteCount - localCount) + 1);
+                    deleteLag -= localCount / (float)remoteCount;
                     prefix = Constants.PROCESS_REMOTE_PREFIX;
+                    mFrameCount = localCount;
                 }
-                ++toRemove; // Avoid to remove the last frame file (do not remove one file more)
 
                 frames = new File(ActivityWrapper.DOCUMENTS_FOLDER);
                 files = frames.listFiles(new FilenameFilter() {
@@ -143,11 +144,12 @@ public class Video extends BufferRequest {
                 Arrays.sort(files); // Sort frame files
 
                 ////// Rename & remove frame files according files removal above
+                float deleteFlag = 0f;
                 int removed = 0, frameCount = 0;
                 for (File file: files) {
 
                     ++frameCount;
-                    if ((frameCount % toRemove) == 0) {
+                    if ((int)deleteFlag > removed) {
 
                         file.delete(); // Remove file
                         ++removed;
@@ -157,10 +159,9 @@ public class Video extends BufferRequest {
                                 String.format("%04d", frameCount - removed - 1) +
                                 Constants.PROCESS_RGBA_EXTENSION));
 
+                    deleteFlag += deleteLag;
                     ++mProceedFrame;
                 }
-                mFrameCount = (frameCount - removed);
-
             }
         }).start();
     }
@@ -174,7 +175,6 @@ public class Video extends BufferRequest {
         public short offset; // Configured synchronization
         public boolean localSync; // Flag to define on which frames to apply synchronization
 
-        public int count; // Frames count
     }
     public void convertFrames(final ConvertData data) {
 
@@ -186,15 +186,15 @@ public class Video extends BufferRequest {
             public void run() {
 
                 // Define progress bounds
-                mTotalFrame = data.count + 1; // + 1 -> for removing files step (last operation)
+                mTotalFrame = mFrameCount + 1; // + 1 -> for removing files step (last operation)
 
                 ////// Rename frame files to apply synchronization (if needed)
                 if (data.offset > 0) {
-                    mTotalFrame += data.count - data.offset;
+                    mTotalFrame += mFrameCount - data.offset;
 
                     String framePath = ActivityWrapper.DOCUMENTS_FOLDER + "/" + ((data.localSync)?
                             Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX);
-                    for (int i = 0; i < data.count; ++i) {
+                    for (int i = 0; i < mFrameCount; ++i) {
 
                         File frame = new File(framePath + String.format("%04d", i) +
                                 Constants.PROCESS_RGBA_EXTENSION);
@@ -207,8 +207,8 @@ public class Video extends BufferRequest {
                         ++mProceedFrame;
                     }
 
-                    // Apply conversion to synchronized frames only
-                    data.count -= data.offset;
+                    // Apply conversion to synchronized frames
+                    mFrameCount -= data.offset;
                 }
 
                 ////// Apply conversion on frame files
@@ -225,7 +225,7 @@ public class Video extends BufferRequest {
                         (data.contrast < ContrastActivity.DEFAULT_CONTRAST); // ...compare float values
 
                 byte[] buffer = new byte[localBitmap.getByteCount()];
-                for (int i = 0; i < data.count; ++i) {
+                for (int i = 0; i < mFrameCount; ++i) {
 
                     ++mProceedFrame;
                     String fileIndex = String.format("%04d", i);
