@@ -145,10 +145,9 @@ public class ConnectActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
 
-        // Set current activity
-        ActivityWrapper.set(this);
+        super.onActivityResult(requestCode, resultCode, data);
+        ActivityWrapper.set(this); // Set current activity
 
         if (requestCode != 0) {
             Logs.add(Logs.Type.F, "Unexpected request code");

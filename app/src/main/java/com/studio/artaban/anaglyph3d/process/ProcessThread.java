@@ -90,7 +90,8 @@ public class ProcessThread extends Thread {
         MAKE_3D_VIDEO (R.string.status_make_anaglyph), // Make the anaglyph 3D video
         TRANSFER_3D_VIDEO (R.string.status_transfer_anaglyph), // Transfer 3D video (to remote device which is not the maker)
         WAIT_3D_VIDEO (R.string.status_wait_anaglyph), // Wait 3D video received
-        SAVE_3D_VIDEO (R.string.status_save_anaglyph);
+        SAVE_3D_VIDEO (R.string.status_save_anaglyph),
+        TERMINATION (Constants.NO_DATA);
 
         //
         private final int stringId;
@@ -235,6 +236,7 @@ public class ProcessThread extends Thread {
                     }
 
                     // Heavy process or undefined duration process
+                    case SAVE_3D_VIDEO:
                     case WAIT_3D_VIDEO:
                     case MAKE_3D_VIDEO:
 
@@ -515,6 +517,7 @@ public class ProcessThread extends Thread {
                     }
                     break;
                 }
+                case SAVE_3D_VIDEO:
                 case SAVE_VIDEO: {
 
                     sleep();
@@ -524,7 +527,8 @@ public class ProcessThread extends Thread {
                     try {
                         byte[] raw = Video.getInstance().getBuffer();
                         File videoFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
-                                Storage.FILENAME_REMOTE_VIDEO);
+                                (mStatus == Status.SAVE_VIDEO)?
+                                Storage.FILENAME_REMOTE_VIDEO:Storage.FILENAME_3D_VIDEO);
 
                         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(videoFile));
                         bos.write(raw);
@@ -532,11 +536,12 @@ public class ProcessThread extends Thread {
                         bos.close();
 
                         local = true;
-                        mStatus = Status.EXTRACT_FRAMES_LEFT;
+                        mStatus = (mStatus == Status.SAVE_VIDEO)?
+                                Status.EXTRACT_FRAMES_LEFT:Status.TERMINATION;
                     }
                     catch (IOException e) {
 
-                        Logs.add(Logs.Type.E, "Failed to save remote video");
+                        Logs.add(Logs.Type.E, "Failed to save remote/3D video");
                         mAbort = true;
 
                         // Inform user
@@ -730,28 +735,15 @@ public class ProcessThread extends Thread {
                             Video.getInstance().getBufferSize());
 
                     //////
-                    if (Video.getInstance().getTransferSize() == Video.getInstance().getBufferSize()) {
+                    if (Video.getInstance().getTransferSize() == Video.getInstance().getBufferSize())
+                        mStatus = (Settings.getInstance().isMaker())? Status.TERMINATION:Status.SAVE_3D_VIDEO;
+                    break;
+                }
+                case TERMINATION: {
 
-
-
-
-
-
-
-
-                        // !Maker
-                        // mStatus = Status.SAVE_3D_VIDEO;
-
-
-
-
-
-
-
-
-
-
-                    }
+                    // Finish process activity with a display album command result
+                    ActivityWrapper.stopActivity(ProcessActivity.class, Constants.RESULT_DISPLAY_ALBUM);
+                    mAbort = true;
                     break;
                 }
             }
