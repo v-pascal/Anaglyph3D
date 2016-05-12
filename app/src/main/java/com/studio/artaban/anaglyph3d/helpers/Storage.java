@@ -10,7 +10,7 @@ import java.io.FilenameFilter;
 
 /**
  * Created by pascal on 09/05/16.
- * Storage helpers
+ * Storage helper
  */
 public final class Storage {
 

@@ -63,13 +63,6 @@ public class VideoListActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        // Load video album (DB)
-
-
-
-
-
-
         // Check if new entry is requested
         if (getIntent().getBooleanExtra(Constants.DATA_NEW_VIDEO, false)) {
 

@@ -741,7 +741,34 @@ public class ProcessThread extends Thread {
                 }
                 case TERMINATION: {
 
-                    // Finish process activity with a display album command as result (to add the video)
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    // Add video into Album DB
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    // Finish process activity with a display album command as result
                     ActivityWrapper.stopActivity(ProcessActivity.class, Constants.RESULT_DISPLAY_ALBUM);
                     mAbort = true;
                     break;
