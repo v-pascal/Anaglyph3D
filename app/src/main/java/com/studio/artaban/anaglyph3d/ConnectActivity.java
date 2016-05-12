@@ -14,17 +14,19 @@ import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 import java.io.File;
 
-public class ConnectActivity extends AppCompatActivity {
+public class ConnectActivity extends AppCompatActivity implements View.OnClickListener {
 
     private void setDeviceAnimation(boolean right) {
 
@@ -89,19 +91,7 @@ public class ConnectActivity extends AppCompatActivity {
         // Add toolbar image menu click listener
         final ImageView albumMenu = (ImageView)findViewById(R.id.album_menu);
         assert albumMenu != null;
-        albumMenu.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-
-                // Stop connectivity (do not attempt to connect when video album is displayed)
-                Connectivity.getInstance().stop();
-
-                // Display album activity
-                Intent intent = new Intent(getApplicationContext(), VideoListActivity.class);
-                startActivityForResult(intent, 0);
-            }
-        });
+        albumMenu.setOnClickListener(this);
 
         // Start connectivity
         if (!Connectivity.getInstance().start(this)) {
@@ -151,11 +141,20 @@ public class ConnectActivity extends AppCompatActivity {
             Logs.add(Logs.Type.F, "Unexpected request code");
             return;
         }
-        if (resultCode == Constants.RESULT_RESTART_CONNECTION)
-            Connectivity.getInstance().start(this); // Restart connectivity
-
-        else if (resultCode == Constants.RESULT_QUIT_APPLICATION)
-            finish(); // Quit application
+        switch (resultCode) {
+            case Constants.RESULT_RESTART_CONNECTION: {
+                Connectivity.getInstance().start(this); // Restart connectivity
+                break;
+            }
+            case Constants.RESULT_QUIT_APPLICATION: {
+                finish(); // Quit application
+                break;
+            }
+            case Constants.RESULT_NO_VIDEO: {
+                DisplayMessage.getInstance().toast(R.string.no_video, Toast.LENGTH_LONG);
+                break;
+            }
+        }
     }
 
     @Override
@@ -163,5 +162,16 @@ public class ConnectActivity extends AppCompatActivity {
         super.onDestroy();
         Connectivity.getInstance().destroy();
         Storage.removeTempFiles();
+    }
+
+    @Override
+    public void onClick(View v) { // Album menu
+
+        // Stop connectivity (do not attempt to connect when video album is displayed)
+        Connectivity.getInstance().stop();
+
+        // Display album activity
+        Intent intent = new Intent(this, VideoListActivity.class);
+        startActivityForResult(intent, 0);
     }
 }

@@ -21,6 +21,7 @@ import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.dummy.DummyContent;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.helpers.Database;
 
 import java.util.List;
 
@@ -34,12 +35,25 @@ import java.util.List;
  */
 public class VideoListActivity extends AppCompatActivity {
 
+    private Database mDB;
+
+
+
+    /////////////////////////////////////////
+
+
     /**
      * Whether or not the activity is in two-pane mode, i.e. running on a tablet
      * device.
      */
     private boolean mTwoPane;
 
+
+
+
+
+
+    //////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,6 +77,10 @@ public class VideoListActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
+        // Open database
+        mDB = new Database(this);
+        mDB.open(true);
+
         // Check if new entry is requested
         if (getIntent().getBooleanExtra(Constants.DATA_NEW_VIDEO, false)) {
 
@@ -72,6 +90,8 @@ public class VideoListActivity extends AppCompatActivity {
 
 
         }
+        else if (mDB.getAlbum())
+            setResult(Constants.RESULT_NO_VIDEO);
 
 
 
@@ -110,6 +130,12 @@ public class VideoListActivity extends AppCompatActivity {
         // Check connection
         if (!getIntent().getBooleanExtra(Constants.DATA_CONNECTION_ESTABLISHED, false))
             setResult(Constants.RESULT_RESTART_CONNECTION); // Must restart connection (not connected)
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mDB.close();
     }
 
     @Override

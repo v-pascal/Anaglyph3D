@@ -4,54 +4,23 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
-import java.util.List;
-
 /**
  * Created by pascal on 12/05/16.
- * Class of the album DB table
+ * Class of the album Database table
  */
-public class AlbumDB implements TableDB {
+public class AlbumTable {
 
     public static class Video { // Album entry: Video
 
-        private String mID;
-        private String mTitle;
-        private String mDescription;
-        private short mDuration;
+        public String id;
+        public String title;
+        public String description;
+        public short duration;
 
-        private double mLatitude;
-        private double mLongitude;
+        public double latitude;
+        public double longitude;
 
-        private String mPicturePath;
-
-
-
-
-
-
-    }
-
-    //
-    @Override
-    public List<Object> getEntries(SQLiteDatabase db) {
-
-
-
-
-
-
-        return null;
-    }
-    @Override
-    public Object getEntry(Object... keys) {
-
-
-
-
-
-
-
-        return null;
+        public String picturePath;
     }
 
     //////

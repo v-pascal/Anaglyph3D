@@ -15,6 +15,7 @@ public final class Constants {
     public static final int RESULT_LOST_CONNECTION = 301; // Connection lost result
     public static final int RESULT_RESTART_CONNECTION = 302; // Active connect activity result
     public static final int RESULT_DISPLAY_ALBUM = 303; // Display album with current 3D video result
+    public static final int RESULT_NO_VIDEO = 304; // No video result
 
     // Data keys
     public static final String DATA_ACTIVITY = "data"; // Bundle activity data key
