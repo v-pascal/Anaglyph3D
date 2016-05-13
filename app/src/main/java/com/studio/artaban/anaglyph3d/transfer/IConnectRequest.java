@@ -8,7 +8,7 @@ import java.io.ByteArrayOutputStream;
  * Created by pascal on 24/03/16.
  * Connection request interface
  */
-public interface ConnectRequest {
+public interface IConnectRequest {
 
     ////// Request IDs
     char REQ_NONE = ' '; // Unknown request

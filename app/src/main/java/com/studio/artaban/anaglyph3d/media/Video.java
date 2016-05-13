@@ -11,7 +11,7 @@ import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.process.ProcessThread;
 import com.studio.artaban.anaglyph3d.process.configure.ContrastActivity;
 import com.studio.artaban.anaglyph3d.transfer.BufferRequest;
-import com.studio.artaban.anaglyph3d.transfer.ConnectRequest;
+import com.studio.artaban.anaglyph3d.transfer.IConnectRequest;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 import org.json.JSONObject;
@@ -32,7 +32,7 @@ public class Video extends BufferRequest {
 
     private static Video ourInstance = new Video();
     public static Video getInstance() { return ourInstance; }
-    private Video() { super(ConnectRequest.REQ_VIDEO); }
+    private Video() { super(IConnectRequest.REQ_VIDEO); }
 
     //////
     @Override

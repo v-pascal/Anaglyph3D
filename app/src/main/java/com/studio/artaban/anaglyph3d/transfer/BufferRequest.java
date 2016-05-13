@@ -15,7 +15,7 @@ import java.io.ByteArrayOutputStream;
  * Created by pascal on 26/04/16.
  * Abstract class to manage buffer transfer
  */
-public abstract class BufferRequest implements ConnectRequest {
+public abstract class BufferRequest implements IConnectRequest {
 
     private char mRequestId;
     public BufferRequest(char id) { mRequestId = id; }

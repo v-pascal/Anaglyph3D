@@ -16,7 +16,7 @@ import com.studio.artaban.anaglyph3d.media.Frame;
 import com.studio.artaban.anaglyph3d.media.Video;
 import com.studio.artaban.anaglyph3d.process.configure.ContrastActivity;
 import com.studio.artaban.anaglyph3d.process.configure.SynchroActivity;
-import com.studio.artaban.anaglyph3d.transfer.ConnectRequest;
+import com.studio.artaban.anaglyph3d.transfer.IConnectRequest;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 import com.studio.artaban.libGST.GstObject;
 
@@ -145,9 +145,9 @@ public class ProcessThread extends Thread {
 
         return mTransfer;
     }
-    private static class ContrastTransfer implements ConnectRequest {
+    private static class ContrastTransfer implements IConnectRequest {
 
-        @Override public char getRequestId() { return ConnectRequest.REQ_PROCESS; }
+        @Override public char getRequestId() { return IConnectRequest.REQ_PROCESS; }
         @Override public boolean getRequestMerge() { return false; }
         @Override public BufferType getRequestBuffer(byte type) { return BufferType.NONE; }
         @Override public short getMaxWaitReply(byte type) { return Constants.CONN_MAXWAIT_DEFAULT; }

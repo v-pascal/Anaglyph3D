@@ -6,7 +6,7 @@ import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.process.ProcessThread;
 import com.studio.artaban.anaglyph3d.transfer.BufferRequest;
-import com.studio.artaban.anaglyph3d.transfer.ConnectRequest;
+import com.studio.artaban.anaglyph3d.transfer.IConnectRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,7 +19,7 @@ public class Frame extends BufferRequest {
 
     private static Frame ourInstance = new Frame();
     public static Frame getInstance() { return ourInstance; }
-    private Frame() { super(ConnectRequest.REQ_FRAME); }
+    private Frame() { super(IConnectRequest.REQ_FRAME); }
 
     // Data keys
     public static final String DATA_KEY_WIDTH = "width";

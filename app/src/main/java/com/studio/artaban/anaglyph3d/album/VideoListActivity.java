@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.data.AlbumTable;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.dummy.DummyContent;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
@@ -90,10 +91,15 @@ public class VideoListActivity extends AppCompatActivity {
 
 
         }
-        else if (mDB.getAlbum())
+
+        // Check if at least one video is in the album
+        List<AlbumTable.Video> videos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
+        if (videos == null) {
+
             setResult(Constants.RESULT_NO_VIDEO);
-
-
+            finish();
+            return;
+        }
 
 
 
@@ -115,9 +121,9 @@ public class VideoListActivity extends AppCompatActivity {
 
 
 
-        View recyclerView = findViewById(R.id.video_list);
+        RecyclerView recyclerView = (RecyclerView)findViewById(R.id.video_list);
         assert recyclerView != null;
-        setupRecyclerView((RecyclerView) recyclerView);
+        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(DummyContent.ITEMS));
 
         if (findViewById(R.id.video_detail_container) != null) {
             // The detail container view will be present only in the
@@ -146,10 +152,6 @@ public class VideoListActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(DummyContent.ITEMS));
     }
 
     public class SimpleItemRecyclerViewAdapter

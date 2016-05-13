@@ -12,7 +12,7 @@ import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
-import com.studio.artaban.anaglyph3d.transfer.ConnectRequest;
+import com.studio.artaban.anaglyph3d.transfer.IConnectRequest;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 import org.json.JSONArray;
@@ -26,7 +26,7 @@ import java.util.ArrayList;
  * Created by pascal on 23/03/16.
  * Application settings
  */
-public class Settings implements ConnectRequest {
+public class Settings implements IConnectRequest {
 
     private static Settings ourInstance = new Settings();
     public static Settings getInstance() { return ourInstance; }
@@ -165,7 +165,7 @@ public class Settings implements ConnectRequest {
     }
 
     //////
-    @Override public char getRequestId() { return ConnectRequest.REQ_SETTINGS; }
+    @Override public char getRequestId() { return IConnectRequest.REQ_SETTINGS; }
     @Override public boolean getRequestMerge() { return true; }
     @Override public BufferType getRequestBuffer(byte type) { return BufferType.NONE; }
 
@@ -324,7 +324,7 @@ public class Settings implements ConnectRequest {
             ////// Request received while waiting reply
             //
             // Get previous master request type (if any)
-            byte previousType = (previous != null && previous.mId == ConnectRequest.REQ_SETTINGS)?
+            byte previousType = (previous != null && previous.mId == IConnectRequest.REQ_SETTINGS)?
                     previous.mType:0;
             // -> Should not update settings from a pending request sent by a slave device if a master
             //    request has already updated them (see 'previousType' checks below)

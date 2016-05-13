@@ -9,7 +9,7 @@ import com.studio.artaban.anaglyph3d.MainActivity;
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.process.ProcessActivity;
-import com.studio.artaban.anaglyph3d.transfer.ConnectRequest;
+import com.studio.artaban.anaglyph3d.transfer.IConnectRequest;
 
 import java.io.ByteArrayOutputStream;
 import java.lang.ref.WeakReference;
@@ -19,7 +19,7 @@ import java.lang.ref.WeakReference;
  * Static class containing current activity
  * and that manages activity status & command connectivity request
  */
-public class ActivityWrapper implements ConnectRequest {
+public class ActivityWrapper implements IConnectRequest {
 
     private static ActivityWrapper ourInstance = new ActivityWrapper();
     public static ActivityWrapper getInstance() { return ourInstance; }
@@ -51,7 +51,7 @@ public class ActivityWrapper implements ConnectRequest {
     }
 
     //
-    @Override public char getRequestId() { return ConnectRequest.REQ_ACTIVITY; }
+    @Override public char getRequestId() { return IConnectRequest.REQ_ACTIVITY; }
     @Override public boolean getRequestMerge() { return false; }
     @Override public BufferType getRequestBuffer(byte type) { return BufferType.NONE; }
 

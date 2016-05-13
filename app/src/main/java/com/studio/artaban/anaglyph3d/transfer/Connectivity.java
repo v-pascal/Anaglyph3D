@@ -15,7 +15,7 @@ import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.media.Frame;
 import com.studio.artaban.anaglyph3d.media.Video;
 import com.studio.artaban.anaglyph3d.process.ProcessThread;
-import com.studio.artaban.anaglyph3d.transfer.ConnectRequest.ReceiveResult;
+import com.studio.artaban.anaglyph3d.transfer.IConnectRequest.ReceiveResult;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -36,16 +36,16 @@ public class Connectivity {
     private Connectivity() { }
 
     //////
-    private ConnectRequest getHandlerInstance(char requestId) {
+    private IConnectRequest getHandlerInstance(char requestId) {
 
         switch (requestId) {
             ////////////////////////////////////////////////////////////// Add request handler below
 
-            case ConnectRequest.REQ_SETTINGS: return Settings.getInstance();
-            case ConnectRequest.REQ_ACTIVITY: return ActivityWrapper.getInstance();
-            case ConnectRequest.REQ_FRAME: return Frame.getInstance();
-            case ConnectRequest.REQ_VIDEO: return Video.getInstance();
-            case ConnectRequest.REQ_PROCESS: return ProcessThread.getInstance();
+            case IConnectRequest.REQ_SETTINGS: return Settings.getInstance();
+            case IConnectRequest.REQ_ACTIVITY: return ActivityWrapper.getInstance();
+            case IConnectRequest.REQ_FRAME: return Frame.getInstance();
+            case IConnectRequest.REQ_VIDEO: return Video.getInstance();
+            case IConnectRequest.REQ_PROCESS: return ProcessThread.getInstance();
 
             ////////////////////////////////////////////////////////////////////////////////////////
             default:
@@ -84,7 +84,7 @@ public class Connectivity {
 
     private class TransferElement {
 
-        public ConnectRequest handler;
+        public IConnectRequest handler;
         public byte type;
         public String message;
     }
@@ -92,7 +92,7 @@ public class Connectivity {
     private TransferElement mRequestBuffer;
 
     //
-    public boolean addRequest(ConnectRequest handler, byte type, Bundle data) {
+    public boolean addRequest(IConnectRequest handler, byte type, Bundle data) {
 
         if (!isConnected())
             return false;
@@ -153,10 +153,10 @@ public class Connectivity {
     private boolean processRequest(String request) {
 
         ////// Request received while waiting reply
-        ConnectRequest.PreviousMaster previousRequest = null;
+        IConnectRequest.PreviousMaster previousRequest = null;
         if ((Settings.getInstance().isMaster()) && (mPendingRequest != null)) {
 
-            previousRequest = new ConnectRequest.PreviousMaster();
+            previousRequest = new IConnectRequest.PreviousMaster();
             synchronized (mRequests) {
                 previousRequest.mId = mRequests.get(0).handler.getRequestId();
                 previousRequest.mType = mRequests.get(0).type;
@@ -187,7 +187,7 @@ public class Connectivity {
 
         // Check if a buffer will be or has been sent to the remote device (without sending this reply)
         // -> See buffer send in the 'getReply' method of the handler
-        if (reply.handler.getRequestBuffer(reply.type) == ConnectRequest.BufferType.TO_SEND)
+        if (reply.handler.getRequestBuffer(reply.type) == IConnectRequest.BufferType.TO_SEND)
             return true; // Nothing to do
 
         ////// Send reply
@@ -199,7 +199,7 @@ public class Connectivity {
         }
 
         // Check if a buffer will be sent by the remote device (after having received this reply)
-        if (reply.handler.getRequestBuffer(reply.type) == ConnectRequest.BufferType.TO_RECEIVE) {
+        if (reply.handler.getRequestBuffer(reply.type) == IConnectRequest.BufferType.TO_RECEIVE) {
 
             mRequestBuffer = reply; // Store buffer request
             mStatus = Status.WAIT_BUFFER;
@@ -465,7 +465,7 @@ public class Connectivity {
                         // Assign wait status according if a buffer will be sent from the remote device
                         // -> Buffer sent as a reply of this request
                         if ((mRequests.get(0).handler.getRequestBuffer(mRequests.get(0).type) ==
-                                ConnectRequest.BufferType.TO_SEND)) { // Request the remote to send buffer
+                                IConnectRequest.BufferType.TO_SEND)) { // Request the remote to send buffer
 
                             // ...will receive buffer
                             mRequestBuffer = mRequests.get(0); // Store buffer request
