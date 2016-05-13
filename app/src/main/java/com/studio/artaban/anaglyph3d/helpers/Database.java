@@ -54,7 +54,7 @@ public class Database extends SQLiteOpenHelper {
     public boolean update(String table, Object data) {
         return (isWritable() && isTableExist(table) && mTableMap.get(table).update(mDatabase, data));
     }
-    public int delete(String table, int[] keys) {
+    public int delete(String table, long[] keys) {
         return (isWritable() && isTableExist(table))?
                 mTableMap.get(table).delete(mDatabase, keys):Constants.NO_DATA;
     }

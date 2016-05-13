@@ -9,6 +9,7 @@ public final class Constants {
     public static final int NO_DATA = -1; // No value (integer)
     public static final short FAB_SIZE_DPI = 56; // Floating Actionbar Button size (in dpi)
     public static final int LARGE_SCREEN_HEIGHT = 480; // Height a screen considered as large (in pixel)
+    public static final String DATABASE_DATE_FORMAT = "yyyy-MM-dd hh:mm:ss.000"; // SQLite date format
 
     ////// Activity
     public static final int RESULT_QUIT_APPLICATION = 300; // Quit application requested result

@@ -1,11 +1,14 @@
 package com.studio.artaban.anaglyph3d.data;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -15,33 +18,34 @@ import java.util.List;
  */
 public class AlbumTable implements IDataTable {
 
-    public static class Video { // Album entry: Video
+    public static class Video extends DataField { // Album entry: Video
 
-        private long id;
+        private static final short FIELD_COUNT = 6;
 
+        //
         private String title;
-        private boolean _title = false;
         public void setTitle(String title) {
+
             this.title = title;
-            _title = true;
+            mUpdated[COLUMN_INDEX_TITLE] = true;
         }
         private String description;
-        private boolean _description = false;
         public void setDescription(String description) {
+
             this.description = description;
-            _description = true;
+            mUpdated[COLUMN_INDEX_DESCRIPTION] = true;
         }
         private Date date;
         private short duration;
         private double latitude;
         private double longitude;
 
-        //
-        public Video(long id) { this.id = id; }
+        //////
+        public Video(long id) { super(FIELD_COUNT, id); }
         public Video(long id, String title, String description, Date date, short duration,
                      double latitude, double longitude) {
 
-            this.id = id;
+            super(FIELD_COUNT, id);
 
             this.title = title;
             this.description = description;
@@ -57,7 +61,7 @@ public class AlbumTable implements IDataTable {
     public int insert(SQLiteDatabase db, Object[] data) {
 
         int insertCount = 0;
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.000");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
         for (Video video: (Video[])data) {
 
             ContentValues values = new ContentValues();
@@ -78,16 +82,20 @@ public class AlbumTable implements IDataTable {
 
         ContentValues values = new ContentValues();
         Video video = (Video)data;
-        if (video._title)
+        if (video.mUpdated[COLUMN_INDEX_TITLE])
             values.put(COLUMN_TITLE, video.title);
-        if (video._description)
+        if (video.mUpdated[COLUMN_INDEX_DESCRIPTION])
             values.put(COLUMN_DESCRIPTION, video.description);
 
-        return (db.update(TABLE_NAME, values, IDataTable.COLUMN_ID + "=?",
+        return (db.update(TABLE_NAME, values, DataField.COLUMN_ID + "=?",
                 new String[] { String.valueOf(video.id) }) == 1);
     }
     @Override
-    public int delete(SQLiteDatabase db, int[] keys) {
+    public int delete(SQLiteDatabase db, long[] keys) {
+
+
+
+
 
 
 
@@ -105,17 +113,33 @@ public class AlbumTable implements IDataTable {
     @Override
     public <T> List<T> getAllEntries(SQLiteDatabase db) {
 
+        Cursor cursor = db.query(TABLE_NAME, null, null, null, null, COLUMN_DATE, null);
+        List<Video> videos = new ArrayList<>();
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT.substring(0,
+                    Constants.DATABASE_DATE_FORMAT.length() - 4));
 
+            while (cursor.moveToNext()) {
+                String dateField = cursor.getString(COLUMN_INDEX_DATE);
+                videos.add(new Video(
+                        cursor.getLong(DataField.COLUMN_INDEX_ID), // _id
 
-
-
-
-
-
-
-
-
-        return null;
+                        cursor.getString(COLUMN_INDEX_TITLE), // Title
+                        cursor.getString(COLUMN_INDEX_DESCRIPTION), // Description
+                        dateFormat.parse(dateField.substring(0, dateField.length() - 4)), // Date
+                        cursor.getShort(COLUMN_INDEX_DURATION), // Duration
+                        cursor.getDouble(COLUMN_INDEX_LATITUDE), // Latitude
+                        cursor.getDouble(COLUMN_INDEX_LONGITUDE) // Longitude
+                ));
+            }
+        }
+        catch (ParseException e) {
+            Logs.add(Logs.Type.E, e.getMessage());
+        }
+        finally {
+            cursor.close();
+        }
+        return (List<T>)videos;
     }
 
     //////
@@ -129,13 +153,22 @@ public class AlbumTable implements IDataTable {
     private static final String COLUMN_LATITUDE = "latitude";
     private static final String COLUMN_LONGITUDE = "longitude";
 
+    // Columns index
+    private static final short COLUMN_INDEX_TITLE = 1; // DataField.COLUMN_INDEX_ID + 1
+    private static final short COLUMN_INDEX_DESCRIPTION = 2;
+    private static final short COLUMN_INDEX_DATE = 3;
+    private static final short COLUMN_INDEX_DURATION = 4;
+    private static final short COLUMN_INDEX_LATITUDE = 5;
+    private static final short COLUMN_INDEX_LONGITUDE = 6;
+
     private AlbumTable() { }
     public static AlbumTable newInstance() { return new AlbumTable(); }
 
     public static void create(SQLiteDatabase db) {
 
         db.execSQL("CREATE TABLE " + TABLE_NAME + " (" +
-                IDataTable.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                DataField.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+
                 COLUMN_TITLE + " TEXT," +
                 COLUMN_DESCRIPTION + " TEXT," +
                 COLUMN_DATE + " TEXT NOT NULL," +
