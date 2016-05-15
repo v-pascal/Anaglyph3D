@@ -18,7 +18,15 @@ import java.util.Map;
  */
 public class Database extends SQLiteOpenHelper {
 
-    public IDataTable getTable(String name) { return mTableMap.get(name); }
+    private static final String NAME = "anaglyph.db"; // Database name
+    public static final int VERSION = 1; // Database version
+
+    protected SQLiteDatabase mDatabase;
+
+    protected static Map<String, IDataTable> mTableMap = new HashMap<>();
+    static {
+        mTableMap.put(AlbumTable.TABLE_NAME, AlbumTable.newInstance());
+    }
 
     //////
     private boolean isReady() {
@@ -47,6 +55,7 @@ public class Database extends SQLiteOpenHelper {
     }
 
     //
+    public IDataTable getTable(String name) { return mTableMap.get(name); }
     public int insert(String table, Object[] data) {
         return (isWritable() && isTableExist(table))?
                 mTableMap.get(table).insert(mDatabase, data):Constants.NO_DATA;
@@ -67,27 +76,20 @@ public class Database extends SQLiteOpenHelper {
     }
 
     //////
-    private static final String NAME = "anaglyph.db"; // Database name
-    public static final int VERSION = 1; // Database version
-
-    protected SQLiteDatabase mDatabase;
-
-    protected static Map<String, IDataTable> mTableMap = new HashMap<>();
-    static {
-        mTableMap.put(AlbumTable.TABLE_NAME, AlbumTable.newInstance());
-    }
-
-    //
     public Database(Context context) { super(context, NAME, null, VERSION); }
     public void open(boolean write) {
         mDatabase = (write)? getWritableDatabase():getReadableDatabase();
     }
 
     //////
-    @Override public void onCreate(SQLiteDatabase db) { AlbumTable.create(db); }
+    @Override public void onCreate(SQLiteDatabase db) {
+        for (IDataTable table: mTableMap.values())
+            table.create(db);
+    }
     @Override public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
         Logs.add(Logs.Type.W, "Upgrading DB from " + oldVersion + " to " + newVersion);
-        AlbumTable.upgrade(db);
+        for (IDataTable table: mTableMap.values())
+            table.upgrade(db);
     }
 }

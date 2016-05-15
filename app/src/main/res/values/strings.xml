@@ -130,6 +130,7 @@
     <string name="error_make_video">Failed to make the anaglyph 3D video!</string>
     <string name="error_load_anaglyph">Failed to load 3D anaglyph video!</string>
     <string name="error_storage_available">Not enough storage memory space available! With current settings the next memory size is needed:</string>
+    <string name="error_convert_thumbnail">Failed to convert picture to display the video thumbnail!</string>
 
     <!-- Process step -->
     <string name="step_contrast">Contrast &amp; brightness</string>
@@ -155,5 +156,6 @@
     <string name="status_make_anaglyph">Making anaglyph 3D video...</string>
     <string name="status_transfer_anaglyph">Transfer anaglyph 3D video</string>
     <string name="status_save_anaglyph">Saving anaglyph 3D video file...</string>
+    <string name="status_convert_thumbnail">Thumbnail picture conversion...</string>
 
 </resources>

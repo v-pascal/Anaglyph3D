@@ -111,4 +111,12 @@ public class Frame extends BufferRequest {
                 " ! videoflip method=" + orientation.getFlipMethod() + " ! videoconvert" +
                 " ! video/x-raw,format=RGBA ! filesink location=\"" + destination + "\"");
     }
+
+    public static boolean convertRGBAtoJPEG(String source, int width, int height, String destination) {
+
+        int size = (width * height) << 2; // RGBA buffer size
+        return ProcessThread.mGStreamer.launch("filesrc location=\"" + source + "\" blocksize=" + size +
+                " ! video/x-raw,format=RGBA,width=" + width + ",height=" + height + ",framerate=1/1" +
+                " ! videoconvert ! jpegenc ! filesink location=\"" + destination + "\"");
+    }
 }

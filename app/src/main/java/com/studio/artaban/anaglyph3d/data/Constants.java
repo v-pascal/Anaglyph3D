@@ -1,5 +1,7 @@
 package com.studio.artaban.anaglyph3d.data;
 
+import java.io.File;
+
 /**
  * Created by pascal on 21/03/16.
  * Application constants
@@ -11,6 +13,7 @@ public final class Constants {
     public static final int LARGE_SCREEN_HEIGHT = 480; // Height a screen considered as large (in pixel)
     public static final String DATABASE_DATE_FORMAT = "yyyy-MM-dd hh:mm:ss.000"; // SQLite date format
 
+
     ////// Activity
     public static final int RESULT_QUIT_APPLICATION = 300; // Quit application requested result
     public static final int RESULT_LOST_CONNECTION = 301; // Connection lost result
@@ -21,7 +24,6 @@ public final class Constants {
     // Data keys
     public static final String DATA_ACTIVITY = "data"; // Bundle activity data key
     public static final String DATA_CONNECTION_ESTABLISHED = "connected"; // Connection flag key
-    public static final String DATA_NEW_VIDEO = "newVideo"; // Add new video entry into album
 
 
     ////// Connectivity
@@ -65,11 +67,12 @@ public final class Constants {
     public static final short PROCESS_WAIT_TRANSFER = 500; // Progress loop sleep (in milliseconds)
     public static final short PROCESS_MAX_FPS = 15; // Maximum FPS expected (used to define storage space need)
 
+    public static final String PROCESS_RGBA_EXTENSION = ".rgba";
+    public static final String PROCESS_JPEG_EXTENSION = ".jpg";
+
     public static final String PROCESS_LOCAL_PREFIX = "local";
     public static final String PROCESS_REMOTE_PREFIX = "remote";
-    public static final String PROCESS_RGBA_EXTENSION = ".rgba";
-
-    public static final String PROCESS_LOCAL_FRAMES = "/" + PROCESS_LOCAL_PREFIX + "%04d" + PROCESS_RGBA_EXTENSION;
-    public static final String PROCESS_REMOTE_FRAMES = "/" + PROCESS_REMOTE_PREFIX + "%04d" + PROCESS_RGBA_EXTENSION;
+    public static final String PROCESS_LOCAL_FRAMES = File.separator + PROCESS_LOCAL_PREFIX + "%04d" + PROCESS_RGBA_EXTENSION;
+    public static final String PROCESS_REMOTE_FRAMES = File.separator + PROCESS_REMOTE_PREFIX + "%04d" + PROCESS_RGBA_EXTENSION;
 
 }

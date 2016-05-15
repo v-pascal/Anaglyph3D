@@ -14,13 +14,16 @@ import java.io.FilenameFilter;
  */
 public final class Storage {
 
-    public static final String FILENAME_RAW_PICTURE = "/raw.nv21"; // Raw NV21 file from preview camera
-    public static final String FILENAME_LOCAL_VIDEO = "/local.mp4"; // Local video file
-    public static final String FILENAME_REMOTE_VIDEO = "/remote.mp4"; // Remote video file
-    public static final String FILENAME_LOCAL_PICTURE = "/local.rgba"; // Local RGBA raw file
-    public static final String FILENAME_REMOTE_PICTURE = "/remote.rgba"; // Remote RGBA raw file
+    public static final String FILENAME_RAW_PICTURE = File.separator + "raw.nv21"; // Raw NV21 file from preview camera
+    public static final String FILENAME_LOCAL_VIDEO = File.separator + "local.mp4"; // Local video file
+    public static final String FILENAME_REMOTE_VIDEO = File.separator + "remote.mp4"; // Remote video file
+    public static final String FILENAME_LOCAL_PICTURE = File.separator + "local.rgba"; // Local RGBA raw file
+    public static final String FILENAME_REMOTE_PICTURE = File.separator + "remote.rgba"; // Remote RGBA raw file
 
-    public static final String FILENAME_3D_VIDEO = "/video.webm"; // Final anaglyph 3D video file
+    public static final String FILENAME_3D_VIDEO = File.separator + "video.webm"; // Final anaglyph 3D video file
+    public static final String FILENAME_THUMBNAIL_PICTURE = File.separator + "thumbnail.jpg"; // Thumbnail JPEG picture file
+
+    private static final String FOLDER_THUMBNAIL = File.separator + "Thumbnails";
 
     //////
     public static void removeTempFiles() { // Remove all temporary files from documents folder
@@ -67,5 +70,23 @@ public final class Storage {
 
         Logs.add(Logs.Type.W, "Not enough storage space available (" + need + "/" + available + ")");
         return need; // Bad: not enough memory space to process (return memory space need)
+    }
+
+    public static boolean saveThumbnail(String file) { // Rename and move thumbnail JPEG into appropriate folder
+
+        File thumbnailFolder = new File(ActivityWrapper.DOCUMENTS_FOLDER + FOLDER_THUMBNAIL);
+        if ((!thumbnailFolder.exists()) && (!thumbnailFolder.mkdir())) {
+
+            Logs.add(Logs.Type.E, "Failed to create thumbnails folder");
+            return false;
+        }
+        File thumbnailFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + FILENAME_THUMBNAIL_PICTURE);
+        if (!thumbnailFile.renameTo(new File(ActivityWrapper.DOCUMENTS_FOLDER + FOLDER_THUMBNAIL +
+                File.separator + file))) {
+
+            Logs.add(Logs.Type.E, "Failed to rename thumbnail picture file");
+            return false;
+        }
+        return true;
     }
 }

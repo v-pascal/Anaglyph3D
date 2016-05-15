@@ -36,4 +36,7 @@ public interface IDataTable {
 
     <T> List<T> getAllEntries(SQLiteDatabase db); // Return table entries into object list
 
+    //
+    void create(SQLiteDatabase db);
+    void upgrade(SQLiteDatabase db);
 }

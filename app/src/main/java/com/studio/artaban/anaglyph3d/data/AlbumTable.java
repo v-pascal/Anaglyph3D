@@ -39,6 +39,13 @@ public class AlbumTable implements IDataTable {
         private short duration;
         private double latitude;
         private double longitude;
+        public void setLocation(double latitude, double longitude) {
+
+            this.latitude = latitude;
+            this.longitude = longitude;
+            mUpdated[COLUMN_INDEX_LATITUDE] = true;
+            mUpdated[COLUMN_INDEX_LONGITUDE] = true;
+        }
 
         //////
         public Video(long id) { super(FIELD_COUNT, id); }
@@ -93,27 +100,22 @@ public class AlbumTable implements IDataTable {
     @Override
     public int delete(SQLiteDatabase db, long[] keys) {
 
+        int deleteCount = 0;
+        if (keys == null) // Remove all entries
+            deleteCount = db.delete(TABLE_NAME, "1", null);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-        return 0;
+        else {
+            for (long key: keys)
+                deleteCount += db.delete(TABLE_NAME, DataField.COLUMN_ID + "=?",
+                        new String[] { String.valueOf(key) });
+        }
+        return deleteCount;
     }
 
     @Override
     public <T> List<T> getAllEntries(SQLiteDatabase db) {
 
-        Cursor cursor = db.query(TABLE_NAME, null, null, null, null, COLUMN_DATE, null);
+        Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, COLUMN_DATE);
         List<Video> videos = new ArrayList<>();
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT.substring(0,
@@ -164,7 +166,8 @@ public class AlbumTable implements IDataTable {
     private AlbumTable() { }
     public static AlbumTable newInstance() { return new AlbumTable(); }
 
-    public static void create(SQLiteDatabase db) {
+    @Override
+    public void create(SQLiteDatabase db) {
 
         db.execSQL("CREATE TABLE " + TABLE_NAME + " (" +
                 DataField.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -177,7 +180,8 @@ public class AlbumTable implements IDataTable {
                 COLUMN_LONGITUDE + " REAL" +
                 ");");
     }
-    public static void upgrade(SQLiteDatabase db) {
+    @Override
+    public void upgrade(SQLiteDatabase db) {
 
         Logs.add(Logs.Type.W, "Upgrade 'Album' table: old data will be destroyed");
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);

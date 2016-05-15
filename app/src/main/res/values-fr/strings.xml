@@ -65,6 +65,7 @@
     <string name="error_make_video">Echec durant le montage de la vidéo 3D anaglyphe!</string>
     <string name="error_load_anaglyph">Impossible de charger la vidéo anaglyphe 3D!</string>
     <string name="error_storage_available">Mémoire de stockage insuffisante! Avec les paramètres actuels la taille mémoire suivante est nécessaire:</string>
+    <string name="error_convert_thumbnail">Echec durant la conversion de l\'image en vignette!</string>
 
     <!-- Process step -->
     <string name="step_contrast">Contraste &amp; luminosité</string>
@@ -90,5 +91,6 @@
     <string name="status_make_anaglyph">Montage de la vidéo 3D en cours...</string>
     <string name="status_transfer_anaglyph">Transfert de la vidéo 3D</string>
     <string name="status_save_anaglyph">Enregistrement de la vidéo 3D en cours...</string>
+    <string name="status_convert_thumbnail">Conversion de l\'image en vignette...</string>
 
 </resources>

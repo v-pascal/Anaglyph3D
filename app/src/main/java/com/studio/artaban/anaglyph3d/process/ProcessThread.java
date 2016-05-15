@@ -90,8 +90,8 @@ public class ProcessThread extends Thread {
         MAKE_3D_VIDEO (R.string.status_make_anaglyph), // Make the anaglyph 3D video
         TRANSFER_3D_VIDEO (R.string.status_transfer_anaglyph), // Transfer 3D video (to remote device which is not the maker)
         WAIT_3D_VIDEO (R.string.status_wait_anaglyph), // Wait 3D video received
-        SAVE_3D_VIDEO (R.string.status_save_anaglyph),
-        TERMINATION (Constants.NO_DATA);
+        SAVE_3D_VIDEO (R.string.status_save_anaglyph), // Save 3D video transferred file
+        TERMINATION (R.string.status_convert_thumbnail); // Convert raw local picture into JPEG (thumbnail)
 
         //
         private final int stringId;
@@ -236,6 +236,8 @@ public class ProcessThread extends Thread {
                     }
 
                     // Heavy process or undefined duration process
+                    case TERMINATION:
+
                     case SAVE_3D_VIDEO:
                     case WAIT_3D_VIDEO:
                     case MAKE_3D_VIDEO:
@@ -740,6 +742,32 @@ public class ProcessThread extends Thread {
                     break;
                 }
                 case TERMINATION: {
+
+                    sleep();
+                    publishProgress(0, 1);
+
+                    // Convert local RGBA to JPEG file
+                    if (!Frame.convertRGBAtoJPEG(ActivityWrapper.DOCUMENTS_FOLDER +
+                                    Storage.FILENAME_LOCAL_PICTURE,
+                            Settings.getInstance().getResolutionWidth(),
+                            Settings.getInstance().getResolutionHeight(),
+                            ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_THUMBNAIL_PICTURE)) {
+
+                        Logs.add(Logs.Type.E, "Failed to convert thumbnail picture");
+                        mAbort = true;
+
+                        // Inform user
+                        DisplayMessage.getInstance().alert(R.string.title_error,
+                                R.string.error_convert_thumbnail,
+                                null, false, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        ActivityWrapper.stopActivity(ProcessActivity.class,
+                                                Constants.NO_DATA);
+                                    }
+                                });
+                        break;
+                    }
 
                     // Finish process activity with a display album command as result
                     ActivityWrapper.stopActivity(ProcessActivity.class, Constants.RESULT_DISPLAY_ALBUM);

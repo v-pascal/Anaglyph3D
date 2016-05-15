@@ -60,7 +60,7 @@ public class SynchroActivity extends AppCompatActivity {
 
     private static Bitmap openBitmapFile(int position, boolean local) { // Return bitmap from RGBA file
 
-        File bmpFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + "/" + ((local)?
+        File bmpFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + File.separator + ((local)?
                         Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX) +
                 String.format("%04d", position) + Constants.PROCESS_RGBA_EXTENSION);
 

@@ -253,7 +253,7 @@ public class MainActivity extends AppCompatActivity
                 // Display album activity to add the new video into the album
                 Intent intent = new Intent(this, VideoListActivity.class);
                 intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, true);
-                intent.putExtra(Constants.DATA_NEW_VIDEO, true);
+                VideoListActivity.mAddVideo = true;
 
                 startActivityForResult(intent, 0);
                 break;

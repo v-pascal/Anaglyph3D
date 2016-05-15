@@ -155,7 +155,7 @@ public class Video extends BufferRequest {
                         ++removed;
                     }
                     else if (removed != 0) // Rename file in order to keep file index name valid
-                        file.renameTo(new File(ActivityWrapper.DOCUMENTS_FOLDER + "/" + prefix +
+                        file.renameTo(new File(ActivityWrapper.DOCUMENTS_FOLDER + File.separator + prefix +
                                 String.format("%04d", frameCount - removed - 1) +
                                 Constants.PROCESS_RGBA_EXTENSION));
 
@@ -192,7 +192,7 @@ public class Video extends BufferRequest {
                 if (data.offset > 0) {
                     mTotalFrame += mFrameCount - data.offset;
 
-                    String framePath = ActivityWrapper.DOCUMENTS_FOLDER + "/" + ((data.localSync)?
+                    String framePath = ActivityWrapper.DOCUMENTS_FOLDER + File.separator + ((data.localSync)?
                             Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX);
                     for (int i = 0; i < mFrameCount; ++i) {
 
@@ -231,7 +231,7 @@ public class Video extends BufferRequest {
                     String fileIndex = String.format("%04d", i);
 
                     // Get local frame buffer
-                    File localFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + "/" +
+                    File localFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + File.separator +
                             Constants.PROCESS_LOCAL_PREFIX + fileIndex + Constants.PROCESS_RGBA_EXTENSION);
                     try {
                         if (new FileInputStream(localFile).read(buffer) != buffer.length)
@@ -244,7 +244,7 @@ public class Video extends BufferRequest {
                     }
 
                     // Get remote frame buffer
-                    File remoteFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + "/" +
+                    File remoteFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + File.separator +
                             Constants.PROCESS_REMOTE_PREFIX + fileIndex + Constants.PROCESS_RGBA_EXTENSION);
                     try {
                         if (new FileInputStream(remoteFile).read(buffer) != buffer.length)
