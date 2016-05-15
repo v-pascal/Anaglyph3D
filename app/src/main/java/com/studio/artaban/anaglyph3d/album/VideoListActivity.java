@@ -26,6 +26,7 @@ import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.dummy.DummyContent;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Database;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -294,6 +295,8 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
         Location curlocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if ((curlocation != null) && (mNewVideo != null)) {
 
+            Logs.add(Logs.Type.I, "New video geolocation: " + curlocation.getLatitude() + " " +
+                    curlocation.getLongitude());
             mNewVideo.setLocation(curlocation.getLatitude(), curlocation.getLongitude());
             mDB.update(AlbumTable.TABLE_NAME, mNewVideo);
         }
