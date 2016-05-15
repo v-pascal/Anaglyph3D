@@ -1,16 +1,15 @@
 package com.studio.artaban.anaglyph3d.album;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 
 /**
  * An activity representing a single Video detail screen. This
@@ -24,23 +23,27 @@ public class VideoDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_detail);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
-        setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+        // Set current activity
+        ActivityWrapper.set(this);
+
+        ActionBar appBar = getSupportActionBar();
+        if (appBar != null) {
+            if (Build.VERSION.SDK_INT >= 21) {
+                getWindow().setNavigationBarColor(Color.BLACK);
+                getWindow().setStatusBarColor(Color.BLACK);
             }
-        });
+            else // Default status bar color (API < 21)
+                appBar.setBackgroundDrawable(getResources().getDrawable(R.color.api_16_black));
 
-        // Show the Up button in the action bar.
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
+            appBar.setDisplayHomeAsUpEnabled(true);
         }
+
+
+
+
+
+
 
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity
@@ -63,6 +66,12 @@ public class VideoDetailActivity extends AppCompatActivity {
                     .add(R.id.video_detail_container, fragment)
                     .commit();
         }
+
+
+
+
+
+
     }
 
     @Override

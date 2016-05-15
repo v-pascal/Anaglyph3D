@@ -1,17 +1,16 @@
 package com.studio.artaban.anaglyph3d.album;
 
 import android.app.Activity;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.studio.artaban.anaglyph3d.R;
-import com.studio.artaban.anaglyph3d.album.VideoDetailActivity;
-import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.dummy.DummyContent;
 
 /**
@@ -49,11 +48,28 @@ public class VideoDetailFragment extends Fragment {
             // to load content from a content provider.
             mItem = DummyContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
 
+
+
+
+
+
             Activity activity = this.getActivity();
+            ActionBar appBar = ((AppCompatActivity)activity).getSupportActionBar();
+            if (appBar != null)
+                appBar.setTitle("Undefined (June 21 '16 - 13:24)");
+
+            /*
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
             if (appBarLayout != null) {
                 appBarLayout.setTitle(mItem.content);
             }
+            */
+
+
+
+
+
+
         }
     }
 

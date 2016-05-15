@@ -7,11 +7,9 @@ import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,18 +20,13 @@ import com.google.android.gms.location.LocationServices;
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
 import com.studio.artaban.anaglyph3d.data.Constants;
-import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.dummy.DummyContent;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Database;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
-import com.studio.artaban.anaglyph3d.helpers.Storage;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -47,22 +40,15 @@ import java.util.List;
 public class VideoListActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks {
 
     public static boolean mAddVideo = false; // Flag to check new video creation request
-    private AlbumTable.Video mNewVideo;
+    private AlbumTable.Video mNewVideo; // New video (only when creation is requested)
 
     //////
     private Database mDB;
     private GoogleApiClient mGoogleApiClient;
 
+    private boolean mTwoPane; // Flag to know if displaying both panel: list & details
 
 
-    /////////////////////////////////////////
-
-
-    /**
-     * Whether or not the activity is in two-pane mode, i.e. running on a tablet
-     * device.
-     */
-    private boolean mTwoPane;
 
 
 
@@ -118,6 +104,31 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
                     }
                 }
             });
+
+
+
+
+            //ParseFile
+            //Glide.clear(holder.imageView);
+
+
+
+            /*
+            if (parseList.get(position).get("logo") != null) {
+                    ParseFile image = (ParseFile) parseList.get(position).get("logo");
+                    String url = image.getUrl();
+                    Glide.with(context)
+                            .load(url)
+                            .placeholder(R.drawable.piwo_48)
+                            .transform(new CircleTransform(context))
+                            .into(holder.imageView);
+                } else {
+                    // make sure Glide doesn't load anything into this view until told otherwise
+                    Glide.clear(holder.imageView);
+                    // remove the placeholder (optional); read comments below
+                    holder.imageView.setImageDrawable(null);
+                }
+                */
         }
 
         @Override
@@ -164,19 +175,17 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
         // Set current activity
         ActivityWrapper.set(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (toolbar != null) {
-
+        ActionBar appBar = getSupportActionBar();
+        if (appBar != null) {
             if (Build.VERSION.SDK_INT >= 21) {
-                toolbar.setBackgroundColor(Color.BLACK);
                 getWindow().setNavigationBarColor(Color.BLACK);
                 getWindow().setStatusBarColor(Color.BLACK);
             }
-            else
-                toolbar.setBackgroundColor(Color.argb(255,30,30,30)); // Default status bar color (API < 21)
+            else // Default status bar color (API < 21)
+                appBar.setBackgroundDrawable(getResources().getDrawable(R.color.api_16_black));
 
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            appBar.setDisplayHomeAsUpEnabled(true);
+            appBar.setTitle(R.string.nav_album);
         }
 
         // Prepare location using Google API
@@ -189,6 +198,7 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
         mDB = new Database(this);
         mDB.open(true);
 
+        /*
         // Check if new entry is requested
         if (mAddVideo) {
 
@@ -201,6 +211,15 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
             mNewVideo = new AlbumTable.Video(0, null, null, date, Settings.getInstance().mDuration,
                     0f, 0f);
 
+
+
+
+
+
+
+
+
+
             mAddVideo = false;
         }
 
@@ -212,6 +231,7 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
             finish();
             return;
         }
+        */
 
 
 
@@ -222,31 +242,23 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
 
 
 
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         RecyclerView recyclerView = (RecyclerView)findViewById(R.id.video_list);
         assert recyclerView != null;
         recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(DummyContent.ITEMS));
+        mTwoPane = findViewById(R.id.video_detail_container) != null;
 
-        if (findViewById(R.id.video_detail_container) != null) {
-            // The detail container view will be present only in the
-            // large-screen layouts (res/values-w900dp).
-            // If this view is present, then the
-            // activity should be in two-pane mode.
-            mTwoPane = true;
+
+
+
+
+
+        // Select new video detail (if any)
+        if (mNewVideo != null) {
+
+            //mTwoPane
+
         }
-
-
-
-
 
 
 
@@ -300,5 +312,30 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
             mNewVideo.setLocation(curlocation.getLatitude(), curlocation.getLongitude());
             mDB.update(AlbumTable.TABLE_NAME, mNewVideo);
         }
+
+
+
+
+
+
+
+
+
+        if (curlocation != null) {
+            Logs.add(Logs.Type.V, "New video geolocation: " + curlocation.getLatitude() + " " +
+                    curlocation.getLongitude());
+        }
+        else {
+            Logs.add(Logs.Type.E, "No geolocation");
+        }
+
+
+
+
+
+
+
+
+
     }
 }

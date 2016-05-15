@@ -1,11 +1,14 @@
 package com.studio.artaban.anaglyph3d.data;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -60,6 +63,12 @@ public class AlbumTable implements IDataTable {
             this.duration = duration;
             this.latitude = latitude;
             this.longitude = longitude;
+        }
+
+        //
+        public String toString(Context context) {
+            DateFormat dateFormat = new SimpleDateFormat(context.getString(R.string.title_detail_format));
+            return this.title + " (" + dateFormat.format(this.date) + ")";
         }
     }
 

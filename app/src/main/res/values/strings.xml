@@ -40,6 +40,16 @@
     <string name="image_desc_warning" translatable="false">Warning image</string>
     <string name="connection_error">ERROR: Data transfer error! Connection closed.</string>
 
+
+
+
+
+
+
+
+
+
+
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->
@@ -98,7 +108,16 @@
 
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="title_video_list">Videos</string>
-    <string name="title_video_detail">Video Detail</string>
+
+
+
+
+
+
+
+
+
+
     <string name="video_orientation">Video orientation</string>
     <string name="camera_position">Camera position</string>
     <string name="settings_updated">Settings updated:</string>
@@ -117,6 +136,10 @@
     <string name="ask_skip_step">Are you sure you want to skip this step?</string>
     <string name="menu_contrast">Contrast</string>
     <string name="no_video">The videos album is empty!</string>
+    <string name="title_detail_format">MMM d, \'yy - hh:mm</string>
+
+    <!-- Google API Services Key ID -->
+    <string name="google_app_id" translatable="false">AIzaSyCyHD2453o9bnLkYYBcqga0p09HIHfvsx8</string>
 
     <!-- Process error -->
     <string name="error_start_recording">ERROR: Unable to start recording! A media resource is in use. Restart your device to fix this.</string>

@@ -35,7 +35,6 @@
     <string name="connection_lost">ATTENTION: Connexion perdu!</string>
     <string name="video_album">Album vidéo</string>
     <string name="connection_error">ATTENTION: Erreur durant le transfert de données! Connexion fermé.</string>
-    <string name="pref_default_display_name"></string>
     <string name="video_orientation">Orientation de la video</string>
     <string name="camera_position">Position de la camera</string>
     <string name="settings_updated">Paramètre(s) mis à jour:</string>
@@ -52,6 +51,7 @@
     <string name="ask_skip_step">Etes-vous sûr de vouloir passer cette étape?</string>
     <string name="menu_contrast">Contraste</string>
     <string name="no_video">L\'album vidéo est vide!</string>
+    <string name="title_detail_format">d MMM yyyy - hh:mm</string>
 
     <!-- Process error -->
     <string name="error_start_recording">ERREUR: Enregistrement vidéo impossible! Ce média est en cours d\'utilisation. Redémarrer votre périphérique pour fixer ce problème.</string>

@@ -15,7 +15,8 @@
         android:largeScreens="true"
         android:xlargeScreens="true" />
 
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -58,12 +59,12 @@
         <activity
             android:name=".album.VideoListActivity"
             android:label="@string/nav_album"
-            android:theme="@style/Theme.AppCompat.NoActionBar" />
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.AppCompat" />
         <activity
             android:name=".album.VideoDetailActivity"
-            android:label="@string/title_video_detail"
             android:parentActivityName=".album.VideoListActivity"
-            android:theme="@style/Theme.AppCompat.NoActionBar">
+            android:theme="@style/Theme.AppCompat">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".album.VideoListActivity" />
