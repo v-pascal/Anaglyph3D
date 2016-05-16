@@ -108,9 +108,7 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
 
 
 
-            //ParseFile
-            //Glide.clear(holder.imageView);
-
+            //Picasso pic;
 
 
             /*
@@ -129,6 +127,9 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
                     holder.imageView.setImageDrawable(null);
                 }
                 */
+
+
+
         }
 
         @Override
@@ -213,6 +214,12 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
 
 
 
+
+
+            //getIntent().getBundleExtra DATA_ACTIVITY -> Frame.DATA_KEY_WIDTH
+            //getIntent().getBundleExtra DATA_ACTIVITY -> Frame.DATA_KEY_HEIGHT
+
+            //assign id to mNewVideo!
 
 
 

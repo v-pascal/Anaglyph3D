@@ -19,7 +19,10 @@ import java.util.Map;
 public class Database extends SQLiteOpenHelper {
 
     private static final String NAME = "anaglyph.db"; // Database name
-    public static final int VERSION = 1; // Database version
+    public static final int VERSION = 2; // Database version
+    // Versions:
+    // 1 - Original
+    // 2 - Thumbnail resolution added
 
     protected SQLiteDatabase mDatabase;
 

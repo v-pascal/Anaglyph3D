@@ -24,6 +24,7 @@ import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
+import com.studio.artaban.anaglyph3d.media.Frame;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 public class MainActivity extends AppCompatActivity
@@ -69,7 +70,7 @@ public class MainActivity extends AppCompatActivity
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 ActivityWrapper.stopActivity(MainActivity.class,
-                                        Constants.RESULT_QUIT_APPLICATION);
+                                        Constants.RESULT_QUIT_APPLICATION, null);
                             }
                         });
                 break;
@@ -252,6 +253,7 @@ public class MainActivity extends AppCompatActivity
 
                 // Display album activity to add the new video into the album
                 Intent intent = new Intent(this, VideoListActivity.class);
+                intent.putExtra(Constants.DATA_ACTIVITY, data.getBundleExtra(Constants.DATA_ACTIVITY));
                 intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, true);
                 VideoListActivity.mAddVideo = true;
 

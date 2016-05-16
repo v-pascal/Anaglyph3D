@@ -23,7 +23,7 @@ public class AlbumTable implements IDataTable {
 
     public static class Video extends DataField { // Album entry: Video
 
-        private static final short FIELD_COUNT = 6;
+        private static final short FIELD_COUNT = 8;
 
         //
         private String title;
@@ -49,11 +49,13 @@ public class AlbumTable implements IDataTable {
             mUpdated[COLUMN_INDEX_LATITUDE] = true;
             mUpdated[COLUMN_INDEX_LONGITUDE] = true;
         }
+        private int thumbnailWidth;
+        private int thumbnailHeight;
 
         //////
         public Video(long id) { super(FIELD_COUNT, id); }
         public Video(long id, String title, String description, Date date, short duration,
-                     double latitude, double longitude) {
+                     double latitude, double longitude, int thumbnailWidth, int thumbnailHeight) {
 
             super(FIELD_COUNT, id);
 
@@ -63,6 +65,8 @@ public class AlbumTable implements IDataTable {
             this.duration = duration;
             this.latitude = latitude;
             this.longitude = longitude;
+            this.thumbnailWidth = thumbnailWidth;
+            this.thumbnailHeight = thumbnailHeight;
         }
 
         //
@@ -87,6 +91,8 @@ public class AlbumTable implements IDataTable {
             values.put(COLUMN_DURATION, video.duration);
             values.put(COLUMN_LATITUDE, video.latitude);
             values.put(COLUMN_LONGITUDE, video.longitude);
+            values.put(COLUMN_THUMBNAIL_WIDTH, video.thumbnailWidth);
+            values.put(COLUMN_THUMBNAIL_HEIGHT, video.thumbnailHeight);
 
             if (db.insert(TABLE_NAME, null, values) != Constants.NO_DATA)
                 ++insertCount;
@@ -102,6 +108,10 @@ public class AlbumTable implements IDataTable {
             values.put(COLUMN_TITLE, video.title);
         if (video.mUpdated[COLUMN_INDEX_DESCRIPTION])
             values.put(COLUMN_DESCRIPTION, video.description);
+        if (video.mUpdated[COLUMN_INDEX_LATITUDE] || video.mUpdated[COLUMN_INDEX_LONGITUDE]) {
+            values.put(COLUMN_LATITUDE, video.latitude);
+            values.put(COLUMN_LONGITUDE, video.longitude);
+        }
 
         return (db.update(TABLE_NAME, values, DataField.COLUMN_ID + "=?",
                 new String[] { String.valueOf(video.id) }) == 1);
@@ -140,7 +150,9 @@ public class AlbumTable implements IDataTable {
                         dateFormat.parse(dateField.substring(0, dateField.length() - 4)), // Date
                         cursor.getShort(COLUMN_INDEX_DURATION), // Duration
                         cursor.getDouble(COLUMN_INDEX_LATITUDE), // Latitude
-                        cursor.getDouble(COLUMN_INDEX_LONGITUDE) // Longitude
+                        cursor.getDouble(COLUMN_INDEX_LONGITUDE), // Longitude
+                        cursor.getShort(COLUMN_INDEX_THUMBNAIL_WIDTH), // Thumbnail width
+                        cursor.getShort(COLUMN_INDEX_THUMBNAIL_HEIGHT) // Thumbnail height
                 ));
             }
         }
@@ -163,6 +175,8 @@ public class AlbumTable implements IDataTable {
     private static final String COLUMN_DURATION = "duration";
     private static final String COLUMN_LATITUDE = "latitude";
     private static final String COLUMN_LONGITUDE = "longitude";
+    private static final String COLUMN_THUMBNAIL_WIDTH = "thumbnailWidth";
+    private static final String COLUMN_THUMBNAIL_HEIGHT = "thumbnailHeight";
 
     // Columns index
     private static final short COLUMN_INDEX_TITLE = 1; // DataField.COLUMN_INDEX_ID + 1
@@ -171,6 +185,8 @@ public class AlbumTable implements IDataTable {
     private static final short COLUMN_INDEX_DURATION = 4;
     private static final short COLUMN_INDEX_LATITUDE = 5;
     private static final short COLUMN_INDEX_LONGITUDE = 6;
+    private static final short COLUMN_INDEX_THUMBNAIL_WIDTH = 7;
+    private static final short COLUMN_INDEX_THUMBNAIL_HEIGHT = 8;
 
     private AlbumTable() { }
     public static AlbumTable newInstance() { return new AlbumTable(); }
@@ -186,7 +202,9 @@ public class AlbumTable implements IDataTable {
                 COLUMN_DATE + " TEXT NOT NULL," +
                 COLUMN_DURATION + " INTEGER NOT NULL," +
                 COLUMN_LATITUDE + " REAL," +
-                COLUMN_LONGITUDE + " REAL" +
+                COLUMN_LONGITUDE + " REAL," +
+                COLUMN_THUMBNAIL_WIDTH + " INTEGER NOT NULL," +
+                COLUMN_THUMBNAIL_HEIGHT + " INTEGER NOT NULL" +
                 ");");
     }
     @Override

@@ -381,7 +381,7 @@ public class ProcessThread extends Thread {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         ActivityWrapper.stopActivity(ProcessActivity.class,
-                                                Constants.NO_DATA);
+                                                Constants.NO_DATA, null);
                                     }
                                 });
                     }
@@ -413,7 +413,7 @@ public class ProcessThread extends Thread {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         ActivityWrapper.stopActivity(ProcessActivity.class,
-                                                Constants.NO_DATA);
+                                                Constants.NO_DATA, null);
                                     }
                                 });
                         break;
@@ -448,7 +448,7 @@ public class ProcessThread extends Thread {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
                                             ActivityWrapper.stopActivity(ProcessActivity.class,
-                                                    Constants.NO_DATA);
+                                                    Constants.NO_DATA, null);
                                         }
                                     });
                         }
@@ -552,7 +552,7 @@ public class ProcessThread extends Thread {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         ActivityWrapper.stopActivity(ProcessActivity.class,
-                                                Constants.NO_DATA);
+                                                Constants.NO_DATA, null);
                                     }
                                 });
                     }
@@ -580,7 +580,7 @@ public class ProcessThread extends Thread {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         ActivityWrapper.stopActivity(ProcessActivity.class,
-                                                Constants.NO_DATA);
+                                                Constants.NO_DATA, null);
                                     }
                                 });
                         break;
@@ -645,7 +645,7 @@ public class ProcessThread extends Thread {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         ActivityWrapper.stopActivity(ProcessActivity.class,
-                                                Constants.NO_DATA);
+                                                Constants.NO_DATA, null);
                                     }
                                 });
                         break;
@@ -687,7 +687,7 @@ public class ProcessThread extends Thread {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         ActivityWrapper.stopActivity(ProcessActivity.class,
-                                                Constants.NO_DATA);
+                                                Constants.NO_DATA, null);
                                     }
                                 });
                         break;
@@ -712,7 +712,7 @@ public class ProcessThread extends Thread {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         ActivityWrapper.stopActivity(ProcessActivity.class,
-                                                Constants.NO_DATA);
+                                                Constants.NO_DATA, null);
                                     }
                                 });
                     }
@@ -747,10 +747,19 @@ public class ProcessThread extends Thread {
                     publishProgress(0, 1);
 
                     // Convert local RGBA to JPEG file
+                    int width, height;
+                    if (Settings.getInstance().mOrientation) { // Portrait
+
+                        width = mPictureSize.height;
+                        height = mPictureSize.width;
+                    }
+                    else { // Landscape
+
+                        width = mPictureSize.width;
+                        height = mPictureSize.height;
+                    }
                     if (!Frame.convertRGBAtoJPEG(ActivityWrapper.DOCUMENTS_FOLDER +
-                                    Storage.FILENAME_LOCAL_PICTURE,
-                            Settings.getInstance().getResolutionWidth(),
-                            Settings.getInstance().getResolutionHeight(),
+                                    Storage.FILENAME_LOCAL_PICTURE, width, height,
                             ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_THUMBNAIL_PICTURE)) {
 
                         Logs.add(Logs.Type.E, "Failed to convert thumbnail picture");
@@ -763,14 +772,20 @@ public class ProcessThread extends Thread {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         ActivityWrapper.stopActivity(ProcessActivity.class,
-                                                Constants.NO_DATA);
+                                                Constants.NO_DATA, null);
                                     }
                                 });
                         break;
                     }
 
                     // Finish process activity with a display album command as result
-                    ActivityWrapper.stopActivity(ProcessActivity.class, Constants.RESULT_DISPLAY_ALBUM);
+                    Bundle data = new Bundle();
+                    data.putInt(Frame.DATA_KEY_WIDTH, width);
+                    data.putInt(Frame.DATA_KEY_HEIGHT, height);
+
+                    ActivityWrapper.stopActivity(ProcessActivity.class,
+                            Constants.RESULT_DISPLAY_ALBUM, data);
+
                     mAbort = true;
                     break;
                 }

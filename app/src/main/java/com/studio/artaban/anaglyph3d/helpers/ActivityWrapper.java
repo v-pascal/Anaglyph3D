@@ -95,7 +95,7 @@ public class ActivityWrapper implements IConnectRequest {
 
             case REQ_TYPE_CANCEL: {
 
-                stopActivity(ProcessActivity.class, Constants.NO_DATA);
+                stopActivity(ProcessActivity.class, Constants.NO_DATA, null);
                 break; // Reply not considered (see below)
             }
         }
@@ -164,14 +164,22 @@ public class ActivityWrapper implements IConnectRequest {
             Logs.add(Logs.Type.F, "Wrong activity reference");
         }
     }
-    public static void stopActivity(final Class activity, final int result) { // Stop expected activity (if active)
-        try {
+    public static void stopActivity(final Class activity, final int result, final Bundle data) {
+        try { // Stop expected activity (if active)
 
             Activity curActivity = get();
             if (curActivity.getClass().equals(activity)) {
 
-                if (result != Constants.NO_DATA)
-                    curActivity.setResult(result);
+                if (result != Constants.NO_DATA) {
+                    if (data != null) {
+
+                        Intent intent = new Intent();
+                        intent.putExtra(Constants.DATA_ACTIVITY, data);
+                        curActivity.setResult(result, intent);
+                    }
+                    else
+                        curActivity.setResult(result);
+                }
                 curActivity.finish();
             }
         }
