@@ -21,9 +21,9 @@ android {
     }
     productFlavors {
     }
-    dataBinding {
-        enabled = true
-    }
+    //dataBinding {
+    //    enabled = true
+    //}
 }
 
 dependencies {

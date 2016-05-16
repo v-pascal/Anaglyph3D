@@ -19,10 +19,7 @@ import java.util.Map;
 public class Database extends SQLiteOpenHelper {
 
     private static final String NAME = "anaglyph.db"; // Database name
-    public static final int VERSION = 2; // Database version
-    // Versions:
-    // 1 - Original
-    // 2 - Thumbnail resolution added
+    public static final int VERSION = 1; // Database version
 
     protected SQLiteDatabase mDatabase;
 
@@ -93,6 +90,6 @@ public class Database extends SQLiteOpenHelper {
 
         Logs.add(Logs.Type.W, "Upgrading DB from " + oldVersion + " to " + newVersion);
         for (IDataTable table: mTableMap.values())
-            table.upgrade(db);
+            table.upgrade(db, oldVersion, newVersion);
     }
 }

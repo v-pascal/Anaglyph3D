@@ -12,10 +12,8 @@ import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 
 /**
- * An activity representing a single Video detail screen. This
- * activity is only used narrow width devices. On tablet-size devices,
- * item details are presented side-by-side with a list of items
- * in a {@link VideoListActivity}.
+ * Created by pascal on 16/05/16.
+ * Display video detail
  */
 public class VideoDetailActivity extends AppCompatActivity {
 

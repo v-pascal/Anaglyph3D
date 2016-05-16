@@ -24,9 +24,12 @@ import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
-import com.studio.artaban.anaglyph3d.media.Frame;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
+/**
+ * Created by pascal on 19/03/16.
+ * Main activity (from where to start recording)
+ */
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 

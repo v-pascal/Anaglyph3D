@@ -52,6 +52,7 @@
     <string name="menu_contrast">Contraste</string>
     <string name="no_video">L\'album vidéo est vide!</string>
     <string name="title_detail_format">d MMM yyyy - hh:mm</string>
+    <string name="no_location">WARNING: Impossible de géolocaliser la nouvelle vidéo! Vérifiez vos paramètres de localisation.</string>
 
     <!-- Process error -->
     <string name="error_start_recording">ERREUR: Enregistrement vidéo impossible! Ce média est en cours d\'utilisation. Redémarrer votre périphérique pour fixer ce problème.</string>

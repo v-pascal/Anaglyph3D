@@ -208,9 +208,10 @@ public class AlbumTable implements IDataTable {
                 ");");
     }
     @Override
-    public void upgrade(SQLiteDatabase db) {
+    public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
-        Logs.add(Logs.Type.W, "Upgrade 'Album' table: old data will be destroyed");
+        Logs.add(Logs.Type.W, "Upgrade '" + TABLE_NAME + "' table from " + oldVersion + " to " +
+                newVersion + " version: old data will be destroyed!");
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         create(db);
     }

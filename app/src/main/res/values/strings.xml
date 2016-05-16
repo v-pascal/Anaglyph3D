@@ -137,6 +137,7 @@
     <string name="menu_contrast">Contrast</string>
     <string name="no_video">The videos album is empty!</string>
     <string name="title_detail_format">MMM d, \'yy - hh:mm</string>
+    <string name="no_location">WARNING: Failed to locate the new video! Check your device location settings.</string>
 
     <!-- Google API Services Key ID -->
     <string name="google_app_id" translatable="false">AIzaSyCyHD2453o9bnLkYYBcqga0p09HIHfvsx8</string>

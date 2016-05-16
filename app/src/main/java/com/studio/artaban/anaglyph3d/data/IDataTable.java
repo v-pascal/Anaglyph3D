@@ -19,7 +19,8 @@ public interface IDataTable {
         protected boolean[] mUpdated;
         protected long id; // Primary key field
 
-        public final long getId() { return id; }
+        public final long getId() { return this.id; }
+        public final void setId(long id) { this.id = id; }
 
         //////
         public DataField(short count, long id) {
@@ -38,5 +39,5 @@ public interface IDataTable {
 
     //
     void create(SQLiteDatabase db);
-    void upgrade(SQLiteDatabase db);
+    void upgrade(SQLiteDatabase db, int oldVersion, int newVersion);
 }

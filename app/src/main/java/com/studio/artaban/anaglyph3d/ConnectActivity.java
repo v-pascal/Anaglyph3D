@@ -1,6 +1,5 @@
 package com.studio.artaban.anaglyph3d;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
@@ -26,6 +25,10 @@ import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 import java.io.File;
 
+/**
+ * Created by pascal on 19/03/16.
+ * Connect activity (launcher)
+ */
 public class ConnectActivity extends AppCompatActivity implements View.OnClickListener {
 
     private void setDeviceAnimation(boolean right) {
@@ -142,16 +145,16 @@ public class ConnectActivity extends AppCompatActivity implements View.OnClickLi
             return;
         }
         switch (resultCode) {
+            case Constants.RESULT_NO_VIDEO: {
+                DisplayMessage.getInstance().toast(R.string.no_video, Toast.LENGTH_LONG);
+                //break; // Always restart connectivity thread in this case
+            }
             case Constants.RESULT_RESTART_CONNECTION: {
                 Connectivity.getInstance().start(this); // Restart connectivity
                 break;
             }
             case Constants.RESULT_QUIT_APPLICATION: {
                 finish(); // Quit application
-                break;
-            }
-            case Constants.RESULT_NO_VIDEO: {
-                DisplayMessage.getInstance().toast(R.string.no_video, Toast.LENGTH_LONG);
                 break;
             }
         }
