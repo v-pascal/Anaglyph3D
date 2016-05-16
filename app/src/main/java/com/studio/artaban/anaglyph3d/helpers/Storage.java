@@ -23,7 +23,7 @@ public final class Storage {
     public static final String FILENAME_3D_VIDEO = File.separator + "video.webm"; // Final anaglyph 3D video file
     public static final String FILENAME_THUMBNAIL_PICTURE = File.separator + "thumbnail.jpg"; // Thumbnail JPEG picture file
 
-    public static final String FOLDER_THUMBNAIL = File.separator + "Thumbnails";
+    public static final String FOLDER_THUMBNAILS = File.separator + "Thumbnails";
 
     //////
     public static void removeTempFiles() { // Remove all temporary files from documents folder
@@ -74,7 +74,7 @@ public final class Storage {
 
     public static boolean saveThumbnail(String file) { // Rename and move thumbnail JPEG into appropriate folder
 
-        File thumbnailFolder = new File(ActivityWrapper.DOCUMENTS_FOLDER + FOLDER_THUMBNAIL);
+        File thumbnailFolder = new File(ActivityWrapper.DOCUMENTS_FOLDER + FOLDER_THUMBNAILS);
         if ((!thumbnailFolder.exists()) && (!thumbnailFolder.mkdir())) {
 
             Logs.add(Logs.Type.E, "Failed to create thumbnails folder");

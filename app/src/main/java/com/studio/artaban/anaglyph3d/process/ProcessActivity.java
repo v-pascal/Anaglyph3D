@@ -106,7 +106,7 @@ public class ProcessActivity extends AppCompatActivity {
             @Override
             public void run() {
 
-                ProcessFragment processFragment = (ProcessFragment)getSupportFragmentManager().
+                ProcessFragment processFragment = (ProcessFragment) getSupportFragmentManager().
                         findFragmentByTag(ProcessFragment.TAG);
 
                 if (processFragment != null)
@@ -169,21 +169,6 @@ public class ProcessActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-
-        if ((getSupportFragmentManager().findFragmentByTag(PositionFragment.TAG) != null) &&
-                (!isFinishing())) {
-
-            finish(); // Finish activity when paused
-
-            // Send cancel request to remote device
-            Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
-                    ActivityWrapper.REQ_TYPE_CANCEL, null);
-        }
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -219,6 +204,21 @@ public class ProcessActivity extends AppCompatActivity {
                             SynchroActivity.DEFAULT_LOCAL);
                 break;
             }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        if ((getSupportFragmentManager().findFragmentByTag(PositionFragment.TAG) != null) &&
+                (!isFinishing())) {
+
+            finish(); // Finish activity when paused
+
+            // Send cancel request to remote device
+            Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                    ActivityWrapper.REQ_TYPE_CANCEL, null);
         }
     }
 

@@ -13,6 +13,9 @@ import com.studio.artaban.anaglyph3d.helpers.Logs;
  */
 public class AlbumActivity extends AppCompatActivity implements View.OnClickListener {
 
+    public static final String ARG_VIDEO_POSITION = "position";
+
+    //
     public void setOnDetailListener() {
 
 

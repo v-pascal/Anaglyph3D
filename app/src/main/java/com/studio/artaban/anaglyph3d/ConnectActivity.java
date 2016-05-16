@@ -123,18 +123,6 @@ public class ConnectActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        Connectivity.getInstance().resume(this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Connectivity.getInstance().pause(this);
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -161,12 +149,25 @@ public class ConnectActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        Connectivity.getInstance().resume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Connectivity.getInstance().pause(this);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         Connectivity.getInstance().destroy();
         Storage.removeTempFiles();
     }
 
+    //////
     @Override
     public void onClick(View v) { // Album menu
 

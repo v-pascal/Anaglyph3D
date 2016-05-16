@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.album.AlbumActivity;
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
 
@@ -28,7 +29,7 @@ public class DetailPlayerFragment extends Fragment {
      * The fragment argument representing the item ID that this fragment
      * represents.
      */
-    public static final String ARG_ITEM_ID = "item_id";
+    //public static final String ARG_ITEM_ID = "item_id";
 
     /**
      * The dummy content this fragment is presenting.
@@ -46,13 +47,13 @@ public class DetailPlayerFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments().containsKey(ARG_ITEM_ID)) {
+        if (getArguments().containsKey(AlbumActivity.ARG_VIDEO_POSITION)) {
             // Load the dummy content specified by the fragment
             // arguments. In a real-world scenario, use a Loader
             // to load content from a content provider.
 
             //mItem = Dummy Content.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
-            mItem = VideoListActivity.mVideos.get(getArguments().getInt(ARG_ITEM_ID, 0));
+            mItem = VideoListActivity.mVideos.get(getArguments().getInt(AlbumActivity.ARG_VIDEO_POSITION, 0));
 
 
 
@@ -62,7 +63,7 @@ public class DetailPlayerFragment extends Fragment {
             Activity activity = this.getActivity();
             ActionBar appBar = ((AppCompatActivity)activity).getSupportActionBar();
             if (appBar != null)
-                appBar.setTitle("OLALA");
+                appBar.setTitle(mItem.toString(getActivity()));
 
             /*
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);

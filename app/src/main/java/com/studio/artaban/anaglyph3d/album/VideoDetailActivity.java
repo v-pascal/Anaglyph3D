@@ -1,6 +1,9 @@
 package com.studio.artaban.anaglyph3d.album;
 
+import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -8,6 +11,7 @@ import android.view.MenuItem;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.album.details.DetailPlayerFragment;
+import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 
 /**
@@ -16,6 +20,7 @@ import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
  */
 public class VideoDetailActivity extends AlbumActivity {
 
+    //////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,13 +45,21 @@ public class VideoDetailActivity extends AlbumActivity {
 
 
 
+        // Check if orientation has changed with a large screen
+        final Point screenSize = new Point();
+        getWindowManager().getDefaultDisplay().getSize(screenSize);
+        if ((getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) &&
+                (screenSize.x >= Constants.LARGE_SCREEN_WIDTH)) {
 
-        /*
-        if (Landscape orientation & w900dp) {
-            finish(); // ...with video selected
+            // Display two panel in same activity
+            Intent intent = new Intent();
+            intent.putExtra(AlbumActivity.ARG_VIDEO_POSITION,
+                    getIntent().getIntExtra(AlbumActivity.ARG_VIDEO_POSITION, 0));
+
+            setResult(666, intent);
+            finish();
             return;
         }
-        */
 
 
 
@@ -67,8 +80,8 @@ public class VideoDetailActivity extends AlbumActivity {
             Bundle arguments = new Bundle();
             //arguments.putString(DetailPlayerFragment.ARG_ITEM_ID,
             //        getIntent().getStringExtra(DetailPlayerFragment.ARG_ITEM_ID));
-            arguments.putInt(DetailPlayerFragment.ARG_ITEM_ID,
-                    getIntent().getIntExtra(DetailPlayerFragment.ARG_ITEM_ID, 0));
+            arguments.putInt(AlbumActivity.ARG_VIDEO_POSITION,
+                    getIntent().getIntExtra(AlbumActivity.ARG_VIDEO_POSITION, 0));
             DetailPlayerFragment fragment = new DetailPlayerFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()

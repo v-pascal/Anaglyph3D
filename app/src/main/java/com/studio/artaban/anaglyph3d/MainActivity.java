@@ -217,18 +217,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        mInPause = mReadySent = false;
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mInPause = true;
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -267,6 +255,18 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        mInPause = mReadySent = false;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mInPause = true;
+    }
+
+    @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if ((drawer != null) && (drawer.isDrawerOpen(GravityCompat.START)))
@@ -290,6 +290,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    //////
     @Override
     public void onClick(View view) { // Start recording
         if (checkMemorySpace()) {

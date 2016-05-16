@@ -30,7 +30,7 @@ public class AlbumTable implements IDataTable {
         public static String getThumbnailFile(Date date) { // Return thumbnail file path based on a video date
 
             DateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
-            return ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_THUMBNAIL + File.separator +
+            return ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_THUMBNAILS + File.separator +
                     dateFormat.format(date) + Constants.PROCESS_JPEG_EXTENSION;
         }
 
