@@ -165,6 +165,9 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
             holder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+
+
+
                     if (mTwoPane) {
                         Bundle arguments = new Bundle();
                         arguments.putString(VideoDetailFragment.ARG_ITEM_ID, holder.mItem.id);
@@ -181,6 +184,9 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
 
                         context.startActivity(intent);
                     }
+
+
+
                 }
             });
 
@@ -301,6 +307,7 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
             mNewVideo.setId(videos.get(videos.size() - 1).getId());
         }
 
+        /*
         // Check if at least one video is in the album
         if (videos.size() < 1) {
 
@@ -308,6 +315,7 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
             finish();
             return;
         }
+        */
 
         // Check connection
         if (!getIntent().getBooleanExtra(Constants.DATA_CONNECTION_ESTABLISHED, false))

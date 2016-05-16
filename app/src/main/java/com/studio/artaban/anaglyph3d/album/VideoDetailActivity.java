@@ -82,7 +82,9 @@ public class VideoDetailActivity extends AppCompatActivity {
             //
             // http://developer.android.com/design/patterns/navigation.html#up-vs-back
             //
-            navigateUpTo(new Intent(this, VideoListActivity.class));
+            //navigateUpTo(new Intent(this, VideoListActivity.class));
+
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
