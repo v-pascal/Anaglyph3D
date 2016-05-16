@@ -16,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,7 +23,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.location.LocationServices;
 import com.studio.artaban.anaglyph3d.R;
-import com.studio.artaban.anaglyph3d.album.details.VideoDetailFragment;
+import com.studio.artaban.anaglyph3d.album.details.DetailPlayerFragment;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
@@ -37,8 +36,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.media.Frame;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -155,7 +152,6 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
             holder.mPosition = position;
-            holder.mItem = mValues.get(position);
 
 
 
@@ -188,10 +184,10 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
 
                         Bundle arguments = new Bundle();
-                        //arguments.putString(VideoDetailFragment.ARG_ITEM_ID, holder.mItem.id);
-                        //arguments.putString(VideoDetailFragment.ARG_ITEM_ID, String.valueOf(holder.mItem.getId()));
-                        arguments.putInt(VideoDetailFragment.ARG_ITEM_ID, holder.mPosition);
-                        VideoDetailFragment fragment = new VideoDetailFragment();
+                        //arguments.putString(DetailPlayerFragment.ARG_ITEM_ID, holder.mItem.id);
+                        //arguments.putString(DetailPlayerFragment.ARG_ITEM_ID, String.valueOf(holder.mItem.getId()));
+                        arguments.putInt(DetailPlayerFragment.ARG_ITEM_ID, holder.mPosition);
+                        DetailPlayerFragment fragment = new DetailPlayerFragment();
                         fragment.setArguments(arguments);
                         getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.video_detail_container, fragment)
@@ -210,9 +206,9 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
                         Context context = v.getContext();
                         Intent intent = new Intent(context, VideoDetailActivity.class);
-                        //intent.putExtra(VideoDetailFragment.ARG_ITEM_ID, holder.mItem.id);
-                        //intent.putExtra(VideoDetailFragment.ARG_ITEM_ID, String.valueOf(holder.mItem.getId()));
-                        intent.putExtra(VideoDetailFragment.ARG_ITEM_ID, holder.mPosition);
+                        //intent.putExtra(DetailPlayerFragment.ARG_ITEM_ID, holder.mItem.id);
+                        //intent.putExtra(DetailPlayerFragment.ARG_ITEM_ID, String.valueOf(holder.mItem.getId()));
+                        intent.putExtra(DetailPlayerFragment.ARG_ITEM_ID, holder.mPosition);
 
                         context.startActivity(intent);
                     }
@@ -262,7 +258,6 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             public final TextView mTitleView; // Title (duration)
             public final TextView mDateView; // Date & time
 
-            public AlbumTable.Video mItem;
             public int mPosition;
 
             public ViewHolder(View view) {
@@ -376,8 +371,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
             // Rename and move thumbnail JPEG file into expected storage folder
             Date date = new Date();
-            DateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
-            Storage.saveThumbnail(dateFormat.format(date) + Constants.PROCESS_JPEG_EXTENSION);
+            Storage.saveThumbnail(AlbumTable.Video.getThumbnailFile(date));
 
             ////// Add new video into the album
             Bundle data = getIntent().getBundleExtra(Constants.DATA_ACTIVITY); // To get thumbnail resolution
@@ -440,9 +434,8 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
 
 
-        if (mTwoPane) {
-            super.setOnDetailListener();
-        }
+        if (mTwoPane)
+            setOnDetailListener();
 
 
 

@@ -52,6 +52,7 @@
     <string name="menu_contrast">Contraste</string>
     <string name="no_video">L\'album vidéo est vide!</string>
     <string name="title_detail_format">d MMM yyyy - hh:mm</string>
+    <string name="date_detail_format">dd/MM/yyyy - hh:mm</string>
     <string name="no_location">WARNING: Impossible de géolocaliser la nouvelle vidéo! Vérifiez vos paramètres de localisation.</string>
 
     <!-- Process error -->

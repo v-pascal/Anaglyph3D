@@ -5,16 +5,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 
 import com.studio.artaban.anaglyph3d.R;
-import com.studio.artaban.anaglyph3d.album.details.VideoDetailFragment;
+import com.studio.artaban.anaglyph3d.album.details.DetailPlayerFragment;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 
 /**
  * Created by pascal on 16/05/16.
- * Display video detail
+ * Display video detail (only)
  */
 public class VideoDetailActivity extends AlbumActivity {
 
@@ -67,11 +65,11 @@ public class VideoDetailActivity extends AlbumActivity {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            //arguments.putString(VideoDetailFragment.ARG_ITEM_ID,
-            //        getIntent().getStringExtra(VideoDetailFragment.ARG_ITEM_ID));
-            arguments.putInt(VideoDetailFragment.ARG_ITEM_ID,
-                    getIntent().getIntExtra(VideoDetailFragment.ARG_ITEM_ID, 0));
-            VideoDetailFragment fragment = new VideoDetailFragment();
+            //arguments.putString(DetailPlayerFragment.ARG_ITEM_ID,
+            //        getIntent().getStringExtra(DetailPlayerFragment.ARG_ITEM_ID));
+            arguments.putInt(DetailPlayerFragment.ARG_ITEM_ID,
+                    getIntent().getIntExtra(DetailPlayerFragment.ARG_ITEM_ID, 0));
+            DetailPlayerFragment fragment = new DetailPlayerFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.video_detail_container, fragment)
@@ -85,7 +83,7 @@ public class VideoDetailActivity extends AlbumActivity {
 
 
 
-        super.setOnDetailListener();
+        setOnDetailListener();
 
 
 

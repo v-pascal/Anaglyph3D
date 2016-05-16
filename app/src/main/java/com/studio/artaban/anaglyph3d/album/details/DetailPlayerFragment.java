@@ -11,17 +11,19 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.studio.artaban.anaglyph3d.R;
-import com.studio.artaban.anaglyph3d.album.VideoDetailActivity;
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
 
 /**
- * A fragment representing a single Video detail screen.
- * This fragment is either contained in a {@link VideoListActivity}
- * in two-pane mode (on tablets) or a {@link VideoDetailActivity}
- * on handsets.
+ * Created by pascal on 16/05/16.
+ * Video player fragment
  */
-public class VideoDetailFragment extends Fragment {
+public class DetailPlayerFragment extends Fragment {
+
+
+
+
+
     /**
      * The fragment argument representing the item ID that this fragment
      * represents.
@@ -37,7 +39,7 @@ public class VideoDetailFragment extends Fragment {
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public VideoDetailFragment() {
+    public DetailPlayerFragment() {
     }
 
     @Override

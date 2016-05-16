@@ -23,7 +23,7 @@ public final class Storage {
     public static final String FILENAME_3D_VIDEO = File.separator + "video.webm"; // Final anaglyph 3D video file
     public static final String FILENAME_THUMBNAIL_PICTURE = File.separator + "thumbnail.jpg"; // Thumbnail JPEG picture file
 
-    private static final String FOLDER_THUMBNAIL = File.separator + "Thumbnails";
+    public static final String FOLDER_THUMBNAIL = File.separator + "Thumbnails";
 
     //////
     public static void removeTempFiles() { // Remove all temporary files from documents folder
@@ -81,8 +81,7 @@ public final class Storage {
             return false;
         }
         File thumbnailFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + FILENAME_THUMBNAIL_PICTURE);
-        if (!thumbnailFile.renameTo(new File(ActivityWrapper.DOCUMENTS_FOLDER + FOLDER_THUMBNAIL +
-                File.separator + file))) {
+        if (!thumbnailFile.renameTo(new File(file))) {
 
             Logs.add(Logs.Type.E, "Failed to rename thumbnail picture file");
             return false;

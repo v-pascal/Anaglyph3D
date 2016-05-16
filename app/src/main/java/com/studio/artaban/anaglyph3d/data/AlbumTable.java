@@ -6,8 +6,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
+import com.studio.artaban.anaglyph3d.helpers.Storage;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -24,6 +27,12 @@ public class AlbumTable implements IDataTable {
     public static class Video extends DataField { // Album entry: Video
 
         private static final short FIELD_COUNT = 8;
+        public static String getThumbnailFile(Date date) { // Return thumbnail file path based on a video date
+
+            DateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
+            return ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_THUMBNAIL + File.separator +
+                    dateFormat.format(date) + Constants.PROCESS_JPEG_EXTENSION;
+        }
 
         //
         private String title;
@@ -70,10 +79,23 @@ public class AlbumTable implements IDataTable {
         }
 
         //
-        public String toString(Context context) {
+        public String toString(Context context) { // Activity title
+
             DateFormat dateFormat = new SimpleDateFormat(context.getString(R.string.title_detail_format));
             return this.title + " (" + dateFormat.format(this.date) + ")";
         }
+
+        public String getTitle() { // Video list title: Title (duration)
+            return this.title + " (" + this.duration + " sec)";
+        }
+        public String getDate(Context context) { // Video list date: MM/DD/yyyy - hh:mm
+
+            DateFormat dateFormat = new SimpleDateFormat(context.getString(R.string.date_detail_format));
+            return dateFormat.format(this.date);
+        }
+        public String getThumbnailFile() { return getThumbnailFile(this.date); }
+        public int getThumbnailWidth() { return this.thumbnailWidth; }
+        public int getThumbnailHeight() { return this.thumbnailHeight; }
     }
 
     //
