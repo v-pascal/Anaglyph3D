@@ -1,21 +1,22 @@
 package com.studio.artaban.anaglyph3d.album;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.album.details.VideoDetailFragment;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 
 /**
  * Created by pascal on 16/05/16.
  * Display video detail
  */
-public class VideoDetailActivity extends AppCompatActivity {
+public class VideoDetailActivity extends AlbumActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +43,16 @@ public class VideoDetailActivity extends AppCompatActivity {
 
 
 
+        /*
+        if (Landscape orientation & w900dp) {
+            finish(); // ...with video selected
+            return;
+        }
+        */
+
+
+
+
 
         // savedInstanceState is non-null when there is fragment state
         // saved from previous configurations of this activity
@@ -56,14 +67,26 @@ public class VideoDetailActivity extends AppCompatActivity {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putString(VideoDetailFragment.ARG_ITEM_ID,
-                    getIntent().getStringExtra(VideoDetailFragment.ARG_ITEM_ID));
+            //arguments.putString(VideoDetailFragment.ARG_ITEM_ID,
+            //        getIntent().getStringExtra(VideoDetailFragment.ARG_ITEM_ID));
+            arguments.putInt(VideoDetailFragment.ARG_ITEM_ID,
+                    getIntent().getIntExtra(VideoDetailFragment.ARG_ITEM_ID, 0));
             VideoDetailFragment fragment = new VideoDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.video_detail_container, fragment)
                     .commit();
         }
+
+
+
+
+
+
+
+
+        super.setOnDetailListener();
+
 
 
 

@@ -1,4 +1,4 @@
-package com.studio.artaban.anaglyph3d.album;
+package com.studio.artaban.anaglyph3d.album.details;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -11,7 +11,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.studio.artaban.anaglyph3d.R;
-import com.studio.artaban.anaglyph3d.dummy.DummyContent;
+import com.studio.artaban.anaglyph3d.album.VideoDetailActivity;
+import com.studio.artaban.anaglyph3d.album.VideoListActivity;
+import com.studio.artaban.anaglyph3d.data.AlbumTable;
 
 /**
  * A fragment representing a single Video detail screen.
@@ -29,7 +31,7 @@ public class VideoDetailFragment extends Fragment {
     /**
      * The dummy content this fragment is presenting.
      */
-    private DummyContent.DummyItem mItem;
+    private AlbumTable.Video mItem;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -46,7 +48,9 @@ public class VideoDetailFragment extends Fragment {
             // Load the dummy content specified by the fragment
             // arguments. In a real-world scenario, use a Loader
             // to load content from a content provider.
-            mItem = DummyContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+
+            //mItem = Dummy Content.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+            mItem = VideoListActivity.mVideos.get(getArguments().getInt(ARG_ITEM_ID, 0));
 
 
 
@@ -56,7 +60,7 @@ public class VideoDetailFragment extends Fragment {
             Activity activity = this.getActivity();
             ActionBar appBar = ((AppCompatActivity)activity).getSupportActionBar();
             if (appBar != null)
-                appBar.setTitle("Undefined (June 21 '16 - 13:24)");
+                appBar.setTitle("OLALA");
 
             /*
             CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
@@ -80,7 +84,7 @@ public class VideoDetailFragment extends Fragment {
 
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.video_detail)).setText(mItem.details);
+            ((TextView) rootView.findViewById(R.id.video_detail)).setText(mItem.toString(getActivity()));
         }
 
         return rootView;

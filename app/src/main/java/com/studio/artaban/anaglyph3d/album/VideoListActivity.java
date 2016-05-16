@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
@@ -12,22 +11,23 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.location.LocationServices;
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.album.details.VideoDetailFragment;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
-import com.studio.artaban.anaglyph3d.dummy.DummyContent;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Database;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
@@ -46,7 +46,7 @@ import java.util.List;
  * Created by pascal on 16/05/16.
  * Videos list (album)
  */
-public class VideoListActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
+public class VideoListActivity extends AlbumActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     public static boolean mAddVideo = false; // Flag to check new video creation request
     private static AlbumTable.Video mNewVideo = null; // New video (only when creation is requested)
@@ -54,6 +54,7 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
     //////
     private Database mDB;
     private GoogleApiClient mGoogleApiClient;
+    public static List<AlbumTable.Video> mVideos;
 
     private boolean mTwoPane; // Flag to know if displaying both panel: list & details
 
@@ -135,17 +136,12 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
 
 
 
-
-
-
-
-
     public class SimpleItemRecyclerViewAdapter
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
-        private final List<DummyContent.DummyItem> mValues;
+        private final List<AlbumTable.Video> mValues;
 
-        public SimpleItemRecyclerViewAdapter(List<DummyContent.DummyItem> items) {
+        public SimpleItemRecyclerViewAdapter(List<AlbumTable.Video> items) {
             mValues = items;
         }
 
@@ -158,32 +154,73 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
+            holder.mPosition = position;
             holder.mItem = mValues.get(position);
-            holder.mIdView.setText(mValues.get(position).id);
-            holder.mContentView.setText(mValues.get(position).content);
 
-            holder.mView.setOnClickListener(new View.OnClickListener() {
+
+
+
+
+
+            holder.mTitleView.setText(String.valueOf(mValues.get(position).getId()));
+            holder.mDateView.setText("testage");
+
+
+
+
+
+
+
+            holder.mRootView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
 
 
+
+                    // Change video selection
                     if (mTwoPane) {
+
+
+
+                        // Fill video details
+
+
+
                         Bundle arguments = new Bundle();
-                        arguments.putString(VideoDetailFragment.ARG_ITEM_ID, holder.mItem.id);
+                        //arguments.putString(VideoDetailFragment.ARG_ITEM_ID, holder.mItem.id);
+                        //arguments.putString(VideoDetailFragment.ARG_ITEM_ID, String.valueOf(holder.mItem.getId()));
+                        arguments.putInt(VideoDetailFragment.ARG_ITEM_ID, holder.mPosition);
                         VideoDetailFragment fragment = new VideoDetailFragment();
                         fragment.setArguments(arguments);
                         getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.video_detail_container, fragment)
                                 .commit();
+
+
+
                     }
                     else {
+
+
+
+                        // Display video details
+
+
+
                         Context context = v.getContext();
                         Intent intent = new Intent(context, VideoDetailActivity.class);
-                        intent.putExtra(VideoDetailFragment.ARG_ITEM_ID, holder.mItem.id);
+                        //intent.putExtra(VideoDetailFragment.ARG_ITEM_ID, holder.mItem.id);
+                        //intent.putExtra(VideoDetailFragment.ARG_ITEM_ID, String.valueOf(holder.mItem.getId()));
+                        intent.putExtra(VideoDetailFragment.ARG_ITEM_ID, holder.mPosition);
 
                         context.startActivity(intent);
                     }
+
+
+
+
+
 
 
 
@@ -220,22 +257,36 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
-            public final View mView;
-            public final TextView mIdView;
-            public final TextView mContentView;
-            public DummyContent.DummyItem mItem;
+            public final View mRootView;
+            public final ImageView mThumbnailView;
+            public final TextView mTitleView; // Title (duration)
+            public final TextView mDateView; // Date & time
+
+            public AlbumTable.Video mItem;
+            public int mPosition;
 
             public ViewHolder(View view) {
                 super(view);
-                mView = view;
-                mIdView = (TextView) view.findViewById(R.id.id);
-                mContentView = (TextView) view.findViewById(R.id.content);
+                mRootView = view;
+
+
+
+
+                mThumbnailView = null;
+                mTitleView = (TextView) view.findViewById(R.id.id);
+                mDateView = (TextView) view.findViewById(R.id.content);
+
+
+
+
             }
 
+            /*
             @Override
             public String toString() {
                 return super.toString() + " '" + mContentView.getText() + "'";
             }
+            */
         }
     }
 
@@ -284,7 +335,41 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
         mDB = new Database(this);
         mDB.open(true);
 
-        List<AlbumTable.Video> videos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
+        mVideos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
+
+
+
+
+
+
+
+
+
+        if (mVideos.size() < 1) {
+            Logs.add(Logs.Type.E, "Insert videos");
+
+            Date date5 = new Date();
+            Date date4 = new Date(date5.getTime() - 360000);
+            Date date3 = new Date(date4.getTime() - 360000);
+            Date date2 = new Date(date3.getTime() - 360000);
+            Date date1 = new Date(date2.getTime() - 360000);
+            mDB.insert(AlbumTable.TABLE_NAME, new AlbumTable.Video[] {
+                    new AlbumTable.Video(0, "Ma video #1", "Une video #1 pas du tout", date1, (short)10, 0f, 0f, 640, 480),
+                    new AlbumTable.Video(0, "Ma video #2", "Une video #2 pas du tout", date2, (short)20, 0f, 0f, 640, 480),
+                    new AlbumTable.Video(0, "Ma video #3", "Une video #3 pas du tout", date3, (short)30, 0f, 0f, 640, 480),
+                    new AlbumTable.Video(0, "Ma video #4", "Une video #4 pas du tout", date4, (short)40, 0f, 0f, 640, 480),
+                    new AlbumTable.Video(0, "Ma video #5", "Une video #5 pas du tout", date5, (short)50, 0f, 0f, 640, 480),
+            });
+        }
+
+
+
+
+
+
+
+
+
 
         // Check if new entry is requested
         if ((mAddVideo) && (mNewVideo == null)) {
@@ -303,12 +388,12 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
             mDB.insert(AlbumTable.TABLE_NAME, new AlbumTable.Video[] { mNewVideo });
 
             // Assign new id created for this new video (which is the last entry added coz order by date)
-            videos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
-            mNewVideo.setId(videos.get(videos.size() - 1).getId());
+            mVideos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
+            mNewVideo.setId(mVideos.get(mVideos.size() - 1).getId());
         }
 
         // Check if at least one video is in the album
-        if (videos.size() < 1) {
+        if (mVideos.size() < 1) {
 
             setResult(Constants.RESULT_NO_VIDEO);
             finish();
@@ -328,13 +413,11 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
 
 
 
+
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.video_list);
         assert recyclerView != null;
         mTwoPane = findViewById(R.id.video_detail_container) != null;
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(DummyContent.ITEMS));
-
-
-
+        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(mVideos));
 
 
 
@@ -353,6 +436,13 @@ public class VideoListActivity extends AppCompatActivity implements GoogleApiCli
 
 
 
+
+
+
+
+        if (mTwoPane) {
+            super.setOnDetailListener();
+        }
 
 
 

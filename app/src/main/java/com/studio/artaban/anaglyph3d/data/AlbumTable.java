@@ -113,6 +113,10 @@ public class AlbumTable implements IDataTable {
             values.put(COLUMN_LONGITUDE, video.longitude);
         }
 
+        if (values.size() == 0) {
+            Logs.add(Logs.Type.W, "No field to update");
+            return false;
+        }
         return (db.update(TABLE_NAME, values, DataField.COLUMN_ID + "=?",
                 new String[] { String.valueOf(video.id) }) == 1);
     }

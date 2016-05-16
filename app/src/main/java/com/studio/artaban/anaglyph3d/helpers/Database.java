@@ -40,7 +40,7 @@ public class Database extends SQLiteOpenHelper {
         if (!isReady())
             return false;
 
-        if (!mDatabase.isReadOnly()) {
+        if (mDatabase.isReadOnly()) {
             Logs.add(Logs.Type.W, "Read only database opened");
             return false;
         }
