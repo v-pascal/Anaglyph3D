@@ -234,6 +234,12 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         }
         mLastVideoSelected = mVideoSelected;
 
+
+
+
+
+
+
         // Display default detail of the selected video (player)
         Bundle arguments = new Bundle();
         arguments.putInt(AlbumActivity.ARG_VIDEO_POSITION, mVideoSelected);
@@ -243,6 +249,13 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.video_detail_container, fragment)
                 .commit();
+
+
+
+
+
+
+
     }
     private boolean fillVideoList(int selectPosition) { // Fill video list recycler view
 
@@ -403,6 +416,36 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         mVideosView = (RecyclerView) findViewById(R.id.video_list);
         mTwoPane = findViewById(R.id.video_detail_container) != null;
 
+        // Check if only videos list will be displayed with a creation request
+        if ((mTwoPane) && (mNewVideo != null)) {
+
+
+
+
+
+
+
+
+
+
+
+            // Display video details activity
+            Intent intent = new Intent(this, VideoDetailActivity.class);
+            intent.putExtra(AlbumActivity.ARG_VIDEO_POSITION, mVideoSelected);
+
+            startActivityForResult(intent, 0);
+
+
+
+
+
+
+
+
+
+            return;
+        }
+
         if (!fillVideoList(0))
             return; // No video to display
 
@@ -426,6 +469,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         }
         if (resultCode == Constants.RESULT_SELECT_VIDEO) {
 
+            //assert mTwoPane;
             mVideoSelected = data.getExtras().getInt(AlbumActivity.ARG_VIDEO_POSITION, 0);
             selectVideo(false);
         }

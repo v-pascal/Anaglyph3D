@@ -41,10 +41,6 @@ public class VideoDetailActivity extends AlbumActivity {
             appBar.setDisplayHomeAsUpEnabled(true);
         }
 
-
-
-
-
         // Check if orientation has changed with a large screen
         final Point screenSize = new Point();
         getWindowManager().getDefaultDisplay().getSize(screenSize);
@@ -56,10 +52,13 @@ public class VideoDetailActivity extends AlbumActivity {
             intent.putExtra(AlbumActivity.ARG_VIDEO_POSITION,
                     getIntent().getIntExtra(AlbumActivity.ARG_VIDEO_POSITION, 0));
 
-            setResult(666, intent);
+            setResult(Constants.RESULT_SELECT_VIDEO, intent);
             finish();
             return;
         }
+
+
+
 
 
 
@@ -74,7 +73,9 @@ public class VideoDetailActivity extends AlbumActivity {
         //
         // http://developer.android.com/guide/components/fragments.html
         //
+        /*
         if (savedInstanceState == null) {
+
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
@@ -88,6 +89,31 @@ public class VideoDetailActivity extends AlbumActivity {
                     .add(R.id.video_detail_container, fragment)
                     .commit();
         }
+        */
+
+
+
+        if (getSupportFragmentManager().findFragmentById(R.id.video_detail_container) == null) {
+
+
+
+            // Create the detail fragment and add it to the activity
+            Bundle arguments = new Bundle();
+            arguments.putInt(AlbumActivity.ARG_VIDEO_POSITION,
+                    getIntent().getIntExtra(AlbumActivity.ARG_VIDEO_POSITION, 0));
+            DetailPlayerFragment fragment = new DetailPlayerFragment();
+            fragment.setArguments(arguments);
+
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.video_detail_container, fragment)
+                    .commit();
+
+
+
+
+
+        }
+
 
 
 
@@ -108,17 +134,9 @@ public class VideoDetailActivity extends AlbumActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            // This ID represents the Home or Up button. In the case of this
-            // activity, the Up button is shown. For
-            // more details, see the Navigation pattern on Android Design:
-            //
-            // http://developer.android.com/design/patterns/navigation.html#up-vs-back
-            //
-            //navigateUpTo(new Intent(this, VideoListActivity.class));
+        if (item.getItemId() == android.R.id.home) {
 
-            finish();
+            finish(); // Back to videos list
             return true;
         }
         return super.onOptionsItemSelected(item);
