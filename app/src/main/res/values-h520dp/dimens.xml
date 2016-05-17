@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <dimen name="contrast_margin">32dp</dimen>
     <dimen name="contrast_icon_margin">16dp</dimen>
+
+    <dimen name="list_thumbnail_size">64dp</dimen>
+    <dimen name="list_label_size">32dp</dimen><!-- list_thumbnail_size / 2 -->
+
 </resources>

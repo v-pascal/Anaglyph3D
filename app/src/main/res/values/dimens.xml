@@ -19,4 +19,7 @@
 
     <dimen name="synchro_slide_lag">16dp</dimen>
 
+    <dimen name="list_thumbnail_size">48dp</dimen>
+    <dimen name="list_label_size">24dp</dimen><!-- list_thumbnail_size / 2 -->
+
 </resources>

@@ -68,6 +68,10 @@ public class Database extends SQLiteOpenHelper {
                 mTableMap.get(table).delete(mDatabase, keys):Constants.NO_DATA;
     }
 
+    public int getEntryCount(String table) {
+        return (isReady() && isTableExist(table))?
+                mTableMap.get(table).getEntryCount(mDatabase):Constants.NO_DATA;
+    }
     public <T> List<T> getAllEntries(String table) {
         if (!isReady() || !isTableExist(table))
             return null;

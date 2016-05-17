@@ -46,7 +46,7 @@ import java.util.List;
 public class VideoListActivity extends AlbumActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     public static boolean mAddVideo = false; // Flag to check new video creation request
-    private static AlbumTable.Video mNewVideo = null; // New video (only when creation is requested)
+    private static AlbumTable.Video mNewVideo = null; // New video entry (only when creation is requested)
 
     //////
     private Database mDB;
@@ -56,7 +56,9 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
     private boolean mTwoPane; // Flag to know if displaying both panel: list & details
 
     //
-    public void onSave(AlbumTable.Video video, String title, String description) { // Save video detail
+    public void onSave(int videoPosition, String title, String description) { // Save video detail
+        AlbumTable.Video video = mVideos.get(videoPosition);
+        assert video != null;
 
         // Check if saving new video
         if (mNewVideo != null) {
@@ -100,13 +102,15 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
 
     }
-    public void onDelete(AlbumTable.Video video) { // Delete video is requested or cancel video creation
+    public void onDelete(int videoPosition) { // Delete video is requested or cancel video creation
+        AlbumTable.Video video = mVideos.get(videoPosition);
+        assert video != null;
 
         if (mNewVideo != null)
             video = mNewVideo; // Cancel video creation
 
         Logs.add(Logs.Type.W, "Deleting video: " + video.toString());
-        mDB.delete(AlbumTable.TABLE_NAME, new long[]{video.getId()});
+        mDB.delete(AlbumTable.TABLE_NAME, new long[] { video.getId() });
 
 
 
@@ -147,39 +151,12 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.mPosition = position;
+
+            AlbumTable.Video video = mVideos.get(position);
+            holder.mTitleView.setText(video.getTitle());
+            holder.mDateView.setText(video.getDate(mActivity));
 
 
-
-
-
-
-            holder.mTitleView.setText(String.valueOf(mValues.get(position).getId()));
-            holder.mDateView.setText("testage");
-
-
-
-
-
-
-
-            holder.mRootView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) { // Change video selection
-
-                    if (mTwoPane)
-                        selectVideo(true, holder.mPosition); // Fill video details
-
-                    else {
-
-                        // Display video details activity
-                        Intent intent = new Intent(mActivity, VideoDetailActivity.class);
-                        intent.putExtra(AlbumActivity.ARG_VIDEO_POSITION, holder.mPosition);
-
-                        mActivity.startActivityForResult(intent, 0);
-                    }
-                }
-            });
 
 
             //Picasso pic;
@@ -203,14 +180,43 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
                 */
 
 
+
+
+            holder.mPosition = position;
+            holder.mRootView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View sender) { // Change video selection
+
+                    mVideoSelected = holder.mPosition;
+                    if (mTwoPane)
+                        selectVideo(true); // Fill video details
+
+                    else {
+
+                        // Display video details activity
+                        Intent intent = new Intent(mActivity, VideoDetailActivity.class);
+                        intent.putExtra(AlbumActivity.ARG_VIDEO_POSITION, mVideoSelected);
+
+                        mActivity.startActivityForResult(intent, 0);
+                    }
+                }
+            });
+
+            // Check if needed to "select" this video
+            if ((mVideoSelected == position) && (mTwoPane))
+                holder.mRootView.setPadding(2, 2, 2, 2);
+            // -> Needed when trying to add border to a video item which is not created yet (when
+            //    calling 'selectVideo' method before the video item exists)
         }
 
         @Override public int getItemCount() { return mValues.size(); }
 
         //
         public class ViewHolder extends RecyclerView.ViewHolder {
+
             public final View mRootView;
-            public final ImageView mThumbnailView;
+
+            public final ImageView mThumbnailView; // Thumbnail image
             public final TextView mTitleView; // Title (duration)
             public final TextView mDateView; // Date & time
 
@@ -220,45 +226,58 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
                 super(view);
                 mRootView = view;
 
-
-
-
-                mThumbnailView = null;
-                mTitleView = (TextView) view.findViewById(R.id.id);
-                mDateView = (TextView) view.findViewById(R.id.content);
-
-
-
-
+                mThumbnailView = (ImageView) view.findViewById(R.id.thumbnail);
+                mTitleView = (TextView) view.findViewById(R.id.title);
+                mDateView = (TextView) view.findViewById(R.id.date);
             }
         }
     }
 
     //
-    public void selectVideo(boolean user, int position) {
+    private int mVideoSelected = 0; // Selected video position (or video to select)
+    private int mLastVideoSelected = Constants.NO_DATA; // Previous selected video position
+    private RecyclerView mVideosView; // Recycler view containing videos list
 
+    public void selectVideo(boolean user) {
 
+        if (!user) // Not a user click event
+            mVideosView.scrollToPosition(mVideoSelected);
 
+        // Selection border of the Video item management
+        View videoItem = mVideosView.getLayoutManager().findViewByPosition(mVideoSelected);
+        if (videoItem != null)
+            videoItem.setPadding(2, 2, 2, 2);
 
-        if (user) {
+        if ((mLastVideoSelected != Constants.NO_DATA) && (mLastVideoSelected != mVideoSelected)) {
 
-            //recyclerView.scrollToPosition(mVideos.size() - 1);
-            //recyclerView.scrollToPosition(position);
-
+            // Un-select previous video
+            videoItem = mVideosView.getLayoutManager().findViewByPosition(mLastVideoSelected);
+            if (videoItem != null)
+                videoItem.setPadding(0, 0, 0, 0);
         }
+        mLastVideoSelected = mVideoSelected;
+
+        // Display default detail of the selected video
+
+
+
+
+
 
 
 
 
 
         Bundle arguments = new Bundle();
-        arguments.putInt(AlbumActivity.ARG_VIDEO_POSITION, position);
+        arguments.putInt(AlbumActivity.ARG_VIDEO_POSITION, mVideoSelected);
 
         DetailPlayerFragment fragment = new DetailPlayerFragment();
         fragment.setArguments(arguments);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.video_detail_container, fragment)
                 .commit();
+
+
 
 
 
@@ -299,20 +318,29 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         mDB = new Database(this);
         mDB.open(true);
 
+
+
+
+
+
+
+
+
+
+
+        /*
         mVideos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
-
-
-
-
-
-
-
-
 
 
         if (mVideos.size() < 1) {
             Logs.add(Logs.Type.E, "Insert videos");
 
+            Date date5 = new Date();
+            Date date4 = new Date(date5.getTime() - 360000);
+            Date date3 = new Date(date4.getTime() - 360000);
+            Date date2 = new Date(date3.getTime() - 360000);
+            Date date1 = new Date(date2.getTime() - 360000); */
+            /*
             Date date20 = new Date();
             Date date19 = new Date(date20.getTime() - 360000);
             Date date18 = new Date(date19.getTime() - 360000);
@@ -333,12 +361,15 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             Date date3 = new Date(date4.getTime() - 360000);
             Date date2 = new Date(date3.getTime() - 360000);
             Date date1 = new Date(date2.getTime() - 360000);
+            */
+        /*
             mDB.insert(AlbumTable.TABLE_NAME, new AlbumTable.Video[] {
                     new AlbumTable.Video(0, "Ma video #1", "Une video #1 pas mal du tout", date1, (short)10, 0f, 0f, 640, 480),
                     new AlbumTable.Video(0, "Ma video #2", "Une video #2 pas mal du tout", date2, (short)20, 0f, 0f, 640, 480),
                     new AlbumTable.Video(0, "Ma video #3", "Une video #3 pas mal du tout", date3, (short)30, 0f, 0f, 640, 480),
                     new AlbumTable.Video(0, "Ma video #4", "Une video #4 pas mal du tout", date4, (short)40, 0f, 0f, 640, 480),
                     new AlbumTable.Video(0, "Ma video #5", "Une video #5 pas mal du tout", date5, (short)50, 0f, 0f, 640, 480),
+                    /*
                     new AlbumTable.Video(0, "Ma video #6", "Une video #6 pas mal du tout", date6, (short)50, 0f, 0f, 640, 480),
                     new AlbumTable.Video(0, "Ma video #7", "Une video #7 pas mal du tout", date7, (short)50, 0f, 0f, 640, 480),
                     new AlbumTable.Video(0, "Ma video #8", "Une video #8 pas mal du tout", date8, (short)50, 0f, 0f, 640, 480),
@@ -354,9 +385,11 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
                     new AlbumTable.Video(0, "Ma video #18", "Une video #18 pas mal du tout", date18, (short)50, 0f, 0f, 640, 480),
                     new AlbumTable.Video(0, "Ma video #19", "Une video #19 pas mal du tout", date19, (short)50, 0f, 0f, 640, 480),
                     new AlbumTable.Video(0, "Ma video #20", "Une video #20 pas mal du tout", date20, (short)50, 0f, 0f, 640, 480),
+                    */
+        /*
             });
         }
-
+        */
 
 
 
@@ -380,12 +413,34 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             mNewVideo = new AlbumTable.Video(0, null, null, date, Settings.getInstance().mDuration,
                     0f, 0f, data.getInt(Frame.DATA_KEY_WIDTH), data.getInt(Frame.DATA_KEY_HEIGHT));
 
-            mDB.insert(AlbumTable.TABLE_NAME, new AlbumTable.Video[] { mNewVideo });
+            mDB.insert(AlbumTable.TABLE_NAME, new AlbumTable.Video[]{mNewVideo});
 
             // Assign new id created for this new video (which is the last entry added coz order by date)
-            mVideos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
-            mNewVideo.setId(mVideos.get(mVideos.size() - 1).getId());
+            mNewVideo.setId(mVideos.get(mDB.getEntryCount(AlbumTable.TABLE_NAME) - 1).getId());
         }
+
+        // Check connection
+        if (!getIntent().getBooleanExtra(Constants.DATA_CONNECTION_ESTABLISHED, false))
+            setResult(Constants.RESULT_RESTART_CONNECTION); // Must restart connection (not connected)
+
+        mVideosView = (RecyclerView) findViewById(R.id.video_list);
+        mTwoPane = findViewById(R.id.video_detail_container) != null;
+
+
+
+
+
+
+
+
+
+
+
+        mVideos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
+
+        mVideoSelected = 0;
+        if (mNewVideo != null)
+            mVideoSelected = mVideos.size() - 1; // Select last video
 
         // Check if at least one video is in the album
         if (mVideos.size() < 1) {
@@ -394,10 +449,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             finish();
             return;
         }
-
-        // Check connection
-        if (!getIntent().getBooleanExtra(Constants.DATA_CONNECTION_ESTABLISHED, false))
-            setResult(Constants.RESULT_RESTART_CONNECTION); // Must restart connection (not connected)
+        mVideosView.setAdapter(new AlbumRecyclerViewAdapter(this, mVideos));
 
 
 
@@ -409,46 +461,16 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
 
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.video_list);
-        assert recyclerView != null;
-        mTwoPane = findViewById(R.id.video_detail_container) != null;
-        recyclerView.setAdapter(new AlbumRecyclerViewAdapter(this, mVideos));
 
 
 
 
         // Select video detail (if needed)
-        if (mNewVideo != null) {
+        if ((mNewVideo != null) || (mTwoPane))
+            selectVideo(false);
 
-            // Select last video
-
-
-
-        }
-        else if (mTwoPane) {
-
-            // Select first video
-
-
-
-        }
         if (mTwoPane)
             setOnDetailListener();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 
     @Override
@@ -463,19 +485,8 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         }
         if (resultCode == Constants.RESULT_SELECT_VIDEO) {
 
-
-
-
-
-
-            // data.getExtras().getInt(AlbumActivity.ARG_VIDEO_POSITION)
-
-
-
-
-
-
-
+            mVideoSelected = data.getExtras().getInt(AlbumActivity.ARG_VIDEO_POSITION, 0);
+            selectVideo(false);
         }
     }
 

@@ -16,6 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;
@@ -249,6 +250,11 @@ public class MainActivity extends AppCompatActivity
                 VideoListActivity.mAddVideo = true;
 
                 startActivityForResult(intent, 0);
+                break;
+            }
+            case Constants.RESULT_NO_VIDEO: {
+
+                DisplayMessage.getInstance().toast(R.string.no_video, Toast.LENGTH_LONG);
                 break;
             }
         }

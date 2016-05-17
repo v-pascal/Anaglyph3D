@@ -35,6 +35,7 @@ public interface IDataTable {
     boolean update(SQLiteDatabase db, Object data); // Update data entry
     int delete(SQLiteDatabase db, long[] keys); // Delete data entries with keys and return deleted entry count
 
+    int getEntryCount(SQLiteDatabase db); // Return table entry count
     <T> List<T> getAllEntries(SQLiteDatabase db); // Return table entries into object list
 
     //

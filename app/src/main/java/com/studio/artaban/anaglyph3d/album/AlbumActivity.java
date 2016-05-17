@@ -11,7 +11,7 @@ import com.studio.artaban.anaglyph3d.helpers.Logs;
  * Created by pascal on 16/05/16.
  * Parent album activity (details selection)
  */
-public class AlbumActivity extends AppCompatActivity implements View.OnClickListener {
+public abstract class AlbumActivity extends AppCompatActivity implements View.OnClickListener {
 
     public static final String ARG_VIDEO_POSITION = "position";
 

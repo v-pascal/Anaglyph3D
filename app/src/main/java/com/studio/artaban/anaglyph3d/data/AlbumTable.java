@@ -158,6 +158,13 @@ public class AlbumTable implements IDataTable {
     }
 
     @Override
+    public int getEntryCount(SQLiteDatabase db) {
+
+        Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_NAME, null);
+        cursor.moveToNext();
+        return cursor.getInt(0);
+    }
+    @Override
     public <T> List<T> getAllEntries(SQLiteDatabase db) {
 
         Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, COLUMN_DATE);

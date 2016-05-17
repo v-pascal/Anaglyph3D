@@ -15,8 +15,6 @@
         android:name="com.studio.artaban.anaglyph3d.VideoListFragment"
         android:layout_width="@dimen/video_list_width"
         android:layout_height="match_parent"
-        android:layout_marginRight="16dp"
-        android:layout_marginEnd="16dp"
         app:layoutManager="LinearLayoutManager"
         tools:context=".album.VideoListActivity"
         tools:listitem="@layout/video_list_content" />
