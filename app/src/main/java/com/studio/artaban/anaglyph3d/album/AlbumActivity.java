@@ -19,8 +19,10 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
     public void setOnDetailListener() {
 
 
+
         final Button testage = (Button) findViewById(R.id.button_testage);
         testage.setOnClickListener(this);
+
 
 
     }
@@ -29,7 +31,11 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
     @Override
     public void onClick(View v) {
 
+
+
         Logs.add(Logs.Type.E, "testage");
+
+
 
 
     }

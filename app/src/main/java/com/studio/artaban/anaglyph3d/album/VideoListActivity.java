@@ -84,25 +84,13 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         video.setDescription(description);
         mDB.update(AlbumTable.TABLE_NAME, video);
 
-
-
-
-
-
-
-
+        //////
         mNewVideo = null;
         mAddVideo = false;
-        //refresh list/detail
 
-
-
-
-
-
-
+        fillVideoList(videoPosition);
     }
-    public void onDelete(int videoPosition) { // Delete video is requested or cancel video creation
+    public boolean onDelete(int videoPosition) { // Delete video is requested or cancel video creation
         AlbumTable.Video video = mVideos.get(videoPosition);
         assert video != null;
 
@@ -112,22 +100,11 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         Logs.add(Logs.Type.W, "Deleting video: " + video.toString());
         mDB.delete(AlbumTable.TABLE_NAME, new long[] { video.getId() });
 
-
-
-
-
-
-
-
+        //////
         mNewVideo = null;
         mAddVideo = false;
-        //refresh list/detail
 
-
-
-
-
-
+        return fillVideoList(0);
     }
 
     //////
@@ -257,17 +234,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         }
         mLastVideoSelected = mVideoSelected;
 
-        // Display default detail of the selected video
-
-
-
-
-
-
-
-
-
-
+        // Display default detail of the selected video (player)
         Bundle arguments = new Bundle();
         arguments.putInt(AlbumActivity.ARG_VIDEO_POSITION, mVideoSelected);
 
@@ -276,14 +243,24 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.video_detail_container, fragment)
                 .commit();
+    }
+    private boolean fillVideoList(int selectPosition) { // Fill video list recycler view
 
+        mVideos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
 
+        mVideoSelected = selectPosition;
+        if (mNewVideo != null)
+            mVideoSelected = mVideos.size() - 1; // Select last video
 
+        // Check if at least one video is in the album
+        if (mVideos.size() < 1) {
 
-
-
-
-
+            setResult(Constants.RESULT_NO_VIDEO);
+            finish();
+            return false; // No video to display
+        }
+        mVideosView.setAdapter(new AlbumRecyclerViewAdapter(this, mVideos));
+        return true;
     }
 
     //////
@@ -426,44 +403,8 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         mVideosView = (RecyclerView) findViewById(R.id.video_list);
         mTwoPane = findViewById(R.id.video_detail_container) != null;
 
-
-
-
-
-
-
-
-
-
-
-        mVideos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
-
-        mVideoSelected = 0;
-        if (mNewVideo != null)
-            mVideoSelected = mVideos.size() - 1; // Select last video
-
-        // Check if at least one video is in the album
-        if (mVideos.size() < 1) {
-
-            setResult(Constants.RESULT_NO_VIDEO);
-            finish();
-            return;
-        }
-        mVideosView.setAdapter(new AlbumRecyclerViewAdapter(this, mVideos));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        if (!fillVideoList(0))
+            return; // No video to display
 
         // Select video detail (if needed)
         if ((mNewVideo != null) || (mTwoPane))
