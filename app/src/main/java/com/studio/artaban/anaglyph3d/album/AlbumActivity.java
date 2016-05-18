@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 /**
@@ -14,7 +15,7 @@ import com.studio.artaban.anaglyph3d.helpers.Logs;
 public abstract class AlbumActivity extends AppCompatActivity implements View.OnClickListener {
 
     public static final String ARG_VIDEO_POSITION = "position";
-    protected int mVideoSelected = 0; // Selected video position (or video to select)
+    protected int mVideoSelected = Constants.NO_DATA; // Selected video position (or video to select)
 
     //
     public void setOnDetailListener() {

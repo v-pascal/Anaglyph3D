@@ -424,39 +424,23 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
 
 
-
-
-        // Check if only videos list will be displayed with a creation request
-        if ((!mTwoPane) && (mNewVideo != null)) {
+        Logs.add(Logs.Type.E, "Selected: " + mVideoSelected);
 
 
 
-
-
-
-
-
-
+        // Check if only videos list will be displayed with a creation request...
+        if (((!mTwoPane) && (mNewVideo != null)) || // ...or if a selected video exists
+                ((!mTwoPane) && (mVideoSelected != Constants.NO_DATA))) {
 
             mVideos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
-            mVideoSelected = mVideos.size() - 1;
+            if (mVideoSelected == Constants.NO_DATA)
+                mVideoSelected = mVideos.size() - 1; // New video (last position)
 
             // Display video details activity
             Intent intent = new Intent(this, VideoDetailActivity.class);
             intent.putExtra(AlbumActivity.ARG_VIDEO_POSITION, mVideoSelected);
 
             startActivityForResult(intent, 0);
-
-
-
-
-
-
-
-
-
-
-
             return;
         }
 
