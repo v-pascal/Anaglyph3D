@@ -247,7 +247,7 @@ public class MainActivity extends AppCompatActivity
                 Intent intent = new Intent(this, VideoListActivity.class);
                 intent.putExtra(Constants.DATA_ACTIVITY, data.getBundleExtra(Constants.DATA_ACTIVITY));
                 intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, true);
-                VideoListActivity.mAddVideo = true;
+                intent.putExtra(Constants.DATA_ADD_VIDEO, true);
 
                 startActivityForResult(intent, 0);
                 break;

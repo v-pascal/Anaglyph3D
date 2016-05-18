@@ -41,16 +41,18 @@ public class VideoDetailActivity extends AlbumActivity {
             appBar.setDisplayHomeAsUpEnabled(true);
         }
 
+        // Restore videos album (manage video selection)
+        restoreVideosAlbum(savedInstanceState);
+
         // Check if orientation has changed with a large screen (check two panel needed)
         final Point screenSize = new Point();
         getWindowManager().getDefaultDisplay().getSize(screenSize);
         if ((getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) &&
                 (screenSize.x >= Constants.LARGE_SCREEN_WIDTH)) {
 
-            // Display two panel in same activity
+            // Force to display two panels in same activity (list & details)
             Intent intent = new Intent();
-            intent.putExtra(AlbumActivity.ARG_VIDEO_POSITION,
-                    getIntent().getIntExtra(AlbumActivity.ARG_VIDEO_POSITION, 0));
+            intent.putExtra(AlbumActivity.DATA_VIDEO_POSITION, mVideoSelected);
 
             setResult(Constants.RESULT_SELECT_VIDEO, intent);
             finish();
@@ -93,12 +95,12 @@ public class VideoDetailActivity extends AlbumActivity {
 
 
 
-        mVideoSelected = getIntent().getIntExtra(AlbumActivity.ARG_VIDEO_POSITION, 0);
+
         if (getSupportFragmentManager().findFragmentById(R.id.video_detail_container) == null) {
 
             // Create the detail fragment and add it to the activity
             Bundle arguments = new Bundle();
-            arguments.putInt(AlbumActivity.ARG_VIDEO_POSITION, mVideoSelected);
+            arguments.putInt(AlbumActivity.DATA_VIDEO_POSITION, mVideoSelected);
 
             DetailPlayerFragment fragment = new DetailPlayerFragment();
             fragment.setArguments(arguments);
@@ -115,14 +117,8 @@ public class VideoDetailActivity extends AlbumActivity {
 
 
 
+        // Add click events listener for detail commands
         setOnDetailListener();
-
-
-
-
-
-
-
     }
 
     @Override

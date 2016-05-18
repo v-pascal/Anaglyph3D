@@ -29,6 +29,7 @@ public final class Constants {
     // Data keys
     public static final String DATA_ACTIVITY = "data"; // Bundle activity data key
     public static final String DATA_CONNECTION_ESTABLISHED = "connected"; // Connection flag key
+    public static final String DATA_ADD_VIDEO = "newVideo"; // Create new video flag key
 
 
     ////// Connectivity

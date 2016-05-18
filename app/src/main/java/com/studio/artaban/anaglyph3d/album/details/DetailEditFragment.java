@@ -29,7 +29,7 @@ public class DetailEditFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         // Get selected video
-        mVideo = VideoListActivity.mVideos.get(getArguments().getInt(AlbumActivity.ARG_VIDEO_POSITION, 0));
+        mVideo = VideoListActivity.mVideos.get(getArguments().getInt(AlbumActivity.DATA_VIDEO_POSITION, 0));
 
         Activity activity = this.getActivity();
         ActionBar appBar = ((AppCompatActivity)activity).getSupportActionBar();

@@ -45,15 +45,27 @@ import java.util.List;
  */
 public class VideoListActivity extends AlbumActivity implements GoogleApiClient.OnConnectionFailedListener {
 
-    public static boolean mAddVideo = false; // Flag to check new video creation request
-    private static AlbumTable.Video mNewVideo = null; // New video entry (when creation is requested)
+    public static List<AlbumTable.Video> mVideos; // Album (videos list)
 
     //////
     private Database mDB;
     private GoogleApiClient mGoogleApiClient;
-    public static List<AlbumTable.Video> mVideos;
 
-    private boolean mTwoPane; // Flag to know if displaying both panel: list & details
+    private boolean mTwoPane; // Flag to know if displaying both list & details panel
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     //
     public void onSave(int videoPosition, String title, String description) { // Save video detail
@@ -61,8 +73,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         assert video != null;
 
         // Check if saving a new video (new video creation request)
-        if (mNewVideo != null) {
-            video = mNewVideo;
+        if (mNewVideoAdded && !mNewVideoSaved) {
 
             assert (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
                     PackageManager.PERMISSION_GRANTED ||
@@ -85,8 +96,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         mDB.update(AlbumTable.TABLE_NAME, video);
 
         //////
-        mNewVideo = null;
-        mAddVideo = false;
+        mNewVideoSaved = true;
 
         fillVideoList(videoPosition);
     }
@@ -94,18 +104,29 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         AlbumTable.Video video = mVideos.get(videoPosition);
         assert video != null;
 
-        if (mNewVideo != null)
-            video = mNewVideo; // Cancel video creation
-
         Logs.add(Logs.Type.W, "Deleting video: " + video.toString());
         mDB.delete(AlbumTable.TABLE_NAME, new long[] { video.getId() });
 
         //////
-        mNewVideo = null;
-        mAddVideo = false;
+        if (mNewVideoAdded && !mNewVideoSaved)
+            mNewVideoSaved = true;
 
         return fillVideoList(0);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     //////
     public class AlbumRecyclerViewAdapter extends RecyclerView.Adapter<AlbumRecyclerViewAdapter.ViewHolder> {
@@ -172,7 +193,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
                         // Display video details activity
                         Intent intent = new Intent(mActivity, VideoDetailActivity.class);
-                        intent.putExtra(AlbumActivity.ARG_VIDEO_POSITION, mVideoSelected);
+                        intent.putExtra(AlbumActivity.DATA_VIDEO_POSITION, mVideoSelected);
 
                         mActivity.startActivityForResult(intent, 0);
                     }
@@ -241,7 +262,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
         // Display default detail of the selected video (player)
         Bundle arguments = new Bundle();
-        arguments.putInt(AlbumActivity.ARG_VIDEO_POSITION, mVideoSelected);
+        arguments.putInt(AlbumActivity.DATA_VIDEO_POSITION, mVideoSelected);
 
         DetailPlayerFragment fragment = new DetailPlayerFragment();
         fragment.setArguments(arguments);
@@ -261,7 +282,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         mVideos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
 
         mVideoSelected = selectPosition;
-        if (mNewVideo != null)
+        if (mNewVideoAdded && !mNewVideoSaved)
             mVideoSelected = mVideos.size() - 1; // Select last video
 
         // Check if at least one video is in the album
@@ -297,8 +318,10 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             appBar.setTitle(R.string.nav_album); // Needed when orientation has changed
         }
 
-        // Restore videos album (manage video selection)
+        // Restore videos album (manage video selection), and check connection for default result
         restoreVideosAlbum(savedInstanceState);
+        if (!getIntent().getBooleanExtra(Constants.DATA_CONNECTION_ESTABLISHED, false))
+            setResult(Constants.RESULT_RESTART_CONNECTION); // Must restart connection (not connected)
 
         // Prepare location using Google API
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -389,9 +412,6 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
 
 
-        Logs.add(Logs.Type.E, "testruc: " + getIntent().getExtras().getBoolean("testruc"));
-        getIntent().getExtras().putBoolean("testruc", false);
-
 
 
 
@@ -399,7 +419,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
 
         // Check if new entry is requested (and not already added)
-        if ((mAddVideo) && (mNewVideo == null)) {
+        if ((getIntent().getBooleanExtra(Constants.DATA_ADD_VIDEO, false)) && (!mNewVideoAdded)) {
 
             // Rename and move thumbnail JPEG file into expected storage folder
             Date date = new Date();
@@ -408,31 +428,25 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             ////// Add new video into the album
             Bundle data = getIntent().getBundleExtra(Constants.DATA_ACTIVITY); // To get thumbnail resolution
             assert data != null;
-            mNewVideo = new AlbumTable.Video(0, null, null, date, Settings.getInstance().mDuration,
+            AlbumTable.Video newVideo = new AlbumTable.Video(0, null, null, date, Settings.getInstance().mDuration,
                     0f, 0f, data.getInt(Frame.DATA_KEY_WIDTH), data.getInt(Frame.DATA_KEY_HEIGHT));
 
-            mDB.insert(AlbumTable.TABLE_NAME, new AlbumTable.Video[] { mNewVideo });
-
-            // Assign new id created for this new video (which is the last entry added coz order by date)
-            mNewVideo.setId(mVideos.get(mDB.getEntryCount(AlbumTable.TABLE_NAME) - 1).getId());
+            mDB.insert(AlbumTable.TABLE_NAME, new AlbumTable.Video[]{newVideo});
+            mNewVideoAdded = true;
         }
-
-        // Check connection
-        if (!getIntent().getBooleanExtra(Constants.DATA_CONNECTION_ESTABLISHED, false))
-            setResult(Constants.RESULT_RESTART_CONNECTION); // Must restart connection (not connected)
 
         mVideosView = (RecyclerView) findViewById(R.id.video_list);
         mTwoPane = findViewById(R.id.video_detail_container) != null;
 
-        // Check if only videos list will be displayed with a creation request...
-        if (((!mTwoPane) && (mNewVideo != null)) || // ...or if a video is already selected
-                ((!mTwoPane) && (mVideoSelected != Constants.NO_DATA))) {
+        // Check if only videos list will be displayed with...
+        if ((!mTwoPane) && ((mNewVideoAdded && !mNewVideoSaved) || // ...a creation request...
+                (mVideoSelected != Constants.NO_DATA))) { // ...or if a video is already selected
 
             fillVideoList(mVideoSelected);
 
             // Display video details activity
             Intent intent = new Intent(this, VideoDetailActivity.class);
-            intent.putExtra(AlbumActivity.ARG_VIDEO_POSITION, mVideoSelected);
+            intent.putExtra(AlbumActivity.DATA_VIDEO_POSITION, mVideoSelected);
 
             startActivityForResult(intent, 0);
             return;
@@ -442,10 +456,10 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             return; // No video to display
 
         // Select video detail (if needed)
-        if ((mNewVideo != null) || (mTwoPane))
+        if ((mTwoPane) || (mNewVideoAdded && !mNewVideoSaved))
             selectVideo(false);
 
-        if (mTwoPane)
+        if (mTwoPane) // Check to add click events listener for detail commands
             setOnDetailListener();
     }
 
@@ -463,7 +477,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             case Constants.RESULT_SELECT_VIDEO: {
 
                 //assert mTwoPane;
-                mVideoSelected = data.getExtras().getInt(AlbumActivity.ARG_VIDEO_POSITION, 0);
+                mVideoSelected = data.getExtras().getInt(AlbumActivity.DATA_VIDEO_POSITION, 0);
                 selectVideo(false);
                 break;
             }
