@@ -23,7 +23,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
         if (state != null)
             mVideoSelected = state.getInt(ARG_VIDEO_POSITION);
     }
-    protected void setOnDetailListener() { // Add click events listener on change detail commands
+    protected void setOnDetailListener() { // Add click events listener for detail commands
 
 
 

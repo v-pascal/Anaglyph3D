@@ -389,10 +389,16 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
 
 
+        Logs.add(Logs.Type.E, "testruc: " + getIntent().getExtras().getBoolean("testruc"));
+        getIntent().getExtras().putBoolean("testruc", false);
 
 
 
-        // Check if new entry is requested
+
+
+
+
+        // Check if new entry is requested (and not already added)
         if ((mAddVideo) && (mNewVideo == null)) {
 
             // Rename and move thumbnail JPEG file into expected storage folder
@@ -405,7 +411,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             mNewVideo = new AlbumTable.Video(0, null, null, date, Settings.getInstance().mDuration,
                     0f, 0f, data.getInt(Frame.DATA_KEY_WIDTH), data.getInt(Frame.DATA_KEY_HEIGHT));
 
-            mDB.insert(AlbumTable.TABLE_NAME, new AlbumTable.Video[]{mNewVideo});
+            mDB.insert(AlbumTable.TABLE_NAME, new AlbumTable.Video[] { mNewVideo });
 
             // Assign new id created for this new video (which is the last entry added coz order by date)
             mNewVideo.setId(mVideos.get(mDB.getEntryCount(AlbumTable.TABLE_NAME) - 1).getId());
