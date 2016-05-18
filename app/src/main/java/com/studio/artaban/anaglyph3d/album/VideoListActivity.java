@@ -46,7 +46,7 @@ import java.util.List;
 public class VideoListActivity extends AlbumActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     public static boolean mAddVideo = false; // Flag to check new video creation request
-    private static AlbumTable.Video mNewVideo = null; // New video entry (only when creation is requested)
+    private static AlbumTable.Video mNewVideo = null; // New video entry (when creation is requested)
 
     //////
     private Database mDB;
@@ -211,7 +211,6 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
     }
 
     //
-    private int mVideoSelected = 0; // Selected video position (or video to select)
     private int mLastVideoSelected = Constants.NO_DATA; // Previous selected video position
     private RecyclerView mVideosView; // Recycler view containing videos list
 
@@ -417,7 +416,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         mTwoPane = findViewById(R.id.video_detail_container) != null;
 
         // Check if only videos list will be displayed with a creation request
-        if ((mTwoPane) && (mNewVideo != null)) {
+        if ((!mTwoPane) && (mNewVideo != null)) {
 
 
 
@@ -427,7 +426,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
 
 
-
+            mVideos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
 
             // Display video details activity
             Intent intent = new Intent(this, VideoDetailActivity.class);

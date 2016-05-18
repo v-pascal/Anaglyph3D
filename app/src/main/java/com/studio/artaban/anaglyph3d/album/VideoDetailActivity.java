@@ -93,25 +93,18 @@ public class VideoDetailActivity extends AlbumActivity {
 
 
 
+        mVideoSelected = getIntent().getIntExtra(AlbumActivity.ARG_VIDEO_POSITION, 0);
         if (getSupportFragmentManager().findFragmentById(R.id.video_detail_container) == null) {
-
-
 
             // Create the detail fragment and add it to the activity
             Bundle arguments = new Bundle();
-            arguments.putInt(AlbumActivity.ARG_VIDEO_POSITION,
-                    getIntent().getIntExtra(AlbumActivity.ARG_VIDEO_POSITION, 0));
+            arguments.putInt(AlbumActivity.ARG_VIDEO_POSITION, mVideoSelected);
+
             DetailPlayerFragment fragment = new DetailPlayerFragment();
             fragment.setArguments(arguments);
-
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.video_detail_container, fragment)
                     .commit();
-
-
-
-
-
         }
 
 

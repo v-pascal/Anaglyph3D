@@ -14,6 +14,7 @@ import com.studio.artaban.anaglyph3d.helpers.Logs;
 public abstract class AlbumActivity extends AppCompatActivity implements View.OnClickListener {
 
     public static final String ARG_VIDEO_POSITION = "position";
+    protected int mVideoSelected = 0; // Selected video position (or video to select)
 
     //
     public void setOnDetailListener() {
@@ -30,6 +31,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
     //////
     @Override
     public void onClick(View v) {
+
 
 
 

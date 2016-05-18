@@ -17,9 +17,9 @@ import com.studio.artaban.anaglyph3d.data.AlbumTable;
 
 /**
  * Created by pascal on 16/05/16.
- * Video player fragment
+ * Video description fragment (with edit action)
  */
-public class DetailPlayerFragment extends Fragment {
+public class DetailEditFragment extends Fragment {
 
     private AlbumTable.Video mVideo;
 
@@ -39,7 +39,7 @@ public class DetailPlayerFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.video_detail_player, container, false);
+        View rootView = inflater.inflate(R.layout.video_detail_edit, container, false);
 
 
 
