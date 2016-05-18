@@ -297,6 +297,9 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             appBar.setTitle(R.string.nav_album); // Needed when orientation has changed
         }
 
+        // Restore videos album (manage video selection)
+        restoreVideosAlbum(savedInstanceState);
+
         // Prepare location using Google API
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addOnConnectionFailedListener(this)
@@ -415,26 +418,11 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         mVideosView = (RecyclerView) findViewById(R.id.video_list);
         mTwoPane = findViewById(R.id.video_detail_container) != null;
 
-
-
-
-
-
-
-
-
-
-        Logs.add(Logs.Type.E, "Selected: " + mVideoSelected);
-
-
-
         // Check if only videos list will be displayed with a creation request...
-        if (((!mTwoPane) && (mNewVideo != null)) || // ...or if a selected video exists
+        if (((!mTwoPane) && (mNewVideo != null)) || // ...or if a video is already selected
                 ((!mTwoPane) && (mVideoSelected != Constants.NO_DATA))) {
 
-            mVideos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
-            if (mVideoSelected == Constants.NO_DATA)
-                mVideoSelected = mVideos.size() - 1; // New video (last position)
+            fillVideoList(mVideoSelected);
 
             // Display video details activity
             Intent intent = new Intent(this, VideoDetailActivity.class);
@@ -443,24 +431,6 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             startActivityForResult(intent, 0);
             return;
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         if (!fillVideoList(0))
             return; // No video to display

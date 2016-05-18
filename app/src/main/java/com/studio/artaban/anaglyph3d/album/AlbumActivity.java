@@ -1,5 +1,6 @@
 package com.studio.artaban.anaglyph3d.album;
 
+import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -18,7 +19,14 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
     protected int mVideoSelected = Constants.NO_DATA; // Selected video position (or video to select)
 
     //
-    public void setOnDetailListener() {
+    protected void restoreVideosAlbum(Bundle state) { // Restore album (manage video selection)
+        if (state != null)
+            mVideoSelected = state.getInt(ARG_VIDEO_POSITION);
+    }
+    protected void setOnDetailListener() { // Add click events listener on change detail commands
+
+
+
 
 
 
@@ -27,16 +35,30 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
 
 
 
+
+
+
     }
 
     //////
     @Override
-    public void onClick(View v) {
+    protected void onSaveInstanceState(Bundle outState) {
+
+        outState.putInt(ARG_VIDEO_POSITION, mVideoSelected);
+        super.onSaveInstanceState(outState);
+    }
+
+    //////
+    @Override
+    public void onClick(View v) { // Manage change detail command events
+
+
 
 
 
 
         Logs.add(Logs.Type.E, "testage");
+
 
 
 
