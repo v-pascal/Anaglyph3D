@@ -41,7 +41,7 @@ public class VideoDetailActivity extends AlbumActivity {
             appBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        // Check if orientation has changed with a large screen
+        // Check if orientation has changed with a large screen (check two panel needed)
         final Point screenSize = new Point();
         getWindowManager().getDefaultDisplay().getSize(screenSize);
         if ((getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) &&

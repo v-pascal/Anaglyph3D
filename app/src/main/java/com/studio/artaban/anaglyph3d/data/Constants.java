@@ -23,6 +23,8 @@ public final class Constants {
     public static final int RESULT_DISPLAY_ALBUM = 303; // Display album with current 3D video result
     public static final int RESULT_NO_VIDEO = 304; // No video result
     public static final int RESULT_SELECT_VIDEO = 305; // Select video result
+    public static final int RESULT_SAVE_VIDEO = 306; // Save video result
+    public static final int RESULT_DELETE_VIDEO = 307; // Delete video result
 
     // Data keys
     public static final String DATA_ACTIVITY = "data"; // Bundle activity data key

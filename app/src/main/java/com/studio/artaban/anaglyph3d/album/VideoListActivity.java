@@ -60,7 +60,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         AlbumTable.Video video = mVideos.get(videoPosition);
         assert video != null;
 
-        // Check if saving new video
+        // Check if saving a new video (new video creation request)
         if (mNewVideo != null) {
             video = mNewVideo;
 
@@ -415,6 +415,17 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         mVideosView = (RecyclerView) findViewById(R.id.video_list);
         mTwoPane = findViewById(R.id.video_detail_container) != null;
 
+
+
+
+
+
+
+
+
+
+
+
         // Check if only videos list will be displayed with a creation request
         if ((!mTwoPane) && (mNewVideo != null)) {
 
@@ -426,7 +437,9 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
 
 
+
             mVideos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
+            mVideoSelected = mVideos.size() - 1;
 
             // Display video details activity
             Intent intent = new Intent(this, VideoDetailActivity.class);
@@ -442,8 +455,28 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
 
 
+
+
             return;
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         if (!fillVideoList(0))
             return; // No video to display
@@ -466,11 +499,47 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             Logs.add(Logs.Type.F, "Unexpected request code");
             return;
         }
-        if (resultCode == Constants.RESULT_SELECT_VIDEO) {
+        switch (resultCode) {
+            case Constants.RESULT_SELECT_VIDEO: {
 
-            //assert mTwoPane;
-            mVideoSelected = data.getExtras().getInt(AlbumActivity.ARG_VIDEO_POSITION, 0);
-            selectVideo(false);
+                //assert mTwoPane;
+                mVideoSelected = data.getExtras().getInt(AlbumActivity.ARG_VIDEO_POSITION, 0);
+                selectVideo(false);
+                break;
+            }
+            case Constants.RESULT_SAVE_VIDEO: {
+
+                //assert !mTwoPane;
+
+
+
+
+
+
+
+
+
+
+
+
+                break;
+            }
+            case Constants.RESULT_DELETE_VIDEO: {
+
+                //assert !mTwoPane;
+
+
+
+
+
+
+
+
+
+
+
+                break;
+            }
         }
     }
 
