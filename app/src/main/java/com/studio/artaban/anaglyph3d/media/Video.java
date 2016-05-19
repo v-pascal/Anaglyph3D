@@ -83,7 +83,7 @@ public class Video extends BufferRequest {
 
                         // BUG: Only +[0-9] regex is not matching! Not greedy by default !?! See below...
                         if (filename.matches("^" + Constants.PROCESS_LOCAL_PREFIX + "+[0-9]*[0-9]\\" +
-                                Constants.PROCESS_RGBA_EXTENSION + "$"))
+                                Constants.EXTENSION_RGBA + "$"))
                             return true;
 
                         return false;
@@ -97,7 +97,7 @@ public class Video extends BufferRequest {
                     public boolean accept(File dir, String filename) {
 
                         if (filename.matches("^" + Constants.PROCESS_REMOTE_PREFIX + "+[0-9]*[0-9]\\" +
-                                Constants.PROCESS_RGBA_EXTENSION + "$"))
+                                Constants.EXTENSION_RGBA + "$"))
                             return true;
 
                         return false;
@@ -134,7 +134,7 @@ public class Video extends BufferRequest {
 
                         // BUG: Only +[0-9] regex is not matching! Not greedy by default !?! See below...
                         if (filename.matches("^" + prefix + "+[0-9]*[0-9]\\" +
-                                Constants.PROCESS_RGBA_EXTENSION + "$"))
+                                Constants.EXTENSION_RGBA + "$"))
                             return true;
 
                         return false;
@@ -157,7 +157,7 @@ public class Video extends BufferRequest {
                     else if (removed != 0) // Rename file in order to keep file index name valid
                         file.renameTo(new File(ActivityWrapper.DOCUMENTS_FOLDER + File.separator + prefix +
                                 String.format("%04d", frameCount - removed - 1) +
-                                Constants.PROCESS_RGBA_EXTENSION));
+                                Constants.EXTENSION_RGBA));
 
                     deleteFlag += deleteLag;
                     ++mProceedFrame;
@@ -197,12 +197,12 @@ public class Video extends BufferRequest {
                     for (int i = 0; i < mFrameCount; ++i) {
 
                         File frame = new File(framePath + String.format("%04d", i) +
-                                Constants.PROCESS_RGBA_EXTENSION);
+                                Constants.EXTENSION_RGBA);
                         if (data.offset > i)
                             frame.delete();
                         else
                             frame.renameTo(new File(framePath + String.format("%04d", i - data.offset) +
-                                    Constants.PROCESS_RGBA_EXTENSION));
+                                    Constants.EXTENSION_RGBA));
 
                         ++mProceedFrame;
                     }
@@ -232,7 +232,7 @@ public class Video extends BufferRequest {
 
                     // Get local frame buffer
                     File localFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + File.separator +
-                            Constants.PROCESS_LOCAL_PREFIX + fileIndex + Constants.PROCESS_RGBA_EXTENSION);
+                            Constants.PROCESS_LOCAL_PREFIX + fileIndex + Constants.EXTENSION_RGBA);
                     try {
                         if (new FileInputStream(localFile).read(buffer) != buffer.length)
                             throw new IOException();
@@ -245,7 +245,7 @@ public class Video extends BufferRequest {
 
                     // Get remote frame buffer
                     File remoteFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + File.separator +
-                            Constants.PROCESS_REMOTE_PREFIX + fileIndex + Constants.PROCESS_RGBA_EXTENSION);
+                            Constants.PROCESS_REMOTE_PREFIX + fileIndex + Constants.EXTENSION_RGBA);
                     try {
                         if (new FileInputStream(remoteFile).read(buffer) != buffer.length)
                             throw new IOException();
@@ -315,7 +315,7 @@ public class Video extends BufferRequest {
                 ////// Remove remaining frame files
                 Storage.removeFiles("^" + ((!data.localSync)?
                         Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX) +
-                        "+[0-9]*[0-9]\\" + Constants.PROCESS_RGBA_EXTENSION + "$");
+                        "+[0-9]*[0-9]\\" + Constants.EXTENSION_RGBA + "$");
 
                 ++mProceedFrame;
 

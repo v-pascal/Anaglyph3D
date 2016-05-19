@@ -3,6 +3,7 @@
     <color name="api_16_black">#ff1e1e1e</color>
     <color name="full_red">#ffff0000</color>
     <color name="full_green">#ff00ff00</color>
+    <color name="full_yellow">#ffffff00</color>
     <color name="darker_gray">#ff505050</color>
     <color name="lighter_gray">#ff707070</color>
 </resources>

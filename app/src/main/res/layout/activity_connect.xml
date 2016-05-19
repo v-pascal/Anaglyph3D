@@ -11,21 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimaryDark"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar">
-
-        <ImageView
-            android:id="@+id/album_menu"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:src="@drawable/ic_video_library_white_36dp"
-            android:adjustViewBounds="true"
-            android:clickable="true"
-            android:maxHeight="48dp"
-            android:maxWidth="48dp"
-            android:contentDescription="@string/image_desc_album" />
-
-    </android.support.v7.widget.Toolbar>
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
 
     <RelativeLayout
         android:layout_width="match_parent"

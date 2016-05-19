@@ -62,7 +62,7 @@ public class SynchroActivity extends AppCompatActivity {
 
         File bmpFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + File.separator + ((local)?
                         Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX) +
-                String.format("%04d", position) + Constants.PROCESS_RGBA_EXTENSION);
+                String.format("%04d", position) + Constants.EXTENSION_RGBA);
 
         Bitmap bitmap = null;
         byte[] bmpBuffer = new byte[(int)bmpFile.length()];

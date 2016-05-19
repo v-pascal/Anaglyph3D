@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -29,7 +31,7 @@ import java.io.File;
  * Created by pascal on 19/03/16.
  * Connect activity (launcher)
  */
-public class ConnectActivity extends AppCompatActivity implements View.OnClickListener {
+public class ConnectActivity extends AppCompatActivity {
 
     private void setDeviceAnimation(boolean right) {
 
@@ -91,11 +93,6 @@ public class ConnectActivity extends AppCompatActivity implements View.OnClickLi
         else // Default status bar color (API < 21)
             appBar.setBackgroundColor(Color.argb(255, 30, 30, 30));
 
-        // Add toolbar image menu click listener
-        final ImageView albumMenu = (ImageView)findViewById(R.id.album_menu);
-        assert albumMenu != null;
-        albumMenu.setOnClickListener(this);
-
         // Start connectivity
         if (!Connectivity.getInstance().start(this)) {
 
@@ -149,6 +146,35 @@ public class ConnectActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_connect, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+
+            case R.id.menu_album: {
+
+                // Stop connectivity (do not attempt to connect when video album is displayed)
+                Connectivity.getInstance().stop();
+
+                // Display album activity
+                Intent intent = new Intent(this, VideoListActivity.class);
+                startActivityForResult(intent, 0);
+                return true;
+            }
+            case R.id.menu_quit: {
+
+                finish();
+                return true;
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         Connectivity.getInstance().resume(this);
@@ -165,17 +191,5 @@ public class ConnectActivity extends AppCompatActivity implements View.OnClickLi
         super.onDestroy();
         Connectivity.getInstance().destroy();
         Storage.removeTempFiles();
-    }
-
-    //////
-    @Override
-    public void onClick(View v) { // Album menu
-
-        // Stop connectivity (do not attempt to connect when video album is displayed)
-        Connectivity.getInstance().stop();
-
-        // Display album activity
-        Intent intent = new Intent(this, VideoListActivity.class);
-        startActivityForResult(intent, 0);
     }
 }

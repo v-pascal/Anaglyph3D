@@ -24,6 +24,7 @@ public final class Storage {
     public static final String FILENAME_THUMBNAIL_PICTURE = File.separator + "thumbnail.jpg"; // Thumbnail JPEG picture file
 
     public static final String FOLDER_THUMBNAILS = File.separator + "Thumbnails";
+    public static final String FOLDER_VIDEOS = File.separator + "Videos";
 
     //////
     public static void removeTempFiles() { // Remove all temporary files from documents folder
@@ -72,7 +73,7 @@ public final class Storage {
         return need; // Bad: not enough memory space to process (return memory space need)
     }
 
-    public static boolean saveThumbnail(String file) { // Rename and move thumbnail JPEG into appropriate folder
+    public static boolean saveThumbnail(String file) { // Rename and move thumbnail file into appropriate folder
 
         File thumbnailFolder = new File(ActivityWrapper.DOCUMENTS_FOLDER + FOLDER_THUMBNAILS);
         if ((!thumbnailFolder.exists()) && (!thumbnailFolder.mkdir())) {
@@ -83,7 +84,23 @@ public final class Storage {
         File thumbnailFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + FILENAME_THUMBNAIL_PICTURE);
         if (!thumbnailFile.renameTo(new File(file))) {
 
-            Logs.add(Logs.Type.E, "Failed to rename thumbnail picture file");
+            Logs.add(Logs.Type.E, "Failed to rename thumbnail file");
+            return false;
+        }
+        return true;
+    }
+    public static boolean saveVideo(String file) { // Rename and move video file into appropriate folder
+
+        File videoFolder = new File(ActivityWrapper.DOCUMENTS_FOLDER + FOLDER_VIDEOS);
+        if ((!videoFolder.exists()) && (!videoFolder.mkdir())) {
+
+            Logs.add(Logs.Type.E, "Failed to create videos folder");
+            return false;
+        }
+        File videoFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + FILENAME_3D_VIDEO);
+        if (!videoFile.renameTo(new File(file))) {
+
+            Logs.add(Logs.Type.E, "Failed to rename video file");
             return false;
         }
         return true;

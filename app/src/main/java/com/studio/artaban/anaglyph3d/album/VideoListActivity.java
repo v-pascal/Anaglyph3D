@@ -159,7 +159,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
                 holder.mDateView.setBackgroundColor(getResources().getColor(R.color.lighter_gray));
             }
             AlbumTable.Video video = mVideos.get(position);
-            holder.mTitleView.setText(video.getTitle());
+            holder.mTitleView.setText(video.getTitle(true));
             holder.mDateView.setText(video.getDate(mActivity));
 
 
@@ -184,6 +184,8 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
                     holder.imageView.setImageDrawable(null);
                 }
                 */
+
+
 
 
 
@@ -411,9 +413,10 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         // Check if new entry is requested (and not already added)
         if ((getIntent().getBooleanExtra(Constants.DATA_ADD_VIDEO, false)) && (!mNewVideoAdded)) {
 
-            // Rename and move thumbnail JPEG file into expected storage folder
+            // Rename and move thumbnail & video files into expected storage folders
             Date date = new Date();
             Storage.saveThumbnail(AlbumTable.Video.getThumbnailFile(date));
+            Storage.saveVideo(AlbumTable.Video.getVideoFile(date));
 
             ////// Add new video into the album
             Bundle data = getIntent().getBundleExtra(Constants.DATA_ACTIVITY); // To get thumbnail resolution

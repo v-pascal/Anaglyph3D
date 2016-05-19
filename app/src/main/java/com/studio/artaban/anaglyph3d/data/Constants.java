@@ -19,8 +19,13 @@ public final class Constants {
 
 
 
+
+
+
     public static final int LARGE_SCREEN_HEIGHT = 480; // Height of screen considered as large (in pixel)
     public static final int LARGE_SCREEN_WIDTH = 900; // Width of screen considered as large (in pixel)
+
+
 
 
 
@@ -82,6 +87,12 @@ public final class Constants {
     public static final int CONFIG_MAX_FPS = 20; // Maximum frames per second
 
 
+    ////// Extensions
+    public static final String EXTENSION_RGBA = ".rgba";
+    public static final String EXTENSION_JPEG = ".jpg";
+    public static final String EXTENSION_WEBM = ".webm";
+
+
     ////// Process
     public static final int PROCESS_REQUEST_CONTRAST = 1; // Contrast & brightness activity request code
     public static final int PROCESS_REQUEST_SYNCHRO = 2; // Synchronization activity request code
@@ -89,12 +100,9 @@ public final class Constants {
     public static final short PROCESS_WAIT_TRANSFER = 500; // Progress loop sleep (in milliseconds)
     public static final short PROCESS_MAX_FPS = 15; // Maximum FPS expected (used to define storage space need)
 
-    public static final String PROCESS_RGBA_EXTENSION = ".rgba";
-    public static final String PROCESS_JPEG_EXTENSION = ".jpg";
-
     public static final String PROCESS_LOCAL_PREFIX = "local";
     public static final String PROCESS_REMOTE_PREFIX = "remote";
-    public static final String PROCESS_LOCAL_FRAMES = File.separator + PROCESS_LOCAL_PREFIX + "%04d" + PROCESS_RGBA_EXTENSION;
-    public static final String PROCESS_REMOTE_FRAMES = File.separator + PROCESS_REMOTE_PREFIX + "%04d" + PROCESS_RGBA_EXTENSION;
+    public static final String PROCESS_LOCAL_FRAMES = File.separator + PROCESS_LOCAL_PREFIX + "%04d" + EXTENSION_RGBA;
+    public static final String PROCESS_REMOTE_FRAMES = File.separator + PROCESS_REMOTE_PREFIX + "%04d" + EXTENSION_RGBA;
 
 }

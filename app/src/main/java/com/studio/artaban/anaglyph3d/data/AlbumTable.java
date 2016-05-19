@@ -31,7 +31,13 @@ public class AlbumTable implements IDataTable {
 
             DateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
             return ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_THUMBNAILS + File.separator +
-                    dateFormat.format(date) + Constants.PROCESS_JPEG_EXTENSION;
+                    dateFormat.format(date) + Constants.EXTENSION_JPEG;
+        }
+        public static String getVideoFile(Date date) { // Return video file path based on a video date
+
+            DateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
+            return ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_VIDEOS + File.separator +
+                    dateFormat.format(date) + Constants.EXTENSION_WEBM;
         }
 
         //
@@ -85,17 +91,20 @@ public class AlbumTable implements IDataTable {
             return this.title + " (" + dateFormat.format(this.date) + ")";
         }
 
-        public String getTitle() { // Video list title: Title (duration)
-            return this.title + " (" + this.duration + " sec)";
+        public String getTitle(boolean duration) { // Video title
+            return this.title + ((duration)? " (" + this.duration + " sec)":"");
         }
         public String getDate(Context context) { // Video list date: MM/DD/yyyy - hh:mm
 
             DateFormat dateFormat = new SimpleDateFormat(context.getString(R.string.date_detail_format));
             return dateFormat.format(this.date);
         }
-        public String getThumbnailFile() { return getThumbnailFile(this.date); }
+        public short getDuration() { return this.duration; }
         public int getThumbnailWidth() { return this.thumbnailWidth; }
         public int getThumbnailHeight() { return this.thumbnailHeight; }
+
+        public String getThumbnailFile() { return getThumbnailFile(this.date); }
+        public String getVideoFile() { return getVideoFile(this.date); }
     }
 
     //
