@@ -21,6 +21,7 @@ import com.studio.artaban.anaglyph3d.data.AlbumTable;
  */
 public class DetailEditFragment extends Fragment {
 
+    public static final String TAG = "edit";
     private AlbumTable.Video mVideo;
 
     //////

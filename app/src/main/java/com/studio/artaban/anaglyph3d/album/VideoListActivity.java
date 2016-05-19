@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -150,6 +151,13 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
 
+            // Set up background and text video item colors
+            if ((position % 2) != 0) {
+
+                holder.mTitleView.setBackgroundColor(getResources().getColor(R.color.lighter_gray));
+                holder.mTitleView.setTextColor(Color.YELLOW);
+                holder.mDateView.setBackgroundColor(getResources().getColor(R.color.lighter_gray));
+            }
             AlbumTable.Video video = mVideos.get(position);
             holder.mTitleView.setText(video.getTitle());
             holder.mDateView.setText(video.getDate(mActivity));
@@ -186,6 +194,8 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
                 public void onClick(View sender) { // Change video selection
 
                     mVideoSelected = holder.mPosition;
+                    mDetailTag = DetailPlayerFragment.TAG;
+
                     if (mTwoPane)
                         selectVideo(true); // Fill video details
 
@@ -254,28 +264,8 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         }
         mLastVideoSelected = mVideoSelected;
 
-
-
-
-
-
-
-        // Display default detail of the selected video (player)
-        Bundle arguments = new Bundle();
-        arguments.putInt(AlbumActivity.DATA_VIDEO_POSITION, mVideoSelected);
-
-        DetailPlayerFragment fragment = new DetailPlayerFragment();
-        fragment.setArguments(arguments);
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.video_detail_container, fragment)
-                .commit();
-
-
-
-
-
-
-
+        // Display detail of the selected video
+        displayVideoDetail();
     }
     private boolean fillVideoList(int selectPosition) { // Fill video list recycler view
 
@@ -447,6 +437,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             // Display video details activity
             Intent intent = new Intent(this, VideoDetailActivity.class);
             intent.putExtra(AlbumActivity.DATA_VIDEO_POSITION, mVideoSelected);
+            intent.putExtra(AlbumActivity.DATA_VIDEO_DETAIL, mDetailTag);
 
             startActivityForResult(intent, 0);
             return;
@@ -460,7 +451,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             selectVideo(false);
 
         if (mTwoPane) // Check to add click events listener for detail commands
-            setOnDetailListener();
+            addDetailClickListener();
     }
 
     @Override
@@ -474,10 +465,13 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             return;
         }
         switch (resultCode) {
-            case Constants.RESULT_SELECT_VIDEO: {
+            case Constants.RESULT_SELECT_VIDEO: { // From portrait to landscape with two panels
 
                 //assert mTwoPane;
                 mVideoSelected = data.getExtras().getInt(AlbumActivity.DATA_VIDEO_POSITION, 0);
+                mDetailTag = data.getExtras().getString(AlbumActivity.DATA_VIDEO_DETAIL,
+                        DetailPlayerFragment.TAG);
+
                 selectVideo(false);
                 break;
             }
