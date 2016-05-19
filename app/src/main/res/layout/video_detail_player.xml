@@ -24,6 +24,7 @@
         android:paddingStart="12dp"
         android:textColor="@color/full_yellow"
         android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     <TextView
@@ -33,6 +34,7 @@
         android:textColor="@color/full_green"
         android:layout_below="@id/title"
         android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     <TextView
@@ -41,6 +43,7 @@
         android:paddingStart="12dp"
         android:layout_below="@id/date"
         android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 

@@ -120,6 +120,19 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
                 break;
 
             case R.id.detail_share:
+
+
+
+
+
+
+
+
+
+
+
+                break;
+
             case R.id.detail_trash:
 
 

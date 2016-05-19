@@ -60,7 +60,7 @@ public class DetailPlayerFragment extends Fragment {
 
                 // Start activity that will display the video
                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.parse(mVideo.getVideoFile()), "video/*");
+                intent.setDataAndType(Uri.fromFile(new File(mVideo.getVideoFile())), "video/*");
 
                 startActivity(Intent.createChooser(intent, getContext().getString(R.string.chose_player)));
             }

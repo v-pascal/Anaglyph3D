@@ -18,6 +18,7 @@
     <Button
         android:id="@+id/button"
         android:text="save"
+        style="?android:attr/buttonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 

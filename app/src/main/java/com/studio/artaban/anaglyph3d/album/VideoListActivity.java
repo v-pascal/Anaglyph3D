@@ -9,7 +9,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -23,6 +22,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.location.LocationServices;
+import com.squareup.picasso.Picasso;
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.album.details.DetailPlayerFragment;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
@@ -37,6 +37,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.media.Frame;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -149,7 +150,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         }
 
         @Override
-        public void onBindViewHolder(final ViewHolder holder, int position) {
+        public void onBindViewHolder(final ViewHolder holder, final int position) {
 
             // Set up background and text video item colors
             if ((position % 2) != 0) {
@@ -162,33 +163,25 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             holder.mTitleView.setText(video.getTitle(true));
             holder.mDateView.setText(video.getDate(mActivity));
 
+            // Load thumbnail image
+            Picasso.with(mActivity)
+                    .load(new File(mVideos.get(position).getThumbnailFile()))
+                    .into(holder.mThumbnailView, new com.squareup.picasso.Callback() {
 
+                        @Override public void onError() { }
+                        @Override
+                        public void onSuccess() {
 
+                            // Check if needed to "select" this video
+                            if ((mVideoSelected == position) && (mTwoPane)) {
 
-            //Picasso pic;
-
-
-            /*
-            if (parseList.get(position).get("logo") != null) {
-                    ParseFile image = (ParseFile) parseList.get(position).get("logo");
-                    String url = image.getUrl();
-                    Glide.with(context)
-                            .load(url)
-                            .placeholder(R.drawable.piwo_48)
-                            .transform(new CircleTransform(context))
-                            .into(holder.imageView);
-                } else {
-                    // make sure Glide doesn't load anything into this view until told otherwise
-                    Glide.clear(holder.imageView);
-                    // remove the placeholder (optional); read comments below
-                    holder.imageView.setImageDrawable(null);
-                }
-                */
-
-
-
-
-
+                                holder.mRootView.setPadding(2, 2, 2, 2);
+                                holder.mRootView.setBackgroundColor(Color.RED);
+                            }
+                            // -> Needed when trying to add border to a video item which is not created
+                            //    yet (when calling 'selectVideo' method before the video item exists)
+                        }
+                    });
 
             holder.mPosition = position;
             holder.mRootView.setOnClickListener(new View.OnClickListener() {
@@ -211,12 +204,6 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
                     }
                 }
             });
-
-            // Check if needed to "select" this video
-            if ((mVideoSelected == position) && (mTwoPane))
-                holder.mRootView.setPadding(2, 2, 2, 2);
-            // -> Needed when trying to add border to a video item which is not created yet (when
-            //    calling 'selectVideo' method before the video item exists)
         }
 
         @Override public int getItemCount() { return mValues.size(); }
@@ -254,15 +241,20 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
         // Selection border of the Video item management
         View videoItem = mVideosView.getLayoutManager().findViewByPosition(mVideoSelected);
-        if (videoItem != null)
-            videoItem.setPadding(2, 2, 2, 2);
+        if (videoItem != null) {
 
+            videoItem.setPadding(2, 2, 2, 2);
+            videoItem.setBackgroundColor(Color.RED);
+        }
         if ((mLastVideoSelected != Constants.NO_DATA) && (mLastVideoSelected != mVideoSelected)) {
 
             // Un-select previous video
             videoItem = mVideosView.getLayoutManager().findViewByPosition(mLastVideoSelected);
-            if (videoItem != null)
+            if (videoItem != null) {
+
                 videoItem.setPadding(0, 0, 0, 0);
+                videoItem.setBackgroundColor(Color.BLACK);
+            }
         }
         mLastVideoSelected = mVideoSelected;
 
