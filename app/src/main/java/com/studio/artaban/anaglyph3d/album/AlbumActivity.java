@@ -8,6 +8,7 @@ import android.widget.ImageButton;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.album.details.DetailEditFragment;
+import com.studio.artaban.anaglyph3d.album.details.DetailLocationFragment;
 import com.studio.artaban.anaglyph3d.album.details.DetailPlayerFragment;
 import com.studio.artaban.anaglyph3d.data.Constants;
 
@@ -68,17 +69,19 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
         assert command != null;
         command.setOnClickListener(this);
     }
-    protected void displayVideoDetail() { // Display detail of the selected video
+    protected void displayVideoDetail() { // Display video detail fragment
 
         Bundle arguments = new Bundle();
         arguments.putInt(AlbumActivity.DATA_VIDEO_POSITION, mVideoSelected);
+        Fragment fragment;
 
         // Display expected video detail
-        Fragment fragment;
-        if (mDetailTag.equals(DetailEditFragment.TAG))
-            fragment = new DetailEditFragment();
-        else
+        if (mDetailTag.equals(DetailPlayerFragment.TAG)) // Player
             fragment = new DetailPlayerFragment();
+        else if (mDetailTag.equals(DetailEditFragment.TAG)) // Edit
+            fragment = new DetailEditFragment();
+        else // Location
+            fragment = new DetailLocationFragment();
 
         fragment.setArguments(arguments);
         getSupportFragmentManager().beginTransaction()
@@ -113,6 +116,9 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
                 break;
 
             case R.id.detail_location:
+                mDetailTag = DetailLocationFragment.TAG;
+                break;
+
             case R.id.detail_share:
             case R.id.detail_trash:
 

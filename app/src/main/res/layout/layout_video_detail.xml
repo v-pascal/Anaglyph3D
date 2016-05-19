@@ -23,31 +23,31 @@
             android:src="@drawable/ic_play_arrow_white_36dp"
             android:layout_weight="1"
             android:layout_width="0dp"
-            android:layout_height="52dp" />
+            android:layout_height="64dp" />
         <ImageButton
             android:id="@+id/detail_edit"
             android:src="@drawable/ic_description_white_36dp"
             android:layout_weight="1"
             android:layout_width="0dp"
-            android:layout_height="52dp" />
+            android:layout_height="64dp" />
         <ImageButton
             android:id="@+id/detail_location"
             android:src="@drawable/ic_location_on_white_36dp"
             android:layout_weight="1"
             android:layout_width="0dp"
-            android:layout_height="52dp" />
+            android:layout_height="64dp" />
         <ImageButton
             android:id="@+id/detail_share"
             android:src="@drawable/ic_share_white_36dp"
             android:layout_weight="1"
             android:layout_width="0dp"
-            android:layout_height="52dp" />
+            android:layout_height="64dp" />
         <ImageButton
             android:id="@+id/detail_trash"
             android:src="@drawable/ic_delete_white_36dp"
             android:layout_weight="1"
             android:layout_width="0dp"
-            android:layout_height="52dp" />
+            android:layout_height="64dp" />
 
     </LinearLayout>
 

@@ -52,7 +52,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
     private Database mDB;
     private GoogleApiClient mGoogleApiClient;
 
-    private boolean mTwoPane; // Flag to know if displaying both list & details panel
+    private boolean mTwoPane; // Flag to know if displaying both list & details panels
 
 
 
