@@ -1,7 +1,7 @@
 package com.studio.artaban.anaglyph3d.album.details;
 
 import android.app.Activity;
-import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
@@ -59,13 +59,15 @@ public class DetailPlayerFragment extends Fragment {
         getActivity().getWindowManager().getDefaultDisplay().getSize(screenSize);
 
         float scale;
-        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-            scale = screenSize.y / 926f;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
+            scale = screenSize.y / 552f;
         else // Portrait (50% of the screen width)
             scale = screenSize.x / (float)(Constants.DRAWABLE_PLAY_SIZE << 1);
 
         play.setScaleX(scale);
         play.setScaleY(scale);
+
+
 
 
 

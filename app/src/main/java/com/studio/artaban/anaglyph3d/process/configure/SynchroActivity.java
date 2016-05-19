@@ -1,7 +1,7 @@
 package com.studio.artaban.anaglyph3d.process.configure;
 
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -208,7 +208,7 @@ public class SynchroActivity extends AppCompatActivity {
 
         int frameWidth = Settings.getInstance().getResolutionWidth();
         int frameHeight = Settings.getInstance().getResolutionHeight();
-        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
 
             ////// Portrait
             if (screenSize.x > Constants.LARGE_SCREEN_HEIGHT) // Large screen device

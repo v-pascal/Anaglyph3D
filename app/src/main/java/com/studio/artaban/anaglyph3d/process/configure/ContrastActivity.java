@@ -2,7 +2,7 @@ package com.studio.artaban.anaglyph3d.process.configure;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -271,7 +271,7 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
 
         // Set layout to display according orientation
         final ViewStub stubView = (ViewStub) findViewById(R.id.layout_container);
-        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
             stubView.setLayoutResource(R.layout.contrast_portrait);
         else
             stubView.setLayoutResource(R.layout.contrast_landscape);
@@ -319,7 +319,7 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
                         DEFAULT_CONTRAST, DEFAULT_BRIGHTNESS));
             }
         });
-        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
             ((CoordinatorLayout.LayoutParams)mCancelButton.getLayoutParams()).gravity =
                     Gravity.TOP | Gravity.CENTER_HORIZONTAL;
         else
@@ -340,7 +340,7 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         mContrastImage.setImageBitmap(applyContrastBrightness(mContrastBitmap, mContrast, mBrightness));
 
         // Set validate button position (not exactly in center when device in portrait)
-        if (getResources().getConfiguration().orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
 
             final ImageView icon = (ImageView)rootView.findViewById(R.id.brightness_icon);
             LayoutParams params = (LayoutParams)icon.getLayoutParams();

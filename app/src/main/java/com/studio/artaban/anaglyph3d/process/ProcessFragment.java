@@ -1,7 +1,6 @@
 package com.studio.artaban.anaglyph3d.process;
 
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioManager;
@@ -56,7 +55,7 @@ public class ProcessFragment extends Fragment {
     private ImageView mClapPortrait, mClapLandscape;
     private void displayClapImage(int orientation) { // Display clap image according orientation
 
-        if (orientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) { // Portrait
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) { // Portrait
 
             mClapLandscape.setVisibility(View.GONE);
             mClapPortrait.setVisibility(View.VISIBLE);
