@@ -8,7 +8,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
+import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.album.AlbumActivity;
@@ -19,10 +22,46 @@ import com.studio.artaban.anaglyph3d.data.AlbumTable;
  * Created by pascal on 16/05/16.
  * Video description fragment (with edit action)
  */
-public class DetailEditFragment extends Fragment {
+public class DetailEditFragment extends Fragment implements View.OnClickListener {
 
     public static final String TAG = "edit";
-    private AlbumTable.Video mVideo;
+    private AlbumTable.Video mVideo; // Selected video (DB)
+
+    //
+    private EditText mEditTitle;
+    private EditText mEditDescription;
+
+    private ImageView mEditImage;
+    private ImageView mCancelImage;
+
+
+
+
+
+
+
+
+
+
+    private boolean mEditing = false; // Flag to know if editing info
+
+
+
+
+
+
+
+
+
+
+    private boolean mReverseAnim; // Flag to know if scale animation of the edit image has been reversed
+
+    //
+    private void fillInfo() {
+
+        mEditTitle.setText(mVideo.getTitle(getContext(), false));
+        mEditDescription.setText(mVideo.getDescription());
+    }
 
     //////
     @Override
@@ -42,29 +81,110 @@ public class DetailEditFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.video_detail_edit, container, false);
 
+        // Fill info
+        mEditTitle = (EditText)rootView.findViewById(R.id.edit_title);
+        mEditDescription = (EditText)rootView.findViewById(R.id.edit_description);
+        fillInfo();
 
-
-
-
-
-
-
-
-
-        // Show the dummy content as text in a TextView.
-        if (mVideo != null) {
-            ((TextView) rootView.findViewById(R.id.video_detail)).setText(mVideo.toString(getActivity()));
-        }
-
-
-
-
-
-
-
-
-
+        // Add click event listener to the edit & cancel images
+        mEditImage = (ImageView)rootView.findViewById(R.id.image_edit);
+        mEditImage.setOnClickListener(this);
+        mCancelImage = (ImageView)rootView.findViewById(R.id.image_cancel);
+        mCancelImage.setOnClickListener(this);
 
         return rootView;
+    }
+
+    //////
+    @Override
+    public void onClick(final View v) {
+        switch (v.getId()) {
+
+            case R.id.image_edit: {
+                final boolean editing = mEditing;
+
+                // Display scale animation
+                ScaleAnimation anim = new ScaleAnimation(1f, 1.4f, 1f, 1.4f, // From 1 to 1.4
+                        Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                anim.setDuration(300);
+                anim.setRepeatCount(Animation.INFINITE);
+                anim.setRepeatMode(Animation.REVERSE); // From 1.4 to 1
+                anim.setAnimationListener(new Animation.AnimationListener() {
+
+                    @Override public void onAnimationStart(Animation animation) { }
+                    @Override public void onAnimationEnd(Animation animation) { }
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                        if (mReverseAnim) {
+
+                            animation.cancel(); // Animation terminated
+                            if (!editing)
+                                mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save_white_36dp));
+                            else
+                                mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_edit_white_36dp));
+                            mCancelImage.setVisibility((!editing)? View.VISIBLE:View.GONE);
+                        }
+                        else
+                            mReverseAnim = true;
+                    }
+                });
+                v.clearAnimation();
+                mReverseAnim = false;
+                v.startAnimation(anim);
+
+                if (!mEditing) {
+
+                    // Start editing
+                    mEditing = true;
+
+                    mEditTitle.setFocusable(true);
+                    mEditTitle.setFocusableInTouchMode(true);
+                    mEditDescription.setFocusable(true);
+                    mEditDescription.setFocusableInTouchMode(true);
+
+                    mEditTitle.requestFocus();
+                }
+                else {
+
+                    // Save info
+                    mEditing = false;
+
+                    mEditTitle.setFocusable(false);
+                    mEditDescription.setFocusable(false);
+
+
+
+
+
+
+
+
+
+
+
+                }
+                break;
+            }
+            case R.id.image_cancel: {
+
+                // Restore info
+
+
+
+
+
+
+                //anim cancel image click
+                fillInfo();
+
+
+
+
+
+
+
+                break;
+            }
+        }
     }
 }

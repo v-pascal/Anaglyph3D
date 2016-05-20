@@ -82,7 +82,7 @@ public class DetailPlayerFragment extends Fragment {
 
         // Fill video info
         TextView info = (TextView)rootView.findViewById(R.id.title);
-        info.setText(mVideo.getTitle(false));
+        info.setText(mVideo.getTitle(getContext(), false));
         info = (TextView)rootView.findViewById(R.id.date);
         info.setText(mVideo.getDate(getContext()));
         info = (TextView)rootView.findViewById(R.id.duration);

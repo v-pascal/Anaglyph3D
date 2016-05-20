@@ -22,7 +22,7 @@
         android:paddingTop="12dp"
         android:paddingLeft="12dp"
         android:paddingStart="12dp"
-        android:textColor="@color/full_yellow"
+        android:textColor="@color/full_red"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textStyle="bold"
         android:layout_width="wrap_content"
@@ -31,7 +31,7 @@
         android:id="@+id/date"
         android:paddingLeft="12dp"
         android:paddingStart="12dp"
-        android:textColor="@color/full_green"
+        android:textColor="@color/full_blue"
         android:layout_below="@id/title"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textStyle="bold"
@@ -43,7 +43,6 @@
         android:paddingStart="12dp"
         android:layout_below="@id/date"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 

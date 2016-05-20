@@ -88,11 +88,14 @@ public class AlbumTable implements IDataTable {
         public String toString(Context context) { // Activity title
 
             DateFormat dateFormat = new SimpleDateFormat(context.getString(R.string.title_detail_format));
-            return this.title + " (" + dateFormat.format(this.date) + ")";
+            String title = (this.title != null)? this.title:context.getString(R.string.undefined);
+            return title + " (" + dateFormat.format(this.date) + ")";
         }
 
-        public String getTitle(boolean duration) { // Video title
-            return this.title + ((duration)? " (" + this.duration + " sec)":"");
+        public String getTitle(Context context, boolean duration) { // Video title
+
+            String title = (this.title != null)? this.title:context.getString(R.string.undefined);
+            return title + ((duration)? " (" + this.duration + " sec)":"");
         }
         public String getDate(Context context) { // Video list date: MM/DD/yyyy - hh:mm
 
@@ -100,6 +103,7 @@ public class AlbumTable implements IDataTable {
             return dateFormat.format(this.date);
         }
         public short getDuration() { return this.duration; }
+        public String getDescription() { return (this.description != null)? this.description:""; }
         public int getThumbnailWidth() { return this.thumbnailWidth; }
         public int getThumbnailHeight() { return this.thumbnailHeight; }
 

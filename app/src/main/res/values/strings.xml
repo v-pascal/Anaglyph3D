@@ -140,6 +140,9 @@
     <string name="date_detail_format">MM/dd/yyyy - hh:mm</string>
     <string name="no_location">WARNING: Failed to locate the new video! Check your device location settings.</string>
     <string name="chose_player">Select the video player</string>
+    <string name="title">Title :</string>
+    <string name="description">Description :</string>
+    <string name="undefined">Undefined</string>
 
     <!-- Google API Services Key ID -->
     <string name="google_app_id" translatable="false">AIzaSyCyHD2453o9bnLkYYBcqga0p09HIHfvsx8</string>

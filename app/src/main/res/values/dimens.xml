@@ -13,6 +13,7 @@
     <dimen name="video_list_width">300dp</dimen>
     <dimen name="text_margin">16dp</dimen>
     <dimen name="appbar_padding_top">8dp</dimen>
+    <dimen name="padding_fragment">12dp</dimen>
 
     <dimen name="contrast_margin">8dp</dimen>
     <dimen name="contrast_icon_margin">4dp</dimen>

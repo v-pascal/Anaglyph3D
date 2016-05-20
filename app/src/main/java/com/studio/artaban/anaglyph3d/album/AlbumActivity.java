@@ -3,6 +3,7 @@ package com.studio.artaban.anaglyph3d.album;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 
@@ -11,6 +12,7 @@ import com.studio.artaban.anaglyph3d.album.details.DetailEditFragment;
 import com.studio.artaban.anaglyph3d.album.details.DetailLocationFragment;
 import com.studio.artaban.anaglyph3d.album.details.DetailPlayerFragment;
 import com.studio.artaban.anaglyph3d.data.Constants;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 /**
  * Created by pascal on 16/05/16.
@@ -89,6 +91,27 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
                 .commit();
     }
 
+    //
+    private void onClose() {
+
+
+
+
+
+
+
+
+        finish();
+
+
+
+
+
+
+
+
+    }
+
     //////
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -100,6 +123,17 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
         outState.putString(DATA_VIDEO_DETAIL, mDetailTag);
 
         super.onSaveInstanceState(outState);
+    }
+
+    @Override public void onBackPressed() { onClose(); }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+
+            onClose();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     //////

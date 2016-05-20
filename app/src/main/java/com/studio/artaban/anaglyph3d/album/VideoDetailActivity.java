@@ -7,7 +7,6 @@ import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.view.MenuItem;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
@@ -65,15 +64,5 @@ public class VideoDetailActivity extends AlbumActivity {
 
         // Add click events listener for detail commands
         addDetailClickListener();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-
-            finish(); // Back to videos list
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }

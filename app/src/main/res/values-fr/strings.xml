@@ -55,6 +55,9 @@
     <string name="date_detail_format">dd/MM/yyyy - hh:mm</string>
     <string name="no_location">WARNING: Impossible de géolocaliser la nouvelle vidéo! Vérifiez vos paramètres de localisation.</string>
     <string name="chose_player">Choix du lecteur vidéo</string>
+    <string name="title">Titre :</string>
+    <string name="description">Description :</string>
+    <string name="undefined">Non défini</string>
 
     <!-- Process error -->
     <string name="error_start_recording">ERREUR: Enregistrement vidéo impossible! Ce média est en cours d\'utilisation. Redémarrer votre périphérique pour fixer ce problème.</string>

@@ -160,7 +160,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
                 holder.mDateView.setBackgroundColor(getResources().getColor(R.color.lighter_gray));
             }
             AlbumTable.Video video = mVideos.get(position);
-            holder.mTitleView.setText(video.getTitle(true));
+            holder.mTitleView.setText(video.getTitle(mActivity, true));
             holder.mDateView.setText(video.getDate(mActivity));
 
             // Load thumbnail image
@@ -176,9 +176,10 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
                     mVideoSelected = holder.mPosition;
                     mDetailTag = DetailPlayerFragment.TAG;
+                    selectVideo(true);
 
                     if (mTwoPane)
-                        selectVideo(true); // Fill video details
+                        displayVideoDetail(); // Display detail of the selected video
 
                     else {
 
@@ -229,7 +230,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
     private int mLastVideoSelected = Constants.NO_DATA; // Previous selected video position
     private RecyclerView mVideosView; // Recycler view containing videos list
 
-    public void selectVideo(boolean user) {
+    public void selectVideo(boolean user) { // Manage video list entry selection (border color)
 
         if (!user) // Not a user click event
             mVideosView.scrollToPosition(mVideoSelected);
@@ -252,9 +253,6 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             }
         }
         mLastVideoSelected = mVideoSelected;
-
-        // Display detail of the selected video
-        displayVideoDetail();
     }
     private boolean fillVideoList(int selectPosition) { // Fill video list recycler view
 
@@ -312,91 +310,6 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         mDB = new Database(this);
         mDB.open(true);
 
-
-
-
-
-
-
-
-
-
-
-        /*
-        mVideos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
-
-
-        if (mVideos.size() < 1) {
-            Logs.add(Logs.Type.E, "Insert videos");
-
-            Date date5 = new Date();
-            Date date4 = new Date(date5.getTime() - 360000);
-            Date date3 = new Date(date4.getTime() - 360000);
-            Date date2 = new Date(date3.getTime() - 360000);
-            Date date1 = new Date(date2.getTime() - 360000); */
-            /*
-            Date date20 = new Date();
-            Date date19 = new Date(date20.getTime() - 360000);
-            Date date18 = new Date(date19.getTime() - 360000);
-            Date date17 = new Date(date18.getTime() - 360000);
-            Date date16 = new Date(date17.getTime() - 360000);
-            Date date15 = new Date(date16.getTime() - 360000);
-            Date date14 = new Date(date15.getTime() - 360000);
-            Date date13 = new Date(date14.getTime() - 360000);
-            Date date12 = new Date(date13.getTime() - 360000);
-            Date date11 = new Date(date12.getTime() - 360000);
-            Date date10 = new Date(date11.getTime() - 360000);
-            Date date9 = new Date(date10.getTime() - 360000);
-            Date date8 = new Date(date9.getTime() - 360000);
-            Date date7 = new Date(date8.getTime() - 360000);
-            Date date6 = new Date(date7.getTime() - 360000);
-            Date date5 = new Date(date6.getTime() - 360000);
-            Date date4 = new Date(date5.getTime() - 360000);
-            Date date3 = new Date(date4.getTime() - 360000);
-            Date date2 = new Date(date3.getTime() - 360000);
-            Date date1 = new Date(date2.getTime() - 360000);
-            */
-        /*
-            mDB.insert(AlbumTable.TABLE_NAME, new AlbumTable.Video[] {
-                    new AlbumTable.Video(0, "Ma video #1", "Une video #1 pas mal du tout", date1, (short)10, 0f, 0f, 640, 480),
-                    new AlbumTable.Video(0, "Ma video #2", "Une video #2 pas mal du tout", date2, (short)20, 0f, 0f, 640, 480),
-                    new AlbumTable.Video(0, "Ma video #3", "Une video #3 pas mal du tout", date3, (short)30, 0f, 0f, 640, 480),
-                    new AlbumTable.Video(0, "Ma video #4", "Une video #4 pas mal du tout", date4, (short)40, 0f, 0f, 640, 480),
-                    new AlbumTable.Video(0, "Ma video #5", "Une video #5 pas mal du tout", date5, (short)50, 0f, 0f, 640, 480),
-                    /*
-                    new AlbumTable.Video(0, "Ma video #6", "Une video #6 pas mal du tout", date6, (short)50, 0f, 0f, 640, 480),
-                    new AlbumTable.Video(0, "Ma video #7", "Une video #7 pas mal du tout", date7, (short)50, 0f, 0f, 640, 480),
-                    new AlbumTable.Video(0, "Ma video #8", "Une video #8 pas mal du tout", date8, (short)50, 0f, 0f, 640, 480),
-                    new AlbumTable.Video(0, "Ma video #9", "Une video #9 pas mal du tout", date9, (short)50, 0f, 0f, 640, 480),
-                    new AlbumTable.Video(0, "Ma video #10", "Une video #10 pas mal du tout", date10, (short)50, 0f, 0f, 640, 480),
-                    new AlbumTable.Video(0, "Ma video #11", "Une video #11 pas mal du tout", date11, (short)50, 0f, 0f, 640, 480),
-                    new AlbumTable.Video(0, "Ma video #12", "Une video #12 pas mal du tout", date12, (short)50, 0f, 0f, 640, 480),
-                    new AlbumTable.Video(0, "Ma video #13", "Une video #13 pas mal du tout", date13, (short)50, 0f, 0f, 640, 480),
-                    new AlbumTable.Video(0, "Ma video #14", "Une video #14 pas mal du tout", date14, (short)50, 0f, 0f, 640, 480),
-                    new AlbumTable.Video(0, "Ma video #15", "Une video #15 pas mal du tout", date15, (short)50, 0f, 0f, 640, 480),
-                    new AlbumTable.Video(0, "Ma video #16", "Une video #16 pas mal du tout", date16, (short)50, 0f, 0f, 640, 480),
-                    new AlbumTable.Video(0, "Ma video #17", "Une video #17 pas mal du tout", date17, (short)50, 0f, 0f, 640, 480),
-                    new AlbumTable.Video(0, "Ma video #18", "Une video #18 pas mal du tout", date18, (short)50, 0f, 0f, 640, 480),
-                    new AlbumTable.Video(0, "Ma video #19", "Une video #19 pas mal du tout", date19, (short)50, 0f, 0f, 640, 480),
-                    new AlbumTable.Video(0, "Ma video #20", "Une video #20 pas mal du tout", date20, (short)50, 0f, 0f, 640, 480),
-                    */
-        /*
-            });
-        }
-        */
-
-
-
-
-
-
-
-
-
-
-
-
-
         // Check if new entry is requested (and not already added)
         if ((getIntent().getBooleanExtra(Constants.DATA_ADD_VIDEO, false)) && (!mNewVideoAdded)) {
 
@@ -437,9 +350,11 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             return; // No video to display
 
         // Select video detail (if needed)
-        if ((mTwoPane) || (mNewVideoAdded && !mNewVideoSaved))
-            selectVideo(false);
+        if ((mTwoPane) || (mNewVideoAdded && !mNewVideoSaved)) {
 
+            selectVideo(false);
+            displayVideoDetail();
+        }
         if (mTwoPane) // Check to add click events listener for detail commands
             addDetailClickListener();
     }
@@ -463,6 +378,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
                         DetailPlayerFragment.TAG);
 
                 selectVideo(false);
+                displayVideoDetail();
                 break;
             }
             case Constants.RESULT_SAVE_VIDEO: {
@@ -517,16 +433,6 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
     protected void onDestroy() {
         super.onDestroy();
         mDB.close();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-
-            finish(); // Back to previous activity
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     //////

@@ -60,10 +60,12 @@
             android:name=".album.VideoListActivity"
             android:label="@string/nav_album"
             android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustPan"
             android:theme="@style/Theme.AppCompat" />
         <activity
             android:name=".album.VideoDetailActivity"
             android:parentActivityName=".album.VideoListActivity"
+            android:windowSoftInputMode="adjustPan"
             android:theme="@style/Theme.AppCompat">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
