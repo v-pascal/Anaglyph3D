@@ -20,9 +20,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.location.LocationServices;
-import com.squareup.picasso.Picasso;
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.album.details.DetailPlayerFragment;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
@@ -164,24 +164,10 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             holder.mDateView.setText(video.getDate(mActivity));
 
             // Load thumbnail image
-            Picasso.with(mActivity)
+            Glide.with(mActivity)
                     .load(new File(mVideos.get(position).getThumbnailFile()))
-                    .into(holder.mThumbnailView, new com.squareup.picasso.Callback() {
-
-                        @Override public void onError() { }
-                        @Override
-                        public void onSuccess() {
-
-                            // Check if needed to "select" this video
-                            if ((mVideoSelected == position) && (mTwoPane)) {
-
-                                holder.mRootView.setPadding(2, 2, 2, 2);
-                                holder.mRootView.setBackgroundColor(Color.RED);
-                            }
-                            // -> Needed when trying to add border to a video item which is not created
-                            //    yet (when calling 'selectVideo' method before the video item exists)
-                        }
-                    });
+                    .placeholder(R.drawable.no_thumbnail)
+                    .into(holder.mThumbnailView);
 
             holder.mPosition = position;
             holder.mRootView.setOnClickListener(new View.OnClickListener() {
@@ -204,6 +190,15 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
                     }
                 }
             });
+
+            // Check if needed to "select" this video
+            if ((mVideoSelected == position) && (mTwoPane)) {
+
+                holder.mRootView.setPadding(2, 2, 2, 2);
+                holder.mRootView.setBackgroundColor(Color.RED);
+            }
+            // -> Needed when trying to add border to a video item which is not created
+            //    yet (when calling 'selectVideo' method before the video item exists)
         }
 
         @Override public int getItemCount() { return mValues.size(); }
