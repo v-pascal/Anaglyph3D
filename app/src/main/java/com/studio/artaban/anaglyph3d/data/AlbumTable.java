@@ -26,7 +26,7 @@ public class AlbumTable implements IDataTable {
 
     public static class Video extends DataField { // Album entry: Video
 
-        private static final short FIELD_COUNT = 8;
+        private static final short FIELD_COUNT = 9;
         public static String getThumbnailFile(Date date) { // Return thumbnail file path based on a video date
 
             DateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
@@ -55,12 +55,15 @@ public class AlbumTable implements IDataTable {
         }
         private Date date;
         private short duration;
+        private boolean location;
         private double latitude;
         private double longitude;
         public void setLocation(double latitude, double longitude) {
 
+            this.location = true;
             this.latitude = latitude;
             this.longitude = longitude;
+            mUpdated[COLUMN_INDEX_LOCATION] = true;
             mUpdated[COLUMN_INDEX_LATITUDE] = true;
             mUpdated[COLUMN_INDEX_LONGITUDE] = true;
         }
@@ -69,7 +72,7 @@ public class AlbumTable implements IDataTable {
 
         //////
         public Video(long id) { super(FIELD_COUNT, id); }
-        public Video(long id, String title, String description, Date date, short duration,
+        public Video(long id, String title, String description, Date date, short duration, boolean location,
                      double latitude, double longitude, int thumbnailWidth, int thumbnailHeight) {
 
             super(FIELD_COUNT, id);
@@ -78,6 +81,7 @@ public class AlbumTable implements IDataTable {
             this.description = description;
             this.date = date;
             this.duration = duration;
+            this.location = location;
             this.latitude = latitude;
             this.longitude = longitude;
             this.thumbnailWidth = thumbnailWidth;
@@ -124,6 +128,7 @@ public class AlbumTable implements IDataTable {
             values.put(COLUMN_DESCRIPTION, video.description);
             values.put(COLUMN_DATE, dateFormat.format(video.date));
             values.put(COLUMN_DURATION, video.duration);
+            values.put(COLUMN_LOCATION, video.location);
             values.put(COLUMN_LATITUDE, video.latitude);
             values.put(COLUMN_LONGITUDE, video.longitude);
             values.put(COLUMN_THUMBNAIL_WIDTH, video.thumbnailWidth);
@@ -144,6 +149,7 @@ public class AlbumTable implements IDataTable {
         if (video.mUpdated[COLUMN_INDEX_DESCRIPTION])
             values.put(COLUMN_DESCRIPTION, video.description);
         if (video.mUpdated[COLUMN_INDEX_LATITUDE] || video.mUpdated[COLUMN_INDEX_LONGITUDE]) {
+            values.put(COLUMN_LOCATION, video.location);
             values.put(COLUMN_LATITUDE, video.latitude);
             values.put(COLUMN_LONGITUDE, video.longitude);
         }
@@ -195,6 +201,7 @@ public class AlbumTable implements IDataTable {
                         cursor.getString(COLUMN_INDEX_DESCRIPTION), // Description
                         dateFormat.parse(dateField.substring(0, dateField.length() - 4)), // Date
                         cursor.getShort(COLUMN_INDEX_DURATION), // Duration
+                        cursor.getInt(COLUMN_INDEX_LOCATION) == 1, // Location
                         cursor.getDouble(COLUMN_INDEX_LATITUDE), // Latitude
                         cursor.getDouble(COLUMN_INDEX_LONGITUDE), // Longitude
                         cursor.getShort(COLUMN_INDEX_THUMBNAIL_WIDTH), // Thumbnail width
@@ -219,6 +226,7 @@ public class AlbumTable implements IDataTable {
     private static final String COLUMN_DESCRIPTION = "description";
     private static final String COLUMN_DATE = "date";
     private static final String COLUMN_DURATION = "duration";
+    private static final String COLUMN_LOCATION = "location";
     private static final String COLUMN_LATITUDE = "latitude";
     private static final String COLUMN_LONGITUDE = "longitude";
     private static final String COLUMN_THUMBNAIL_WIDTH = "thumbnailWidth";
@@ -229,10 +237,11 @@ public class AlbumTable implements IDataTable {
     private static final short COLUMN_INDEX_DESCRIPTION = 2;
     private static final short COLUMN_INDEX_DATE = 3;
     private static final short COLUMN_INDEX_DURATION = 4;
-    private static final short COLUMN_INDEX_LATITUDE = 5;
-    private static final short COLUMN_INDEX_LONGITUDE = 6;
-    private static final short COLUMN_INDEX_THUMBNAIL_WIDTH = 7;
-    private static final short COLUMN_INDEX_THUMBNAIL_HEIGHT = 8;
+    private static final short COLUMN_INDEX_LOCATION = 5;
+    private static final short COLUMN_INDEX_LATITUDE = 6;
+    private static final short COLUMN_INDEX_LONGITUDE = 7;
+    private static final short COLUMN_INDEX_THUMBNAIL_WIDTH = 8;
+    private static final short COLUMN_INDEX_THUMBNAIL_HEIGHT = 9;
 
     private AlbumTable() { }
     public static AlbumTable newInstance() { return new AlbumTable(); }
@@ -247,6 +256,7 @@ public class AlbumTable implements IDataTable {
                 COLUMN_DESCRIPTION + " TEXT," +
                 COLUMN_DATE + " TEXT NOT NULL," +
                 COLUMN_DURATION + " INTEGER NOT NULL," +
+                COLUMN_LOCATION + " INTEGER NOT NULL," +
                 COLUMN_LATITUDE + " REAL," +
                 COLUMN_LONGITUDE + " REAL," +
                 COLUMN_THUMBNAIL_WIDTH + " INTEGER NOT NULL," +

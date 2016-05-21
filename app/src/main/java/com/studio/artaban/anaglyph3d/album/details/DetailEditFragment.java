@@ -34,26 +34,6 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     private ImageView mEditImage;
     private ImageView mCancelImage;
 
-
-
-
-
-
-
-
-
-
-    private boolean mEditing = false; // Flag to know if editing info
-
-
-
-
-
-
-
-
-
-
     private boolean mReverseAnim; // Flag to know if scale animation of the edit image has been reversed
 
     //
@@ -97,11 +77,11 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
     //////
     @Override
-    public void onClick(final View v) {
+    public void onClick(View v) {
         switch (v.getId()) {
 
             case R.id.image_edit: {
-                final boolean editing = mEditing;
+                final boolean editing = ((AlbumActivity)getActivity()).mEditing;
 
                 // Display scale animation
                 ScaleAnimation anim = new ScaleAnimation(1f, 1.4f, 1f, 1.4f, // From 1 to 1.4
@@ -122,7 +102,9 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
                                 mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save_white_36dp));
                             else
                                 mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_edit_white_36dp));
-                            mCancelImage.setVisibility((!editing)? View.VISIBLE:View.GONE);
+                            if (!((AlbumActivity)getActivity()).isVideoCreation())
+                                mCancelImage.setVisibility((!editing)? View.VISIBLE:View.GONE);
+                            //else // Do not display cancel image for video creation
                         }
                         else
                             mReverseAnim = true;
@@ -132,10 +114,10 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
                 mReverseAnim = false;
                 v.startAnimation(anim);
 
-                if (!mEditing) {
+                if (!((AlbumActivity)getActivity()).mEditing) {
 
                     // Start editing
-                    mEditing = true;
+                    ((AlbumActivity)getActivity()).mEditing = true;
 
                     mEditTitle.setFocusable(true);
                     mEditTitle.setFocusableInTouchMode(true);
@@ -147,7 +129,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
                 else {
 
                     // Save info
-                    mEditing = false;
+                    ((AlbumActivity)getActivity()).mEditing = false;
 
                     mEditTitle.setFocusable(false);
                     mEditDescription.setFocusable(false);
@@ -174,7 +156,6 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
 
 
-                //anim cancel image click
                 fillInfo();
 
 

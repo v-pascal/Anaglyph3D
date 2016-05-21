@@ -33,6 +33,9 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
 
     protected String mDetailTag = DetailPlayerFragment.TAG; // Fragment detail displayed (tag)
 
+    public boolean mEditing = false; // Flag to know if editing video info (title & description)
+    public boolean isVideoCreation() { return (mNewVideoAdded && !mNewVideoSaved); }
+
     //
     protected void restoreVideosAlbum(Bundle state) { // Restore album (manage video selection)
         if (state != null) {
@@ -101,6 +104,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
 
 
 
+        //mEditing
         finish();
 
 

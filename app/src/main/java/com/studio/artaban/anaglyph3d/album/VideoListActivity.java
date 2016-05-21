@@ -13,7 +13,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -75,7 +74,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         assert video != null;
 
         // Check if saving a new video (new video creation request)
-        if (mNewVideoAdded && !mNewVideoSaved) {
+        if (isVideoCreation()) {
 
             assert (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
                     PackageManager.PERMISSION_GRANTED ||
@@ -110,7 +109,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         mDB.delete(AlbumTable.TABLE_NAME, new long[] { video.getId() });
 
         //////
-        if (mNewVideoAdded && !mNewVideoSaved)
+        if (isVideoCreation())
             mNewVideoSaved = true;
 
         return fillVideoList(0);
@@ -259,7 +258,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         mVideos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
 
         mVideoSelected = selectPosition;
-        if (mNewVideoAdded && !mNewVideoSaved)
+        if (isVideoCreation())
             mVideoSelected = mVideos.size() - 1; // Select last video
 
         // Check if at least one video is in the album
@@ -322,7 +321,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             Bundle data = getIntent().getBundleExtra(Constants.DATA_ACTIVITY); // To get thumbnail resolution
             assert data != null;
             AlbumTable.Video newVideo = new AlbumTable.Video(0, null, null, date, Settings.getInstance().mDuration,
-                    0f, 0f, data.getInt(Frame.DATA_KEY_WIDTH), data.getInt(Frame.DATA_KEY_HEIGHT));
+                    false, 0f, 0f, data.getInt(Frame.DATA_KEY_WIDTH), data.getInt(Frame.DATA_KEY_HEIGHT));
 
             mDB.insert(AlbumTable.TABLE_NAME, new AlbumTable.Video[]{newVideo});
             mNewVideoAdded = true;
@@ -332,7 +331,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
         mTwoPane = findViewById(R.id.video_detail_container) != null;
 
         // Check if only videos list will be displayed with...
-        if ((!mTwoPane) && ((mNewVideoAdded && !mNewVideoSaved) || // ...a creation request...
+        if ((!mTwoPane) && ((isVideoCreation()) || // ...a creation request...
                 (mVideoSelected != Constants.NO_DATA))) { // ...or if a video is already selected
 
             fillVideoList(mVideoSelected);
@@ -350,7 +349,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             return; // No video to display
 
         // Select video detail (if needed)
-        if ((mTwoPane) || (mNewVideoAdded && !mNewVideoSaved)) {
+        if ((mTwoPane) || (isVideoCreation())) {
 
             selectVideo(false);
             displayVideoDetail();
