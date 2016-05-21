@@ -138,11 +138,12 @@
     <string name="no_video">The videos album is empty!</string>
     <string name="title_detail_format">MMM d, \'yy - hh:mm</string>
     <string name="date_detail_format">MM/dd/yyyy - hh:mm</string>
-    <string name="no_location">WARNING: Failed to locate the new video! Check your device location settings.</string>
+    <string name="no_location">WARNING: New video saved but failed to geo locate it! Check your device location settings.</string>
     <string name="chose_player">Select the video player</string>
     <string name="title">Title :</string>
     <string name="description">Description :</string>
     <string name="undefined">Undefined</string>
+    <string name="info_saved">Video info saved!</string>
 
     <!-- Google API Services Key ID -->
     <string name="google_app_id" translatable="false">AIzaSyCyHD2453o9bnLkYYBcqga0p09HIHfvsx8</string>

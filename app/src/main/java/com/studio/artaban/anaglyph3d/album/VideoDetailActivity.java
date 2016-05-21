@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.album.details.DetailEditFragment;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 
@@ -16,7 +17,37 @@ import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
  * Created by pascal on 16/05/16.
  * Display video detail (only)
  */
-public class VideoDetailActivity extends AlbumActivity {
+public class VideoDetailActivity extends AlbumActivity implements DetailEditFragment.OnEditVideoListener {
+
+    public static final String DATA_VIDEO_TITLE = "title";
+    public static final String DATA_VIDEO_DESCRIPTION = "description";
+
+    //////
+    @Override
+    public void onSave(String title, String description) {
+
+
+
+
+
+
+
+
+
+    }
+    @Override
+    public boolean onDelete() {
+
+
+
+
+
+
+
+
+
+        return false;
+    }
 
     //////
     @Override
@@ -39,7 +70,7 @@ public class VideoDetailActivity extends AlbumActivity {
             appBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        // Restore videos album (manage video selection)
+        // Restore videos album (manage video selection & info)
         restoreVideosAlbum(savedInstanceState);
 
         // Check if orientation has changed with a large screen (check two panel needed)

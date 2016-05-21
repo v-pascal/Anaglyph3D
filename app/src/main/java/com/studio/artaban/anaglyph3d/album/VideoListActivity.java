@@ -23,6 +23,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.location.LocationServices;
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.album.details.DetailEditFragment;
 import com.studio.artaban.anaglyph3d.album.details.DetailPlayerFragment;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
 import com.studio.artaban.anaglyph3d.data.Constants;
@@ -44,7 +45,8 @@ import java.util.List;
  * Created by pascal on 16/05/16.
  * Videos list (album)
  */
-public class VideoListActivity extends AlbumActivity implements GoogleApiClient.OnConnectionFailedListener {
+public class VideoListActivity extends AlbumActivity implements
+        GoogleApiClient.OnConnectionFailedListener, DetailEditFragment.OnEditVideoListener {
 
     public static List<AlbumTable.Video> mVideos; // Album (videos list)
 
@@ -54,26 +56,14 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
     private boolean mTwoPane; // Flag to know if displaying both list & details panels
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     //
-    public void onSave(int videoPosition, String title, String description) { // Save video detail
-        AlbumTable.Video video = mVideos.get(videoPosition);
+    @Override
+    public void onSave(String title, String description) { // Save video detail
+        AlbumTable.Video video = mVideos.get(mVideoSelected);
         assert video != null;
 
         // Check if saving a new video (new video creation request)
+        boolean messageDisplayed = false;
         if (isVideoCreation()) {
 
             assert (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
@@ -89,20 +79,26 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
                         curlocation.getLongitude());
                 video.setLocation(curlocation.getLatitude(), curlocation.getLongitude());
             }
-            else
+            else {
                 DisplayMessage.getInstance().toast(R.string.no_location, Toast.LENGTH_LONG);
+                messageDisplayed = true;
+            }
         }
         video.setTitle(title);
         video.setDescription(description);
         mDB.update(AlbumTable.TABLE_NAME, video);
 
+        if (!messageDisplayed)
+            DisplayMessage.getInstance().toast(R.string.info_saved, Toast.LENGTH_SHORT);
+
         //////
         mNewVideoSaved = true;
 
-        fillVideoList(videoPosition);
+        fillVideoList(mVideoSelected);
     }
-    public boolean onDelete(int videoPosition) { // Delete video is requested or cancel video creation
-        AlbumTable.Video video = mVideos.get(videoPosition);
+    @Override
+    public boolean onDelete() { // Delete video is requested or cancel video creation
+        AlbumTable.Video video = mVideos.get(mVideoSelected);
         assert video != null;
 
         Logs.add(Logs.Type.W, "Deleting video: " + video.toString());
@@ -114,20 +110,6 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
 
         return fillVideoList(0);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     //////
     public class AlbumRecyclerViewAdapter extends RecyclerView.Adapter<AlbumRecyclerViewAdapter.ViewHolder> {
@@ -294,7 +276,7 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             appBar.setTitle(R.string.nav_album); // Needed when orientation has changed
         }
 
-        // Restore videos album (manage video selection), and check connection for default result
+        // Restore videos album (manage video selection & info), and check connection for default result
         restoreVideosAlbum(savedInstanceState);
         if (!getIntent().getBooleanExtra(Constants.DATA_CONNECTION_ESTABLISHED, false))
             setResult(Constants.RESULT_RESTART_CONNECTION); // Must restart connection (not connected)
@@ -383,18 +365,8 @@ public class VideoListActivity extends AlbumActivity implements GoogleApiClient.
             case Constants.RESULT_SAVE_VIDEO: {
 
                 //assert !mTwoPane;
-
-
-
-
-
-
-
-
-
-
-
-
+                onSave(data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_TITLE),
+                        data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_DESCRIPTION));
                 break;
             }
             case Constants.RESULT_DELETE_VIDEO: {

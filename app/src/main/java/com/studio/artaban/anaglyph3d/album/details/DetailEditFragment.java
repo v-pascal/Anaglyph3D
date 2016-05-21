@@ -1,6 +1,7 @@
 package com.studio.artaban.anaglyph3d.album.details;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -28,6 +29,14 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     private AlbumTable.Video mVideo; // Selected video (DB)
 
     //
+    private OnEditVideoListener mEditListener;
+    public interface OnEditVideoListener { // Save & delete video listener interface
+
+        void onSave(String title, String description);
+        boolean onDelete();
+    }
+
+    //////
     private EditText mEditTitle;
     private EditText mEditDescription;
 
@@ -73,6 +82,21 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
         mCancelImage.setOnClickListener(this);
 
         return rootView;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnEditVideoListener)
+            mEditListener = (OnEditVideoListener)context;
+        else
+            throw new RuntimeException(context.toString() + " must implement 'OnEditVideoListener'");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mEditListener = null;
     }
 
     //////
@@ -133,17 +157,14 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
                     mEditTitle.setFocusable(false);
                     mEditDescription.setFocusable(false);
+                    mCancelImage.setVisibility(View.GONE);
 
+                    mVideo.setTitle(mEditTitle.getText().toString());
+                    mVideo.setDescription(mEditDescription.getText().toString());
 
-
-
-
-
-
-
-
-
-
+                    assert mEditListener != null;
+                    mEditListener.onSave(mEditTitle.getText().toString(),
+                            mEditDescription.getText().toString());
                 }
                 break;
             }
@@ -156,6 +177,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
 
 
+                //DisplayMessage: confirm
                 fillInfo();
 
 
