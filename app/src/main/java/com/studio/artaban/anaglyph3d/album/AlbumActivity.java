@@ -12,7 +12,6 @@ import com.studio.artaban.anaglyph3d.album.details.DetailEditFragment;
 import com.studio.artaban.anaglyph3d.album.details.DetailLocationFragment;
 import com.studio.artaban.anaglyph3d.album.details.DetailPlayerFragment;
 import com.studio.artaban.anaglyph3d.data.Constants;
-import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 /**
  * Created by pascal on 16/05/16.
@@ -28,13 +27,29 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
 
     //////
     protected int mVideoSelected = Constants.NO_DATA; // Selected video position (or video to select)
-    protected boolean mNewVideoAdded = false; // Flag to know if the new video has been added into the DB
-    protected boolean mNewVideoSaved = false; // Flag to know if the new video has been saved or deleted (geolocation)
-
     protected String mDetailTag = DetailPlayerFragment.TAG; // Fragment detail displayed (tag)
 
-    public boolean mEditing = false; // Flag to know if editing video info (title & description)
+    protected boolean mNewVideoAdded = false; // Flag to know if the new video has been added into the DB
+    protected boolean mNewVideoSaved = false; // Flag to know if the new video has been saved or deleted (geolocation)
     public boolean isVideoCreation() { return (mNewVideoAdded && !mNewVideoSaved); }
+
+
+
+
+
+
+
+
+
+    public boolean mEditing = false; // Flag to know if editing video info (title & description)
+
+
+
+
+
+
+
+
 
     //
     protected void restoreVideosAlbum(Bundle state) { // Restore album (manage video selection)
@@ -81,39 +96,24 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
         Fragment fragment;
 
         // Display expected video detail
-        if (mDetailTag.equals(DetailPlayerFragment.TAG)) // Player
-            fragment = new DetailPlayerFragment();
-        else if (mDetailTag.equals(DetailEditFragment.TAG)) // Edit
-            fragment = new DetailEditFragment();
-        else // Location
-            fragment = new DetailLocationFragment();
+        switch (mDetailTag) {
 
+            case DetailPlayerFragment.TAG: // Player
+                fragment = new DetailPlayerFragment();
+                break;
+
+            case DetailEditFragment.TAG: // Edit
+                fragment = new DetailEditFragment();
+                break;
+
+            default: // Location
+                fragment = new DetailLocationFragment();
+                break;
+        }
         fragment.setArguments(arguments);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.video_detail_container, fragment)
                 .commit();
-    }
-
-    //
-    private void onClose() {
-
-
-
-
-
-
-
-
-        //mEditing
-        finish();
-
-
-
-
-
-
-
-
     }
 
     //////
@@ -128,6 +128,9 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
 
         super.onSaveInstanceState(outState);
     }
+
+    //
+    protected abstract void onClose();
 
     @Override public void onBackPressed() { onClose(); }
     @Override

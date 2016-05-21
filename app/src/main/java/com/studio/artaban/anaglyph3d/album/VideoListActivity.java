@@ -110,6 +110,20 @@ public class VideoListActivity extends AlbumActivity implements
 
         return fillVideoList(0);
     }
+    @Override
+    protected void onClose() {
+
+
+
+
+
+
+
+
+
+
+
+    }
 
     //////
     public class AlbumRecyclerViewAdapter extends RecyclerView.Adapter<AlbumRecyclerViewAdapter.ViewHolder> {

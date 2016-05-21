@@ -48,6 +48,21 @@ public class VideoDetailActivity extends AlbumActivity implements DetailEditFrag
 
         return false;
     }
+    @Override
+    protected void onClose() {
+
+
+
+
+
+
+
+
+
+
+
+
+    }
 
     //////
     @Override
