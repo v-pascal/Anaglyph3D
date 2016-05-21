@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 
 import com.studio.artaban.anaglyph3d.R;
-import com.studio.artaban.anaglyph3d.album.details.DetailEditFragment;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 
@@ -17,23 +16,27 @@ import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
  * Created by pascal on 16/05/16.
  * Display video detail (only)
  */
-public class VideoDetailActivity extends AlbumActivity implements DetailEditFragment.OnEditVideoListener {
+public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.OnVideoAlbumListener {
 
     public static final String DATA_VIDEO_TITLE = "title";
     public static final String DATA_VIDEO_DESCRIPTION = "description";
 
+    //
+    private boolean mDetailSaved = false; // Flag to know if video details have changed
+
+    private String mDetailTitle;
+    private String mDetailDescription;
+    // Editable video detail info
+
     //////
     @Override
-    public void onSave(String title, String description) {
+    public boolean onSave(int videoPosition, String title, String description) {
 
+        mDetailTitle = title;
+        mDetailDescription = description;
 
-
-
-
-
-
-
-
+        mDetailSaved = true;
+        return false; // No message displayed to inform user
     }
     @Override
     public boolean onDelete() {
@@ -43,25 +46,35 @@ public class VideoDetailActivity extends AlbumActivity implements DetailEditFrag
 
 
 
+        //finish();
+
+
+
+
 
 
 
         return false;
     }
+
+    @Override public boolean isVideoCreation() { return (mNewVideoAdded && !mNewVideoSaved); }
+    @Override public void setEditFlag(boolean flag) { mEditFlag = flag; }
+    @Override public boolean getEditFlag() { return mEditFlag; }
+
+    //
     @Override
     protected void onClose() {
 
+        // Check if video details have been updated
+        if (mDetailSaved) {
 
+            Intent intent = new Intent();
+            intent.putExtra(DATA_VIDEO_TITLE, mDetailTitle);
+            intent.putExtra(DATA_VIDEO_DESCRIPTION, mDetailDescription);
 
-
-
-
-
-
-
-
-
-
+            setResult(Constants.RESULT_SAVE_VIDEO, intent);
+        }
+        finish();
     }
 
     //////
@@ -99,6 +112,16 @@ public class VideoDetailActivity extends AlbumActivity implements DetailEditFrag
             intent.putExtra(AlbumActivity.DATA_VIDEO_POSITION, mVideoSelected);
             intent.putExtra(AlbumActivity.DATA_VIDEO_DETAIL, mDetailTag);
 
+
+
+
+
+            //editing ?
+
+
+
+
+
             setResult(Constants.RESULT_SELECT_VIDEO, intent);
             finish();
             return;
@@ -110,5 +133,25 @@ public class VideoDetailActivity extends AlbumActivity implements DetailEditFrag
 
         // Add click events listener for detail commands
         addDetailClickListener();
+
+
+
+
+
+
+        //editing ?
+
+        /*
+        private boolean mDetailSaved = false; // Flag to know if video details have changed
+        private String mDetailTitle;
+        private String mDetailDescription;
+
+        IN savedInstanceState WHEN Pause & Resume?
+
+        */
+
+
+
+
     }
 }

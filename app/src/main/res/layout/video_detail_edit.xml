@@ -47,7 +47,7 @@
         android:background="@android:color/black"
         android:layout_below="@id/label_title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="36dp" />
 
     <TextView
         android:id="@+id/label_description"

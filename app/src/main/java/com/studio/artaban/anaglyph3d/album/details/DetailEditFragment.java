@@ -1,6 +1,5 @@
 package com.studio.artaban.anaglyph3d.album.details;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,11 +12,13 @@ import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.album.AlbumActivity;
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
+import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 
 /**
  * Created by pascal on 16/05/16.
@@ -26,15 +27,9 @@ import com.studio.artaban.anaglyph3d.data.AlbumTable;
 public class DetailEditFragment extends Fragment implements View.OnClickListener {
 
     public static final String TAG = "edit";
+
+    private AlbumActivity.OnVideoAlbumListener mEditListener;
     private AlbumTable.Video mVideo; // Selected video (DB)
-
-    //
-    private OnEditVideoListener mEditListener;
-    public interface OnEditVideoListener { // Save & delete video listener interface
-
-        void onSave(String title, String description);
-        boolean onDelete();
-    }
 
     //////
     private EditText mEditTitle;
@@ -46,6 +41,24 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     private boolean mReverseAnim; // Flag to know if scale animation of the edit image has been reversed
 
     //
+    public void saveInfo() {
+
+        mVideo.setTitle(mEditTitle.getText().toString());
+        mVideo.setDescription(mEditDescription.getText().toString());
+        fillTitle();
+
+        if (!mEditListener.onSave(getArguments().getInt(AlbumActivity.DATA_VIDEO_POSITION, 0),
+                mEditTitle.getText().toString(),
+                mEditDescription.getText().toString()))
+            DisplayMessage.getInstance().toast(R.string.info_saved, Toast.LENGTH_SHORT);
+    }
+
+    private void fillTitle() {
+
+        ActionBar appBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        if (appBar != null)
+            appBar.setTitle(mVideo.toString(getActivity()));
+    }
     private void fillInfo() {
 
         mEditTitle.setText(mVideo.getTitle(getContext(), false));
@@ -54,16 +67,37 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
     //////
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof AlbumActivity.OnVideoAlbumListener)
+            mEditListener = (AlbumActivity.OnVideoAlbumListener)context;
+        else
+            throw new RuntimeException(context.toString() + " must implement 'OnVideoAlbumListener'");
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Get selected video
         mVideo = VideoListActivity.mVideos.get(getArguments().getInt(AlbumActivity.DATA_VIDEO_POSITION, 0));
 
-        Activity activity = this.getActivity();
-        ActionBar appBar = ((AppCompatActivity)activity).getSupportActionBar();
-        if (appBar != null)
-            appBar.setTitle(mVideo.toString(getActivity()));
+
+
+
+
+
+        //editing ?
+        // title
+        // description
+
+
+
+
+
+
+        // Set up activity title
+        fillTitle();
     }
 
     @Override
@@ -85,15 +119,6 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnEditVideoListener)
-            mEditListener = (OnEditVideoListener)context;
-        else
-            throw new RuntimeException(context.toString() + " must implement 'OnEditVideoListener'");
-    }
-
-    @Override
     public void onDetach() {
         super.onDetach();
         mEditListener = null;
@@ -102,10 +127,12 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     //////
     @Override
     public void onClick(View v) {
+
+        assert mEditListener != null;
         switch (v.getId()) {
 
             case R.id.image_edit: {
-                final boolean editing = ((AlbumActivity)getActivity()).mEditing;
+                final boolean editing = mEditListener.getEditFlag();
 
                 // Display scale animation
                 ScaleAnimation anim = new ScaleAnimation(1f, 1.4f, 1f, 1.4f, // From 1 to 1.4
@@ -126,7 +153,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
                                 mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save_white_36dp));
                             else
                                 mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_edit_white_36dp));
-                            if (!((AlbumActivity)getActivity()).isVideoCreation())
+                            if (!mEditListener.isVideoCreation())
                                 mCancelImage.setVisibility((!editing)? View.VISIBLE:View.GONE);
                             //else // Do not display cancel image for video creation
                         }
@@ -138,10 +165,10 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
                 mReverseAnim = false;
                 v.startAnimation(anim);
 
-                if (!((AlbumActivity)getActivity()).mEditing) {
+                if (!mEditListener.getEditFlag()) {
 
                     // Start editing
-                    ((AlbumActivity)getActivity()).mEditing = true;
+                    mEditListener.setEditFlag(true);
 
                     mEditTitle.setFocusable(true);
                     mEditTitle.setFocusableInTouchMode(true);
@@ -153,18 +180,13 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
                 else {
 
                     // Save info
-                    ((AlbumActivity)getActivity()).mEditing = false;
+                    mEditListener.setEditFlag(false);
 
                     mEditTitle.setFocusable(false);
                     mEditDescription.setFocusable(false);
                     mCancelImage.setVisibility(View.GONE);
 
-                    mVideo.setTitle(mEditTitle.getText().toString());
-                    mVideo.setDescription(mEditDescription.getText().toString());
-
-                    assert mEditListener != null;
-                    mEditListener.onSave(mEditTitle.getText().toString(),
-                            mEditDescription.getText().toString());
+                    saveInfo();
                 }
                 break;
             }
@@ -177,7 +199,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
 
 
-                //DisplayMessage: confirm
+                //DisplayMessage: user must confirm
                 fillInfo();
 
 

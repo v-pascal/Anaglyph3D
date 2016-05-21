@@ -26,30 +26,43 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
     public static final String DATA_VIDEO_DETAIL = "detail";
 
     //////
+    public interface OnVideoAlbumListener { // Videos album listener interface
+
+        boolean onSave(int videoPosition, String title, String description); // Save video detail (return user informed)
+        boolean onDelete(); // Delete video entry from album (return empty list state)
+
+        boolean isVideoCreation(); // Return if new video is selected
+
+        // Edit video detail flag
+        void setEditFlag(boolean flag);
+        boolean getEditFlag();
+    }
+
+    //
     protected int mVideoSelected = Constants.NO_DATA; // Selected video position (or video to select)
     protected String mDetailTag = DetailPlayerFragment.TAG; // Fragment detail displayed (tag)
 
+    protected boolean mEditFlag = false; // Flag to know if editing video info (title & description)
+    protected boolean saveEditingInfo() { // Save video detail if editing when user changes detail displayed
+
+        if (!mEditFlag)
+            return false; // No editing info to save
+
+        ////// Save video detail changes B4:
+        // _ Loading new detail fragment
+        // _ Finishing list activity
+        assert getSupportFragmentManager().findFragmentById(R.id.video_detail_container) != null;
+        if (getSupportFragmentManager().findFragmentById(R.id.video_detail_container) instanceof DetailEditFragment)
+            ((DetailEditFragment)getSupportFragmentManager().findFragmentById(R.id.video_detail_container)).saveInfo();
+        else
+            throw new RuntimeException("Unexpected fragment edit mode");
+
+        mEditFlag = false;
+        return true; // Video info saved
+    }
+
     protected boolean mNewVideoAdded = false; // Flag to know if the new video has been added into the DB
     protected boolean mNewVideoSaved = false; // Flag to know if the new video has been saved or deleted (geolocation)
-    public boolean isVideoCreation() { return (mNewVideoAdded && !mNewVideoSaved); }
-
-
-
-
-
-
-
-
-
-    public boolean mEditing = false; // Flag to know if editing video info (title & description)
-
-
-
-
-
-
-
-
 
     //
     protected void restoreVideosAlbum(Bundle state) { // Restore album (manage video selection)
@@ -60,6 +73,17 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
             mNewVideoSaved = state.getBoolean(DATA_NEW_VIDEO_SAVED);
 
             mDetailTag = state.getString(DATA_VIDEO_DETAIL);
+
+
+
+
+
+            //mEditFlag
+
+
+
+
+
         }
         else if (getIntent().getExtras() != null) {
 
@@ -67,6 +91,18 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
                 mVideoSelected = getIntent().getIntExtra(DATA_VIDEO_POSITION, 0);
             if (getIntent().getExtras().containsKey(DATA_VIDEO_DETAIL))
                 mDetailTag = getIntent().getStringExtra(DATA_VIDEO_DETAIL);
+
+
+
+
+
+
+            //mEditFlag
+
+
+
+
+
 
             // Needed with detail activity child
         }
@@ -126,6 +162,18 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
 
         outState.putString(DATA_VIDEO_DETAIL, mDetailTag);
 
+
+
+
+
+
+        //mEditFlag
+
+
+
+
+
+
         super.onSaveInstanceState(outState);
     }
 
@@ -149,6 +197,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
         switch (v.getId()) {
 
             case R.id.detail_player:
+                saveEditingInfo();
                 mDetailTag = DetailPlayerFragment.TAG;
                 break;
 
@@ -157,6 +206,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
                 break;
 
             case R.id.detail_location:
+                saveEditingInfo();
                 mDetailTag = DetailLocationFragment.TAG;
                 break;
 

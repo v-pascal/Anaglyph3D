@@ -23,7 +23,6 @@ import com.bumptech.glide.Glide;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.location.LocationServices;
 import com.studio.artaban.anaglyph3d.R;
-import com.studio.artaban.anaglyph3d.album.details.DetailEditFragment;
 import com.studio.artaban.anaglyph3d.album.details.DetailPlayerFragment;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
 import com.studio.artaban.anaglyph3d.data.Constants;
@@ -46,7 +45,7 @@ import java.util.List;
  * Videos list (album)
  */
 public class VideoListActivity extends AlbumActivity implements
-        GoogleApiClient.OnConnectionFailedListener, DetailEditFragment.OnEditVideoListener {
+        GoogleApiClient.OnConnectionFailedListener, AlbumActivity.OnVideoAlbumListener {
 
     public static List<AlbumTable.Video> mVideos; // Album (videos list)
 
@@ -58,8 +57,8 @@ public class VideoListActivity extends AlbumActivity implements
 
     //
     @Override
-    public void onSave(String title, String description) { // Save video detail
-        AlbumTable.Video video = mVideos.get(mVideoSelected);
+    public boolean onSave(int videoPosition, String title, String description) { // Save video detail
+        AlbumTable.Video video = mVideos.get(videoPosition);
         assert video != null;
 
         // Check if saving a new video (new video creation request)
@@ -95,6 +94,7 @@ public class VideoListActivity extends AlbumActivity implements
         mNewVideoSaved = true;
 
         fillVideoList(mVideoSelected);
+        return true; // Message displayed
     }
     @Override
     public boolean onDelete() { // Delete video is requested or cancel video creation
@@ -110,19 +110,17 @@ public class VideoListActivity extends AlbumActivity implements
 
         return fillVideoList(0);
     }
+
+    @Override public boolean isVideoCreation() { return (mNewVideoAdded && !mNewVideoSaved); }
+    @Override public void setEditFlag(boolean flag) { mEditFlag = flag; }
+    @Override public boolean getEditFlag() { return mEditFlag; }
+
+    //
     @Override
     protected void onClose() {
 
-
-
-
-
-
-
-
-
-
-
+        saveEditingInfo();
+        finish();
     }
 
     //////
@@ -171,7 +169,15 @@ public class VideoListActivity extends AlbumActivity implements
 
                     mVideoSelected = holder.mPosition;
                     mDetailTag = DetailPlayerFragment.TAG;
-                    selectVideo(true);
+                    if (!saveEditingInfo())
+                        selectVideo(true);
+
+                    else // The video list will be refreshed (no need to "select" the video)
+                        mLastVideoSelected = mVideoSelected;
+
+                    // NB: 'saveEditingInfo' method is called after 'mVideoSelected' assignment coz this
+                    //     member is used to "select" the new video selection (see 'onSave' method)
+                    //     -> "select" means manage red border selection (see 'selectVideo' method)
 
                     if (mTwoPane)
                         displayVideoDetail(); // Display detail of the selected video
@@ -379,7 +385,7 @@ public class VideoListActivity extends AlbumActivity implements
             case Constants.RESULT_SAVE_VIDEO: {
 
                 //assert !mTwoPane;
-                onSave(data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_TITLE),
+                onSave(mVideoSelected, data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_TITLE),
                         data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_DESCRIPTION));
                 break;
             }
