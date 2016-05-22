@@ -1,5 +1,6 @@
 package com.studio.artaban.anaglyph3d.album;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +13,7 @@ import com.studio.artaban.anaglyph3d.album.details.DetailEditFragment;
 import com.studio.artaban.anaglyph3d.album.details.DetailLocationFragment;
 import com.studio.artaban.anaglyph3d.album.details.DetailPlayerFragment;
 import com.studio.artaban.anaglyph3d.data.Constants;
+import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 
 /**
  * Created by pascal on 16/05/16.
@@ -29,13 +31,11 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
     public interface OnVideoAlbumListener { // Videos album listener interface
 
         void onSave(int videoPosition, String title, String description); // Save video detail
-        boolean onDelete(); // Delete video entry from album (return empty list state)
-
         boolean isVideoCreation(); // Return if new video is selected
 
-        // Edit video detail flag
         void setEditFlag(boolean flag);
         boolean getEditFlag();
+        // Edit video detail member flag
     }
 
     //
@@ -143,7 +143,8 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
     }
 
     //
-    protected abstract void onClose();
+    protected abstract void onDelete(); // Delete video entry from album (finish activity if no more video)
+    protected abstract void onClose(); // Closing operation
 
     @Override public void onBackPressed() { onClose(); }
     @Override
@@ -164,15 +165,18 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
             case R.id.detail_player:
                 saveEditingInfo();
                 mDetailTag = DetailPlayerFragment.TAG;
+                displayVideoDetail();
                 break;
 
             case R.id.detail_edit:
                 mDetailTag = DetailEditFragment.TAG;
+                displayVideoDetail();
                 break;
 
             case R.id.detail_location:
                 saveEditingInfo();
                 mDetailTag = DetailLocationFragment.TAG;
+                displayVideoDetail();
                 break;
 
             case R.id.detail_share:
@@ -187,22 +191,20 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
 
 
 
+
+
+
                 break;
 
             case R.id.detail_trash:
-
-
-
-
-
-
-
-
-
-
-
+                DisplayMessage.getInstance().alert(R.string.title_warning, R.string.confirm_delete,
+                        null, true, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                onDelete(); // Delete selected video
+                            }
+                        });
                 break;
         }
-        displayVideoDetail();
     }
 }

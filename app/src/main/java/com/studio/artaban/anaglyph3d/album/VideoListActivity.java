@@ -96,26 +96,33 @@ public class VideoListActivity extends AlbumActivity implements
 
         fillVideoList(mVideoSelected);
     }
-    @Override
-    public boolean onDelete() { // Delete video is requested or cancel video creation
-        AlbumTable.Video video = mVideos.get(mVideoSelected);
-        assert video != null;
-
-        Logs.add(Logs.Type.W, "Deleting video: " + video.toString());
-        mDB.delete(AlbumTable.TABLE_NAME, new long[] { video.getId() });
-
-        //////
-        if (isVideoCreation())
-            mNewVideoSaved = true;
-
-        return fillVideoList(0);
-    }
-
     @Override public boolean isVideoCreation() { return (mNewVideoAdded && !mNewVideoSaved); }
     @Override public void setEditFlag(boolean flag) { mEditFlag = flag; }
     @Override public boolean getEditFlag() { return mEditFlag; }
 
     //
+    @Override
+    public void onDelete() { // Delete video is requested or cancel video creation
+        AlbumTable.Video video = mVideos.get(mVideoSelected);
+        assert video != null;
+
+        Logs.add(Logs.Type.W, "Deleting video: " + video.toString());
+        mDB.delete(AlbumTable.TABLE_NAME, new long[]{video.getId()});
+
+        mLastVideoSelected = Constants.NO_DATA;
+        mEditFlag = false;
+
+        //////
+        if (isVideoCreation())
+            mNewVideoSaved = true;
+
+        if ((fillVideoList(0)) && (mTwoPane)) {
+
+            mLastVideoSelected = 0;
+            mDetailTag = DetailPlayerFragment.TAG;
+            displayVideoDetail();
+        }
+    }
     @Override
     protected void onClose() {
 
@@ -384,18 +391,7 @@ public class VideoListActivity extends AlbumActivity implements
             case Constants.RESULT_DELETE_VIDEO: { // Delete from detail activity
 
                 //assert !mTwoPane;
-
-
-
-
-
-
-
-
-
-
-
-
+                onDelete();
                 break;
             }
             case Constants.RESULT_SELECT_VIDEO: { // From portrait to landscape with two panels

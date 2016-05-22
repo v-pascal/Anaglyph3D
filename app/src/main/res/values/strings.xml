@@ -144,6 +144,8 @@
     <string name="description">Description :</string>
     <string name="undefined">Undefined</string>
     <string name="info_saved">Video info saved!</string>
+    <string name="confirm_cancel">Do you really want to cancel modifications?</string>
+    <string name="confirm_delete">Do you really want to delete this video?</string>
 
     <!-- Google API Services Key ID -->
     <string name="google_app_id" translatable="false">AIzaSyCyHD2453o9bnLkYYBcqga0p09HIHfvsx8</string>

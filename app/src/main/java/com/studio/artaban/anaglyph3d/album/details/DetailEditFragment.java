@@ -1,6 +1,7 @@
 package com.studio.artaban.anaglyph3d.album.details;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
@@ -17,6 +18,7 @@ import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.album.AlbumActivity;
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
+import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 
 /**
  * Created by pascal on 16/05/16.
@@ -60,6 +62,20 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
         mEditTitle.setText(mVideo.getTitle(getContext(), false));
         mEditDescription.setText(mVideo.getDescription());
+    }
+    private void setEditMode(boolean editable) { // Update UI components according edit mode
+
+        mEditListener.setEditFlag(editable);
+
+        mEditTitle.setFocusable(editable);
+        mEditTitle.setFocusableInTouchMode(editable);
+        mEditDescription.setFocusable(editable);
+        mEditDescription.setFocusableInTouchMode(editable);
+
+        if (editable)
+            mEditTitle.requestFocus();
+        else
+            mCancelImage.setVisibility(View.GONE);
     }
 
     //////
@@ -148,27 +164,13 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
                 mReverseAnim = false;
                 v.startAnimation(anim);
 
-                if (!mEditListener.getEditFlag()) {
+                if (!mEditListener.getEditFlag())
+                    setEditMode(true); // Start editing
 
-                    // Start editing
-                    mEditListener.setEditFlag(true);
-
-                    mEditTitle.setFocusable(true);
-                    mEditTitle.setFocusableInTouchMode(true);
-                    mEditDescription.setFocusable(true);
-                    mEditDescription.setFocusableInTouchMode(true);
-
-                    mEditTitle.requestFocus();
-                }
                 else {
 
                     // Save info
-                    mEditListener.setEditFlag(false);
-
-                    mEditTitle.setFocusable(false);
-                    mEditDescription.setFocusable(false);
-                    mCancelImage.setVisibility(View.GONE);
-
+                    setEditMode(false);
                     saveInfo();
                 }
                 break;
@@ -176,24 +178,16 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
             case R.id.image_cancel: {
 
                 // Restore info
+                DisplayMessage.getInstance().alert(R.string.title_warning, R.string.confirm_cancel,
+                        null, true, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-
-
-
-
-
-
-
-                //DisplayMessage: user must confirm cancel
-                fillInfo();
-
-
-
-
-
-
-
-
+                                setEditMode(false);
+                                mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_edit_white_36dp));
+                                fillInfo();
+                            }
+                        });
                 break;
             }
         }
