@@ -117,16 +117,6 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
             intent.putExtra(AlbumActivity.DATA_VIDEO_POSITION, mVideoSelected);
             intent.putExtra(AlbumActivity.DATA_VIDEO_DETAIL, mDetailTag);
 
-
-
-
-
-            //editing ?
-
-
-
-
-
             setResult(Constants.RESULT_SELECT_VIDEO, intent);
             finish();
             return;
@@ -138,25 +128,5 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
 
         // Add click events listener for detail commands
         addDetailClickListener();
-
-
-
-
-
-
-        //editing ?
-
-        /*
-        private boolean mDetailSaved = false; // Flag to know if video details have changed
-        private String mDetailTitle;
-        private String mDetailDescription;
-
-        IN savedInstanceState WHEN Pause & Resume?
-
-        */
-
-
-
-
     }
 }

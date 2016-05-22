@@ -73,17 +73,6 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
             mNewVideoSaved = state.getBoolean(DATA_NEW_VIDEO_SAVED);
 
             mDetailTag = state.getString(DATA_VIDEO_DETAIL);
-
-
-
-
-
-            //mEditFlag
-
-
-
-
-
         }
         else if (getIntent().getExtras() != null) {
 
@@ -91,18 +80,6 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
                 mVideoSelected = getIntent().getIntExtra(DATA_VIDEO_POSITION, 0);
             if (getIntent().getExtras().containsKey(DATA_VIDEO_DETAIL))
                 mDetailTag = getIntent().getStringExtra(DATA_VIDEO_DETAIL);
-
-
-
-
-
-
-            //mEditFlag
-
-
-
-
-
 
             // Needed with detail activity child
         }
@@ -161,18 +138,6 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
         outState.putBoolean(DATA_NEW_VIDEO_SAVED, mNewVideoSaved);
 
         outState.putString(DATA_VIDEO_DETAIL, mDetailTag);
-
-
-
-
-
-
-        //mEditFlag
-
-
-
-
-
 
         super.onSaveInstanceState(outState);
     }

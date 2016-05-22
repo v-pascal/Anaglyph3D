@@ -325,7 +325,7 @@ public class VideoListActivity extends AlbumActivity implements
             AlbumTable.Video newVideo = new AlbumTable.Video(0, null, null, date, Settings.getInstance().mDuration,
                     false, 0f, 0f, data.getInt(Frame.DATA_KEY_WIDTH), data.getInt(Frame.DATA_KEY_HEIGHT));
 
-            mDB.insert(AlbumTable.TABLE_NAME, new AlbumTable.Video[]{newVideo});
+            mDB.insert(AlbumTable.TABLE_NAME, new AlbumTable.Video[] { newVideo });
             mNewVideoAdded = true;
         }
 
@@ -384,6 +384,9 @@ public class VideoListActivity extends AlbumActivity implements
             case Constants.RESULT_DELETE_VIDEO: { // Delete from detail activity
 
                 //assert !mTwoPane;
+
+
+
 
 
 

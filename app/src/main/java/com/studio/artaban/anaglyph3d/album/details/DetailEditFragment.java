@@ -12,13 +12,11 @@ import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.album.AlbumActivity;
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
-import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 
 /**
  * Created by pascal on 16/05/16.
@@ -80,20 +78,6 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
         // Get selected video
         mVideo = VideoListActivity.mVideos.get(getArguments().getInt(AlbumActivity.DATA_VIDEO_POSITION, 0));
-
-
-
-
-
-
-        //editing ?
-        // title
-        // description
-
-
-
-
-
 
         // Set up activity title
         fillTitle();
@@ -198,8 +182,11 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
 
 
-                //DisplayMessage: user must confirm
+
+
+                //DisplayMessage: user must confirm cancel
                 fillInfo();
+
 
 
 
