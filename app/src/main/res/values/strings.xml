@@ -147,9 +147,6 @@
     <string name="confirm_cancel">Do you really want to cancel modifications?</string>
     <string name="confirm_delete">Do you really want to delete this video?</string>
 
-    <!-- Google API Services Key ID -->
-    <string name="google_app_id" translatable="false">AIzaSyCyHD2453o9bnLkYYBcqga0p09HIHfvsx8</string>
-
     <!-- Process error -->
     <string name="error_start_recording">ERROR: Unable to start recording! A media resource is in use. Restart your device to fix this.</string>
     <string name="error_save_picture">Failed to save picture to set contrast &amp; brightness!</string>
