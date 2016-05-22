@@ -28,7 +28,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements View.On
     //////
     public interface OnVideoAlbumListener { // Videos album listener interface
 
-        boolean onSave(int videoPosition, String title, String description); // Save video detail (return user informed)
+        void onSave(int videoPosition, String title, String description); // Save video detail
         boolean onDelete(); // Delete video entry from album (return empty list state)
 
         boolean isVideoCreation(); // Return if new video is selected

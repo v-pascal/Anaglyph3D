@@ -47,10 +47,9 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
         mVideo.setDescription(mEditDescription.getText().toString());
         fillTitle();
 
-        if (!mEditListener.onSave(getArguments().getInt(AlbumActivity.DATA_VIDEO_POSITION, 0),
+        mEditListener.onSave(getArguments().getInt(AlbumActivity.DATA_VIDEO_POSITION, 0),
                 mEditTitle.getText().toString(),
-                mEditDescription.getText().toString()))
-            DisplayMessage.getInstance().toast(R.string.info_saved, Toast.LENGTH_SHORT);
+                mEditDescription.getText().toString());
     }
 
     private void fillTitle() {

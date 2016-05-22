@@ -7,10 +7,12 @@ import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 
 /**
  * Created by pascal on 16/05/16.
@@ -30,13 +32,13 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
 
     //////
     @Override
-    public boolean onSave(int videoPosition, String title, String description) {
+    public void onSave(int videoPosition, String title, String description) {
 
         mDetailTitle = title;
         mDetailDescription = description;
 
         mDetailSaved = true;
-        return false; // No message displayed to inform user
+        DisplayMessage.getInstance().toast(R.string.info_saved, Toast.LENGTH_SHORT);
     }
     @Override
     public boolean onDelete() {
@@ -65,12 +67,15 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
     @Override
     protected void onClose() {
 
-        // Check if video details have been updated
+        saveEditingInfo();
+
+        // Check if video details have been updated and must be updated into the database as well
         if (mDetailSaved) {
 
             Intent intent = new Intent();
             intent.putExtra(DATA_VIDEO_TITLE, mDetailTitle);
             intent.putExtra(DATA_VIDEO_DESCRIPTION, mDetailDescription);
+            intent.putExtra(AlbumActivity.DATA_VIDEO_POSITION, mVideoSelected);
 
             setResult(Constants.RESULT_SAVE_VIDEO, intent);
         }

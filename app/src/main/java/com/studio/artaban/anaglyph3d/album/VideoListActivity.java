@@ -50,14 +50,15 @@ public class VideoListActivity extends AlbumActivity implements
     public static List<AlbumTable.Video> mVideos; // Album (videos list)
 
     //////
-    private Database mDB;
-    private GoogleApiClient mGoogleApiClient;
-
+    private Database mDB; // Activity database
+    private GoogleApiClient mGoogleApiClient; // Google API client
     private boolean mTwoPane; // Flag to know if displaying both list & details panels
 
+    private boolean mSaveFromDetail; // Flag to know if saving video info from detail activity changes
+                                     // -> In this case do not display user message (already done)
     //
     @Override
-    public boolean onSave(int videoPosition, String title, String description) { // Save video detail
+    public void onSave(int videoPosition, String title, String description) { // Save video detail
         AlbumTable.Video video = mVideos.get(videoPosition);
         assert video != null;
 
@@ -87,14 +88,13 @@ public class VideoListActivity extends AlbumActivity implements
         video.setDescription(description);
         mDB.update(AlbumTable.TABLE_NAME, video);
 
-        if (!messageDisplayed)
+        if ((!messageDisplayed) && (!mSaveFromDetail))
             DisplayMessage.getInstance().toast(R.string.info_saved, Toast.LENGTH_SHORT);
 
         //////
         mNewVideoSaved = true;
 
         fillVideoList(mVideoSelected);
-        return true; // Message displayed
     }
     @Override
     public boolean onDelete() { // Delete video is requested or cancel video creation
@@ -194,7 +194,7 @@ public class VideoListActivity extends AlbumActivity implements
             });
 
             // Check if needed to "select" this video
-            if ((mVideoSelected == position) && (mTwoPane)) {
+            if (mVideoSelected == position) {
 
                 holder.mRootView.setPadding(2, 2, 2, 2);
                 holder.mRootView.setBackgroundColor(Color.RED);
@@ -337,6 +337,7 @@ public class VideoListActivity extends AlbumActivity implements
                 (mVideoSelected != Constants.NO_DATA))) { // ...or if a video is already selected
 
             fillVideoList(mVideoSelected);
+            mLastVideoSelected = mVideoSelected;
 
             // Display video details activity
             Intent intent = new Intent(this, VideoDetailActivity.class);
@@ -371,6 +372,43 @@ public class VideoListActivity extends AlbumActivity implements
             return;
         }
         switch (resultCode) {
+            case Constants.RESULT_SAVE_VIDEO: { // Save from detail activity
+
+                //assert !mTwoPane;
+                mSaveFromDetail = true;
+                onSave(mVideoSelected, data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_TITLE),
+                        data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_DESCRIPTION));
+                mSaveFromDetail = false;
+
+
+
+
+
+
+                //select video
+
+
+
+
+
+
+
+                break;
+            }
+            case Constants.RESULT_DELETE_VIDEO: { // Delete from detail activity
+
+                //assert !mTwoPane;
+
+
+
+
+
+
+
+
+
+                break;
+            }
             case Constants.RESULT_SELECT_VIDEO: { // From portrait to landscape with two panels
 
                 //assert mTwoPane;
@@ -380,29 +418,6 @@ public class VideoListActivity extends AlbumActivity implements
 
                 selectVideo(false);
                 displayVideoDetail();
-                break;
-            }
-            case Constants.RESULT_SAVE_VIDEO: {
-
-                //assert !mTwoPane;
-                onSave(mVideoSelected, data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_TITLE),
-                        data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_DESCRIPTION));
-                break;
-            }
-            case Constants.RESULT_DELETE_VIDEO: {
-
-                //assert !mTwoPane;
-
-
-
-
-
-
-
-
-
-
-
                 break;
             }
         }
