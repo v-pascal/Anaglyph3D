@@ -432,10 +432,4 @@ public class VideoListActivity extends AlbumActivity implements
         Logs.add(Logs.Type.E, "Failed to connect to Google API Services: " +
                 connectionResult.getErrorMessage());
     }
-
-    // TODO:
-    // _ Save detail info if they are editing and a screen orientation occurred (at the moment
-    //   editing info will be lost).
-    // _ Manage screen orientation when confirming delete video or cancel detail changes (at the
-    //   moment no video will be deleted and detail changes will be lost).
 }
