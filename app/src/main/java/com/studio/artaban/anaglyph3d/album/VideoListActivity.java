@@ -194,7 +194,7 @@ public class VideoListActivity extends AlbumActivity implements
             });
 
             // Check if needed to "select" this video
-            if (mVideoSelected == position) {
+            if ((mVideoSelected == position) && (mLastVideoSelected != Constants.NO_DATA)) {
 
                 holder.mRootView.setPadding(2, 2, 2, 2);
                 holder.mRootView.setBackgroundColor(Color.RED);
@@ -379,20 +379,6 @@ public class VideoListActivity extends AlbumActivity implements
                 onSave(mVideoSelected, data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_TITLE),
                         data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_DESCRIPTION));
                 mSaveFromDetail = false;
-
-
-
-
-
-
-                //select video
-
-
-
-
-
-
-
                 break;
             }
             case Constants.RESULT_DELETE_VIDEO: { // Delete from detail activity
