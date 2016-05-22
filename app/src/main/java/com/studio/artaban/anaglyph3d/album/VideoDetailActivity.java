@@ -48,7 +48,11 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
 
 
 
+
+
         //finish();
+
+
 
 
 
@@ -75,7 +79,6 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
             Intent intent = new Intent();
             intent.putExtra(DATA_VIDEO_TITLE, mDetailTitle);
             intent.putExtra(DATA_VIDEO_DESCRIPTION, mDetailDescription);
-            intent.putExtra(AlbumActivity.DATA_VIDEO_POSITION, mVideoSelected);
 
             setResult(Constants.RESULT_SAVE_VIDEO, intent);
         }
@@ -106,7 +109,7 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
         // Restore videos album (manage video selection & info)
         restoreVideosAlbum(savedInstanceState);
 
-        // Check if orientation has changed with a large screen (check two panel needed)
+        // Check if orientation has changed with a large screen (check two panels expected)
         final Point screenSize = new Point();
         getWindowManager().getDefaultDisplay().getSize(screenSize);
         if ((getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) &&
