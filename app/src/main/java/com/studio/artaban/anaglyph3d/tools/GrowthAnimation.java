@@ -31,6 +31,7 @@ public class GrowthAnimation extends ScaleAnimation {
                 Animation.RELATIVE_TO_SELF, 0.5f);
 
         mTerminateListener = listener;
+        mReverseAnim = false;
 
         setDuration(DEFAULT_DURATION);
         setRepeatCount(Animation.INFINITE);
@@ -46,7 +47,8 @@ public class GrowthAnimation extends ScaleAnimation {
                     animation.cancel(); // Animation terminated
                     if (mTerminateListener != null)
                         mTerminateListener.onAnimationTerminate();
-                } else
+                }
+                else
                     mReverseAnim = true;
             }
         });

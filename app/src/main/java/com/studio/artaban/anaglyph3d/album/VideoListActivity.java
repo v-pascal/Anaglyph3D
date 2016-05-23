@@ -354,6 +354,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
 
 
 
+
             startActivityForResult(intent, 0);
             return;
         }
@@ -373,27 +374,6 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
 
             displayVideoDetail();
         }
-
-
-
-        /*
-        if (mTwoPane) // Check to initialize detail UI
-            initializeDetailUI();
-
-        // Select video detail (if needed)
-        if ((mTwoPane) || (isVideoCreation())) {
-
-            selectVideo(false);
-            displayVideoDetail();
-        }
-        */
-
-
-
-
-
-
-
     }
 
     @Override
