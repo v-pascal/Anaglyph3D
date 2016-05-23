@@ -343,6 +343,17 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             intent.putExtra(AlbumActivity.DATA_VIDEO_POSITION, mVideoSelected);
             intent.putExtra(AlbumActivity.DATA_VIDEO_DETAIL, mDetailTag);
 
+
+
+
+
+            //add creation data info
+
+
+
+
+
+
             startActivityForResult(intent, 0);
             return;
         }

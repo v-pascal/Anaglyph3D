@@ -214,7 +214,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
                 if (appBar != null)
                     appBar.setTitle(mVideo.toString(this));
 
-                // Delete geolocation marker
+                // Delete previous geolocation marker
                 mGeolocationMarker = null;
                 break;
         }
@@ -348,6 +348,47 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
             ////// Geolocation
             case R.id.locate_user:
+
+
+
+
+                /*
+
+                // Display scale animation
+                ScaleAnimation anim = new ScaleAnimation(1f, 1.4f, 1f, 1.4f, // From 1 to 1.4
+                        Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                anim.setDuration(300);
+                anim.setRepeatCount(Animation.INFINITE);
+                anim.setRepeatMode(Animation.REVERSE); // From 1.4 to 1
+                anim.setAnimationListener(new Animation.AnimationListener() {
+
+                    @Override public void onAnimationStart(Animation animation) { }
+                    @Override public void onAnimationEnd(Animation animation) { }
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                        if (mReverseAnim) {
+
+                            animation.cancel(); // Animation terminated
+                            if (!editing)
+                                mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save_white_36dp));
+                            else
+                                mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_edit_white_36dp));
+                            if (!mEditListener.isVideoCreation())
+                                mCancelImage.setVisibility((!editing)? View.VISIBLE:View.GONE);
+                            //else // Do not display cancel image for video creation
+                        }
+                        else
+                            mReverseAnim = true;
+                    }
+                });
+                v.clearAnimation();
+                mReverseAnim = false;
+                v.startAnimation(anim);
+
+                */
+
+
+
 
                 Location lastLocation = getGeolocation();
                 if (lastLocation != null) {

@@ -44,13 +44,15 @@ public class AlbumTable implements IDataTable {
         private String title;
         public void setTitle(String title) {
 
-            this.title = title;
+            String titleToSave = title.trim();
+            this.title = (!titleToSave.isEmpty())? titleToSave:null;
             mUpdated[COLUMN_INDEX_TITLE] = true;
         }
         private String description;
         public void setDescription(String description) {
 
-            this.description = description;
+            String descToSave = description.trim();
+            this.description = (!descToSave.isEmpty())? descToSave:null;
             mUpdated[COLUMN_INDEX_DESCRIPTION] = true;
         }
         private Date date;

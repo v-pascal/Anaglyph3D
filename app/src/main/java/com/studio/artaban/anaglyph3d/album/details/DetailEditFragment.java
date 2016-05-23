@@ -109,23 +109,21 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
         mCancelImage = (ImageView)rootView.findViewById(R.id.image_cancel);
         mCancelImage.setOnClickListener(this);
 
+        assert mEditListener != null;
+        if (mEditListener.isVideoCreation()) { // Adding video process (set edit mode immediately)
 
+            mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save_white_36dp));
+            mCancelImage.setVisibility(View.VISIBLE);
 
+            setEditMode(true);
+        }
+        else {
 
-
-
-
-        // Fill info
-        mEditTitle = (EditText)rootView.findViewById(R.id.edit_title);
-        mEditDescription = (EditText)rootView.findViewById(R.id.edit_description);
-        fillInfo();
-
-
-
-
-
-
-
+            // Fill info
+            mEditTitle = (EditText)rootView.findViewById(R.id.edit_title);
+            mEditDescription = (EditText)rootView.findViewById(R.id.edit_description);
+            fillInfo();
+        }
         return rootView;
     }
 
