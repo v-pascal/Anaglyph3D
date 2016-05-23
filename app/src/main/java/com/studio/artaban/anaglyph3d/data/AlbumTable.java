@@ -111,6 +111,10 @@ public class AlbumTable implements IDataTable {
         public int getThumbnailWidth() { return this.thumbnailWidth; }
         public int getThumbnailHeight() { return this.thumbnailHeight; }
 
+        public boolean isLocated() { return this.location; }
+        public double getLatitude() { return this.latitude; }
+        public double getLongitude() { return this.longitude; }
+
         public String getThumbnailFile() { return getThumbnailFile(this.date); }
         public String getVideoFile() { return getVideoFile(this.date); }
     }

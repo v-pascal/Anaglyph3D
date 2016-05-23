@@ -146,6 +146,7 @@
     <string name="info_saved">Video info saved!</string>
     <string name="confirm_cancel">Do you really want to cancel modifications?</string>
     <string name="confirm_delete">Do you really want to delete this video?</string>
+    <string name="video_location">Video location</string>
 
     <!-- Process error -->
     <string name="error_start_recording">ERROR: Unable to start recording! A media resource is in use. Restart your device to fix this.</string>

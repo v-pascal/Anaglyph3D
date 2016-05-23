@@ -112,7 +112,7 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
         if (getSupportFragmentManager().findFragmentById(R.id.video_detail_container) == null)
             displayVideoDetail();
 
-        // Add click events listener for detail commands
-        addDetailClickListener();
+        // Initialize detail UI
+        initializeDetailUI();
     }
 }

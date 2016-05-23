@@ -364,8 +364,8 @@ public class VideoListActivity extends AlbumActivity implements
             selectVideo(false);
             displayVideoDetail();
         }
-        if (mTwoPane) // Check to add click events listener for detail commands
-            addDetailClickListener();
+        if (mTwoPane) // Check to initialize detail UI
+            initializeDetailUI();
     }
 
     @Override

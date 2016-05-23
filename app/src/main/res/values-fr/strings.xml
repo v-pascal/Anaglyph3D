@@ -61,6 +61,7 @@
     <string name="info_saved">Les infos de la vidéo ont été enregistrées!</string>
     <string name="confirm_cancel">Etes-vous sûr de vouloir annuler vos modifications?</string>
     <string name="confirm_delete">Etes-vous sûr de vouloir supprimer cette vidéo?</string>
+    <string name="video_location">Localisation de la vidéo</string>
 
     <!-- Process error -->
     <string name="error_start_recording">ERREUR: Enregistrement vidéo impossible! Ce média est en cours d\'utilisation. Redémarrer votre périphérique pour fixer ce problème.</string>

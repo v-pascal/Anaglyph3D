@@ -5,12 +5,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Detail fragment container -->
-    <FrameLayout
-        android:id="@+id/video_detail_container"
+    <RelativeLayout
         android:layout_weight="1"
         android:layout_width="match_parent"
-        android:layout_height="0dp" />
+        android:layout_height="0dp">
+
+        <!-- Detail fragment container -->
+        <FrameLayout
+            android:id="@+id/video_detail_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <ImageView
+            android:id="@+id/locate_user"
+            android:src="@drawable/ic_my_location_black_36dp"
+            android:visibility="gone"
+            android:padding="@dimen/padding_geolocation"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </RelativeLayout>
 
     <!-- Detail commands -->
     <LinearLayout
