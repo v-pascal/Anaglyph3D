@@ -352,7 +352,18 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
 
 
+
                 /*
+                v.clearAnimation();
+                v.startAnimation(GrowthAnimation.create(1f, 1.4f, new GrowthAnimation.OnTerminateListener() {
+                        @Override
+                        public void onAnimationTerminate() {
+
+
+                        }
+                    }));
+
+
 
                 // Display scale animation
                 ScaleAnimation anim = new ScaleAnimation(1f, 1.4f, 1f, 1.4f, // From 1 to 1.4
@@ -369,6 +380,13 @@ public abstract class AlbumActivity extends AppCompatActivity implements
                         if (mReverseAnim) {
 
                             animation.cancel(); // Animation terminated
+                            if (mListener != null)
+                                mListener.onAnimationTerminate();
+
+
+
+
+
                             if (!editing)
                                 mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save_white_36dp));
                             else
@@ -376,6 +394,11 @@ public abstract class AlbumActivity extends AppCompatActivity implements
                             if (!mEditListener.isVideoCreation())
                                 mCancelImage.setVisibility((!editing)? View.VISIBLE:View.GONE);
                             //else // Do not display cancel image for video creation
+
+
+
+
+
                         }
                         else
                             mReverseAnim = true;
