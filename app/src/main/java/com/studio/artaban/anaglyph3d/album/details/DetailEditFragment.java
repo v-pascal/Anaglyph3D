@@ -9,8 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.ScaleAnimation;
 import android.widget.EditText;
 import android.widget.ImageView;
 
@@ -19,6 +17,7 @@ import com.studio.artaban.anaglyph3d.album.AlbumActivity;
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
+import com.studio.artaban.anaglyph3d.tools.GrowthAnimation;
 
 /**
  * Created by pascal on 16/05/16.
@@ -37,8 +36,6 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
     private ImageView mEditImage;
     private ImageView mCancelImage;
-
-    private boolean mReverseAnim; // Flag to know if scale animation of the edit image has been reversed
 
     //
     public void saveInfo() {
@@ -143,36 +140,20 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
             case R.id.image_edit: {
                 final boolean editing = mEditListener.getEditFlag();
 
-                // Display scale animation
-                ScaleAnimation anim = new ScaleAnimation(1f, 1.4f, 1f, 1.4f, // From 1 to 1.4
-                        Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                anim.setDuration(300);
-                anim.setRepeatCount(Animation.INFINITE);
-                anim.setRepeatMode(Animation.REVERSE); // From 1.4 to 1
-                anim.setAnimationListener(new Animation.AnimationListener() {
-
-                    @Override public void onAnimationStart(Animation animation) { }
-                    @Override public void onAnimationEnd(Animation animation) { }
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-                        if (mReverseAnim) {
-
-                            animation.cancel(); // Animation terminated
-                            if (!editing)
-                                mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save_white_36dp));
-                            else
-                                mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_edit_white_36dp));
-                            if (!mEditListener.isVideoCreation())
-                                mCancelImage.setVisibility((!editing)? View.VISIBLE:View.GONE);
-                            //else // Do not display cancel image for video creation
-                        }
-                        else
-                            mReverseAnim = true;
-                    }
-                });
                 v.clearAnimation();
-                mReverseAnim = false;
-                v.startAnimation(anim);
+                v.startAnimation(GrowthAnimation.create(new GrowthAnimation.OnTerminateListener() {
+                    @Override
+                    public void onAnimationTerminate() {
+
+                        if (!editing)
+                            mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save_white_36dp));
+                        else
+                            mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_edit_white_36dp));
+                        if (!mEditListener.isVideoCreation())
+                            mCancelImage.setVisibility((!editing)? View.VISIBLE:View.GONE);
+                        //else // Do not display cancel image for video creation
+                    }
+                }));
 
                 if (!mEditListener.getEditFlag())
                     setEditMode(true); // Start editing

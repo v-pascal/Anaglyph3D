@@ -37,6 +37,7 @@ import com.studio.artaban.anaglyph3d.data.AlbumTable;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
+import com.studio.artaban.anaglyph3d.tools.GrowthAnimation;
 
 /**
  * Created by pascal on 16/05/16.
@@ -349,69 +350,9 @@ public abstract class AlbumActivity extends AppCompatActivity implements
             ////// Geolocation
             case R.id.locate_user:
 
-
-
-
-
-                /*
-                v.clearAnimation();
-                v.startAnimation(GrowthAnimation.create(1f, 1.4f, new GrowthAnimation.OnTerminateListener() {
-                        @Override
-                        public void onAnimationTerminate() {
-
-
-                        }
-                    }));
-
-
-
                 // Display scale animation
-                ScaleAnimation anim = new ScaleAnimation(1f, 1.4f, 1f, 1.4f, // From 1 to 1.4
-                        Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-                anim.setDuration(300);
-                anim.setRepeatCount(Animation.INFINITE);
-                anim.setRepeatMode(Animation.REVERSE); // From 1.4 to 1
-                anim.setAnimationListener(new Animation.AnimationListener() {
-
-                    @Override public void onAnimationStart(Animation animation) { }
-                    @Override public void onAnimationEnd(Animation animation) { }
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-                        if (mReverseAnim) {
-
-                            animation.cancel(); // Animation terminated
-                            if (mListener != null)
-                                mListener.onAnimationTerminate();
-
-
-
-
-
-                            if (!editing)
-                                mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save_white_36dp));
-                            else
-                                mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_edit_white_36dp));
-                            if (!mEditListener.isVideoCreation())
-                                mCancelImage.setVisibility((!editing)? View.VISIBLE:View.GONE);
-                            //else // Do not display cancel image for video creation
-
-
-
-
-
-                        }
-                        else
-                            mReverseAnim = true;
-                    }
-                });
-                v.clearAnimation();
-                mReverseAnim = false;
-                v.startAnimation(anim);
-
-                */
-
-
-
+                mGeolocationImage.clearAnimation();
+                mGeolocationImage.startAnimation(GrowthAnimation.create());
 
                 Location lastLocation = getGeolocation();
                 if (lastLocation != null) {
