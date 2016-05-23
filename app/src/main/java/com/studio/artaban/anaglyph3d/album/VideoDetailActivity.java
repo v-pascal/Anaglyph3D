@@ -108,11 +108,11 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
             return;
         }
 
+        // Initialize detail UI
+        initializeDetailUI();
+
         // Create the detail fragment and add it to the activity (if needed)
         if (getSupportFragmentManager().findFragmentById(R.id.video_detail_container) == null)
             displayVideoDetail();
-
-        // Initialize detail UI
-        initializeDetailUI();
     }
 }
