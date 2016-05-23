@@ -1,14 +1,11 @@
 package com.studio.artaban.anaglyph3d.album;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -20,8 +17,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.location.LocationServices;
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.album.details.DetailPlayerFragment;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
@@ -31,8 +26,6 @@ import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Database;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
-
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.media.Frame;
 
@@ -44,14 +37,12 @@ import java.util.List;
  * Created by pascal on 16/05/16.
  * Videos list (album)
  */
-public class VideoListActivity extends AlbumActivity implements
-        GoogleApiClient.OnConnectionFailedListener, AlbumActivity.OnVideoAlbumListener {
+public class VideoListActivity extends AlbumActivity implements AlbumActivity.OnVideoAlbumListener {
 
     public static List<AlbumTable.Video> mVideos; // Album (videos list)
 
     //////
     private Database mDB; // Activity database
-    private GoogleApiClient mGoogleApiClient; // Google API client
     private boolean mTwoPane; // Flag to know if displaying both list & details panels
 
     private boolean mSaveFromDetail; // Flag to know if saving video info from detail activity changes
@@ -66,21 +57,15 @@ public class VideoListActivity extends AlbumActivity implements
         boolean messageDisplayed = false;
         if (isVideoCreation()) {
 
-            assert (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
-                    PackageManager.PERMISSION_GRANTED ||
-                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
-                            PackageManager.PERMISSION_GRANTED);
-            Location curlocation = null;
-            if (mGoogleApiClient.isConnected())
-                curlocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            if (curlocation != null) {
+            Location curLocation = getGeolocation();
+            if (curLocation != null) {
 
-                Logs.add(Logs.Type.I, "New video geolocation: " + curlocation.getLatitude() + " " +
-                        curlocation.getLongitude());
-                video.setLocation(curlocation.getLatitude(), curlocation.getLongitude());
+                Logs.add(Logs.Type.I, "New video geolocation: " + curLocation.getLatitude() + " " +
+                        curLocation.getLongitude());
+                video.setLocation(curLocation.getLatitude(), curLocation.getLongitude());
             }
             else {
-                DisplayMessage.getInstance().toast(R.string.no_location, Toast.LENGTH_LONG);
+                DisplayMessage.getInstance().toast(R.string.no_video_location, Toast.LENGTH_LONG);
                 messageDisplayed = true;
             }
         }
@@ -261,6 +246,9 @@ public class VideoListActivity extends AlbumActivity implements
             }
         }
         mLastVideoSelected = mVideoSelected;
+
+        if (mTwoPane) // Update detail UI according new selection (if needed)
+            updateDetailUI();
     }
     private boolean fillVideoList(int selectPosition) { // Fill video list recycler view
 
@@ -308,12 +296,6 @@ public class VideoListActivity extends AlbumActivity implements
         if (!getIntent().getBooleanExtra(Constants.DATA_CONNECTION_ESTABLISHED, false))
             setResult(Constants.RESULT_RESTART_CONNECTION); // Must restart connection (not connected)
 
-        // Prepare location using Google API
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-
         // Open database & get video entries
         mDB = new Database(this);
         mDB.open(true);
@@ -358,14 +340,15 @@ public class VideoListActivity extends AlbumActivity implements
         if (!fillVideoList(0))
             return; // No video to display
 
+        if (mTwoPane) // Check to initialize detail UI
+            initializeDetailUI();
+
         // Select video detail (if needed)
         if ((mTwoPane) || (isVideoCreation())) {
 
             selectVideo(false);
             displayVideoDetail();
         }
-        if (mTwoPane) // Check to initialize detail UI
-            initializeDetailUI();
     }
 
     @Override
@@ -409,27 +392,8 @@ public class VideoListActivity extends AlbumActivity implements
     }
 
     @Override
-    protected void onStart() {
-        mGoogleApiClient.connect();
-        super.onStart();
-    }
-
-    @Override
-    protected void onStop() {
-        mGoogleApiClient.disconnect();
-        super.onStop();
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         mDB.close();
-    }
-
-    //////
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Logs.add(Logs.Type.E, "Failed to connect to Google API Services: " +
-                connectionResult.getErrorMessage());
     }
 }
