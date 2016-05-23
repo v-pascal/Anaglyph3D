@@ -47,10 +47,10 @@ public abstract class AlbumActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, LocationListener {
 
     public static final String DATA_VIDEO_POSITION = "position";
+    public static final String DATA_VIDEO_DETAIL = "detail";
+
     public static final String DATA_NEW_VIDEO_ADDED = "added";
     public static final String DATA_NEW_VIDEO_SAVED = "saved";
-
-    public static final String DATA_VIDEO_DETAIL = "detail";
 
     //////
     public interface OnVideoAlbumListener { // Videos album listener interface
@@ -105,7 +105,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
                 PackageManager.PERMISSION_GRANTED);
         Location curLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (curLocation == null)
-            curLocation = mLastLocation; // Return last known location
+            curLocation = mLastLocation; // Return last known location (if any)
 
         return curLocation;
     }
@@ -122,7 +122,8 @@ public abstract class AlbumActivity extends AppCompatActivity implements
             mNewVideoSaved = state.getBoolean(DATA_NEW_VIDEO_SAVED);
 
             mDetailTag = state.getString(DATA_VIDEO_DETAIL);
-        } else if (getIntent().getExtras() != null) {
+        }
+        else if (getIntent().getExtras() != null) {
 
             if (getIntent().getExtras().containsKey(DATA_VIDEO_POSITION))
                 mVideoSelected = getIntent().getIntExtra(DATA_VIDEO_POSITION, 0);
@@ -131,13 +132,6 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
             // Needed with detail activity child
         }
-
-        // Prepare geolocation using Google API services
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
     }
     protected void initializeDetailUI() { // Initialize detail UI
 
@@ -159,6 +153,13 @@ public abstract class AlbumActivity extends AppCompatActivity implements
         mGeolocationImage = (ImageView) findViewById(R.id.locate_user);
         assert mGeolocationImage != null;
         mGeolocationImage.setOnClickListener(this);
+
+        // Prepare geolocation using Google API services
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
 
         // Set detail UI according initial video selection
         updateDetailUI();
@@ -226,13 +227,15 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     //////
     @Override
     protected void onStart() {
-        mGoogleApiClient.connect();
+        if (mGoogleApiClient != null)
+            mGoogleApiClient.connect();
         super.onStart();
     }
 
     @Override
     protected void onStop() {
-        mGoogleApiClient.disconnect();
+        if (mGoogleApiClient != null)
+            mGoogleApiClient.disconnect();
         super.onStop();
     }
 
