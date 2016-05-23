@@ -64,6 +64,10 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
                 Logs.add(Logs.Type.I, "New video geolocation: " + curLocation.getLatitude() + " " +
                         curLocation.getLongitude());
                 video.setLocation(curLocation.getLatitude(), curLocation.getLongitude());
+
+                // Enable displaying location detail (if needed)
+                if (mTwoPane)
+                    updateDetailUI();
             }
             else {
                 DisplayMessage.getInstance().toast(R.string.no_video_location, Toast.LENGTH_LONG);

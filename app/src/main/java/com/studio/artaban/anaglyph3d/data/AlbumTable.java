@@ -109,7 +109,10 @@ public class AlbumTable implements IDataTable {
             return dateFormat.format(this.date);
         }
         public short getDuration() { return this.duration; }
-        public String getDescription() { return (this.description != null)? this.description:""; }
+        public String getDescription(Context context) {
+
+            return (this.description != null)? this.description:context.getString(R.string.undefined);
+        }
         public int getThumbnailWidth() { return this.thumbnailWidth; }
         public int getThumbnailHeight() { return this.thumbnailHeight; }
 

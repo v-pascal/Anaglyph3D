@@ -1,8 +1,11 @@
 package com.studio.artaban.anaglyph3d.helpers;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.MainActivity;
@@ -182,6 +185,22 @@ public class ActivityWrapper implements IConnectRequest {
                 }
                 curActivity.finish();
             }
+        }
+        catch (NullPointerException e) {
+            Logs.add(Logs.Type.F, "Wrong activity reference");
+        }
+    }
+
+    //
+    public static void hideSoftKeyboard() {
+        try {
+
+            InputMethodManager inputManager = (InputMethodManager)get().
+                    getSystemService(Context.INPUT_METHOD_SERVICE);
+            View curView = get().getCurrentFocus();
+            if (curView != null)
+                inputManager.hideSoftInputFromWindow(curView.getWindowToken(),
+                        InputMethodManager.HIDE_NOT_ALWAYS);
         }
         catch (NullPointerException e) {
             Logs.add(Logs.Type.F, "Wrong activity reference");

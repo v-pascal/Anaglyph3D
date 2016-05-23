@@ -16,6 +16,7 @@ import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.album.AlbumActivity;
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
+import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.tools.GrowthAnimation;
 
@@ -58,7 +59,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     private void fillInfo() {
 
         mEditTitle.setText(mVideo.getTitle(getContext(), false));
-        mEditDescription.setText(mVideo.getDescription());
+        mEditDescription.setText(mVideo.getDescription(getContext()));
     }
     private void setEditMode(boolean editable) { // Update UI components according edit mode
 
@@ -100,14 +101,14 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.video_detail_edit, container, false);
 
+        mEditTitle = (EditText)rootView.findViewById(R.id.edit_title);
+        mEditDescription = (EditText)rootView.findViewById(R.id.edit_description);
+
         // Add click event listener to the edit & cancel images
         mEditImage = (ImageView)rootView.findViewById(R.id.image_edit);
         mEditImage.setOnClickListener(this);
         mCancelImage = (ImageView)rootView.findViewById(R.id.image_cancel);
         mCancelImage.setOnClickListener(this);
-
-        mEditTitle = (EditText)rootView.findViewById(R.id.edit_title);
-        mEditDescription = (EditText)rootView.findViewById(R.id.edit_description);
 
         assert mEditListener != null;
         if (mEditListener.isVideoCreation()) { // Adding video process (set edit mode immediately)
@@ -175,6 +176,9 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
+
+                                // Hide soft keyboard (if displayed)
+                                ActivityWrapper.hideSoftKeyboard();
 
                                 if (mEditListener.isVideoCreation())
                                     ((AlbumActivity)getActivity()).onDelete(); // Cancel video creation
