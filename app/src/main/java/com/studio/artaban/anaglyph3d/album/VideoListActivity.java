@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.album.details.DetailEditFragment;
 import com.studio.artaban.anaglyph3d.album.details.DetailPlayerFragment;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
 import com.studio.artaban.anaglyph3d.data.Constants;
@@ -332,7 +333,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
 
         // Check if only videos list will be displayed with...
         if ((!mTwoPane) && ((isVideoCreation()) || // ...a creation request...
-                (mVideoSelected != Constants.NO_DATA))) { // ...or if a video is already selected
+                (mVideoSelected != Constants.NO_DATA))) { // ...or a video that is already selected
 
             fillVideoList(mVideoSelected);
             mLastVideoSelected = mVideoSelected;
@@ -349,6 +350,22 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         if (!fillVideoList(0))
             return; // No video to display
 
+        // Check list & details displayed
+        if (mTwoPane) {
+
+            initializeDetailUI();
+            selectVideo(false);
+
+            // Check which detail will be displayed (according video creation)
+            if (isVideoCreation())
+                mDetailTag = DetailEditFragment.TAG;
+
+            displayVideoDetail();
+        }
+
+
+
+        /*
         if (mTwoPane) // Check to initialize detail UI
             initializeDetailUI();
 
@@ -358,6 +375,14 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             selectVideo(false);
             displayVideoDetail();
         }
+        */
+
+
+
+
+
+
+
     }
 
     @Override

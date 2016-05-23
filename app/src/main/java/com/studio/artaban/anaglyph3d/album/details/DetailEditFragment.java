@@ -103,16 +103,28 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.video_detail_edit, container, false);
 
-        // Fill info
-        mEditTitle = (EditText)rootView.findViewById(R.id.edit_title);
-        mEditDescription = (EditText)rootView.findViewById(R.id.edit_description);
-        fillInfo();
-
         // Add click event listener to the edit & cancel images
         mEditImage = (ImageView)rootView.findViewById(R.id.image_edit);
         mEditImage.setOnClickListener(this);
         mCancelImage = (ImageView)rootView.findViewById(R.id.image_cancel);
         mCancelImage.setOnClickListener(this);
+
+
+
+
+
+
+
+        // Fill info
+        mEditTitle = (EditText)rootView.findViewById(R.id.edit_title);
+        mEditDescription = (EditText)rootView.findViewById(R.id.edit_description);
+        fillInfo();
+
+
+
+
+
+
 
         return rootView;
     }

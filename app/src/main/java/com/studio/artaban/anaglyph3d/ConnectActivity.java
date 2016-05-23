@@ -174,6 +174,8 @@ public class ConnectActivity extends AppCompatActivity {
 
 
 
+
+
                 // Display album activity to add the new video into the album
                 Bundle data = new Bundle();
                 data.putInt(Frame.DATA_KEY_WIDTH, 640);
@@ -185,6 +187,9 @@ public class ConnectActivity extends AppCompatActivity {
                 intent.putExtra(Constants.DATA_ADD_VIDEO, true);
 
                 startActivityForResult(intent, 0);
+
+
+
 
 
 
