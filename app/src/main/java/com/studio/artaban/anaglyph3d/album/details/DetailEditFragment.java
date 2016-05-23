@@ -177,15 +177,24 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
             }
             case R.id.image_cancel: {
 
-                // Restore info
-                DisplayMessage.getInstance().alert(R.string.title_warning, R.string.confirm_cancel,
-                        null, true, new DialogInterface.OnClickListener() {
+                // Display user message according creation or cancel modifications
+                int messageId = (mEditListener.isVideoCreation())?
+                        R.string.confirm_cancel_create:R.string.confirm_cancel_modify;
+
+                DisplayMessage.getInstance().alert(R.string.title_warning, messageId, null, true,
+                        new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
-                                setEditMode(false);
-                                mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_edit_white_36dp));
-                                fillInfo();
+                                if (mEditListener.isVideoCreation())
+                                    ((AlbumActivity)getActivity()).onDelete(); // Cancel video creation
+
+                                else { // Restore info
+
+                                    setEditMode(false);
+                                    mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_edit_white_36dp));
+                                    fillInfo();
+                                }
                             }
                         });
                 break;

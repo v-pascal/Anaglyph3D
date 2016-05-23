@@ -48,7 +48,6 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
     public static final String DATA_VIDEO_POSITION = "position";
     public static final String DATA_VIDEO_DETAIL = "detail";
-
     public static final String DATA_NEW_VIDEO_ADDED = "added";
     public static final String DATA_NEW_VIDEO_SAVED = "saved";
 
@@ -177,7 +176,8 @@ public abstract class AlbumActivity extends AppCompatActivity implements
             command.setOnClickListener(this);
             command.setFocusable(true);
             command.setAlpha(1f);
-        } else { // Disable it
+        }
+        else { // Disable it
 
             command.setOnClickListener(null);
             command.setFocusable(false);
@@ -252,7 +252,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     }
 
     //
-    protected abstract void onDelete(); // Delete video entry from album (finish activity if no more video)
+    public abstract void onDelete(); // Delete video entry from album (finish activity if no more video)
     protected abstract void onClose(); // Closing operation
 
     @Override public void onBackPressed() { onClose(); }
@@ -307,7 +307,8 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
                     mDetailTag = TAG_FRAGMENT_LOCATION;
                     displayVideoDetail();
-                } else {
+                }
+                else {
 
                     // Location fragment already displayed so move camera to video location
                     LatLng video = new LatLng(mVideo.getLatitude(), mVideo.getLongitude());
@@ -361,7 +362,8 @@ public abstract class AlbumActivity extends AppCompatActivity implements
                     mGeolocationMarker = mMap.addMarker(new MarkerOptions().position(userLatLng)
                             .title(getString(R.string.user_location))
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-                } else
+                }
+                else
                     DisplayMessage.getInstance().toast(R.string.no_geolocation, Toast.LENGTH_SHORT);
 
                 break;

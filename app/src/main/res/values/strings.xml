@@ -144,7 +144,8 @@
     <string name="description">Description :</string>
     <string name="undefined">Undefined</string>
     <string name="info_saved">Video info saved!</string>
-    <string name="confirm_cancel">Do you really want to cancel modifications?</string>
+    <string name="confirm_cancel_modify">Do you really want to cancel modifications?</string>
+    <string name="confirm_cancel_create">Do you really want to cancel video add and lost it from your device for good?</string>
     <string name="confirm_delete">Do you really want to delete this video?</string>
     <string name="video_location">Video location</string>
     <string name="user_location">You\'re location</string>

@@ -87,10 +87,19 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
 
     //
     @Override
-    public void onDelete() { // Delete video is requested or cancel video creation
+    public void onDelete() { // Delete video is requested (or cancel video creation)
         AlbumTable.Video video = mVideos.get(mVideoSelected);
         assert video != null;
 
+        // Remove video & thumbnail files
+        File toRemove = new File(video.getVideoFile());
+        if (!toRemove.delete())
+            Logs.add(Logs.Type.W, "Failed to delete video file: " + video.getVideoFile());
+        toRemove = new File(video.getThumbnailFile());
+        if (!toRemove.delete())
+            Logs.add(Logs.Type.W, "Failed to delete thumbnail file: " + video.getThumbnailFile());
+
+        // Remove video from DB
         Logs.add(Logs.Type.W, "Deleting video: " + video.toString());
         mDB.delete(AlbumTable.TABLE_NAME, new long[]{video.getId()});
 

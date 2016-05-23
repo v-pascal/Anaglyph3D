@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class AlbumTable implements IDataTable {
 
-    public static class Video extends DataField { // Album entry: Video
+    public static class Video extends DataField { /////////////////////////////// Album entry: Video
 
         private static final short FIELD_COUNT = 9;
         public static String getThumbnailFile(Date date) { // Return thumbnail file path based on a video date
@@ -118,6 +118,8 @@ public class AlbumTable implements IDataTable {
         public String getThumbnailFile() { return getThumbnailFile(this.date); }
         public String getVideoFile() { return getVideoFile(this.date); }
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     //
     @Override
