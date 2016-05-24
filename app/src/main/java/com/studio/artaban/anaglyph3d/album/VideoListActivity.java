@@ -49,7 +49,6 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
     //
     @Override
     public void onSave(int videoPosition, String title, String description) { // Save video details (DB)
-
         AlbumTable.Video video = mVideos.get(videoPosition);
         assert video != null;
 
