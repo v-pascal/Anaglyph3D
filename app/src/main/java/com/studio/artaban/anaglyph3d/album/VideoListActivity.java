@@ -48,33 +48,34 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
 
     //
     @Override
-    public void onSave(int videoPosition, String title, String description) { // Save video details (DB)
+    public void onSave(int videoPosition) { // Save video details (DB)
         AlbumTable.Video video = mVideos.get(videoPosition);
         assert video != null;
 
-        // Check if saving a new video (new video creation request)
         boolean messageDisplayed = false;
-        if (isVideoCreation()) {
+        if (isVideoCreation()) { // New video
 
-            Location curLocation = getGeolocation();
-            if (curLocation != null) {
+            // Try to add video location (if needed)
+            if (!video.isLocated()) {
 
-                Logs.add(Logs.Type.I, "New video geolocation: " + curLocation.getLatitude() + " " +
-                        curLocation.getLongitude());
-                video.setLocation(curLocation.getLatitude(), curLocation.getLongitude());
+                Location curLocation = getGeolocation();
+                if (curLocation != null) {
 
-                // Enable displaying location detail (if needed)
-                if (mTwoPane)
-                    updateDetailUI();
-            }
-            else {
+                    Logs.add(Logs.Type.I, "New video geolocation: " + curLocation.getLatitude() + " " +
+                            curLocation.getLongitude());
+                    video.setLocation(curLocation.getLatitude(), curLocation.getLongitude());
 
-                DisplayMessage.getInstance().toast(R.string.no_video_location, Toast.LENGTH_LONG);
-                messageDisplayed = true;
+                    // Enable displaying location detail (if needed)
+                    if (mTwoPane)
+                        updateDetailUI();
+                }
+                else {
+
+                    DisplayMessage.getInstance().toast(R.string.no_video_location, Toast.LENGTH_LONG);
+                    messageDisplayed = true;
+                }
             }
         }
-        video.setTitle(title);
-        video.setDescription(description);
         mDB.update(AlbumTable.TABLE_NAME, video);
 
         if ((!messageDisplayed) && (mTwoPane))
@@ -211,8 +212,8 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
                 holder.mRootView.setPadding(2, 2, 2, 2);
                 holder.mRootView.setBackgroundColor(Color.RED);
             }
-            // -> Needed when trying to add border to a video item which is not created
-            //    yet (when calling 'selectVideo' method before the video item exists)
+            // NB: Needed when trying to add border to a video item which is not created
+            //     yet (when calling 'selectVideo' method before the video item exists)
         }
 
         @Override public int getItemCount() { return mValues.size(); }
@@ -390,9 +391,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             case Constants.RESULT_SAVE_VIDEO: { // Save from detail activity
 
                 //assert !mTwoPane;
-                onSave(mVideoSelected,
-                        data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_TITLE),
-                        data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_DESCRIPTION));
+                onSave(mVideoSelected);
                 break;
             }
             case Constants.RESULT_DELETE_VIDEO: { // Delete from detail activity

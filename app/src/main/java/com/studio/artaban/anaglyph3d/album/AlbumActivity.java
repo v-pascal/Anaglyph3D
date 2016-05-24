@@ -56,7 +56,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     //////
     public interface OnVideoAlbumListener { //////////////////////// Videos album listener interface
 
-        void onSave(int videoPosition, String title, String description); // Save video detail
+        void onSave(int videoPosition); // Save video detail
 
         boolean isVideoCreation(); // Return if new video is selected
         boolean isVideoSaved(); // Return if new video details have been saved

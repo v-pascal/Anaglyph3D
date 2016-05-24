@@ -28,10 +28,10 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
     public static final String TAG = "edit";
 
-    private AlbumActivity.OnVideoAlbumListener mVideoListener;
-    private AlbumTable.Video mVideo; // Selected video (DB)
-
     //////
+    private AlbumActivity.OnVideoAlbumListener mVideoListener; // Activity video listener
+    private int mVideoPosition; // Selected video position
+
     private EditText mEditTitle;
     private EditText mEditDescription;
 
@@ -41,25 +41,25 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     //
     public void saveInfo() {
 
-        mVideo.setTitle(mEditTitle.getText().toString());
-        mVideo.setDescription(mEditDescription.getText().toString());
+        VideoListActivity.mVideos.get(mVideoPosition).setTitle(mEditTitle.getText().toString());
+        VideoListActivity.mVideos.get(mVideoPosition).setDescription(mEditDescription.getText().toString());
         fillTitle();
 
-        mVideoListener.onSave(getArguments().getInt(AlbumActivity.DATA_VIDEO_POSITION, 0),
-                mEditTitle.getText().toString(),
-                mEditDescription.getText().toString());
+        mVideoListener.onSave(mVideoPosition);
     }
 
     private void fillTitle() {
 
         ActionBar appBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
         if (appBar != null)
-            appBar.setTitle(mVideo.toString(getActivity()));
+            appBar.setTitle(VideoListActivity.mVideos.get(mVideoPosition).toString(getActivity()));
     }
     private void fillInfo() {
 
-        mEditTitle.setText(mVideo.getTitle(getContext(), false));
-        mEditDescription.setText(mVideo.getDescription(getContext()));
+        AlbumTable.Video video = VideoListActivity.mVideos.get(mVideoPosition);
+
+        mEditTitle.setText(video.getTitle(getContext(), false));
+        mEditDescription.setText(video.getDescription(getContext()));
     }
     private void setEditMode(boolean editable) { // Update UI components according edit mode
 
@@ -71,7 +71,6 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
         mEditDescription.setFocusableInTouchMode(editable);
 
         if (editable) {
-
             mEditTitle.requestFocus();
             mEditTitle.setSelection(mEditTitle.getText().length()); // Put cursor at end of line
         }
@@ -93,8 +92,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Get selected video
-        mVideo = VideoListActivity.mVideos.get(getArguments().getInt(AlbumActivity.DATA_VIDEO_POSITION, 0));
+        mVideoPosition = getArguments().getInt(AlbumActivity.DATA_VIDEO_POSITION, 0);
 
         // Set up activity title
         fillTitle();
@@ -113,9 +111,10 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
         mCancelImage = (ImageView)rootView.findViewById(R.id.image_cancel);
         mCancelImage.setOnClickListener(this);
 
-        assert mVideoListener != null;
+        fillInfo(); // Fill video info
 
         // Check if adding video process and not already saved or editing
+        assert mVideoListener != null;
         if (((mVideoListener.isVideoCreation()) && (!mVideoListener.isVideoSaved())) ||
                 (mVideoListener.getEditFlag())) {
 
@@ -125,9 +124,6 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
             setEditMode(true);
         }
-        else // Fill info
-            fillInfo();
-
         return rootView;
     }
 

@@ -21,25 +21,14 @@ import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
  */
 public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.OnVideoAlbumListener {
 
-    public static final String DATA_VIDEO_TITLE = "title";
-    public static final String DATA_VIDEO_DESCRIPTION = "description";
-
-    //
     private boolean mDetailSaved = false; // Flag to know if video details have changed
     private boolean mNewVideoLocated = false; // Flag to know if new video has been located
 
-    private String mDetailTitle;
-    private String mDetailDescription;
-    // Video detail info
-
     //////
     @Override
-    public void onSave(int videoPosition, String title, String description) { // Store video details
+    public void onSave(int videoPosition) {
 
-        mDetailTitle = title;
-        mDetailDescription = description;
-
-        // Check if geolocation is available for a new video
+        // Check if geolocation is available for a none located new video
         if ((isVideoCreation()) && (!mNewVideoLocated)) {
 
             Location videoLocation = getGeolocation();
@@ -47,6 +36,7 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
 
                 mNewVideoLocated = true;
 
+                // Locate new video
                 VideoListActivity.mVideos.get(mVideoSelected).setLocation(videoLocation.getLatitude(),
                         videoLocation.getLongitude());
                 updateDetailUI(); // Enable location detail
@@ -73,15 +63,10 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
 
         saveEditingInfo();
 
-        // Check if video details have been updated and must be updated into the database as well
-        if (mDetailSaved) {
+        // Check if video details have been updated and must be updated into DB as well
+        if (mDetailSaved)
+            setResult(Constants.RESULT_SAVE_VIDEO);
 
-            Intent intent = new Intent();
-            intent.putExtra(DATA_VIDEO_TITLE, mDetailTitle);
-            intent.putExtra(DATA_VIDEO_DESCRIPTION, mDetailDescription);
-
-            setResult(Constants.RESULT_SAVE_VIDEO, intent);
-        }
         finish();
     }
 
