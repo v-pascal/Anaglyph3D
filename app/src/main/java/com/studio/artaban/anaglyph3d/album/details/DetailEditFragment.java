@@ -28,7 +28,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
     public static final String TAG = "edit";
 
-    private AlbumActivity.OnVideoAlbumListener mEditListener;
+    private AlbumActivity.OnVideoAlbumListener mVideoListener;
     private AlbumTable.Video mVideo; // Selected video (DB)
 
     //////
@@ -45,7 +45,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
         mVideo.setDescription(mEditDescription.getText().toString());
         fillTitle();
 
-        mEditListener.onSave(getArguments().getInt(AlbumActivity.DATA_VIDEO_POSITION, 0),
+        mVideoListener.onSave(getArguments().getInt(AlbumActivity.DATA_VIDEO_POSITION, 0),
                 mEditTitle.getText().toString(),
                 mEditDescription.getText().toString());
     }
@@ -63,7 +63,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     }
     private void setEditMode(boolean editable) { // Update UI components according edit mode
 
-        mEditListener.setEditFlag(editable);
+        mVideoListener.setEditFlag(editable);
 
         mEditTitle.setFocusable(editable);
         mEditTitle.setFocusableInTouchMode(editable);
@@ -84,7 +84,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof AlbumActivity.OnVideoAlbumListener)
-            mEditListener = (AlbumActivity.OnVideoAlbumListener)context;
+            mVideoListener = (AlbumActivity.OnVideoAlbumListener)context;
         else
             throw new RuntimeException(context.toString() + " must implement 'OnVideoAlbumListener'");
     }
@@ -113,11 +113,11 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
         mCancelImage = (ImageView)rootView.findViewById(R.id.image_cancel);
         mCancelImage.setOnClickListener(this);
 
-        assert mEditListener != null;
+        assert mVideoListener != null;
 
         // Check if adding video process and not already saved or editing
-        if (((mEditListener.isVideoCreation()) && (!mEditListener.isVideoSaved())) ||
-                (mEditListener.getEditFlag())) {
+        if (((mVideoListener.isVideoCreation()) && (!mVideoListener.isVideoSaved())) ||
+                (mVideoListener.getEditFlag())) {
 
             // Set edit mode immediately
             mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save_white_36dp));
@@ -134,18 +134,18 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     @Override
     public void onDetach() {
         super.onDetach();
-        mEditListener = null;
+        mVideoListener = null;
     }
 
     //////
     @Override
     public void onClick(View v) {
 
-        assert mEditListener != null;
+        assert mVideoListener != null;
         switch (v.getId()) {
 
             case R.id.image_edit: {
-                final boolean editing = mEditListener.getEditFlag();
+                final boolean editing = mVideoListener.getEditFlag();
 
                 v.clearAnimation();
                 v.startAnimation(GrowthAnimation.create(new GrowthAnimation.OnTerminateListener() {
@@ -161,7 +161,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
                     }
                 }));
 
-                if (!mEditListener.getEditFlag())
+                if (!mVideoListener.getEditFlag())
                     setEditMode(true); // Start editing
 
                 else {
@@ -177,7 +177,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
             case R.id.image_cancel: {
 
                 // Display user message according creation or cancel modifications
-                int messageId = ((mEditListener.isVideoCreation()) && (!mEditListener.isVideoSaved()))?
+                int messageId = ((mVideoListener.isVideoCreation()) && (!mVideoListener.isVideoSaved()))?
                         R.string.confirm_cancel_create:R.string.confirm_cancel_modify;
 
                 DisplayMessage.getInstance().alert(R.string.title_warning, messageId, null, true,
@@ -187,7 +187,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
                                 ActivityWrapper.hideSoftKeyboard();
 
-                                if ((mEditListener.isVideoCreation()) && (!mEditListener.isVideoSaved()))
+                                if ((mVideoListener.isVideoCreation()) && (!mVideoListener.isVideoSaved()))
                                     ((AlbumActivity)getActivity()).onDelete(); // Cancel video creation
 
                                 else { // Restore info
