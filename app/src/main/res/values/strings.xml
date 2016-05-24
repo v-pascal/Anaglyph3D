@@ -138,7 +138,7 @@
     <string name="no_video">The videos album is empty!</string>
     <string name="title_detail_format">MMM d, \'yy - hh:mm</string>
     <string name="date_detail_format">MM/dd/yyyy - hh:mm</string>
-    <string name="no_video_location">WARNING: New video saved but failed to geo locate it! Check your device location settings.</string>
+    <string name="no_video_location">WARNING: New video saved but failed to geolocate it! Check your device location settings.</string>
     <string name="chose_player">Select the video player</string>
     <string name="title">Title :</string>
     <string name="description">Description :</string>
