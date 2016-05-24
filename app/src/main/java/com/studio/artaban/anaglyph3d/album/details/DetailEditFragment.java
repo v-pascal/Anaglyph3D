@@ -119,8 +119,10 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
         if (((mVideoListener.isVideoCreation()) && (!mVideoListener.isVideoSaved())) ||
                 (mVideoListener.getEditFlag())) {
 
-            mEditTitle.setText(getArguments().getString(AlbumActivity.DATA_EDITING_TITLE, "ollala - title"));
-            mEditDescription.setText(getArguments().getString(AlbumActivity.DATA_EDITING_DESCRIPTION, "ollala - description"));
+            if (getArguments().containsKey(AlbumActivity.DATA_EDITING_TITLE))
+                mEditTitle.setText(getArguments().getString(AlbumActivity.DATA_EDITING_TITLE));
+            if (getArguments().containsKey(AlbumActivity.DATA_EDITING_DESCRIPTION))
+                mEditDescription.setText(getArguments().getString(AlbumActivity.DATA_EDITING_DESCRIPTION));
 
             // Set edit mode immediately
             mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save_white_36dp));
@@ -136,8 +138,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
         super.onPause();
 
         if (mVideoListener.getEditFlag())
-            ((AlbumActivity)getActivity()).onStore(mEditTitle.getText().toString(),
-                    mEditDescription.getText().toString());
+            mVideoListener.onStore(mEditTitle.getText().toString(), mEditDescription.getText().toString());
             // Store editing data to keep info when orientation change
     }
 
@@ -198,7 +199,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
                                 ActivityWrapper.hideSoftKeyboard();
 
                                 if ((mVideoListener.isVideoCreation()) && (!mVideoListener.isVideoSaved()))
-                                    ((AlbumActivity)getActivity()).onDelete(); // Cancel video creation
+                                    mVideoListener.onDelete(); // Cancel video creation
 
                                 else { // Restore info
 

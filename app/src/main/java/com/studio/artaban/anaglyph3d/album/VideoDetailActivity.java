@@ -45,7 +45,8 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
         mDetailSaved = true;
         DisplayMessage.getInstance().toast(R.string.info_saved, Toast.LENGTH_SHORT);
     }
-    @Override public boolean isVideoCreation() { return (mNewVideoAdded && !mNewVideoSaved); }
+    @Override public void onStore(String title, String description) { super.onStore(title, description);}
+    @Override public boolean isVideoCreation() { return super.isVideoCreation(); }
     @Override public boolean isVideoSaved() { return mDetailSaved; }
     @Override public void setEditFlag(boolean flag) { mEditFlag = flag; }
     @Override public boolean getEditFlag() { return mEditFlag; }

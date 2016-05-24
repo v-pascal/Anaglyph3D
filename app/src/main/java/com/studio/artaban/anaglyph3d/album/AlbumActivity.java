@@ -60,6 +60,8 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     public interface OnVideoAlbumListener { //////////////////////// Videos album listener interface
 
         void onSave(int videoPosition); // Save video detail
+        void onStore(String title, String description); // Store video detail (orientation change)
+        void onDelete(); // Delete video entry from album (finish activity if no more video)
 
         boolean isVideoCreation(); // Return if new video is selected
         boolean isVideoSaved(); // Return if new video details have been saved
@@ -98,7 +100,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     protected String mEditDescription;
     // Editing video data to store when orientation change without having saved yet
 
-    public void onStore(String title, String description) { // Store video detail (orientation change)
+    protected void onStore(String title, String description) { // Store video detail (orientation change)
 
         mEditTitle = title;
         mEditDescription = description;
@@ -134,6 +136,9 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     //
     protected boolean mNewVideoAdded = false; // Flag to know if the new video has been added into the DB
     protected boolean mNewVideoSaved = false; // Flag to know if the new video has been saved or deleted (geolocation)
+    protected boolean isVideoCreation() {
+        return (mNewVideoAdded && !mNewVideoSaved);
+    }
 
     protected void restoreVideosAlbum(Bundle state) { // Restore album (manage video selection)
         if (state != null) {

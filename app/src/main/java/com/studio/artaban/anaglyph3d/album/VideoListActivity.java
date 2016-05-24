@@ -86,7 +86,8 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
 
         fillVideoList(mVideoSelected);
     }
-    @Override public boolean isVideoCreation() { return (mNewVideoAdded && !mNewVideoSaved); }
+    @Override public void onStore(String title, String description) { super.onStore(title, description);}
+    @Override public boolean isVideoCreation() { return super.isVideoCreation(); }
     @Override public boolean isVideoSaved() { return false; }
     @Override public void setEditFlag(boolean flag) { mEditFlag = flag; }
     @Override public boolean getEditFlag() { return mEditFlag; }
