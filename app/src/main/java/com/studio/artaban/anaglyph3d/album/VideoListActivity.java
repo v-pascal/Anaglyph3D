@@ -59,10 +59,11 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         if (isVideoCreation()) {
 
             Location curLocation = (videoLocation != null)? null:getGeolocation();
-            // NB: 'getGeolocation' method can be called only when details or both list & details are
-            //     displayed, otherwise it will always return null coz geolocation is most of the time
-            //     defined via the use of the 'LocationListener' implementation (which is only available
-            //     when displaying location detail)
+            // NB: 'getGeolocation' method works most of the time after a geolocation update has been
+            //     received through the 'LocationListener' implementation. The use of the 'videoLocation'
+            //     parameter is needed coz when saving via detail activity, calling this method immediately
+            //     after the connection of the Google API location services will always return null, coz
+            //     no geolocation update would be received yet.
 
             if ((curLocation != null) || ((videoLocation != null) && (videoLocation.located))) {
 
@@ -166,6 +167,12 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
                 holder.mTitleView.setBackgroundColor(getResources().getColor(R.color.lighter_gray));
                 holder.mTitleView.setTextColor(Color.YELLOW);
                 holder.mDateView.setBackgroundColor(getResources().getColor(R.color.lighter_gray));
+            }
+            else {
+
+                holder.mTitleView.setBackgroundColor(getResources().getColor(R.color.darker_gray));
+                holder.mTitleView.setTextColor(Color.GREEN);
+                holder.mDateView.setBackgroundColor(getResources().getColor(R.color.darker_gray));
             }
             AlbumTable.Video video = mVideos.get(position);
             holder.mTitleView.setText(video.getTitle(mActivity, true));

@@ -109,6 +109,9 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
     protected Location getGeolocation() {
 
+        if (mGoogleApiClient == null)
+            throw new RuntimeException("Do not call 'getGeolocation' method when only video list is displayed");
+
         if (!mGoogleApiClient.isConnected())
             mGoogleApiClient.connect();
 
