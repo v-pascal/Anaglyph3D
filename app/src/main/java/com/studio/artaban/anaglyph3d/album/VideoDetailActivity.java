@@ -42,7 +42,6 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
                 updateDetailUI(); // Enable location detail
             }
         }
-
         mDetailSaved = true;
         DisplayMessage.getInstance().toast(R.string.info_saved, Toast.LENGTH_SHORT);
     }

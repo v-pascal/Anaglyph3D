@@ -49,9 +49,12 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
     public static final String DATA_VIDEO_POSITION = "position";
     public static final String DATA_VIDEO_DETAIL = "detail";
-    public static final String DATA_VIDEO_EDITING = "editing";
     public static final String DATA_NEW_VIDEO_ADDED = "added";
     public static final String DATA_NEW_VIDEO_SAVED = "saved";
+
+    public static final String DATA_VIDEO_EDITING = "editing";
+    public static final String DATA_EDITING_TITLE = "title";
+    public static final String DATA_EDITING_DESCRIPTION = "description";
 
     //////
     public interface OnVideoAlbumListener { //////////////////////// Videos album listener interface
@@ -89,6 +92,16 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
         mEditFlag = false;
         return true; // Video info saved
+    }
+
+    protected String mEditTitle;
+    protected String mEditDescription;
+    // Editing video data to store when orientation change without having saved yet
+
+    public void onStore(String title, String description) { // Store video detail (orientation change)
+
+        mEditTitle = title;
+        mEditDescription = description;
     }
 
     ////// Location detail
@@ -129,7 +142,10 @@ public abstract class AlbumActivity extends AppCompatActivity implements
             mDetailTag = state.getString(DATA_VIDEO_DETAIL);
             mNewVideoAdded = state.getBoolean(DATA_NEW_VIDEO_ADDED);
             mNewVideoSaved = state.getBoolean(DATA_NEW_VIDEO_SAVED);
+
             mEditFlag = state.getBoolean(DATA_VIDEO_EDITING);
+            mEditTitle = state.getString(DATA_EDITING_TITLE);
+            mEditDescription = state.getString(DATA_EDITING_DESCRIPTION);
         }
         else if (getIntent().getExtras() != null) {
 
@@ -137,12 +153,17 @@ public abstract class AlbumActivity extends AppCompatActivity implements
                 mVideoSelected = getIntent().getIntExtra(DATA_VIDEO_POSITION, 0);
             if (getIntent().getExtras().containsKey(DATA_VIDEO_DETAIL))
                 mDetailTag = getIntent().getStringExtra(DATA_VIDEO_DETAIL);
-            if (getIntent().getExtras().containsKey(DATA_VIDEO_EDITING))
-                mEditFlag = getIntent().getBooleanExtra(DATA_VIDEO_EDITING, false);
             if (getIntent().getExtras().containsKey(DATA_NEW_VIDEO_ADDED))
                 mNewVideoAdded = getIntent().getBooleanExtra(DATA_NEW_VIDEO_ADDED, false);
             if (getIntent().getExtras().containsKey(DATA_NEW_VIDEO_SAVED))
                 mNewVideoSaved = getIntent().getBooleanExtra(DATA_NEW_VIDEO_SAVED, false);
+
+            if (getIntent().getExtras().containsKey(DATA_VIDEO_EDITING))
+                mEditFlag = getIntent().getBooleanExtra(DATA_VIDEO_EDITING, false);
+            if (getIntent().getExtras().containsKey(DATA_EDITING_TITLE))
+                mEditTitle = getIntent().getStringExtra(DATA_EDITING_TITLE);
+            if (getIntent().getExtras().containsKey(DATA_EDITING_DESCRIPTION))
+                mEditDescription = getIntent().getStringExtra(DATA_EDITING_DESCRIPTION);
 
             // Needed with detail activity child
         }
@@ -218,6 +239,11 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
             case DetailEditFragment.TAG: // Edit
                 fragment = new DetailEditFragment();
+                if (mEditFlag) {
+
+                    arguments.putString(DATA_EDITING_TITLE, mEditTitle);
+                    arguments.putString(DATA_EDITING_DESCRIPTION, mEditDescription);
+                }
                 break;
 
             default: // Location
@@ -260,7 +286,10 @@ public abstract class AlbumActivity extends AppCompatActivity implements
         outState.putString(DATA_VIDEO_DETAIL, mDetailTag);
         outState.putBoolean(DATA_NEW_VIDEO_ADDED, mNewVideoAdded);
         outState.putBoolean(DATA_NEW_VIDEO_SAVED, mNewVideoSaved);
+
         outState.putBoolean(DATA_VIDEO_EDITING, mEditFlag);
+        outState.putString(DATA_EDITING_TITLE, mEditTitle);
+        outState.putString(DATA_EDITING_DESCRIPTION, mEditDescription);
 
         super.onSaveInstanceState(outState);
     }

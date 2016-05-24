@@ -18,6 +18,7 @@ import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.tools.GrowthAnimation;
 
 /**
@@ -118,6 +119,9 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
         if (((mVideoListener.isVideoCreation()) && (!mVideoListener.isVideoSaved())) ||
                 (mVideoListener.getEditFlag())) {
 
+            mEditTitle.setText(getArguments().getString(AlbumActivity.DATA_EDITING_TITLE, "ollala - title"));
+            mEditDescription.setText(getArguments().getString(AlbumActivity.DATA_EDITING_DESCRIPTION, "ollala - description"));
+
             // Set edit mode immediately
             mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save_white_36dp));
             mCancelImage.setVisibility(View.VISIBLE);
@@ -125,6 +129,16 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
             setEditMode(true);
         }
         return rootView;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mVideoListener.getEditFlag())
+            ((AlbumActivity)getActivity()).onStore(mEditTitle.getText().toString(),
+                    mEditDescription.getText().toString());
+            // Store editing data to keep info when orientation change
     }
 
     @Override
