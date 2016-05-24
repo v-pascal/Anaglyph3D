@@ -49,6 +49,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
     public static final String DATA_VIDEO_POSITION = "position";
     public static final String DATA_VIDEO_DETAIL = "detail";
+    public static final String DATA_VIDEO_EDITING = "editing";
     public static final String DATA_NEW_VIDEO_ADDED = "added";
     public static final String DATA_NEW_VIDEO_SAVED = "saved";
 
@@ -128,7 +129,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
             mDetailTag = state.getString(DATA_VIDEO_DETAIL);
             mNewVideoAdded = state.getBoolean(DATA_NEW_VIDEO_ADDED);
             mNewVideoSaved = state.getBoolean(DATA_NEW_VIDEO_SAVED);
-
+            mEditFlag = state.getBoolean(DATA_VIDEO_EDITING);
         }
         else if (getIntent().getExtras() != null) {
 
@@ -136,12 +137,14 @@ public abstract class AlbumActivity extends AppCompatActivity implements
                 mVideoSelected = getIntent().getIntExtra(DATA_VIDEO_POSITION, 0);
             if (getIntent().getExtras().containsKey(DATA_VIDEO_DETAIL))
                 mDetailTag = getIntent().getStringExtra(DATA_VIDEO_DETAIL);
+            if (getIntent().getExtras().containsKey(DATA_VIDEO_EDITING))
+                mEditFlag = getIntent().getBooleanExtra(DATA_VIDEO_EDITING, false);
             if (getIntent().getExtras().containsKey(DATA_NEW_VIDEO_ADDED))
                 mNewVideoAdded = getIntent().getBooleanExtra(DATA_NEW_VIDEO_ADDED, false);
             if (getIntent().getExtras().containsKey(DATA_NEW_VIDEO_SAVED))
                 mNewVideoSaved = getIntent().getBooleanExtra(DATA_NEW_VIDEO_SAVED, false);
 
-            // Needed with child detail activity
+            // Needed with detail activity child
         }
 
         // Prepare geolocation using Google API services
@@ -254,10 +257,10 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     protected void onSaveInstanceState(Bundle outState) {
 
         outState.putInt(DATA_VIDEO_POSITION, mVideoSelected);
+        outState.putString(DATA_VIDEO_DETAIL, mDetailTag);
         outState.putBoolean(DATA_NEW_VIDEO_ADDED, mNewVideoAdded);
         outState.putBoolean(DATA_NEW_VIDEO_SAVED, mNewVideoSaved);
-
-        outState.putString(DATA_VIDEO_DETAIL, mDetailTag);
+        outState.putBoolean(DATA_VIDEO_EDITING, mEditFlag);
 
         super.onSaveInstanceState(outState);
     }

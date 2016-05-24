@@ -70,8 +70,11 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
         mEditDescription.setFocusable(editable);
         mEditDescription.setFocusableInTouchMode(editable);
 
-        if (editable)
+        if (editable) {
+
             mEditTitle.requestFocus();
+            mEditTitle.setSelection(mEditTitle.getText().length()); // Put cursor at end of line
+        }
         else
             mCancelImage.setVisibility(View.GONE);
     }
@@ -112,8 +115,9 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
         assert mEditListener != null;
 
-        // Check if adding video process (and not already saved)
-        if ((mEditListener.isVideoCreation()) && (!mEditListener.isVideoSaved())) {
+        // Check if adding video process and not already saved or editing
+        if (((mEditListener.isVideoCreation()) && (!mEditListener.isVideoSaved())) ||
+                (mEditListener.getEditFlag())) {
 
             // Set edit mode immediately
             mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save_white_36dp));
@@ -162,6 +166,8 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
                 else {
 
+                    ActivityWrapper.hideSoftKeyboard();
+
                     // Save info
                     setEditMode(false);
                     saveInfo();
@@ -179,7 +185,6 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
-                                // Hide soft keyboard (if displayed)
                                 ActivityWrapper.hideSoftKeyboard();
 
                                 if ((mEditListener.isVideoCreation()) && (!mEditListener.isVideoSaved()))

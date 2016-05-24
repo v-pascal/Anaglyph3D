@@ -357,6 +357,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             Intent intent = new Intent(this, VideoDetailActivity.class);
             intent.putExtra(AlbumActivity.DATA_VIDEO_POSITION, mVideoSelected);
             intent.putExtra(AlbumActivity.DATA_VIDEO_DETAIL, mDetailTag);
+            intent.putExtra(AlbumActivity.DATA_VIDEO_EDITING, mEditFlag);
             intent.putExtra(AlbumActivity.DATA_NEW_VIDEO_ADDED, mNewVideoAdded);
             intent.putExtra(AlbumActivity.DATA_NEW_VIDEO_SAVED, mNewVideoSaved);
 

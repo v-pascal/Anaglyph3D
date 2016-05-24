@@ -203,7 +203,7 @@ public class ActivityWrapper implements IConnectRequest {
                         InputMethodManager.HIDE_NOT_ALWAYS);
         }
         catch (NullPointerException e) {
-            Logs.add(Logs.Type.F, "Wrong activity reference");
+            Logs.add(Logs.Type.W, "Wrong activity reference");
         }
     }
 }
