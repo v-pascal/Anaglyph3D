@@ -24,33 +24,31 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
     public static final String DATA_VIDEO_TITLE = "title";
     public static final String DATA_VIDEO_DESCRIPTION = "description";
 
-    public static final String DATA_VIDEO_LOCATED = "located";
-    public static final String DATA_VIDEO_LATITUDE = "latitude";
-    public static final String DATA_VIDEO_LONGITUDE = "longitude";
-
     //
     private boolean mDetailSaved = false; // Flag to know if video details have changed
+    private boolean mNewVideoLocated = false; // Flag to know if new video has been located
 
     private String mDetailTitle;
     private String mDetailDescription;
-    private Location mDetailLocation;
     // Video detail info
 
     //////
     @Override
-    public void onSave(int videoPosition, String title, String description, VideoGeolocation videoLocation) {
+    public void onSave(int videoPosition, String title, String description) { // Store video details
 
         mDetailTitle = title;
         mDetailDescription = description;
 
-        // Check if needed to store video geolocation
-        if ((isVideoCreation()) && (mDetailLocation == null)) {
+        // Check if geolocation is available for a new video
+        if ((isVideoCreation()) && (!mNewVideoLocated)) {
 
-            mDetailLocation = getGeolocation();
-            if (mDetailLocation != null) {
+            Location videoLocation = getGeolocation();
+            if (videoLocation != null) {
 
-                VideoListActivity.mVideos.get(mVideoSelected).setLocation(
-                        mDetailLocation.getLatitude(), mDetailLocation.getLongitude());
+                mNewVideoLocated = true;
+
+                VideoListActivity.mVideos.get(mVideoSelected).setLocation(videoLocation.getLatitude(),
+                        videoLocation.getLongitude());
                 updateDetailUI(); // Enable location detail
             }
         }
@@ -81,12 +79,7 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
             Intent intent = new Intent();
             intent.putExtra(DATA_VIDEO_TITLE, mDetailTitle);
             intent.putExtra(DATA_VIDEO_DESCRIPTION, mDetailDescription);
-            intent.putExtra(DATA_VIDEO_LOCATED, mDetailLocation != null);
-            if (mDetailLocation != null) {
 
-                intent.putExtra(DATA_VIDEO_LATITUDE, mDetailLocation.getLatitude());
-                intent.putExtra(DATA_VIDEO_LONGITUDE, mDetailLocation.getLongitude());
-            }
             setResult(Constants.RESULT_SAVE_VIDEO, intent);
         }
         finish();

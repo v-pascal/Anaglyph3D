@@ -55,8 +55,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     //////
     public interface OnVideoAlbumListener { //////////////////////// Videos album listener interface
 
-        void onSave(int videoPosition, String title, String description, VideoGeolocation videoLocation);
-        // Save video detail (see 'DetailListActivity' implementation to check 'videoLocation' use)
+        void onSave(int videoPosition, String title, String description); // Save video detail
 
         boolean isVideoCreation(); // Return if new video is selected
         boolean isVideoSaved(); // Return if new video details have been saved
@@ -95,22 +94,11 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     private static final String TAG_FRAGMENT_LOCATION = "location";
     private AlbumTable.Video mVideo; // Selected video from database
 
-    // Video geolocation class (see 'VideoListActivity.onSave' method NB comments)
-    public static class VideoGeolocation {
-
-        public boolean located; // Video geolocation flag
-
-        public double latitude; // Video latitude
-        public double longitude; // Video longitude
-    }
     private GoogleApiClient mGoogleApiClient; // Google API client
     private ImageView mGeolocationImage; // Geolocation image
     private Marker mGeolocationMarker; // Geolocation marker
 
     protected Location getGeolocation() {
-
-        if (mGoogleApiClient == null)
-            throw new RuntimeException("Do not call 'getGeolocation' method when only video list is displayed");
 
         if (!mGoogleApiClient.isConnected())
             mGoogleApiClient.connect();
@@ -122,6 +110,9 @@ public abstract class AlbumActivity extends AppCompatActivity implements
         Location curLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (curLocation == null)
             curLocation = mLastLocation; // Return last known location (if any)
+
+        else if (mLastLocation == null)
+            mLastLocation = curLocation; // Why not!
 
         return curLocation;
     }
@@ -152,6 +143,13 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
             // Needed with child detail activity
         }
+
+        // Prepare geolocation using Google API services
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
     }
     protected void initializeDetailUI() { // Initialize detail UI
 
@@ -168,13 +166,6 @@ public abstract class AlbumActivity extends AppCompatActivity implements
         command = (ImageButton) findViewById(R.id.detail_trash);
         assert command != null;
         command.setOnClickListener(this);
-
-        // Prepare geolocation using Google API services
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
 
         // Set geolocation image behavior
         mGeolocationImage = (ImageView) findViewById(R.id.locate_user);
@@ -212,6 +203,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
         Fragment fragment;
 
         assert mGeolocationImage != null;
+        mGeolocationImage.clearAnimation();
         mGeolocationImage.setVisibility(View.GONE);
 
         // Display expected video detail
@@ -248,15 +240,13 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     //////
     @Override
     protected void onStart() {
-        if (mGoogleApiClient != null)
-            mGoogleApiClient.connect();
+        mGoogleApiClient.connect();
         super.onStart();
     }
 
     @Override
     protected void onStop() {
-        if (mGoogleApiClient != null)
-            mGoogleApiClient.disconnect();
+        mGoogleApiClient.disconnect();
         super.onStop();
     }
 
@@ -414,7 +404,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     }
 
     //////
-    private Location mLastLocation;
+    private static Location mLastLocation; // Last known location
 
     @Override
     public void onLocationChanged(Location location) {

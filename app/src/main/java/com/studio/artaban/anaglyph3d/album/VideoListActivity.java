@@ -48,8 +48,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
 
     //
     @Override
-    public void onSave(int videoPosition, String title, String description,
-                       VideoGeolocation videoLocation) { // Save video detail
+    public void onSave(int videoPosition, String title, String description) { // Save video details (DB)
 
         AlbumTable.Video video = mVideos.get(videoPosition);
         assert video != null;
@@ -58,20 +57,12 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         boolean messageDisplayed = false;
         if (isVideoCreation()) {
 
-            Location curLocation = (videoLocation != null)? null:getGeolocation();
-            // NB: 'getGeolocation' method works most of the time after a geolocation update has been
-            //     received through the 'LocationListener' implementation. The use of the 'videoLocation'
-            //     parameter is needed coz when saving via detail activity, calling this method immediately
-            //     after the connection of the Google API location services will always return null, coz
-            //     no geolocation update would be received yet.
+            Location curLocation = getGeolocation();
+            if (curLocation != null) {
 
-            if ((curLocation != null) || ((videoLocation != null) && (videoLocation.located))) {
-
-                double latitude = (curLocation != null)? curLocation.getLatitude():videoLocation.latitude;
-                double longitude = (curLocation != null)? curLocation.getLongitude():videoLocation.longitude;
-
-                Logs.add(Logs.Type.I, "New video geolocation: " + latitude + " " + longitude);
-                video.setLocation(latitude, longitude);
+                Logs.add(Logs.Type.I, "New video geolocation: " + curLocation.getLatitude() + " " +
+                        curLocation.getLongitude());
+                video.setLocation(curLocation.getLatitude(), curLocation.getLongitude());
 
                 // Enable displaying location detail (if needed)
                 if (mTwoPane)
@@ -399,17 +390,9 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             case Constants.RESULT_SAVE_VIDEO: { // Save from detail activity
 
                 //assert !mTwoPane;
-                VideoGeolocation videoLocation = new VideoGeolocation();
-                if (data.getExtras().getBoolean(VideoDetailActivity.DATA_VIDEO_LOCATED, false)) {
-
-                    videoLocation.located = true;
-                    videoLocation.latitude = data.getExtras().getDouble(VideoDetailActivity.DATA_VIDEO_LATITUDE);
-                    videoLocation.longitude = data.getExtras().getDouble(VideoDetailActivity.DATA_VIDEO_LONGITUDE);
-                }
                 onSave(mVideoSelected,
                         data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_TITLE),
-                        data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_DESCRIPTION),
-                        videoLocation);
+                        data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_DESCRIPTION));
                 break;
             }
             case Constants.RESULT_DELETE_VIDEO: { // Delete from detail activity
