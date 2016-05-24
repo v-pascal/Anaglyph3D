@@ -34,16 +34,26 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
     private String mDetailTitle;
     private String mDetailDescription;
     private Location mDetailLocation;
-    // Editable video detail info
+    // Video detail info
 
     //////
     @Override
-    public void onSave(int videoPosition, String title, String description,
-                       VideoGeolocation videoLocation) {
+    public void onSave(int videoPosition, String title, String description, VideoGeolocation videoLocation) {
 
         mDetailTitle = title;
         mDetailDescription = description;
-        mDetailLocation = getGeolocation();
+
+        // Check if needed to store video geolocation
+        if ((isVideoCreation()) && (mDetailLocation == null)) {
+
+            mDetailLocation = getGeolocation();
+            if (mDetailLocation != null) {
+
+                VideoListActivity.mVideos.get(mVideoSelected).setLocation(
+                        mDetailLocation.getLatitude(), mDetailLocation.getLongitude());
+                updateDetailUI(); // Enable location detail
+            }
+        }
 
         mDetailSaved = true;
         DisplayMessage.getInstance().toast(R.string.info_saved, Toast.LENGTH_SHORT);

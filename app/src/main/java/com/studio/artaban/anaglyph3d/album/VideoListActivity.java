@@ -43,7 +43,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
     public static List<AlbumTable.Video> mVideos; // Album (videos list)
 
     //////
-    private Database mDB; // Activity database
+    private Database mDB; // Activity database (video add, delete or update is done in this activity)
     private boolean mTwoPane; // Flag to know if displaying both list & details panels
 
     //

@@ -98,7 +98,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     // Video geolocation class (see 'VideoListActivity.onSave' method NB comments)
     public static class VideoGeolocation {
 
-        public boolean located = false; // Video geolocation flag
+        public boolean located; // Video geolocation flag
 
         public double latitude; // Video latitude
         public double longitude; // Video longitude

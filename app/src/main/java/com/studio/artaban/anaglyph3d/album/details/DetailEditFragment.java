@@ -153,8 +153,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
                             mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save_white_36dp));
                         else
                             mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_edit_white_36dp));
-                        if (!mEditListener.isVideoCreation())
-                            mCancelImage.setVisibility((!editing)? View.VISIBLE:View.GONE);
+                        mCancelImage.setVisibility((!editing)? View.VISIBLE:View.GONE);
                         //else // Do not display cancel image for video creation
                     }
                 }));
@@ -173,7 +172,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
             case R.id.image_cancel: {
 
                 // Display user message according creation or cancel modifications
-                int messageId = (mEditListener.isVideoCreation())?
+                int messageId = ((mEditListener.isVideoCreation()) && (!mEditListener.isVideoSaved()))?
                         R.string.confirm_cancel_create:R.string.confirm_cancel_modify;
 
                 DisplayMessage.getInstance().alert(R.string.title_warning, messageId, null, true,
@@ -184,7 +183,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
                                 // Hide soft keyboard (if displayed)
                                 ActivityWrapper.hideSoftKeyboard();
 
-                                if (mEditListener.isVideoCreation())
+                                if ((mEditListener.isVideoCreation()) && (!mEditListener.isVideoSaved()))
                                     ((AlbumActivity)getActivity()).onDelete(); // Cancel video creation
 
                                 else { // Restore info
