@@ -46,11 +46,11 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
     private Database mDB; // Activity database
     private boolean mTwoPane; // Flag to know if displaying both list & details panels
 
-    private boolean mSaveFromDetail; // Flag to know if saving video info from detail activity changes
-                                     // -> In this case do not display user message (already done)
     //
     @Override
-    public void onSave(int videoPosition, String title, String description) { // Save video detail
+    public void onSave(int videoPosition, String title, String description,
+                       VideoGeolocation videoLocation) { // Save video detail
+
         AlbumTable.Video video = mVideos.get(videoPosition);
         assert video != null;
 
@@ -58,18 +58,26 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         boolean messageDisplayed = false;
         if (isVideoCreation()) {
 
-            Location curLocation = getGeolocation();
-            if (curLocation != null) {
+            Location curLocation = (videoLocation != null)? null:getGeolocation();
+            // NB: 'getGeolocation' method can be called only when details or both list & details are
+            //     displayed, otherwise it will always return null coz geolocation is most of the time
+            //     defined via the use of the 'LocationListener' implementation (which is only available
+            //     when displaying location detail)
 
-                Logs.add(Logs.Type.I, "New video geolocation: " + curLocation.getLatitude() + " " +
-                        curLocation.getLongitude());
-                video.setLocation(curLocation.getLatitude(), curLocation.getLongitude());
+            if ((curLocation != null) || ((videoLocation != null) && (videoLocation.located))) {
+
+                double latitude = (curLocation != null)? curLocation.getLatitude():videoLocation.latitude;
+                double longitude = (curLocation != null)? curLocation.getLongitude():videoLocation.longitude;
+
+                Logs.add(Logs.Type.I, "New video geolocation: " + latitude + " " + longitude);
+                video.setLocation(latitude, longitude);
 
                 // Enable displaying location detail (if needed)
                 if (mTwoPane)
                     updateDetailUI();
             }
             else {
+
                 DisplayMessage.getInstance().toast(R.string.no_video_location, Toast.LENGTH_LONG);
                 messageDisplayed = true;
             }
@@ -78,7 +86,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         video.setDescription(description);
         mDB.update(AlbumTable.TABLE_NAME, video);
 
-        if ((!messageDisplayed) && (!mSaveFromDetail))
+        if ((!messageDisplayed) && (mTwoPane))
             DisplayMessage.getInstance().toast(R.string.info_saved, Toast.LENGTH_SHORT);
 
         //////
@@ -87,6 +95,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         fillVideoList(mVideoSelected);
     }
     @Override public boolean isVideoCreation() { return (mNewVideoAdded && !mNewVideoSaved); }
+    @Override public boolean isVideoSaved() { return false; }
     @Override public void setEditFlag(boolean flag) { mEditFlag = flag; }
     @Override public boolean getEditFlag() { return mEditFlag; }
 
@@ -335,6 +344,10 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         mVideosView = (RecyclerView) findViewById(R.id.video_list);
         mTwoPane = findViewById(R.id.video_detail_container) != null;
 
+        // Check which detail will be displayed immediately (according video creation)
+        if (isVideoCreation())
+            mDetailTag = DetailEditFragment.TAG;
+
         // Check if only videos list will be displayed with...
         if ((!mTwoPane) && ((isVideoCreation()) || // ...a creation request...
                 (mVideoSelected != Constants.NO_DATA))) { // ...or a video that is already selected
@@ -346,18 +359,8 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             Intent intent = new Intent(this, VideoDetailActivity.class);
             intent.putExtra(AlbumActivity.DATA_VIDEO_POSITION, mVideoSelected);
             intent.putExtra(AlbumActivity.DATA_VIDEO_DETAIL, mDetailTag);
-
-
-
-
-
-            //add creation data info
-
-
-
-
-
-
+            intent.putExtra(AlbumActivity.DATA_NEW_VIDEO_ADDED, mNewVideoAdded);
+            intent.putExtra(AlbumActivity.DATA_NEW_VIDEO_SAVED, mNewVideoSaved);
 
             startActivityForResult(intent, 0);
             return;
@@ -371,11 +374,6 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
 
             initializeDetailUI();
             selectVideo(false);
-
-            // Check which detail will be displayed (according video creation)
-            if (isVideoCreation())
-                mDetailTag = DetailEditFragment.TAG;
-
             displayVideoDetail();
         }
     }
@@ -394,10 +392,17 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             case Constants.RESULT_SAVE_VIDEO: { // Save from detail activity
 
                 //assert !mTwoPane;
-                mSaveFromDetail = true;
-                onSave(mVideoSelected, data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_TITLE),
-                        data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_DESCRIPTION));
-                mSaveFromDetail = false;
+                VideoGeolocation videoLocation = new VideoGeolocation();
+                if (data.getExtras().getBoolean(VideoDetailActivity.DATA_VIDEO_LOCATED, false)) {
+
+                    videoLocation.located = true;
+                    videoLocation.latitude = data.getExtras().getDouble(VideoDetailActivity.DATA_VIDEO_LATITUDE);
+                    videoLocation.longitude = data.getExtras().getDouble(VideoDetailActivity.DATA_VIDEO_LONGITUDE);
+                }
+                onSave(mVideoSelected,
+                        data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_TITLE),
+                        data.getExtras().getString(VideoDetailActivity.DATA_VIDEO_DESCRIPTION),
+                        videoLocation);
                 break;
             }
             case Constants.RESULT_DELETE_VIDEO: { // Delete from detail activity

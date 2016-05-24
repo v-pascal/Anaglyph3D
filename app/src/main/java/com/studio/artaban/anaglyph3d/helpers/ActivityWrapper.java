@@ -193,7 +193,7 @@ public class ActivityWrapper implements IConnectRequest {
 
     //
     public static void hideSoftKeyboard() {
-        try {
+        try { // Hide soft keyboard if displayed (according activity)
 
             InputMethodManager inputManager = (InputMethodManager)get().
                     getSystemService(Context.INPUT_METHOD_SERVICE);

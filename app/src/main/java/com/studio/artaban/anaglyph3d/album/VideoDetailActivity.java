@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -23,24 +24,32 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
     public static final String DATA_VIDEO_TITLE = "title";
     public static final String DATA_VIDEO_DESCRIPTION = "description";
 
+    public static final String DATA_VIDEO_LOCATED = "located";
+    public static final String DATA_VIDEO_LATITUDE = "latitude";
+    public static final String DATA_VIDEO_LONGITUDE = "longitude";
+
     //
     private boolean mDetailSaved = false; // Flag to know if video details have changed
 
     private String mDetailTitle;
     private String mDetailDescription;
+    private Location mDetailLocation;
     // Editable video detail info
 
     //////
     @Override
-    public void onSave(int videoPosition, String title, String description) {
+    public void onSave(int videoPosition, String title, String description,
+                       VideoGeolocation videoLocation) {
 
         mDetailTitle = title;
         mDetailDescription = description;
+        mDetailLocation = getGeolocation();
 
         mDetailSaved = true;
         DisplayMessage.getInstance().toast(R.string.info_saved, Toast.LENGTH_SHORT);
     }
     @Override public boolean isVideoCreation() { return (mNewVideoAdded && !mNewVideoSaved); }
+    @Override public boolean isVideoSaved() { return mDetailSaved; }
     @Override public void setEditFlag(boolean flag) { mEditFlag = flag; }
     @Override public boolean getEditFlag() { return mEditFlag; }
 
@@ -62,7 +71,12 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
             Intent intent = new Intent();
             intent.putExtra(DATA_VIDEO_TITLE, mDetailTitle);
             intent.putExtra(DATA_VIDEO_DESCRIPTION, mDetailDescription);
+            intent.putExtra(DATA_VIDEO_LOCATED, mDetailLocation != null);
+            if (mDetailLocation != null) {
 
+                intent.putExtra(DATA_VIDEO_LATITUDE, mDetailLocation.getLatitude());
+                intent.putExtra(DATA_VIDEO_LONGITUDE, mDetailLocation.getLongitude());
+            }
             setResult(Constants.RESULT_SAVE_VIDEO, intent);
         }
         finish();

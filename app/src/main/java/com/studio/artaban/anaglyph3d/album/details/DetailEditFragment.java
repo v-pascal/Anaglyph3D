@@ -47,7 +47,8 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
         mEditListener.onSave(getArguments().getInt(AlbumActivity.DATA_VIDEO_POSITION, 0),
                 mEditTitle.getText().toString(),
-                mEditDescription.getText().toString());
+                mEditDescription.getText().toString(),
+                null);
     }
 
     private void fillTitle() {
@@ -111,8 +112,11 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
         mCancelImage.setOnClickListener(this);
 
         assert mEditListener != null;
-        if (mEditListener.isVideoCreation()) { // Adding video process (set edit mode immediately)
 
+        // Check if adding video process (and not already saved)
+        if ((mEditListener.isVideoCreation()) && (!mEditListener.isVideoSaved())) {
+
+            // Set edit mode immediately
             mEditImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_save_white_36dp));
             mCancelImage.setVisibility(View.VISIBLE);
 

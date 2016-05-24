@@ -53,15 +53,20 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     public static final String DATA_NEW_VIDEO_SAVED = "saved";
 
     //////
-    public interface OnVideoAlbumListener { // Videos album listener interface
+    public interface OnVideoAlbumListener { //////////////////////// Videos album listener interface
 
-        void onSave(int videoPosition, String title, String description); // Save video detail
+        void onSave(int videoPosition, String title, String description, VideoGeolocation videoLocation);
+        // Save video detail
+
         boolean isVideoCreation(); // Return if new video is selected
+        boolean isVideoSaved(); // Return if new video details have been saved
 
         void setEditFlag(boolean flag);
         boolean getEditFlag();
         // Edit video detail member flag
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 
     //
     protected int mVideoSelected = Constants.NO_DATA; // Selected video position (or video to select)
@@ -90,6 +95,14 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     private static final String TAG_FRAGMENT_LOCATION = "location";
     private AlbumTable.Video mVideo; // Selected video from database
 
+    // Video geolocation class (see 'VideoListActivity.onSave' method NB comments)
+    public static class VideoGeolocation {
+
+        public boolean located = false; // Video geolocation flag
+
+        public double latitude; // Video latitude
+        public double longitude; // Video longitude
+    }
     private GoogleApiClient mGoogleApiClient; // Google API client
     private ImageView mGeolocationImage; // Geolocation image
     private Marker mGeolocationMarker; // Geolocation marker
@@ -118,10 +131,10 @@ public abstract class AlbumActivity extends AppCompatActivity implements
         if (state != null) {
 
             mVideoSelected = state.getInt(DATA_VIDEO_POSITION);
+            mDetailTag = state.getString(DATA_VIDEO_DETAIL);
             mNewVideoAdded = state.getBoolean(DATA_NEW_VIDEO_ADDED);
             mNewVideoSaved = state.getBoolean(DATA_NEW_VIDEO_SAVED);
 
-            mDetailTag = state.getString(DATA_VIDEO_DETAIL);
         }
         else if (getIntent().getExtras() != null) {
 
@@ -129,8 +142,12 @@ public abstract class AlbumActivity extends AppCompatActivity implements
                 mVideoSelected = getIntent().getIntExtra(DATA_VIDEO_POSITION, 0);
             if (getIntent().getExtras().containsKey(DATA_VIDEO_DETAIL))
                 mDetailTag = getIntent().getStringExtra(DATA_VIDEO_DETAIL);
+            if (getIntent().getExtras().containsKey(DATA_NEW_VIDEO_ADDED))
+                mNewVideoAdded = getIntent().getBooleanExtra(DATA_NEW_VIDEO_ADDED, false);
+            if (getIntent().getExtras().containsKey(DATA_NEW_VIDEO_SAVED))
+                mNewVideoSaved = getIntent().getBooleanExtra(DATA_NEW_VIDEO_SAVED, false);
 
-            // Needed with detail activity child
+            // Needed with child detail activity
         }
     }
     protected void initializeDetailUI() { // Initialize detail UI
@@ -149,17 +166,17 @@ public abstract class AlbumActivity extends AppCompatActivity implements
         assert command != null;
         command.setOnClickListener(this);
 
-        // Set geolocation image behavior
-        mGeolocationImage = (ImageView) findViewById(R.id.locate_user);
-        assert mGeolocationImage != null;
-        mGeolocationImage.setOnClickListener(this);
-
         // Prepare geolocation using Google API services
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
+
+        // Set geolocation image behavior
+        mGeolocationImage = (ImageView) findViewById(R.id.locate_user);
+        assert mGeolocationImage != null;
+        mGeolocationImage.setOnClickListener(this);
 
         // Set detail UI according initial video selection
         updateDetailUI();
