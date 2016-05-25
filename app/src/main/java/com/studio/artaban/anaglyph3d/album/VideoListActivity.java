@@ -167,7 +167,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
                 holder.mDateView.setBackgroundColor(getResources().getColor(R.color.darker_gray));
             }
             AlbumTable.Video video = mVideos.get(position);
-            holder.mTitleView.setText(video.getTitle(mActivity, true));
+            holder.mTitleView.setText(video.getTitle(mActivity, true, false));
             holder.mDateView.setText(video.getDate(mActivity));
 
             // Load thumbnail image

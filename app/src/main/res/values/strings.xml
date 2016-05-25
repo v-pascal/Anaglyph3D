@@ -150,6 +150,7 @@
     <string name="video_location">Video location</string>
     <string name="user_location">You\'re location</string>
     <string name="no_geolocation">WARNING: Failed to display geolocation! Check your device location settings.</string>
+    <string name="chose_share">Share via</string>
 
     <!-- Process error -->
     <string name="error_start_recording">ERROR: Unable to start recording! A media resource is in use. Restart your device to fix this.</string>

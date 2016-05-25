@@ -59,8 +59,8 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
         AlbumTable.Video video = VideoListActivity.mVideos.get(mVideoPosition);
 
-        mEditTitle.setText(video.getTitle(getContext(), false));
-        mEditDescription.setText(video.getDescription(getContext()));
+        mEditTitle.setText(video.getTitle(getContext(), false, true));
+        mEditDescription.setText(video.getDescription(getContext(), true));
     }
     private void setEditMode(boolean editable) { // Update UI components according edit mode
 

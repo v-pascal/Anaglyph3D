@@ -161,50 +161,9 @@ public class ConnectActivity extends AppCompatActivity {
                 // Stop connectivity (do not attempt to connect when video album is displayed)
                 Connectivity.getInstance().stop();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                // Display album activity to add the new video into the album
-                Bundle data = new Bundle();
-                data.putInt(Frame.DATA_KEY_WIDTH, 640);
-                data.putInt(Frame.DATA_KEY_HEIGHT, 480);
-
-                Intent intent = new Intent(this, VideoListActivity.class);
-                intent.putExtra(Constants.DATA_ACTIVITY, data);
-                intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, true);
-                intent.putExtra(Constants.DATA_ADD_VIDEO, true);
-
-                startActivityForResult(intent, 0);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 // Display album activity
-                //Intent intent = new Intent(this, VideoListActivity.class);
-                //startActivityForResult(intent, 0);
+                Intent intent = new Intent(this, VideoListActivity.class);
+                startActivityForResult(intent, 0);
                 return true;
             }
             case R.id.menu_quit: {
@@ -233,5 +192,8 @@ public class ConnectActivity extends AppCompatActivity {
         super.onDestroy();
         Connectivity.getInstance().destroy();
         Storage.removeTempFiles();
+
+        // Free GStreamer dependencies (if any)
+        System.exit(0);
     }
 }

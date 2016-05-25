@@ -2,8 +2,10 @@ package com.studio.artaban.anaglyph3d.album;
 
 import android.Manifest;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -38,6 +40,8 @@ import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.tools.GrowthAnimation;
+
+import java.io.File;
 
 /**
  * Created by pascal on 16/05/16.
@@ -366,16 +370,44 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
             case R.id.detail_share:
 
+                Intent intent = new Intent(Intent.ACTION_MEDIA_SHARED);
+                intent.setDataAndType(Uri.fromFile(new File(mVideo.getVideoFile())), "video/*");
+
+                // Add chooser entry to allow user to copy the video into its 'Movies' folder
 
 
 
 
+                /*
+                Intent share = new Intent(Intent.ACTION_SEND);
+                share.setType("text/plain");
+                share.putExtra(Intent.EXTRA_TEXT, message);
+
+                Intent addIntent = ;//whatever you want
+
+                Intent chooser = new Intent(Intent.ACTION_CHOOSER);
+                chooser.putExtra(Intent.EXTRA_INTENT, share );
+                chooser.putExtra(Intent.EXTRA_TITLE, "title");
+
+                Intent[] intentArray =  {addIntent };
+                chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
+                startActivity(chooser);
+                */
+
+
+                // Start activity that will display where to share the video
+                startActivity(Intent.createChooser(intent, getString(R.string.chose_share)));
 
 
 
 
+                /*
+                // Start activity that will display the video
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(Uri.fromFile(new File(mVideo.getVideoFile())), "video/*");
 
-
+                startActivity(Intent.createChooser(intent, getContext().getString(R.string.chose_player)));
+                 */
 
 
 

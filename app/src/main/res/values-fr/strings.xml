@@ -65,6 +65,7 @@
     <string name="video_location">Localisation de la vidéo</string>
     <string name="user_location">Votre localisation</string>
     <string name="no_geolocation">ATTENTION: Géolocalisation impossible! Vérifiez vos paramètres de localisation.</string>
+    <string name="chose_share">Partager vers</string>
 
     <!-- Process error -->
     <string name="error_start_recording">ERREUR: Enregistrement vidéo impossible! Ce média est en cours d\'utilisation. Redémarrer votre périphérique pour fixer ce problème.</string>

@@ -98,7 +98,9 @@ public class AlbumTable implements IDataTable {
             return title + " (" + dateFormat.format(this.date) + ")";
         }
 
-        public String getTitle(Context context, boolean duration) { // Video title
+        public String getTitle(Context context, boolean duration, boolean edit) { // Video title
+            if (edit)
+                return this.title;
 
             String title = (this.title != null)? this.title:context.getString(R.string.undefined);
             return title + ((duration)? " (" + this.duration + " sec)":"");
@@ -109,7 +111,9 @@ public class AlbumTable implements IDataTable {
             return dateFormat.format(this.date);
         }
         public short getDuration() { return this.duration; }
-        public String getDescription(Context context) {
+        public String getDescription(Context context, boolean edit) {
+            if (edit)
+                return this.description;
 
             return (this.description != null)? this.description:context.getString(R.string.undefined);
         }
