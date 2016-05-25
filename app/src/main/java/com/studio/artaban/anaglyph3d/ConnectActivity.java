@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -14,11 +15,13 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -96,10 +99,14 @@ public class ConnectActivity extends AppCompatActivity {
 
             mTextInfo.setText(getString(R.string.downloading_videos));
 
-            mProgressBar.setVisibility(View.VISIBLE);
-            mProgressBar.setIndeterminate(false);
+            ((RelativeLayout.LayoutParams)mProgressBar.getLayoutParams()).height =
+                    getResources().getDimensionPixelSize(R.dimen.progress_height);
+            ((RelativeLayout.LayoutParams)mProgressBar.getLayoutParams()).width =
+                    ViewGroup.LayoutParams.MATCH_PARENT;
             mProgressBar.setMax(1);
             mProgressBar.setProgress(0);
+            mProgressBar.setIndeterminate(false);
+            mProgressBar.setVisibility(View.VISIBLE);
         }
         else { // Disable download components
 
@@ -115,6 +122,11 @@ public class ConnectActivity extends AppCompatActivity {
                 setDeviceAnimation(!Connectivity.getInstance().mListenDevice);
 
                 mTextInfo.setText(getString(R.string.find_camera));
+
+                ((RelativeLayout.LayoutParams)mProgressBar.getLayoutParams()).height =
+                        ViewGroup.LayoutParams.WRAP_CONTENT;
+                ((RelativeLayout.LayoutParams)mProgressBar.getLayoutParams()).width =
+                        ViewGroup.LayoutParams.WRAP_CONTENT;
                 mProgressBar.setIndeterminate(true);
             }
         }
@@ -122,9 +134,6 @@ public class ConnectActivity extends AppCompatActivity {
         mMenuOptions.getItem(0).setEnabled(!enable);
         assert mMenuOptions.getItem(1).getItemId() == R.id.menu_download;
         mMenuOptions.getItem(1).setEnabled(!enable);
-
-        //
-        mDownloading = enable;
     }
 
     private DownloadVideosTask mDownloadTask;
@@ -149,6 +158,7 @@ public class ConnectActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
 
+            mDownloading = true;
             displayDownload(true);
 
 
@@ -161,11 +171,13 @@ public class ConnectActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(Boolean aBoolean) {
+        protected void onPostExecute(Boolean result) {
 
-            /*
+            mDownloading = false;
             displayDownload(false);
-            if (!aBoolean) {
+            if (!result) {
+
+
 
 
 
@@ -175,7 +187,6 @@ public class ConnectActivity extends AppCompatActivity {
             }
             else // Display videos album immediately
                 ActivityWrapper.startActivity(VideoListActivity.class, null, 0);
-                */
         }
     }
 
@@ -280,6 +291,7 @@ public class ConnectActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
         getMenuInflater().inflate(R.menu.activity_connect, menu);
         mMenuOptions = menu;
         return true;
