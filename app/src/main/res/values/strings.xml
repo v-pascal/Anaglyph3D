@@ -153,6 +153,7 @@
     <string name="chose_share">Share via</string>
     <string name="nav_download">Download videos</string>
     <string name="downloading_videos">Downloading anaglyph videos...</string>
+    <string name="confirm_cancel_download">Do you really want to close the application and thus cancel the download?</string>
 
     <!-- Share to local folder activity -->
     <string name="my_files">My files</string>

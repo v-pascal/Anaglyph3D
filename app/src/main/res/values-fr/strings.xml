@@ -67,6 +67,7 @@
     <string name="chose_share">Partager vers</string>
     <string name="nav_download">Télécharger vidéos</string>
     <string name="downloading_videos">Téléchargement des vidéos...</string>
+    <string name="confirm_cancel_download">Etes-vous sûr de vouloir fermer l\'application et annuler ainsi le téléchargement?</string>
 
     <!-- Share to local folder activity -->
     <string name="my_files">Mes fichiers</string>

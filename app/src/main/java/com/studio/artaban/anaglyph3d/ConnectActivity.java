@@ -1,7 +1,10 @@
 package com.studio.artaban.anaglyph3d;
 
+import android.animation.AnimatorInflater;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -74,6 +78,7 @@ public class ConnectActivity extends AppCompatActivity {
 
     ////// Download videos
     private boolean mBluetoothAvailable; // Bluetooth available flag
+    private boolean mDownloading; // Downloading videos flag
 
     private void displayDownload(boolean enable) { // Enable/Disable download videos UI components
         if (enable) { // Enable download components
@@ -85,8 +90,9 @@ public class ConnectActivity extends AppCompatActivity {
                 mRightDevice.clearAnimation();
                 mRightDevice.setVisibility(View.GONE);
             }
-            mImageInfo.setImageDrawable(getResources().getDrawable(R.drawable.clap_anim));
             mImageInfo.setVisibility(View.VISIBLE);
+            mImageInfo.setImageDrawable(getResources().getDrawable(R.drawable.clap_anim));
+            ((AnimationDrawable)mImageInfo.getDrawable()).start();
 
             mTextInfo.setText(getString(R.string.downloading_videos));
 
@@ -112,6 +118,13 @@ public class ConnectActivity extends AppCompatActivity {
                 mProgressBar.setIndeterminate(true);
             }
         }
+        assert mMenuOptions.getItem(0).getItemId() == R.id.menu_album;
+        mMenuOptions.getItem(0).setEnabled(!enable);
+        assert mMenuOptions.getItem(1).getItemId() == R.id.menu_download;
+        mMenuOptions.getItem(1).setEnabled(!enable);
+
+        //
+        mDownloading = enable;
     }
 
     private DownloadVideosTask mDownloadTask;
@@ -129,7 +142,40 @@ public class ConnectActivity extends AppCompatActivity {
 
 
 
+
             return Boolean.TRUE;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            displayDownload(true);
+
+
+
+
+
+
+
+
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+
+            /*
+            displayDownload(false);
+            if (!aBoolean) {
+
+
+
+
+
+
+            }
+            else // Display videos album immediately
+                ActivityWrapper.startActivity(VideoListActivity.class, null, 0);
+                */
         }
     }
 
@@ -223,7 +269,7 @@ public class ConnectActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (mDownloadTask != null) {
+        if (mDownloading) {
 
             moveTaskToBack(true); // Put application into background (paused)
             return;
@@ -258,46 +304,27 @@ public class ConnectActivity extends AppCompatActivity {
                 // Stop connectivity (do not attempt to connect when video album is displayed)
                 Connectivity.getInstance().stop();
 
-                mMenuOptions.getItem(0).setEnabled(false); // Videos album
-                mMenuOptions.getItem(1).setEnabled(false); // Download videos
-
-                displayDownload(true);
                 mDownloadTask = new DownloadVideosTask();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                mDownloadTask.execute();
                 return true;
             }
             case R.id.menu_quit: {
 
-                if (mDownloadTask != null) {
+                if (mDownloading) {
 
-
-
-
-                    //confirm by user to cancel download
-
-
-
-
-
+                    // Confirm by user to cancel download
+                    DisplayMessage.getInstance().alert(R.string.title_warning,
+                            R.string.confirm_cancel_download, null, true,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                }
+                            });
                 }
-                finish();
+                else
+                    finish();
+
                 return true;
             }
         }
@@ -319,7 +346,10 @@ public class ConnectActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
         Connectivity.getInstance().destroy();
+        if (mDownloading)
+            mDownloadTask.cancel(true);
         Storage.removeTempFiles();
 
         // Free GStreamer library dependencies (if any)
