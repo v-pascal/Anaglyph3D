@@ -94,7 +94,7 @@ public class ConnectActivity extends AppCompatActivity {
                 mRightDevice.setVisibility(View.GONE);
             }
             mImageInfo.setVisibility(View.VISIBLE);
-            mImageInfo.setImageDrawable(getResources().getDrawable(R.drawable.clap_anim));
+            mImageInfo.setImageDrawable(getResources().getDrawable(R.drawable.download_anim));
             ((AnimationDrawable)mImageInfo.getDrawable()).start();
 
             mTextInfo.setText(getString(R.string.downloading_videos));
