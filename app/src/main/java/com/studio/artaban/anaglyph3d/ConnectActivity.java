@@ -34,8 +34,18 @@ import java.io.File;
  */
 public class ConnectActivity extends AppCompatActivity {
 
+    private ProgressBar mProgressBar; // Download or connection progress bar
+    private ImageView mLeftDevice; // Left device image
+    private ImageView mRightDevice; // Right device image
+    private ImageView mImageInfo; // Download or no bluetooth available image
+    private TextView mTextInfo; // Text info to display
+
+    private Menu mMenuOptions; // Activity menu
+
+    //
     private void setDeviceAnimation(boolean right) {
 
+        // Display alpha animation on device glass image (according position)
         final ImageView deviceA = (ImageView)findViewById((right)? R.id.left_device:R.id.right_device);
         if (deviceA != null)
             deviceA.clearAnimation();
@@ -50,37 +60,71 @@ public class ConnectActivity extends AppCompatActivity {
 
         Connectivity.getInstance().mListenDevice = !right;
     }
+    private void displayError() { // Display no bluetooth UI components
+
+        mProgressBar.setVisibility(View.GONE);
+        mLeftDevice.setVisibility(View.GONE);
+        mRightDevice.setVisibility(View.GONE);
+
+        mTextInfo.setText(R.string.no_bluetooth);
+
+        mImageInfo.setImageDrawable(getResources().getDrawable(R.drawable.warning));
+        mImageInfo.setVisibility(View.VISIBLE);
+    }
 
     ////// Download videos
     private boolean mBluetoothAvailable; // Bluetooth available flag
-    private boolean mDownloading; // Downloading videos flag
 
-    private ProgressBar mProgressBar; // Download or connection progress bar
-
-    private void displayDownloadInfo(boolean enable) { // Enable/Disable download videos UI components
+    private void displayDownload(boolean enable) { // Enable/Disable download videos UI components
         if (enable) { // Enable download components
 
-            if (!mBluetoothAvailable) {
+            if (mBluetoothAvailable) {
 
+                mLeftDevice.clearAnimation();
+                mLeftDevice.setVisibility(View.GONE);
+                mRightDevice.clearAnimation();
+                mRightDevice.setVisibility(View.GONE);
             }
-            else {
+            mImageInfo.setImageDrawable(getResources().getDrawable(R.drawable.clap_anim));
+            mImageInfo.setVisibility(View.VISIBLE);
 
-            }
+            mTextInfo.setText(getString(R.string.downloading_videos));
+
+            mProgressBar.setVisibility(View.VISIBLE);
+            mProgressBar.setIndeterminate(false);
+            mProgressBar.setMax(1);
+            mProgressBar.setProgress(0);
         }
         else { // Disable download components
 
-            if (!mBluetoothAvailable) {
+            if (!mBluetoothAvailable)
+                displayError();
 
-            }
             else {
 
+                mLeftDevice.setVisibility(View.VISIBLE);
+                mRightDevice.setVisibility(View.VISIBLE);
+                mImageInfo.setVisibility(View.GONE);
+
+                setDeviceAnimation(!Connectivity.getInstance().mListenDevice);
+
+                mTextInfo.setText(getString(R.string.find_camera));
+                mProgressBar.setIndeterminate(true);
             }
         }
     }
+
+    private DownloadVideosTask mDownloadTask;
     private class DownloadVideosTask extends AsyncTask<Void, Integer, Boolean> {
 
         @Override
         protected Boolean doInBackground(Void... params) {
+
+
+
+
+
+
 
 
 
@@ -132,27 +176,18 @@ public class ConnectActivity extends AppCompatActivity {
         else // Default status bar color (API < 21)
             appBar.setBackgroundColor(Color.argb(255, 30, 30, 30));
 
+        mProgressBar = (ProgressBar)findViewById(R.id.progress_bar);
+        mTextInfo = (TextView)findViewById(R.id.text_info);
+        mLeftDevice = (ImageView)findViewById(R.id.left_device);
+        mRightDevice = (ImageView)findViewById(R.id.right_device);
+        mImageInfo = (ImageView)findViewById(R.id.image_info);
+
         // Start connectivity
         mBluetoothAvailable = Connectivity.getInstance().start(this);
-
-        mProgressBar = (ProgressBar)findViewById(R.id.progress_bar);
         if (!mBluetoothAvailable) {
 
             // Failed to enable Bluetooth connectivity
-            if (mProgressBar != null)
-                mProgressBar.setVisibility(View.GONE);
-            final TextView textView = (TextView)findViewById(R.id.text_info);
-            if (textView != null)
-                textView.setText(R.string.no_bluetooth);
-            final ImageView devLeft = (ImageView)findViewById(R.id.left_device);
-            if (devLeft != null)
-                devLeft.setVisibility(View.GONE);
-            final ImageView devRight = (ImageView)findViewById(R.id.right_device);
-            if (devRight != null)
-                devRight.setVisibility(View.GONE);
-            final ImageView imgWarning = (ImageView)findViewById(R.id.image_warning);
-            if (imgWarning != null)
-                imgWarning.setVisibility(View.VISIBLE);
+            displayError();
             return;
         }
 
@@ -187,8 +222,20 @@ public class ConnectActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        if (mDownloadTask != null) {
+
+            moveTaskToBack(true); // Put application into background (paused)
+            return;
+        }
+        // Finish application
+        super.onBackPressed();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_connect, menu);
+        mMenuOptions = menu;
         return true;
     }
 
@@ -211,6 +258,12 @@ public class ConnectActivity extends AppCompatActivity {
                 // Stop connectivity (do not attempt to connect when video album is displayed)
                 Connectivity.getInstance().stop();
 
+                mMenuOptions.getItem(0).setEnabled(false); // Videos album
+                mMenuOptions.getItem(1).setEnabled(false); // Download videos
+
+                displayDownload(true);
+                mDownloadTask = new DownloadVideosTask();
+
 
 
 
@@ -232,6 +285,18 @@ public class ConnectActivity extends AppCompatActivity {
             }
             case R.id.menu_quit: {
 
+                if (mDownloadTask != null) {
+
+
+
+
+                    //confirm by user to cancel download
+
+
+
+
+
+                }
                 finish();
                 return true;
             }

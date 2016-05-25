@@ -152,6 +152,7 @@
     <string name="no_geolocation">WARNING: Failed to display geolocation! Check your device location settings.</string>
     <string name="chose_share">Share via</string>
     <string name="nav_download">Download videos</string>
+    <string name="downloading_videos">Downloading anaglyph videos...</string>
 
     <!-- Share to local folder activity -->
     <string name="my_files">My files</string>
