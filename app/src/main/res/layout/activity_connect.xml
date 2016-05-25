@@ -55,7 +55,7 @@
                 android:visibility="gone"
                 android:contentDescription="@string/image_desc_warning"
                 android:adjustViewBounds="true"
-                android:scaleType="fitCenter" />
+                android:scaleType="fitXY" />
 
             <ImageView
                 android:id="@+id/right_device"

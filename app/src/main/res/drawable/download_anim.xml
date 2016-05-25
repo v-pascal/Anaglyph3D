@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/download_anim"
+    android:oneshot="false" >
+
+    <item android:drawable="@drawable/download_1" android:duration="1500" />
+    <item android:drawable="@drawable/download_7" android:duration="100" />
+    <item android:drawable="@drawable/download_6" android:duration="100" />
+    <item android:drawable="@drawable/download_5" android:duration="100" />
+    <item android:drawable="@drawable/download_4" android:duration="100" />
+    <item android:drawable="@drawable/download_3" android:duration="100" />
+    <item android:drawable="@drawable/download_2" android:duration="100" />
+    <item android:drawable="@drawable/download_1" android:duration="100" />
+    <item android:drawable="@drawable/download_7" android:duration="100" />
+    <item android:drawable="@drawable/download_6" android:duration="100" />
+    <item android:drawable="@drawable/download_5" android:duration="100" />
+    <item android:drawable="@drawable/download_4" android:duration="100" />
+    <item android:drawable="@drawable/download_3" android:duration="100" />
+    <item android:drawable="@drawable/download_2" android:duration="100" />
+
+</animation-list>

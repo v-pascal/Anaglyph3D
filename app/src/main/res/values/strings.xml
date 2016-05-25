@@ -154,6 +154,7 @@
     <string name="nav_download">Download videos</string>
     <string name="downloading_videos">Downloading anaglyph 3D videos...</string>
     <string name="confirm_cancel_download">Do you really want to close the application and thus cancel the download?</string>
+    <string name="webservice_unavailable">ERROR: Failed to download videos! STUDIO-Artaban webservice is unavailable.</string>
 
     <!-- Share to local folder activity -->
     <string name="my_files">My files</string>

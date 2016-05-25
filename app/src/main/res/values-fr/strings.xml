@@ -68,6 +68,7 @@
     <string name="nav_download">Télécharger vidéos</string>
     <string name="downloading_videos">Téléchargement de vidéos en anaglyphe...</string>
     <string name="confirm_cancel_download">Etes-vous sûr de vouloir fermer l\'application et annuler ainsi le téléchargement?</string>
+    <string name="webservice_unavailable">ERREUR: Echec durant le téléchargement! Le webservice de STUDIO-Artaban est indisponible.</string>
 
     <!-- Share to local folder activity -->
     <string name="my_files">Mes fichiers</string>

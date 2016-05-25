@@ -29,6 +29,9 @@ public final class Storage {
 
     public static final String FOLDER_THUMBNAILS = File.separator + "Thumbnails";
     public static final String FOLDER_VIDEOS = File.separator + "Videos";
+    public static final String FOLDER_DOWNLOAD = File.separator + "Downloads";
+
+    public static final String DOWNLOAD_JSON_FILE = File.separator + "videos.json";
 
     //
     public static void copyFile(File src, File dst) throws IOException {

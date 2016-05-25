@@ -1,13 +1,12 @@
 package com.studio.artaban.anaglyph3d;
 
-import android.animation.AnimatorInflater;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -18,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -33,7 +31,16 @@ import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
+import org.json.JSONObject;
+
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * Created by pascal on 19/03/16.
@@ -137,46 +144,50 @@ public class ConnectActivity extends AppCompatActivity {
     }
 
     private DownloadVideosTask mDownloadTask;
-    private class DownloadVideosTask extends AsyncTask<Void, Integer, Boolean> {
+    private class DownloadVideosTask extends AsyncTask<Void, Integer, Integer> {
 
-        @Override
-        protected Boolean doInBackground(Void... params) {
+        private static final String WEBSERVICE_URL = "http://studio-artaban.com/Anaglyph3D/videos.php";
+        private int DownloadFileURL(String url, String file) {
 
+            InputStream is = null;
+            OutputStream os = null;
+            HttpURLConnection httpConnection = null;
+            try {
 
+                URL urlFile = new URL(url);
+                httpConnection = (HttpURLConnection)urlFile.openConnection();
+                httpConnection.connect();
 
+                if (httpConnection.getResponseCode() != HttpURLConnection.HTTP_OK)
+                    throw new IOException();
 
-
-
-
-
-
-
-
-            return Boolean.TRUE;
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-            mDownloading = true;
-            displayDownload(true);
+                // Save reply into expected file
 
 
 
 
 
+                /*
+                int fileLength = connection.getContentLength();
+                input = connection.getInputStream();
+                output = new FileOutputStream(file);
 
-
-
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-
-            mDownloading = false;
-            displayDownload(false);
-            if (!result) {
-
+                byte data[] = new byte[4096];
+                long total = 0;
+                int count;
+                while ((count = input.read(data)) != -1) {
+                    // allow canceling with back button
+                    if (isCancelled()) {
+                        input.close();
+                        return null;
+                    }
+                    total += count;
+                    // publishing the progress....
+                    if (fileLength > 0) // only if total length is known
+                        publishProgress((int) (total * 100 / fileLength));
+                    output.write(data, 0, count);
+                }
+                */
 
 
 
@@ -185,6 +196,97 @@ public class ConnectActivity extends AppCompatActivity {
 
 
             }
+            catch (MalformedURLException e) {
+
+                Logs.add(Logs.Type.F, "Wrong web service URL: " + e.getMessage());
+                return R.string.webservice_unavailable;
+            }
+            catch (IOException e) {
+
+                Logs.add(Logs.Type.E, "Failed to connect to web service: " + e.getMessage());
+                return R.string.webservice_unavailable;
+            }
+            finally {
+
+                if (httpConnection != null)
+                    httpConnection.disconnect();
+
+                try {
+                    if (is != null) is.close();
+                    if (os != null) os.close();
+                }
+                catch (IOException e) {
+                    Logs.add(Logs.Type.E, "Failed to close IO streams");
+                }
+            }
+            return Constants.NO_DATA; // Success
+        }
+
+        //
+        private Context mContext;
+        public DownloadVideosTask(Context context) { mContext = context; }
+
+        //////
+        @Override
+        protected Integer doInBackground(Void... params) {
+
+            // Empty downloads folder (delete & create)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            // Download videos attributes under a web service
+            int downloadResult = DownloadFileURL(WEBSERVICE_URL, ActivityWrapper.DOCUMENTS_FOLDER +
+                    Storage.FOLDER_DOWNLOAD + Storage.DOWNLOAD_JSON_FILE);
+            if (downloadResult != Constants.NO_DATA)
+                return downloadResult; // Error
+
+
+
+            JSONObject remoteVideos;
+
+
+
+
+
+
+
+
+
+
+
+            return Constants.NO_DATA; // Ok
+        }
+
+        @Override
+        protected void onPreExecute() {
+            mDownloading = true;
+            displayDownload(true);
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+            mDownloading = false;
+            displayDownload(false);
+
+            if (result != Constants.NO_DATA) // Display error message
+                DisplayMessage.getInstance().toast(result, Toast.LENGTH_LONG);
+
             else // Display videos album immediately
                 ActivityWrapper.startActivity(VideoListActivity.class, null, 0);
         }
@@ -316,7 +418,7 @@ public class ConnectActivity extends AppCompatActivity {
                 // Stop connectivity (do not attempt to connect when video album is displayed)
                 Connectivity.getInstance().stop();
 
-                mDownloadTask = new DownloadVideosTask();
+                mDownloadTask = new DownloadVideosTask(this);
                 mDownloadTask.execute();
                 return true;
             }
