@@ -2,6 +2,7 @@ package com.studio.artaban.anaglyph3d;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -50,6 +51,44 @@ public class ConnectActivity extends AppCompatActivity {
         Connectivity.getInstance().mListenDevice = !right;
     }
 
+    ////// Download videos
+    private boolean mBluetoothAvailable; // Bluetooth available flag
+    private boolean mDownloading; // Downloading videos flag
+
+    private ProgressBar mProgressBar; // Download or connection progress bar
+
+    private void displayDownloadInfo(boolean enable) { // Enable/Disable download videos UI components
+        if (enable) { // Enable download components
+
+            if (!mBluetoothAvailable) {
+
+            }
+            else {
+
+            }
+        }
+        else { // Disable download components
+
+            if (!mBluetoothAvailable) {
+
+            }
+            else {
+
+            }
+        }
+    }
+    private class DownloadVideosTask extends AsyncTask<Void, Integer, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+
+
+
+
+            return Boolean.TRUE;
+        }
+    }
+
     //
     public void onLeftDeviceClick(View sender) { setDeviceAnimation(false); }
     public void onRightDeviceClick(View sender) { setDeviceAnimation(true); }
@@ -94,12 +133,14 @@ public class ConnectActivity extends AppCompatActivity {
             appBar.setBackgroundColor(Color.argb(255, 30, 30, 30));
 
         // Start connectivity
-        if (!Connectivity.getInstance().start(this)) {
+        mBluetoothAvailable = Connectivity.getInstance().start(this);
+
+        mProgressBar = (ProgressBar)findViewById(R.id.progress_bar);
+        if (!mBluetoothAvailable) {
 
             // Failed to enable Bluetooth connectivity
-            final ProgressBar progressBar = (ProgressBar)findViewById(R.id.progress_bar);
-            if (progressBar != null)
-                progressBar.setVisibility(View.GONE);
+            if (mProgressBar != null)
+                mProgressBar.setVisibility(View.GONE);
             final TextView textView = (TextView)findViewById(R.id.text_info);
             if (textView != null)
                 textView.setText(R.string.no_bluetooth);
@@ -165,6 +206,30 @@ public class ConnectActivity extends AppCompatActivity {
                 startActivityForResult(intent, 0);
                 return true;
             }
+            case R.id.menu_download: {
+
+                // Stop connectivity (do not attempt to connect when video album is displayed)
+                Connectivity.getInstance().stop();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                return true;
+            }
             case R.id.menu_quit: {
 
                 finish();
@@ -192,7 +257,7 @@ public class ConnectActivity extends AppCompatActivity {
         Connectivity.getInstance().destroy();
         Storage.removeTempFiles();
 
-        // Free GStreamer dependencies (if any)
+        // Free GStreamer library dependencies (if any)
         System.exit(0);
     }
 }

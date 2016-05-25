@@ -3,7 +3,6 @@
     <string name="app_name">3D Anaglyphe</string>
     <string name="find_camera">Sélectionnez la caméra recherché...</string>
     <string name="no_bluetooth">Bluetooth non disponible!</string>
-
     <string name="navigation_drawer_close">Ferme la navigation</string>
     <string name="navigation_drawer_open">Ouvre la navigation</string>
     <string name="nav_album">Album vidéos</string>
@@ -66,6 +65,7 @@
     <string name="user_location">Votre localisation</string>
     <string name="no_geolocation">ATTENTION: Géolocalisation impossible! Vérifiez vos paramètres de localisation.</string>
     <string name="chose_share">Partager vers</string>
+    <string name="nav_download">Télécharger vidéos</string>
 
     <!-- Share to local folder activity -->
     <string name="my_files">Mes fichiers</string>

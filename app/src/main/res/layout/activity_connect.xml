@@ -37,10 +37,10 @@
             android:layout_centerHorizontal="true">
 
             <ImageView
+                android:id="@+id/left_device"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="7dp"
-                android:id="@+id/left_device"
                 android:src="@drawable/left_device"
                 android:onClick="onLeftDeviceClick"
                 android:contentDescription="@string/image_desc_devices"
@@ -48,9 +48,9 @@
                 android:scaleType="fitCenter" />
 
             <ImageView
+                android:id="@+id/image_warning"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/image_warning"
                 android:src="@drawable/warning"
                 android:visibility="gone"
                 android:contentDescription="@string/image_desc_warning"
@@ -58,10 +58,10 @@
                 android:scaleType="fitCenter" />
 
             <ImageView
+                android:id="@+id/right_device"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="7dp"
-                android:id="@+id/right_device"
                 android:src="@drawable/right_device"
                 android:onClick="onRightDeviceClick"
                 android:contentDescription="@string/image_desc_devices"
@@ -71,9 +71,9 @@
         </LinearLayout>
 
         <ProgressBar
+            android:id="@+id/progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/progress_bar"
             android:layout_below="@+id/text_info"
             android:layout_centerHorizontal="true" />
 
