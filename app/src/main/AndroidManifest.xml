@@ -91,7 +91,7 @@
         <!-- Share to local folder activity -->
         <activity android:name=".album.ShareLocalActivity"
             android:label="@string/my_files"
-            android:icon="@mipmap/ic_my_files">
+            android:icon="@mipmap/my_files">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />

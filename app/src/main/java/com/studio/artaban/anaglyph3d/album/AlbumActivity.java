@@ -371,7 +371,12 @@ public abstract class AlbumActivity extends AppCompatActivity implements
             case R.id.detail_share:
 
                 Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.setDataAndType(Uri.fromFile(new File(mVideo.getVideoFile())), "video/*");
+                Uri data = Uri.fromFile(new File(mVideo.getVideoFile()));
+
+                intent.setDataAndType(data, "video/*");
+                intent.putExtra(Intent.EXTRA_STREAM, data);
+                intent.putExtra(ShareLocalActivity.EXTRA_SUBFOLDER, "Anaglyph-3D");
+                intent.putExtra(ShareLocalActivity.EXTRA_OVERWRITE, true);
 
                 // Start activity that will display where to share the video
                 startActivity(Intent.createChooser(intent, getString(R.string.chose_share)));

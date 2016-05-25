@@ -151,7 +151,14 @@
     <string name="user_location">You\'re location</string>
     <string name="no_geolocation">WARNING: Failed to display geolocation! Check your device location settings.</string>
     <string name="chose_share">Share via</string>
+
+    <!-- Share to local folder activity -->
     <string name="my_files">My files</string>
+    <string name="already_exist">WARNING: File already exists!</string>
+    <string name="movie_copied">Video file has been copied into \'Movies%1$s\' folder</string>
+    <string name="picture_copied">Picture file has been copied into \'Pictures%1$s\' folder</string>
+    <string name="movie_not_copied">WARNING: Failed to copy video file into \'Movies%1$s\' folder!</string>
+    <string name="picture_not_copied">WARNING: Failed to copy picture file into \'Pictures%1$s\' folder!</string>
 
     <!-- Process error -->
     <string name="error_start_recording">ERROR: Unable to start recording! A media resource is in use. Restart your device to fix this.</string>

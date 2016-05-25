@@ -23,7 +23,6 @@ import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
-import com.studio.artaban.anaglyph3d.media.Frame;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 import java.io.File;

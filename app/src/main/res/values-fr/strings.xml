@@ -66,7 +66,14 @@
     <string name="user_location">Votre localisation</string>
     <string name="no_geolocation">ATTENTION: Géolocalisation impossible! Vérifiez vos paramètres de localisation.</string>
     <string name="chose_share">Partager vers</string>
+
+    <!-- Share to local folder activity -->
     <string name="my_files">Mes fichiers</string>
+    <string name="already_exist">ATTENTION: Le fichier existe déjà!</string>
+    <string name="movie_copied">La vidéo a été copié dans votre répertoire \'Movies%1$s\'</string>
+    <string name="picture_copied">L\'image a été copié dans votre répertoire \'Pictures%1$s\'</string>
+    <string name="movie_not_copied">ATTENTION: Echec durant la copie de la vidéo vers le répertoire \'Movies%1$s\'!</string>
+    <string name="picture_not_copied">ATTENTION: Echec durant la copie de l\'image vers le répertoire \'Pictures%1$s\'!</string>
 
     <!-- Process error -->
     <string name="error_start_recording">ERREUR: Enregistrement vidéo impossible! Ce média est en cours d\'utilisation. Redémarrer votre périphérique pour fixer ce problème.</string>
