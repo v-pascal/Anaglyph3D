@@ -87,6 +87,23 @@
             android:name=".process.configure.SynchroActivity"
             android:label="@string/title_activity_synchro"
             android:theme="@style/Theme.AppCompat" />
+
+        <!-- Share to local folder activity -->
+        <activity android:name=".album.ShareLocalActivity"
+            android:label="@string/my_files"
+            android:icon="@mipmap/ic_my_files">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="video/*" /><!-- Will be stored into 'Movies' folder -->
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" /><!-- Will be stored into 'Pictures' folder -->
+            </intent-filter>
+        </activity>
+
     </application>
 
 </manifest>

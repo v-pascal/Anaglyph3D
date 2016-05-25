@@ -370,50 +370,14 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
             case R.id.detail_share:
 
-                Intent intent = new Intent(Intent.ACTION_MEDIA_SHARED);
+                Intent intent = new Intent(Intent.ACTION_SEND);
                 intent.setDataAndType(Uri.fromFile(new File(mVideo.getVideoFile())), "video/*");
-
-                // Add chooser entry to allow user to copy the video into its 'Movies' folder
-
-
-
-
-                /*
-                Intent share = new Intent(Intent.ACTION_SEND);
-                share.setType("text/plain");
-                share.putExtra(Intent.EXTRA_TEXT, message);
-
-                Intent addIntent = ;//whatever you want
-
-                Intent chooser = new Intent(Intent.ACTION_CHOOSER);
-                chooser.putExtra(Intent.EXTRA_INTENT, share );
-                chooser.putExtra(Intent.EXTRA_TITLE, "title");
-
-                Intent[] intentArray =  {addIntent };
-                chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
-                startActivity(chooser);
-                */
-
 
                 // Start activity that will display where to share the video
                 startActivity(Intent.createChooser(intent, getString(R.string.chose_share)));
 
-
-
-
-                /*
-                // Start activity that will display the video
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.fromFile(new File(mVideo.getVideoFile())), "video/*");
-
-                startActivity(Intent.createChooser(intent, getContext().getString(R.string.chose_player)));
-                 */
-
-
-
-
-
-
+                // NB: The 'ShareLocalActivity' to share the video into local folder will be
+                //     listed too (using intent filter)
                 break;
 
             case R.id.detail_trash:
