@@ -1,6 +1,5 @@
 package com.studio.artaban.anaglyph3d;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -24,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
+import com.studio.artaban.anaglyph3d.data.AlbumTable;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
@@ -31,6 +31,8 @@ import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -147,7 +149,9 @@ public class ConnectActivity extends AppCompatActivity {
     private class DownloadVideosTask extends AsyncTask<Void, Integer, Integer> {
 
         private static final String WEBSERVICE_URL = "http://studio-artaban.com/Anaglyph3D/videos.php";
-        private int DownloadFileURL(String url, String file) {
+        private static final int BUFFER_SIZE = 4096;
+
+        private int DownloadFileURL(String url, String file, boolean progress) {
 
             InputStream is = null;
             OutputStream os = null;
@@ -162,39 +166,23 @@ public class ConnectActivity extends AppCompatActivity {
                     throw new IOException();
 
                 // Save reply into expected file
+                is = httpConnection.getInputStream();
+                os = new FileOutputStream(file);
 
+                byte buffer[] = new byte[BUFFER_SIZE];
+                int bufferRead;
+                while ((bufferRead = is.read(buffer)) != Constants.NO_DATA) {
 
+                    // Check if download has been cancelled
+                    if (isCancelled())
+                        return R.string.download_cancelled;
 
-
-
-                /*
-                int fileLength = connection.getContentLength();
-                input = connection.getInputStream();
-                output = new FileOutputStream(file);
-
-                byte data[] = new byte[4096];
-                long total = 0;
-                int count;
-                while ((count = input.read(data)) != -1) {
-                    // allow canceling with back button
-                    if (isCancelled()) {
-                        input.close();
-                        return null;
-                    }
-                    total += count;
-                    // publishing the progress....
-                    if (fileLength > 0) // only if total length is known
-                        publishProgress((int) (total * 100 / fileLength));
-                    output.write(data, 0, count);
+                    // Check if needed to update progress bar
+                    if (progress)
+                        publishProgress(bufferRead);
+                    os.write(buffer, 0, bufferRead);
                 }
-                */
-
-
-
-
-
-
-
+                return Constants.NO_DATA; // Success
             }
             catch (MalformedURLException e) {
 
@@ -219,52 +207,115 @@ public class ConnectActivity extends AppCompatActivity {
                     Logs.add(Logs.Type.E, "Failed to close IO streams");
                 }
             }
-            return Constants.NO_DATA; // Success
         }
 
-        //
-        private Context mContext;
-        public DownloadVideosTask(Context context) { mContext = context; }
+        private static final String JSON_VIDEOS = "videos";
+        private static final String JSON_VIDEO = "video";
+        private static final String JSON_THUMBNAIL = "thumbnail";
+        private static final String JSON_URL = "url";
+        private static final String JSON_SIZE = "size";
+
+        private int mTotalSize; // Total files size to download (in byte)
+        private void getTotalSize(JSONArray list) throws JSONException {
+
+            mTotalSize = 0;
+            for (short i = 0; i < list.length(); ++i) {
+
+                // Add video file size
+                JSONObject video = list.getJSONObject(i).getJSONObject(JSON_VIDEO);
+                mTotalSize += video.getInt(JSON_SIZE);
+
+                // Add thumbnail file size
+                JSONObject thumbnail = list.getJSONObject(i).getJSONObject(JSON_THUMBNAIL);
+                mTotalSize += thumbnail.getInt(JSON_SIZE);
+            }
+        }
 
         //////
         @Override
         protected Integer doInBackground(Void... params) {
 
             // Empty downloads folder (delete & create)
+            Storage.removeTempFiles(true);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-            // Download videos attributes under a web service
+            // Download JSON videos attributes under a web service
             int downloadResult = DownloadFileURL(WEBSERVICE_URL, ActivityWrapper.DOCUMENTS_FOLDER +
-                    Storage.FOLDER_DOWNLOAD + Storage.DOWNLOAD_JSON_FILE);
+                    Storage.FOLDER_DOWNLOAD + Storage.FILENAME_DOWNLOAD_JSON, false);
             if (downloadResult != Constants.NO_DATA)
-                return downloadResult; // Error
+                return downloadResult; // Error or cancelled
 
+            try {
 
+                // Extract videos attributes from JSON file...
+                String attributes = Storage.readFile(new File(ActivityWrapper.DOCUMENTS_FOLDER +
+                    Storage.FOLDER_DOWNLOAD + Storage.FILENAME_DOWNLOAD_JSON));
+                JSONObject videos = new JSONObject(attributes);
 
-            JSONObject remoteVideos;
+                // {
+                //     "videos": [
+                //         {
+                //             "video": {
+                //                 "url": "http://studio-artaban.com/Anaglyph3D/YYYY-MM-DD%20HH:MM:SS.000.webm",
+                //                 "size": 2000000
+                //             }
+                //             "thumbnail": {
+                //                 "url": "http://studio-artaban.com/Anaglyph3D/YYYY-MM-DD0%20HH:MM:SS.000.jpg",
+                //                 "size": 20000
+                //             }
+                //             "Album": {
+                //                 "title": "Titre",
+                //                 "description": "Description",
+                //                 "date": "YYYY-MM-DD HH:MM:SS.000",
+                //                 "duration": 30,
+                //                 "location": true,
+                //                 "latitude": 0.393489,
+                //                 "longitude": -22.104523,
+                //                 "thumbnailWidth": 640,
+                //                 "thumbnailHeight": 480
+                //             }
+                //         },
+                //         ...
+                //     ]
+                // }
+                JSONArray videoList = videos.getJSONArray(JSON_VIDEOS);
 
+                // Get total bytes to download
+                getTotalSize(videoList);
+                if (mTotalSize == 0)
+                    return R.string.wrong_videos_attr;
 
+                for (short i = 0; i < videoList.length(); ++i) {
 
+                    JSONObject album = videoList.getJSONObject(i).getJSONObject(AlbumTable.TABLE_NAME);
+                    String fileName = album.getString(AlbumTable.COLUMN_DATE); // Date is used as filename
 
+                    // Download video file
+                    JSONObject video = videoList.getJSONObject(i).getJSONObject(JSON_VIDEO);
+                    downloadResult = DownloadFileURL(video.getString(JSON_URL),
+                            ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD +
+                                    fileName + Constants.EXTENSION_WEBM, true);
+                    if (downloadResult != Constants.NO_DATA)
+                        return downloadResult; // Error or cancelled
 
+                    // Download thumbnail file
+                    JSONObject thumbnail = videoList.getJSONObject(i).getJSONObject(JSON_THUMBNAIL);
+                    downloadResult = DownloadFileURL(thumbnail.getString(JSON_URL),
+                            ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD +
+                                    fileName + Constants.EXTENSION_JPEG, true);
+                    if (downloadResult != Constants.NO_DATA)
+                        return downloadResult; // Error or cancelled
+                }
+            }
+            catch (JSONException e) {
 
+                Logs.add(Logs.Type.F, e.getMessage());
+                return R.string.wrong_videos_attr;
+            }
+            catch (IOException e) {
 
-
-
-
-
+                Logs.add(Logs.Type.F, e.getMessage());
+                return R.string.wrong_videos_attr;
+            }
             return Constants.NO_DATA; // Ok
         }
 
@@ -276,7 +327,9 @@ public class ConnectActivity extends AppCompatActivity {
 
         @Override
         protected void onProgressUpdate(Integer... values) {
-            super.onProgressUpdate(values);
+
+            mProgressBar.setMax(mTotalSize);
+            mProgressBar.setProgress(mProgressBar.getProgress() + values[0]);
         }
 
         @Override
@@ -418,7 +471,7 @@ public class ConnectActivity extends AppCompatActivity {
                 // Stop connectivity (do not attempt to connect when video album is displayed)
                 Connectivity.getInstance().stop();
 
-                mDownloadTask = new DownloadVideosTask(this);
+                mDownloadTask = new DownloadVideosTask();
                 mDownloadTask.execute();
                 return true;
             }
@@ -464,7 +517,7 @@ public class ConnectActivity extends AppCompatActivity {
         Connectivity.getInstance().destroy();
         if (mDownloading)
             mDownloadTask.cancel(true);
-        Storage.removeTempFiles();
+        Storage.removeTempFiles(false);
 
         // Free GStreamer library dependencies (if any)
         System.exit(0);

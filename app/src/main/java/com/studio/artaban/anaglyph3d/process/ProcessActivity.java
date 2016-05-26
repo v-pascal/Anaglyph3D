@@ -153,7 +153,7 @@ public class ProcessActivity extends AppCompatActivity {
         ActivityWrapper.set(this);
 
         // Remove all temporary files from storage B4 processing
-        Storage.removeTempFiles();
+        Storage.removeTempFiles(false);
 
         // Set orientation
         Settings.getInstance().mReverse = false;

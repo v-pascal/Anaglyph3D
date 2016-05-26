@@ -2,6 +2,7 @@ package com.studio.artaban.anaglyph3d.data;
 
 import android.database.sqlite.SQLiteDatabase;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -10,7 +11,7 @@ import java.util.List;
  */
 public interface IDataTable {
 
-    class DataField {
+    class DataField implements Serializable {
 
         public static final String COLUMN_ID = "_id";
         public static final short COLUMN_INDEX_ID = 0;

@@ -5,11 +5,14 @@ import android.os.StatFs;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.channels.FileChannel;
 
 /**
@@ -23,6 +26,7 @@ public final class Storage {
     public static final String FILENAME_REMOTE_VIDEO = File.separator + "remote.mp4"; // Remote video file
     public static final String FILENAME_LOCAL_PICTURE = File.separator + "local.rgba"; // Local RGBA raw file
     public static final String FILENAME_REMOTE_PICTURE = File.separator + "remote.rgba"; // Remote RGBA raw file
+    public static final String FILENAME_DOWNLOAD_JSON = File.separator + "videos.json"; // JSON webservice file
 
     public static final String FILENAME_3D_VIDEO = File.separator + "video.webm"; // Final anaglyph 3D video file
     public static final String FILENAME_THUMBNAIL_PICTURE = File.separator + "thumbnail.jpg"; // Thumbnail JPEG picture file
@@ -30,8 +34,6 @@ public final class Storage {
     public static final String FOLDER_THUMBNAILS = File.separator + "Thumbnails";
     public static final String FOLDER_VIDEOS = File.separator + "Videos";
     public static final String FOLDER_DOWNLOAD = File.separator + "Downloads";
-
-    public static final String DOWNLOAD_JSON_FILE = File.separator + "videos.json";
 
     //
     public static void copyFile(File src, File dst) throws IOException {
@@ -45,15 +47,19 @@ public final class Storage {
             if (outChannel != null) outChannel.close();
         }
     }
+    public static String readFile(File file) throws IOException {
 
-    //////
-    public static void removeTempFiles() { // Remove all temporary files from documents folder
+        FileInputStream fin = new FileInputStream(file);
+        BufferedReader reader = new BufferedReader(new InputStreamReader(fin));
+        StringBuilder content = new StringBuilder();
 
-        File storage = new File(ActivityWrapper.DOCUMENTS_FOLDER);
-        for (File file : storage.listFiles()) {
-            if (file.isFile())
-                file.delete();
-        }
+        String line;
+        while ((line = reader.readLine()) != null)
+            content.append(line).append("\n");
+
+        reader.close();
+        fin.close();
+        return content.toString();
     }
     public static void removeFiles(final String regex) {
 
@@ -65,6 +71,17 @@ public final class Storage {
             }
         });
         for (File file : filesToDelete) {
+            if (file.isFile())
+                file.delete();
+        }
+    }
+
+    //////
+    public static void removeTempFiles(boolean downloads) {
+        // Remove all temporary files from downloads or documents folder
+
+        File storage = new File(ActivityWrapper.DOCUMENTS_FOLDER + ((downloads)? FOLDER_DOWNLOAD:null));
+        for (File file : storage.listFiles()) {
             if (file.isFile())
                 file.delete();
         }
@@ -93,7 +110,8 @@ public final class Storage {
         return need; // Bad: not enough memory space to process (return memory space need)
     }
 
-    public static boolean saveThumbnail(String file) { // Rename and move thumbnail file into appropriate folder
+    public static boolean saveThumbnail(String file) {
+        // Rename and move thumbnail file into appropriate folder
 
         File thumbnailFolder = new File(ActivityWrapper.DOCUMENTS_FOLDER + FOLDER_THUMBNAILS);
         if ((!thumbnailFolder.exists()) && (!thumbnailFolder.mkdir())) {

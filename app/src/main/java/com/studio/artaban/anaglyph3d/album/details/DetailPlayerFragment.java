@@ -43,7 +43,7 @@ public class DetailPlayerFragment extends Fragment {
         Activity activity = this.getActivity();
         ActionBar appBar = ((AppCompatActivity)activity).getSupportActionBar();
         if (appBar != null)
-            appBar.setTitle(mVideo.toString(getActivity()));
+            appBar.setTitle(mVideo.getTitle(getContext()));
     }
 
     @Override

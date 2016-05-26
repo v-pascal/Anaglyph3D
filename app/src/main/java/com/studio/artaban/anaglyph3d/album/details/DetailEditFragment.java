@@ -52,7 +52,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
         ActionBar appBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
         if (appBar != null)
-            appBar.setTitle(VideoListActivity.mVideos.get(mVideoPosition).toString(getActivity()));
+            appBar.setTitle(VideoListActivity.mVideos.get(mVideoPosition).getTitle(getContext()));
     }
     private void fillInfo() {
 

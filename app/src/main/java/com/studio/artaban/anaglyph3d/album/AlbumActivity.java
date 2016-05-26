@@ -263,7 +263,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
                 // Set activity title accordingly
                 ActionBar appBar = getSupportActionBar();
                 if (appBar != null)
-                    appBar.setTitle(mVideo.toString(this));
+                    appBar.setTitle(mVideo.getTitle(this));
 
                 // Delete previous geolocation marker
                 mGeolocationMarker = null;

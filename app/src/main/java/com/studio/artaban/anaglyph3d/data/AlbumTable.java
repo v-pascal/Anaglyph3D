@@ -90,14 +90,36 @@ public class AlbumTable implements IDataTable {
             this.thumbnailHeight = thumbnailHeight;
         }
 
+        @Override
+        public String toString() { // Serializable (JSON)
+
+
+
+
+
+
+
+
+            //Double.toString(this.latitude);
+
+
+
+
+
+
+
+
+
+            return null;
+        }
+
         //
-        public String toString(Context context) { // Activity title
+        public String getTitle(Context context) { // Activity title
 
             DateFormat dateFormat = new SimpleDateFormat(context.getString(R.string.title_detail_format));
             String title = (this.title != null)? this.title:context.getString(R.string.undefined);
             return title + " (" + dateFormat.format(this.date) + ")";
         }
-
         public String getTitle(Context context, boolean duration, boolean edit) { // Video title
             if (edit)
                 return this.title;
@@ -239,7 +261,7 @@ public class AlbumTable implements IDataTable {
     // Columns
     private static final String COLUMN_TITLE = "title";
     private static final String COLUMN_DESCRIPTION = "description";
-    private static final String COLUMN_DATE = "date";
+    public static final String COLUMN_DATE = "date";
     private static final String COLUMN_DURATION = "duration";
     private static final String COLUMN_LOCATION = "location";
     private static final String COLUMN_LATITUDE = "latitude";
