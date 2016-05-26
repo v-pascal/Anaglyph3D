@@ -100,7 +100,11 @@ public class AlbumTable implements IDataTable {
 
 
 
+
+
             //Double.toString(this.latitude);
+
+
 
 
 

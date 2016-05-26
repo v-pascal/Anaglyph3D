@@ -152,11 +152,12 @@
     <string name="no_geolocation">WARNING: Failed to display geolocation! Check your device location settings.</string>
     <string name="chose_share">Share via</string>
     <string name="nav_download">Download videos</string>
-    <string name="downloading_videos">Downloading anaglyph 3D videos...</string>
+    <string name="downloading_videos">Downloading anaglyph 3D videos%1$s</string>
     <string name="confirm_cancel_download">Do you really want to close the application and thus cancel the download?</string>
     <string name="webservice_unavailable">ERROR: Failed to download videos! STUDIO-Artaban webservice is unavailable.</string>
     <string name="download_cancelled">WARNING: Videos download has been cancelled!</string>
     <string name="wrong_videos_attr">ERROR: Failed to download videos! Wrong STUDIO-Artaban webservice reply.</string>
+    <string name="no_internet">ERROR: No Internet connection!</string>
 
     <!-- Share to local folder activity -->
     <string name="my_files">My files</string>

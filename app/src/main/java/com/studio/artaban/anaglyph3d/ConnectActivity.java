@@ -27,6 +27,7 @@ import com.studio.artaban.anaglyph3d.data.AlbumTable;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
+import com.studio.artaban.anaglyph3d.helpers.Internet;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
@@ -36,13 +37,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * Created by pascal on 19/03/16.
@@ -106,7 +101,7 @@ public class ConnectActivity extends AppCompatActivity {
             mImageInfo.setImageDrawable(getResources().getDrawable(R.drawable.download_anim));
             ((AnimationDrawable)mImageInfo.getDrawable()).start();
 
-            mTextInfo.setText(getString(R.string.downloading_videos));
+            mTextInfo.setText(getString(R.string.downloading_videos, "..."));
 
             ((RelativeLayout.LayoutParams)mProgressBar.getLayoutParams()).height =
                     getResources().getDimensionPixelSize(R.dimen.progress_height);
@@ -146,68 +141,10 @@ public class ConnectActivity extends AppCompatActivity {
     }
 
     private DownloadVideosTask mDownloadTask;
-    private class DownloadVideosTask extends AsyncTask<Void, Integer, Integer> {
+    private class DownloadVideosTask extends AsyncTask<Void, Integer, Integer> implements
+            Internet.OnDownloadListener {
 
         private static final String WEBSERVICE_URL = "http://studio-artaban.com/Anaglyph3D/videos.php";
-        private static final int BUFFER_SIZE = 4096;
-
-        private int DownloadFileURL(String url, String file, boolean progress) {
-
-            InputStream is = null;
-            OutputStream os = null;
-            HttpURLConnection httpConnection = null;
-            try {
-
-                URL urlFile = new URL(url);
-                httpConnection = (HttpURLConnection)urlFile.openConnection();
-                httpConnection.connect();
-
-                if (httpConnection.getResponseCode() != HttpURLConnection.HTTP_OK)
-                    throw new IOException();
-
-                // Save reply into expected file
-                is = httpConnection.getInputStream();
-                os = new FileOutputStream(file);
-
-                byte buffer[] = new byte[BUFFER_SIZE];
-                int bufferRead;
-                while ((bufferRead = is.read(buffer)) != Constants.NO_DATA) {
-
-                    // Check if download has been cancelled
-                    if (isCancelled())
-                        return R.string.download_cancelled;
-
-                    // Check if needed to update progress bar
-                    if (progress)
-                        publishProgress(bufferRead);
-                    os.write(buffer, 0, bufferRead);
-                }
-                return Constants.NO_DATA; // Success
-            }
-            catch (MalformedURLException e) {
-
-                Logs.add(Logs.Type.F, "Wrong web service URL: " + e.getMessage());
-                return R.string.webservice_unavailable;
-            }
-            catch (IOException e) {
-
-                Logs.add(Logs.Type.E, "Failed to connect to web service: " + e.getMessage());
-                return R.string.webservice_unavailable;
-            }
-            finally {
-
-                if (httpConnection != null)
-                    httpConnection.disconnect();
-
-                try {
-                    if (is != null) is.close();
-                    if (os != null) os.close();
-                }
-                catch (IOException e) {
-                    Logs.add(Logs.Type.E, "Failed to close IO streams");
-                }
-            }
-        }
 
         private static final String JSON_VIDEOS = "videos";
         private static final String JSON_VIDEO = "video";
@@ -215,9 +152,16 @@ public class ConnectActivity extends AppCompatActivity {
         private static final String JSON_URL = "url";
         private static final String JSON_SIZE = "size";
 
+        //
+        private boolean mPublishProgess; // Publish progress flag
+
         private int mTotalSize; // Total files size to download (in byte)
+        private short mTotalVideos; // Total videos to download
+        private short mCurVideo; // Current downloading video
+
         private void getTotalSize(JSONArray list) throws JSONException {
 
+            mTotalVideos = 0;
             mTotalSize = 0;
             for (short i = 0; i < list.length(); ++i) {
 
@@ -228,21 +172,43 @@ public class ConnectActivity extends AppCompatActivity {
                 // Add thumbnail file size
                 JSONObject thumbnail = list.getJSONObject(i).getJSONObject(JSON_THUMBNAIL);
                 mTotalSize += thumbnail.getInt(JSON_SIZE);
+
+                ++mTotalVideos;
             }
+        }
+        private int getResultId(Internet.DownloadResult result) {
+
+            // Return error string ID or Constants.NO_DATA if succeeded
+            switch (result) {
+
+                case WRONG_URL:
+                case CONNECTION_FAILED:
+                    return R.string.webservice_unavailable;
+
+                case CANCELLED:
+                    return R.string.download_cancelled;
+            }
+            return Constants.NO_DATA; // No error
         }
 
         //////
         @Override
         protected Integer doInBackground(Void... params) {
 
+            // Check Internet connection
+            if (!Internet.isOnline())
+                return R.string.no_internet;
+
             // Empty downloads folder (delete & create)
             Storage.removeTempFiles(true);
 
             // Download JSON videos attributes under a web service
-            int downloadResult = DownloadFileURL(WEBSERVICE_URL, ActivityWrapper.DOCUMENTS_FOLDER +
-                    Storage.FOLDER_DOWNLOAD + Storage.FILENAME_DOWNLOAD_JSON, false);
-            if (downloadResult != Constants.NO_DATA)
-                return downloadResult; // Error or cancelled
+            mPublishProgess = false;
+            int resultId = getResultId(Internet.downloadHttpFile(WEBSERVICE_URL,
+                    ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD +
+                            Storage.FILENAME_DOWNLOAD_JSON, this));
+            if (resultId != Constants.NO_DATA)
+                return resultId; // Error or cancelled
 
             try {
 
@@ -281,8 +247,11 @@ public class ConnectActivity extends AppCompatActivity {
 
                 // Get total bytes to download
                 getTotalSize(videoList);
-                if (mTotalSize == 0)
+                if ((mTotalSize == 0) || (mTotalVideos == 0))
                     return R.string.wrong_videos_attr;
+
+                mCurVideo = 1;
+                mPublishProgess = true; // Ready to update progress bar
 
                 for (short i = 0; i < videoList.length(); ++i) {
 
@@ -291,19 +260,21 @@ public class ConnectActivity extends AppCompatActivity {
 
                     // Download video file
                     JSONObject video = videoList.getJSONObject(i).getJSONObject(JSON_VIDEO);
-                    downloadResult = DownloadFileURL(video.getString(JSON_URL),
+                    resultId = getResultId(Internet.downloadHttpFile(video.getString(JSON_URL),
                             ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD +
-                                    fileName + Constants.EXTENSION_WEBM, true);
-                    if (downloadResult != Constants.NO_DATA)
-                        return downloadResult; // Error or cancelled
+                                    fileName + Constants.EXTENSION_WEBM, this));
+                    if (resultId != Constants.NO_DATA)
+                        return resultId; // Error or cancelled
 
                     // Download thumbnail file
                     JSONObject thumbnail = videoList.getJSONObject(i).getJSONObject(JSON_THUMBNAIL);
-                    downloadResult = DownloadFileURL(thumbnail.getString(JSON_URL),
+                    resultId = getResultId(Internet.downloadHttpFile(thumbnail.getString(JSON_URL),
                             ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD +
-                                    fileName + Constants.EXTENSION_JPEG, true);
-                    if (downloadResult != Constants.NO_DATA)
-                        return downloadResult; // Error or cancelled
+                                    fileName + Constants.EXTENSION_JPEG, this));
+                    if (resultId != Constants.NO_DATA)
+                        return resultId; // Error or cancelled
+
+                    ++mCurVideo;
                 }
             }
             catch (JSONException e) {
@@ -330,6 +301,9 @@ public class ConnectActivity extends AppCompatActivity {
 
             mProgressBar.setMax(mTotalSize);
             mProgressBar.setProgress(mProgressBar.getProgress() + values[0]);
+
+            mTextInfo.setText(getString(R.string.downloading_videos, ": " +
+                    mCurVideo + "/" + mTotalVideos));
         }
 
         @Override
@@ -342,6 +316,15 @@ public class ConnectActivity extends AppCompatActivity {
 
             else // Display videos album immediately
                 ActivityWrapper.startActivity(VideoListActivity.class, null, 0);
+        }
+
+        //////
+        @Override public boolean onCheckCancelled() { return isCancelled(); }
+        @Override
+        public void onPublishProgress(int read) {
+
+            if (mPublishProgess)
+                publishProgress(read);
         }
     }
 
