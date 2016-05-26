@@ -1,8 +1,9 @@
 package com.studio.artaban.anaglyph3d.data;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -11,7 +12,7 @@ import java.util.List;
  */
 public interface IDataTable {
 
-    class DataField implements Serializable {
+    class DataField implements Parcelable {
 
         public static final String COLUMN_ID = "_id";
         public static final short COLUMN_INDEX_ID = 0;
@@ -28,6 +29,35 @@ public interface IDataTable {
 
             mUpdated = new boolean[count];
             this.id = id;
+        }
+
+        //////
+        public DataField(Parcel parcel) {
+
+
+
+
+
+
+
+
+        }
+        public static final Parcelable.Creator<DataField> CREATOR = new Creator<DataField>() {
+
+            @Override public DataField createFromParcel(Parcel source) { return new DataField(source); }
+            @Override public DataField[] newArray(int size) { return new DataField[size]; }
+        };
+
+        @Override public int describeContents() { return 0; }
+        @Override public void writeToParcel(Parcel dest, int flags) {
+
+
+
+
+
+
+
+
         }
     }
 

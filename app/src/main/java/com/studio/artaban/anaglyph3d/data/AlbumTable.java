@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
@@ -90,19 +92,10 @@ public class AlbumTable implements IDataTable {
             this.thumbnailHeight = thumbnailHeight;
         }
 
-        @Override
-        public String toString() { // Serializable (JSON)
+        //////
+        public Video(Parcel parcel) {
 
-
-
-
-
-
-
-
-
-
-            //Double.toString(this.latitude);
+            super(parcel);
 
 
 
@@ -114,8 +107,12 @@ public class AlbumTable implements IDataTable {
 
 
 
-            return null;
         }
+        public static final Parcelable.Creator<Video> CREATOR = new Creator<Video>() {
+
+            @Override public Video createFromParcel(Parcel source) { return new Video(source); }
+            @Override public Video[] newArray(int size) { return new Video[size]; }
+        };
 
         //
         public String getTitle(Context context) { // Activity title

@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -22,6 +23,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.studio.artaban.anaglyph3d.album.AlbumActivity;
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
 import com.studio.artaban.anaglyph3d.data.Constants;
@@ -153,7 +155,8 @@ public class ConnectActivity extends AppCompatActivity {
         private static final String JSON_SIZE = "size";
 
         //
-        private boolean mPublishProgess; // Publish progress flag
+        private boolean mPublishProgress; // Publish progress flag
+        private Parcelable[] mDownloadedVideos; // Downloaded videos DB info
 
         private int mTotalSize; // Total files size to download (in byte)
         private short mTotalVideos; // Total videos to download
@@ -203,7 +206,7 @@ public class ConnectActivity extends AppCompatActivity {
             Storage.removeTempFiles(true);
 
             // Download JSON videos attributes under a web service
-            mPublishProgess = false;
+            mPublishProgress = false;
             int resultId = getResultId(Internet.downloadHttpFile(WEBSERVICE_URL,
                     ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD +
                             Storage.FILENAME_DOWNLOAD_JSON, this));
@@ -240,7 +243,9 @@ public class ConnectActivity extends AppCompatActivity {
                 //                 "thumbnailHeight": 480
                 //             }
                 //         },
+                //
                 //         ...
+                //
                 //     ]
                 // }
                 JSONArray videoList = videos.getJSONArray(JSON_VIDEOS);
@@ -251,7 +256,8 @@ public class ConnectActivity extends AppCompatActivity {
                     return R.string.wrong_videos_attr;
 
                 mCurVideo = 1;
-                mPublishProgess = true; // Ready to update progress bar
+                mPublishProgress = true; // Ready to update progress bar
+                mDownloadedVideos = new Parcelable[mTotalVideos];
 
                 for (short i = 0; i < videoList.length(); ++i) {
 
@@ -273,6 +279,23 @@ public class ConnectActivity extends AppCompatActivity {
                                     fileName + Constants.EXTENSION_JPEG, this));
                     if (resultId != Constants.NO_DATA)
                         return resultId; // Error or cancelled
+
+
+
+
+
+
+
+
+                    //mDownloadedVideos[i] =
+
+
+
+
+
+
+
+
 
                     ++mCurVideo;
                 }
@@ -314,8 +337,14 @@ public class ConnectActivity extends AppCompatActivity {
             if (result != Constants.NO_DATA) // Display error message
                 DisplayMessage.getInstance().toast(result, Toast.LENGTH_LONG);
 
-            else // Display videos album immediately
-                ActivityWrapper.startActivity(VideoListActivity.class, null, 0);
+            else {
+
+                // Display videos album to add video entries into DB
+                Intent intent = new Intent(ConnectActivity.this, VideoListActivity.class);
+                intent.putExtra(AlbumActivity.DATA_VIDEOS_DOWNLOADED, mDownloadedVideos);
+
+                startActivityForResult(intent, 0);
+            }
         }
 
         //////
@@ -323,7 +352,7 @@ public class ConnectActivity extends AppCompatActivity {
         @Override
         public void onPublishProgress(int read) {
 
-            if (mPublishProgess)
+            if (mPublishProgress)
                 publishProgress(read);
         }
     }

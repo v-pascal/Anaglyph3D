@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -340,6 +341,28 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             mNewVideoAdded = true;
         }
 
+        // Check if download entries is requested (and not already added)
+        Parcelable[] downloaded = getIntent().getParcelableArrayExtra(AlbumActivity.DATA_VIDEOS_DOWNLOADED);
+        if ((downloaded != null) && (!mDownloadAdded)) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            mDownloadAdded = true;
+        }
+
         mVideosView = (RecyclerView) findViewById(R.id.video_list);
         mTwoPane = findViewById(R.id.video_detail_container) != null;
 
@@ -364,6 +387,8 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             intent.putExtra(AlbumActivity.DATA_VIDEO_EDITING, mEditFlag);
             intent.putExtra(AlbumActivity.DATA_EDITING_TITLE, mEditTitle);
             intent.putExtra(AlbumActivity.DATA_EDITING_DESCRIPTION, mEditDescription);
+
+            intent.putExtra(AlbumActivity.DATA_VIDEOS_DOWNLOADED, mDownloadAdded);
 
             startActivityForResult(intent, 0);
             return;

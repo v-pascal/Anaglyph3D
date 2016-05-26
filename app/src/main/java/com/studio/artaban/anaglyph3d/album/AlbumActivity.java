@@ -60,6 +60,8 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     public static final String DATA_EDITING_TITLE = "title";
     public static final String DATA_EDITING_DESCRIPTION = "description";
 
+    public static final String DATA_VIDEOS_DOWNLOADED = "downloaded";
+
     //////
     public interface OnVideoAlbumListener { //////////////////////// Videos album listener interface
 
@@ -143,6 +145,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     protected boolean isVideoCreation() {
         return (mNewVideoAdded && !mNewVideoSaved);
     }
+    protected boolean mDownloadAdded = false;
 
     protected void restoreVideosAlbum(Bundle state) { // Restore album (manage video selection)
         if (state != null) {
@@ -155,6 +158,8 @@ public abstract class AlbumActivity extends AppCompatActivity implements
             mEditFlag = state.getBoolean(DATA_VIDEO_EDITING);
             mEditTitle = state.getString(DATA_EDITING_TITLE);
             mEditDescription = state.getString(DATA_EDITING_DESCRIPTION);
+
+            mDownloadAdded = state.getBoolean(DATA_VIDEOS_DOWNLOADED);
         }
         else if (getIntent().getExtras() != null) {
 
@@ -173,6 +178,9 @@ public abstract class AlbumActivity extends AppCompatActivity implements
                 mEditTitle = getIntent().getStringExtra(DATA_EDITING_TITLE);
             if (getIntent().getExtras().containsKey(DATA_EDITING_DESCRIPTION))
                 mEditDescription = getIntent().getStringExtra(DATA_EDITING_DESCRIPTION);
+
+            if (getIntent().getExtras().containsKey(DATA_VIDEOS_DOWNLOADED))
+                mDownloadAdded = getIntent().getBooleanExtra(DATA_VIDEOS_DOWNLOADED, false);
 
             // Needed with detail activity child
         }
