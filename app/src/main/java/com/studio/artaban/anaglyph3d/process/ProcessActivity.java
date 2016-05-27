@@ -1,6 +1,5 @@
 package com.studio.artaban.anaglyph3d.process;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
@@ -118,14 +117,13 @@ public class ProcessActivity extends AppCompatActivity {
     }
     public void onInitialize() { // Initialize GStreamer library on UI thread
 
-        final Context context = this;
         Runnable initRunnable = new Runnable() {
             @Override
             public void run() {
 
                 // Initialize GStreamer library
                 if (ProcessThread.mGStreamer == null)
-                    ProcessThread.mGStreamer = new GstObject(context);
+                    ProcessThread.mGStreamer = new GstObject(ProcessActivity.this);
 
                 // Notify initialization finished
                 synchronized (this) { notify(); }
