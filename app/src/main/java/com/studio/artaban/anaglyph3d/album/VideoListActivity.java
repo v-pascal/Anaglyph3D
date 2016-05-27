@@ -85,7 +85,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         //////
         mNewVideoSaved = true;
 
-        fillVideoList(mVideoSelected);
+        fillVideoList();
     }
     @Override public void onStore(String title, String description) { super.onStore(title, description);}
     @Override public boolean isVideoCreation() { return super.isVideoCreation(); }
@@ -118,7 +118,8 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         if (isVideoCreation())
             mNewVideoSaved = true;
 
-        if ((fillVideoList(0)) && (mTwoPane)) {
+        mVideoSelected = 0;
+        if ((fillVideoList()) && (mTwoPane)) {
 
             mLastVideoSelected = 0;
             mDetailTag = DetailPlayerFragment.TAG;
@@ -273,11 +274,9 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         if (mTwoPane) // Update detail UI according new selection (if needed)
             updateDetailUI();
     }
-    private boolean fillVideoList(int selectPosition) { // Fill video list recycler view
+    private boolean fillVideoList() { // Fill video list recycler view
 
         mVideos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
-
-        mVideoSelected = selectPosition;
         if (isVideoCreation())
             mVideoSelected = mVideos.size() - 1; // Select last video
 
@@ -380,7 +379,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         if ((!mTwoPane) && ((isVideoCreation()) || // ...a creation request...
                 (mVideoSelected != Constants.NO_DATA))) { // ...or a video that is already selected
 
-            fillVideoList(mVideoSelected);
+            fillVideoList();
             mLastVideoSelected = mVideoSelected;
 
             // Display video details activity
@@ -400,7 +399,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             return;
         }
 
-        if (!fillVideoList(0))
+        if (!fillVideoList())
             return; // No video to display
 
         // Check list & details displayed

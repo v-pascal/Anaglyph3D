@@ -230,11 +230,11 @@ public class ConnectActivity extends AppCompatActivity {
                 //             "video": {
                 //                 "url": "http://studio-artaban.com/Anaglyph3D/YYYY-MM-DD%20HH:MM:SS.000.webm",
                 //                 "size": 2000000
-                //             }
+                //             },
                 //             "thumbnail": {
                 //                 "url": "http://studio-artaban.com/Anaglyph3D/YYYY-MM-DD0%20HH:MM:SS.000.jpg",
                 //                 "size": 20000
-                //             }
+                //             },
                 //             "Album": {
                 //                 "title": "Titre",
                 //                 "description": "Description",
@@ -302,17 +302,17 @@ public class ConnectActivity extends AppCompatActivity {
             }
             catch (JSONException e) {
 
-                Logs.add(Logs.Type.F, e.getMessage());
+                Logs.add(Logs.Type.F, "JSON Exception: " + e.getMessage());
                 return R.string.wrong_videos_attr;
             }
             catch (IOException e) {
 
-                Logs.add(Logs.Type.F, e.getMessage());
+                Logs.add(Logs.Type.F, "IO Exception: " + e.getMessage());
                 return R.string.wrong_videos_attr;
             }
             catch (ParseException e) {
 
-                Logs.add(Logs.Type.F, e.getMessage());
+                Logs.add(Logs.Type.F, "Parse exception: " + e.getMessage());
                 return R.string.wrong_videos_attr;
             }
             return Constants.NO_DATA; // Ok
@@ -339,12 +339,16 @@ public class ConnectActivity extends AppCompatActivity {
             mDownloading = false;
             displayDownload(false);
 
-            if (result != Constants.NO_DATA) // Display error message
-                DisplayMessage.getInstance().toast(result, Toast.LENGTH_LONG);
+            if (result != Constants.NO_DATA) { // Display error message
 
+                DisplayMessage.getInstance().toast(result, Toast.LENGTH_LONG);
+                Connectivity.getInstance().start(ConnectActivity.this);
+            }
             else {
 
                 mDownloaded = true;
+                assert mMenuOptions.getItem(1).getItemId() == R.id.menu_download;
+                mMenuOptions.getItem(1).setEnabled(false);
 
                 // Display videos album to add video entries into DB
                 Intent intent = new Intent(ConnectActivity.this, VideoListActivity.class);
