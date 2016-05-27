@@ -89,7 +89,7 @@ public final class Storage {
     public static void removeTempFiles(boolean downloads) {
         // Remove all temporary files from downloads or documents folder
 
-        File storage = new File(ActivityWrapper.DOCUMENTS_FOLDER + ((downloads)? FOLDER_DOWNLOAD:null));
+        File storage = new File(ActivityWrapper.DOCUMENTS_FOLDER + ((downloads)? FOLDER_DOWNLOAD:""));
         for (File file : storage.listFiles()) {
             if (file.isFile())
                 file.delete();

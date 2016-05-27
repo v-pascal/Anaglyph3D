@@ -308,6 +308,8 @@ public abstract class AlbumActivity extends AppCompatActivity implements
         outState.putString(DATA_EDITING_TITLE, mEditTitle);
         outState.putString(DATA_EDITING_DESCRIPTION, mEditDescription);
 
+        outState.putBoolean(DATA_VIDEOS_DOWNLOADED, mDownloadAdded);
+
         super.onSaveInstanceState(outState);
     }
 

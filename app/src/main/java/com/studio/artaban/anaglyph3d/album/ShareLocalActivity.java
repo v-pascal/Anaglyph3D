@@ -63,7 +63,7 @@ public class ShareLocalActivity extends Activity {
         if (getIntent().hasExtra(EXTRA_SUBFOLDER)) {
 
             folderPath += (getIntent().getStringExtra(EXTRA_SUBFOLDER) != null)?
-                    File.separator + getIntent().getStringExtra(EXTRA_SUBFOLDER):null;
+                    File.separator + getIntent().getStringExtra(EXTRA_SUBFOLDER):"";
 
             File directory = new File(folderPath);
             if (!directory.exists())
@@ -89,7 +89,7 @@ public class ShareLocalActivity extends Activity {
             int success = (folder == FolderId.MOVIES)? R.string.movie_copied:R.string.picture_copied;
             String message = getString(success,
                     (getIntent().hasExtra(EXTRA_SUBFOLDER))? File.separator +
-                            getIntent().getStringExtra(EXTRA_SUBFOLDER):null);
+                            getIntent().getStringExtra(EXTRA_SUBFOLDER):"");
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         }
         catch (IOException e) {
@@ -100,7 +100,7 @@ public class ShareLocalActivity extends Activity {
             int error = (folder == FolderId.MOVIES)? R.string.movie_not_copied:R.string.picture_not_copied;
             String message = getString(error,
                     (getIntent().hasExtra(EXTRA_SUBFOLDER))? File.separator +
-                            getIntent().getStringExtra(EXTRA_SUBFOLDER):null);
+                            getIntent().getStringExtra(EXTRA_SUBFOLDER):"");
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         }
         finish();
