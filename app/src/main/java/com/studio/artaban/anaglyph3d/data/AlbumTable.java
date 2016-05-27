@@ -254,17 +254,15 @@ public class AlbumTable implements IDataTable {
         Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, COLUMN_DATE);
         List<Video> videos = new ArrayList<>();
         try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT.substring(0,
-                    Constants.DATABASE_DATE_FORMAT.length() - 4));
+            SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
 
             while (cursor.moveToNext()) {
-                String dateField = cursor.getString(COLUMN_INDEX_DATE);
                 videos.add(new Video(
                         cursor.getLong(DataField.COLUMN_INDEX_ID), // _id
 
                         cursor.getString(COLUMN_INDEX_TITLE), // Title
                         cursor.getString(COLUMN_INDEX_DESCRIPTION), // Description
-                        dateFormat.parse(dateField.substring(0, dateField.length() - 4)), // Date
+                        dateFormat.parse(cursor.getString(COLUMN_INDEX_DATE)), // Date
                         cursor.getShort(COLUMN_INDEX_DURATION), // Duration
                         cursor.getInt(COLUMN_INDEX_LOCATION) == 1, // Location
                         cursor.getDouble(COLUMN_INDEX_LATITUDE), // Latitude
