@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,23 +84,8 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         //////
         mNewVideoSaved = true;
 
-
-
-
-
-        //mVideoSelected = videoPosition;
         fillVideoList();
-
-
-
-        //selectVideo(false);
-
-
-
-
-
-
-
+        selectVideo(false);
     }
     @Override public void onStore(String title, String description) { super.onStore(title, description);}
     @Override public boolean isVideoCreation() { return super.isVideoCreation(); }
@@ -285,8 +269,6 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
 
         mVideos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
 
-        if (mVideoSelected == Constants.NO_DATA)
-            mVideoSelected = 0;
         if (isVideoCreation())
             mVideoSelected = mVideos.size() - 1; // Select last video
 
@@ -407,6 +389,8 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             return;
         }
 
+        if (mVideoSelected == Constants.NO_DATA)
+            mVideoSelected = 0;
         if (!fillVideoList())
             return; // No video to display
 
