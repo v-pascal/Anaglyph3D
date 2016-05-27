@@ -323,7 +323,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         mDB = new Database(this);
         mDB.open(true);
 
-        // Check if new entry is requested (and not already added)
+        //////////////////////////////////// Check if new entry is requested (and not already added)
         if ((getIntent().getBooleanExtra(Constants.DATA_ADD_VIDEO, false)) && (!mNewVideoAdded)) {
 
             // Rename and move thumbnail & video files into expected storage folders
@@ -341,10 +341,12 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             mNewVideoAdded = true;
         }
 
-        // Check if download entries is requested (and not already added)
+        ///////////////////////////// Check if download entries is requested (and not already added)
         Parcelable[] downloaded = getIntent().getParcelableArrayExtra(AlbumActivity.DATA_VIDEOS_DOWNLOADED);
         if ((downloaded != null) && (!mDownloadAdded)) {
 
+            // Loop in order to add downloaded videos into DB
+            for (Parcelable video: downloaded) {
 
 
 
@@ -353,13 +355,9 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
 
 
 
-
-
-
-
-
-
-
+                if (mVideoSelected == 0)
+                    mVideoSelected = 1;
+            }
             mDownloadAdded = true;
         }
 

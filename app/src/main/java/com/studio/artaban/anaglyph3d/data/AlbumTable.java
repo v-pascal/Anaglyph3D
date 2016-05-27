@@ -97,22 +97,44 @@ public class AlbumTable implements IDataTable {
 
             super(parcel);
 
-
-
-
-
-
-
-
-
-
-
+            this.title = parcel.readString();
+            this.description = parcel.readString();
+            SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
+            try { this.date = dateFormat.parse(parcel.readString()); }
+            catch (ParseException e) {
+                Logs.add(Logs.Type.F, "Wrong date format");
+                this.date = new Date();
+            }
+            this.duration = (short)parcel.readInt();
+            boolean[] locationField = new boolean[1];
+            parcel.readBooleanArray(locationField);
+            this.location = locationField[0];
+            this.latitude = parcel.readDouble();
+            this.longitude = parcel.readDouble();
+            this.thumbnailWidth = parcel.readInt();
+            this.thumbnailHeight = parcel.readInt();
         }
         public static final Parcelable.Creator<Video> CREATOR = new Creator<Video>() {
 
             @Override public Video createFromParcel(Parcel source) { return new Video(source); }
             @Override public Video[] newArray(int size) { return new Video[size]; }
         };
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+
+            super.writeToParcel(dest, flags);
+
+            dest.writeString(this.title);
+            dest.writeString(this.description);
+            SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
+            dest.writeString(dateFormat.format(this.date));
+            dest.writeInt(this.duration);
+            dest.writeBooleanArray(new boolean[]{this.location});
+            dest.writeDouble(this.latitude);
+            dest.writeDouble(this.longitude);
+            dest.writeInt(this.thumbnailWidth);
+            dest.writeInt(this.thumbnailHeight);
+        }
 
         //
         public String getTitle(Context context) { // Activity title
@@ -260,15 +282,15 @@ public class AlbumTable implements IDataTable {
     public static final String TABLE_NAME = "Album";
 
     // Columns
-    private static final String COLUMN_TITLE = "title";
-    private static final String COLUMN_DESCRIPTION = "description";
+    public static final String COLUMN_TITLE = "title";
+    public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_DATE = "date";
-    private static final String COLUMN_DURATION = "duration";
-    private static final String COLUMN_LOCATION = "location";
-    private static final String COLUMN_LATITUDE = "latitude";
-    private static final String COLUMN_LONGITUDE = "longitude";
-    private static final String COLUMN_THUMBNAIL_WIDTH = "thumbnailWidth";
-    private static final String COLUMN_THUMBNAIL_HEIGHT = "thumbnailHeight";
+    public static final String COLUMN_DURATION = "duration";
+    public static final String COLUMN_LOCATION = "location";
+    public static final String COLUMN_LATITUDE = "latitude";
+    public static final String COLUMN_LONGITUDE = "longitude";
+    public static final String COLUMN_THUMBNAIL_WIDTH = "thumbnailWidth";
+    public static final String COLUMN_THUMBNAIL_HEIGHT = "thumbnailHeight";
 
     // Columns index
     private static final short COLUMN_INDEX_TITLE = 1; // DataField.COLUMN_INDEX_ID + 1

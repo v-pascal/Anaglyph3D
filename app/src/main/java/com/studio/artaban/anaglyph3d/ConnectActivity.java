@@ -40,6 +40,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 /**
  * Created by pascal on 19/03/16.
@@ -202,7 +204,7 @@ public class ConnectActivity extends AppCompatActivity {
             if (!Internet.isOnline())
                 return R.string.no_internet;
 
-            // Empty downloads folder (delete & create)
+            // Empty downloads folder
             Storage.removeTempFiles(true);
 
             // Download JSON videos attributes under a web service
@@ -280,22 +282,18 @@ public class ConnectActivity extends AppCompatActivity {
                     if (resultId != Constants.NO_DATA)
                         return resultId; // Error or cancelled
 
-
-
-
-
-
-
-
-                    //mDownloadedVideos[i] =
-
-
-
-
-
-
-
-
+                    // Fill videos DB info array
+                    SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
+                    mDownloadedVideos[i] = new AlbumTable.Video(0,
+                            album.getString(AlbumTable.COLUMN_TITLE), // Title
+                            album.getString(AlbumTable.COLUMN_DESCRIPTION), // Description
+                            dateFormat.parse(fileName), // Date
+                            (short)album.getInt(AlbumTable.COLUMN_DURATION), // Duration
+                            album.getBoolean(AlbumTable.COLUMN_LOCATION), // Location flag
+                            album.getDouble(AlbumTable.COLUMN_LATITUDE), // Latitude
+                            album.getDouble(AlbumTable.COLUMN_LONGITUDE), // Longitude
+                            album.getInt(AlbumTable.COLUMN_THUMBNAIL_WIDTH), // Thumbnail width
+                            album.getInt(AlbumTable.COLUMN_THUMBNAIL_HEIGHT)); // Thumbnail height
 
                     ++mCurVideo;
                 }
@@ -306,6 +304,11 @@ public class ConnectActivity extends AppCompatActivity {
                 return R.string.wrong_videos_attr;
             }
             catch (IOException e) {
+
+                Logs.add(Logs.Type.F, e.getMessage());
+                return R.string.wrong_videos_attr;
+            }
+            catch (ParseException e) {
 
                 Logs.add(Logs.Type.F, e.getMessage());
                 return R.string.wrong_videos_attr;
@@ -372,10 +375,25 @@ public class ConnectActivity extends AppCompatActivity {
 
         // Get documents folder of the application
         File documents = getExternalFilesDir(null);
-        if (documents != null)
+        if (documents != null) {
+
             ActivityWrapper.DOCUMENTS_FOLDER = documents.getAbsolutePath();
-        else
+
+
+
+
+
+
+
+
+        }
+        else {
+
             Logs.add(Logs.Type.F, "Failed to get documents folder");
+            DisplayMessage.getInstance().toast(R.string.no_storage, Toast.LENGTH_LONG);
+            finish();
+            return;
+        }
 
         // Get action bar height
         TypedValue typedValue = new TypedValue();

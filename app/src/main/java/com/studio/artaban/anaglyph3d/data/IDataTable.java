@@ -34,30 +34,20 @@ public interface IDataTable {
         //////
         public DataField(Parcel parcel) {
 
-
-
-
-
-
-
-
+            mUpdated = new boolean[parcel.readInt()];
+            this.id = parcel.readLong();
         }
         public static final Parcelable.Creator<DataField> CREATOR = new Creator<DataField>() {
 
             @Override public DataField createFromParcel(Parcel source) { return new DataField(source); }
             @Override public DataField[] newArray(int size) { return new DataField[size]; }
         };
-
         @Override public int describeContents() { return 0; }
-        @Override public void writeToParcel(Parcel dest, int flags) {
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
 
-
-
-
-
-
-
-
+            dest.writeInt(mUpdated.length);
+            dest.writeLong(this.id);
         }
     }
 

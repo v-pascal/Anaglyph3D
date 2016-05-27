@@ -158,6 +158,7 @@
     <string name="download_cancelled">WARNING: Videos download has been cancelled!</string>
     <string name="wrong_videos_attr">ERROR: Failed to download videos! Wrong STUDIO-Artaban webservice reply.</string>
     <string name="no_internet">ERROR: No Internet connection!</string>
+    <string name="no_storage">ERROR: Failed to access storage! Application terminated.</string>
 
     <!-- Share to local folder activity -->
     <string name="my_files">My files</string>

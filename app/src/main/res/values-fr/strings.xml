@@ -72,6 +72,7 @@
     <string name="download_cancelled">ATTENTION: Le téléchargement des vidéos a été annulé!</string>
     <string name="wrong_videos_attr">ERREUR: Echec durant le téléchargement! Réponse du webservice de STUDIO-Artaban incorrecte.</string>
     <string name="no_internet">ERREUR: Pas de connexion Internet!</string>
+    <string name="no_storage">ERREUR: Impossible d\'accéder à l\'espace de stockage! Arrêt de l\'application.</string>
 
     <!-- Share to local folder activity -->
     <string name="my_files">Mes fichiers</string>
