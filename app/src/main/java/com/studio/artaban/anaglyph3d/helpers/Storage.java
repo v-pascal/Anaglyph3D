@@ -74,6 +74,16 @@ public final class Storage {
                 file.delete();
         }
     }
+    public static boolean createFolder(String folder) {
+
+        File directory = new File(folder);
+        if ((!directory.exists()) && (!directory.mkdir())) {
+
+            Logs.add(Logs.Type.E, "Failed to create folder: " + folder);
+            return false;
+        }
+        return true;
+    }
 
     //////
     public static void removeTempFiles(boolean downloads) {
@@ -109,33 +119,28 @@ public final class Storage {
         return need; // Bad: not enough memory space to process (return memory space need)
     }
 
-    public static boolean saveThumbnail(String file) {
+    public static boolean saveThumbnail(String src, String dst) {
         // Rename and move thumbnail file into appropriate folder
 
-        File thumbnailFolder = new File(ActivityWrapper.DOCUMENTS_FOLDER + FOLDER_THUMBNAILS);
-        if ((!thumbnailFolder.exists()) && (!thumbnailFolder.mkdir())) {
-
-            Logs.add(Logs.Type.E, "Failed to create thumbnails folder");
+        if (!createFolder(ActivityWrapper.DOCUMENTS_FOLDER + FOLDER_THUMBNAILS))
             return false;
-        }
-        File thumbnailFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + FILENAME_THUMBNAIL_PICTURE);
-        if (!thumbnailFile.renameTo(new File(file))) {
+
+        File thumbnailFile = new File(src);
+        if (!thumbnailFile.renameTo(new File(dst))) {
 
             Logs.add(Logs.Type.E, "Failed to rename thumbnail file");
             return false;
         }
         return true;
     }
-    public static boolean saveVideo(String file) { // Rename and move video file into appropriate folder
+    public static boolean saveVideo(String src, String dst) {
+        // Rename and move video file into appropriate folder
 
-        File videoFolder = new File(ActivityWrapper.DOCUMENTS_FOLDER + FOLDER_VIDEOS);
-        if ((!videoFolder.exists()) && (!videoFolder.mkdir())) {
-
-            Logs.add(Logs.Type.E, "Failed to create videos folder");
+        if (!createFolder(ActivityWrapper.DOCUMENTS_FOLDER + FOLDER_VIDEOS))
             return false;
-        }
-        File videoFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + FILENAME_3D_VIDEO);
-        if (!videoFile.renameTo(new File(file))) {
+
+        File videoFile = new File(src);
+        if (!videoFile.renameTo(new File(dst))) {
 
             Logs.add(Logs.Type.E, "Failed to rename video file");
             return false;

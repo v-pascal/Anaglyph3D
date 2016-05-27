@@ -328,8 +328,10 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
 
             // Rename and move thumbnail & video files into expected storage folders
             Date date = new Date();
-            Storage.saveThumbnail(AlbumTable.Video.getThumbnailFile(date));
-            Storage.saveVideo(AlbumTable.Video.getVideoFile(date));
+            Storage.saveThumbnail(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_THUMBNAIL_PICTURE,
+                    AlbumTable.Video.getThumbnailFile(date));
+            Storage.saveVideo(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_3D_VIDEO,
+                    AlbumTable.Video.getVideoFile(date));
 
             ////// Add new video into the album
             Bundle data = getIntent().getBundleExtra(Constants.DATA_ACTIVITY); // To get thumbnail resolution
@@ -342,21 +344,27 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         }
 
         ///////////////////////////// Check if download entries is requested (and not already added)
-        Parcelable[] downloaded = getIntent().getParcelableArrayExtra(AlbumActivity.DATA_VIDEOS_DOWNLOADED);
-        if ((downloaded != null) && (!mDownloadAdded)) {
+        Parcelable[] downloadList = getIntent().getParcelableArrayExtra(AlbumActivity.DATA_VIDEOS_DOWNLOADED);
+        if ((downloadList != null) && (downloadList.length > 0) && (!mDownloadAdded)) {
+
+            mVideoSelected = Constants.NO_DATA;
 
             // Loop in order to add downloaded videos into DB
-            for (Parcelable video: downloaded) {
+            for (Parcelable download: downloadList) {
 
+                AlbumTable.Video video = (AlbumTable.Video)download;
+                String fileName = video.getDateString();
 
+                // Move thumbnail & video files into expected storage folders
+                Storage.saveThumbnail(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD +
+                        fileName + Constants.EXTENSION_JPEG, AlbumTable.Video.getThumbnailFile(video.getDate()));
+                Storage.saveVideo(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD +
+                        fileName + Constants.EXTENSION_WEBM, AlbumTable.Video.getVideoFile(video.getDate()));
 
+                mDB.insert(AlbumTable.TABLE_NAME, new AlbumTable.Video[]{ video });
 
-
-
-
-
-                if (mVideoSelected == 0)
-                    mVideoSelected = 1;
+                if (mVideoSelected == Constants.NO_DATA)
+                    mVideoSelected = mDB.getEntryCount(AlbumTable.TABLE_NAME) - 1;
             }
             mDownloadAdded = true;
         }

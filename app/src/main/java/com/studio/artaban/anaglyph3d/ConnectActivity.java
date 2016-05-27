@@ -2,6 +2,7 @@ package com.studio.artaban.anaglyph3d;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
@@ -49,6 +50,10 @@ import java.text.SimpleDateFormat;
  */
 public class ConnectActivity extends AppCompatActivity {
 
+    private static final String PREFERENCE_NAME = "AnaglyphPreferences";
+    private static final String PREFERENCE_DATA_DOWNLOADED = "downloadedData";
+
+    //////
     private ProgressBar mProgressBar; // Download or connection progress bar
     private ImageView mLeftDevice; // Left device image
     private ImageView mRightDevice; // Right device image
@@ -90,6 +95,7 @@ public class ConnectActivity extends AppCompatActivity {
     ////// Download videos
     private boolean mBluetoothAvailable; // Bluetooth available flag
     private boolean mDownloading; // Downloading videos flag
+    private boolean mDownloaded; // Downloaded videos flag (persistent data)
 
     private void displayDownload(boolean enable) { // Enable/Disable download videos UI components
         if (enable) { // Enable download components
@@ -342,6 +348,8 @@ public class ConnectActivity extends AppCompatActivity {
 
             else {
 
+                mDownloaded = true;
+
                 // Display videos album to add video entries into DB
                 Intent intent = new Intent(ConnectActivity.this, VideoListActivity.class);
                 intent.putExtra(AlbumActivity.DATA_VIDEOS_DOWNLOADED, mDownloadedVideos);
@@ -378,14 +386,7 @@ public class ConnectActivity extends AppCompatActivity {
         if (documents != null) {
 
             ActivityWrapper.DOCUMENTS_FOLDER = documents.getAbsolutePath();
-
-
-
-
-
-
-
-
+            Storage.createFolder(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD);
         }
         else {
 
@@ -394,6 +395,10 @@ public class ConnectActivity extends AppCompatActivity {
             finish();
             return;
         }
+
+        // Restore persistent data (downloaded videos flag)
+        SharedPreferences settings = getSharedPreferences(PREFERENCE_NAME, 0);
+        mDownloaded = settings.getBoolean(PREFERENCE_DATA_DOWNLOADED, false);
 
         // Get action bar height
         TypedValue typedValue = new TypedValue();
@@ -479,6 +484,12 @@ public class ConnectActivity extends AppCompatActivity {
 
         getMenuInflater().inflate(R.menu.activity_connect, menu);
         mMenuOptions = menu;
+
+        if (mDownloaded) { // Check if videos have been already downloaded
+
+            assert mMenuOptions.getItem(1).getItemId() == R.id.menu_download;
+            mMenuOptions.getItem(1).setEnabled(false);
+        }
         return true;
     }
 
@@ -538,6 +549,19 @@ public class ConnectActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         Connectivity.getInstance().pause(this);
+    }
+
+    @Override
+    protected void onStop(){
+        super.onStop();
+
+        SharedPreferences prefs = getSharedPreferences(PREFERENCE_NAME, 0);
+        if (prefs != null) {
+
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean(PREFERENCE_DATA_DOWNLOADED, mDownloaded);
+            editor.apply();
+        }
     }
 
     @Override

@@ -126,8 +126,7 @@ public class AlbumTable implements IDataTable {
 
             dest.writeString(this.title);
             dest.writeString(this.description);
-            SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
-            dest.writeString(dateFormat.format(this.date));
+            dest.writeString(getDateString());
             dest.writeInt(this.duration);
             dest.writeBooleanArray(new boolean[]{this.location});
             dest.writeDouble(this.latitude);
@@ -149,6 +148,12 @@ public class AlbumTable implements IDataTable {
 
             String title = (this.title != null)? this.title:context.getString(R.string.undefined);
             return title + ((duration)? " (" + this.duration + " sec)":"");
+        }
+        public Date getDate() { return this.date; }
+        public String getDateString() {
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
+            return dateFormat.format(this.date);
         }
         public String getDate(Context context) { // Video list date: MM/DD/yyyy - hh:mm
 
