@@ -85,7 +85,23 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         //////
         mNewVideoSaved = true;
 
+
+
+
+
+        //mVideoSelected = videoPosition;
         fillVideoList();
+
+
+
+        //selectVideo(false);
+
+
+
+
+
+
+
     }
     @Override public void onStore(String title, String description) { super.onStore(title, description);}
     @Override public boolean isVideoCreation() { return super.isVideoCreation(); }
@@ -136,15 +152,6 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
     //////
     public class AlbumRecyclerViewAdapter extends RecyclerView.Adapter<AlbumRecyclerViewAdapter.ViewHolder> {
 
-        private final AppCompatActivity mActivity;
-        private final List<AlbumTable.Video> mValues;
-
-        public AlbumRecyclerViewAdapter(AppCompatActivity activity, List<AlbumTable.Video> videos) {
-            mActivity = activity;
-            mValues = videos;
-        }
-
-        //////
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.video_list_content,
@@ -169,11 +176,11 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
                 holder.mDateView.setBackgroundColor(getResources().getColor(R.color.darker_gray));
             }
             AlbumTable.Video video = mVideos.get(position);
-            holder.mTitleView.setText(video.getTitle(mActivity, true, false));
-            holder.mDateView.setText(video.getDate(mActivity));
+            holder.mTitleView.setText(video.getTitle(VideoListActivity.this, true, false));
+            holder.mDateView.setText(video.getDate(VideoListActivity.this));
 
             // Load thumbnail image
-            Glide.with(mActivity)
+            Glide.with(VideoListActivity.this)
                     .load(new File(mVideos.get(position).getThumbnailFile()))
                     .placeholder(R.drawable.no_thumbnail)
                     .into(holder.mThumbnailView);
@@ -201,10 +208,10 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
                     else {
 
                         // Display video details activity
-                        Intent intent = new Intent(mActivity, VideoDetailActivity.class);
+                        Intent intent = new Intent(VideoListActivity.this, VideoDetailActivity.class);
                         intent.putExtra(AlbumActivity.DATA_VIDEO_POSITION, mVideoSelected);
 
-                        mActivity.startActivityForResult(intent, 0);
+                        VideoListActivity.this.startActivityForResult(intent, 0);
                     }
                 }
             });
@@ -219,7 +226,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             //     yet (when calling 'selectVideo' method before the video item exists)
         }
 
-        @Override public int getItemCount() { return mValues.size(); }
+        @Override public int getItemCount() { return mVideos.size(); }
 
         //
         public class ViewHolder extends RecyclerView.ViewHolder {
@@ -277,6 +284,9 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
     private boolean fillVideoList() { // Fill video list recycler view
 
         mVideos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
+
+        if (mVideoSelected == Constants.NO_DATA)
+            mVideoSelected = 0;
         if (isVideoCreation())
             mVideoSelected = mVideos.size() - 1; // Select last video
 
@@ -287,7 +297,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             finish();
             return false; // No video to display
         }
-        mVideosView.setAdapter(new AlbumRecyclerViewAdapter(this, mVideos));
+        mVideosView.setAdapter(new AlbumRecyclerViewAdapter());
         return true;
     }
 
@@ -345,8 +355,6 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         ///////////////////////////// Check if download entries is requested (and not already added)
         Parcelable[] downloadList = getIntent().getParcelableArrayExtra(AlbumActivity.DATA_VIDEOS_DOWNLOADED);
         if ((downloadList != null) && (downloadList.length > 0) && (!mDownloadAdded)) {
-
-            mVideoSelected = Constants.NO_DATA;
 
             // Loop in order to add downloaded videos into DB
             for (Parcelable download: downloadList) {
