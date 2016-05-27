@@ -206,10 +206,6 @@ public class ConnectActivity extends AppCompatActivity {
         @Override
         protected Integer doInBackground(Void... params) {
 
-            // Check Internet connection
-            if (!Internet.isOnline())
-                return R.string.no_internet;
-
             // Empty downloads folder
             Storage.removeTempFiles(true);
 
@@ -508,6 +504,13 @@ public class ConnectActivity extends AppCompatActivity {
                 return true;
             }
             case R.id.menu_download: {
+
+                // Check Internet connection
+                if (!Internet.isOnline(1500)) {
+
+                    DisplayMessage.getInstance().toast(R.string.no_internet, Toast.LENGTH_LONG);
+                    return true;
+                }
 
                 // Stop connectivity (do not attempt to connect when video album is displayed)
                 Connectivity.getInstance().stop();

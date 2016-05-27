@@ -20,21 +20,45 @@ public final class Internet {
     private static final int DEFAULT_ONLINE_TIMEOUT = 3000; // Default Internet connection check timeout (in millisecond)
     private static final String DEFAULT_ONLINE_URL = "http://www.google.com"; // Default Internet connection check URL
 
-    public static boolean isOnline() { return isOnline(DEFAULT_ONLINE_TIMEOUT); }
-    public static boolean isOnline(int timeOut) { // Check Internet connection (check INTERNET permission first)
-        try {
+    private static boolean mConnected; // Connected flag (see 'isOnline' method below)
 
-            URL url = new URL(DEFAULT_ONLINE_URL); // URL to check
-            HttpURLConnection connURL = (HttpURLConnection)url.openConnection();
-            connURL.setConnectTimeout(timeOut);
-            connURL.connect();
-            if (connURL.getResponseCode() == 200)
-                return true;
+    public static boolean isOnline() { return isOnline(DEFAULT_ONLINE_TIMEOUT); }
+    public static boolean isOnline(final int timeOut) {
+        // Check Internet connection even from UI thread (check INTERNET permission first)
+
+        Runnable checkInternet = new Runnable() {
+            @Override
+            public void run() {
+
+                mConnected = false;
+                try {
+
+                    URL url = new URL(DEFAULT_ONLINE_URL); // URL to check
+                    HttpURLConnection connURL = (HttpURLConnection)url.openConnection();
+                    connURL.setConnectTimeout(timeOut);
+                    connURL.connect();
+                    if (connURL.getResponseCode() == 200)
+                        mConnected = true;
+                }
+                catch (MalformedURLException e) { Logs.add(Logs.Type.F, e.getMessage()); }
+                catch (SocketTimeoutException e) { Logs.add(Logs.Type.F, e.getMessage()); }
+                catch (IOException e) { Logs.add(Logs.Type.F, e.getMessage()); }
+                finally {
+                    synchronized (this) { notify(); }
+                }
+            }
+        };
+        synchronized (checkInternet) {
+
+            new Thread(checkInternet).start();
+
+            // Wait Internet connection check
+            try { checkInternet.wait(); }
+            catch (InterruptedException e) {
+                Logs.add(Logs.Type.E, e.getMessage());
+            }
         }
-        catch (MalformedURLException e) { Logs.add(Logs.Type.F, e.getMessage()); }
-        catch (SocketTimeoutException e) { Logs.add(Logs.Type.F, e.getMessage()); }
-        catch (IOException e) { Logs.add(Logs.Type.F, e.getMessage()); }
-        return false;
+        return mConnected;
     }
 
     //////
