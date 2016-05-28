@@ -46,6 +46,8 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
     private Database mDB; // Activity database (video add, delete or update is done in this activity)
     private boolean mTwoPane; // Flag to know if displaying both list & details panels
 
+    private boolean mLockMessage; // Flag to know if needed to display video saved message (see 'onSave' method)
+
     //
     @Override
     public void onSave(int videoPosition) { // Save video details (DB)
@@ -78,7 +80,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         }
         mDB.update(AlbumTable.TABLE_NAME, video);
 
-        if ((!messageDisplayed) && (mTwoPane))
+        if ((!messageDisplayed) && (!mLockMessage))
             DisplayMessage.getInstance().toast(R.string.info_saved, Toast.LENGTH_SHORT);
 
         //////
@@ -109,7 +111,6 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         // Remove video from DB
         Logs.add(Logs.Type.W, "Deleting video: " + video.toString());
         mDB.delete(AlbumTable.TABLE_NAME, new long[]{video.getId()});
-
 
         //////
         mEditing = false;
@@ -407,8 +408,9 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             return;
         }
         switch (resultCode) {
-            case Constants.RESULT_SAVE_VIDEO: { // Save from detail activity
-
+            case Constants.RESULT_SAVE_VIDEO: { // Save from detail activity (or portrait to landscape
+                                                // with two panels)
+                mLockMessage = true;
                 if (mTwoPane) {
 
                     mVideos.get(mVideoSelected).setTitle(data.getExtras()
@@ -426,6 +428,8 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
                 }
                 else
                     onSave(mVideoSelected);
+
+                mLockMessage = false;
                 break;
             }
             case Constants.RESULT_DELETE_VIDEO: { // Delete from detail activity
