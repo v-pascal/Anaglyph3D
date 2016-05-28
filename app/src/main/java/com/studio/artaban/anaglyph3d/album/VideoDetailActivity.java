@@ -21,6 +21,15 @@ import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
  */
 public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.OnVideoAlbumListener {
 
+    private static final String DATA_VIDEO_SAVED = "saved";
+
+    public static final String DATA_TITLE_SAVED = "titleSaved";
+    public static final String DATA_DESCRIPTION_SAVED = "descriptionSaved";
+    public static final String DATA_LOCATION_SAVED = "locationSaved";
+    public static final String DATA_LATITUDE_SAVED = "latitudeSaved";
+    public static final String DATA_LONGITUDE_SAVED = "longitudeSaved";
+
+    //
     private boolean mDetailSaved = false; // Flag to know if video details have changed
     private boolean mNewVideoLocated = false; // Flag to know if new video has been located
 
@@ -42,14 +51,13 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
                 updateDetailUI(); // Enable location detail
             }
         }
+        mEditing = false;
         mDetailSaved = true;
         DisplayMessage.getInstance().toast(R.string.info_saved, Toast.LENGTH_SHORT);
     }
     @Override public void onStore(String title, String description) { super.onStore(title, description);}
     @Override public boolean isVideoCreation() { return super.isVideoCreation(); }
     @Override public boolean isVideoSaved() { return mDetailSaved; }
-    @Override public void setEditFlag(boolean flag) { mEditFlag = flag; }
-    @Override public boolean getEditFlag() { return mEditFlag; }
 
     //
     @Override
@@ -93,6 +101,8 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
 
         // Restore videos album (manage video selection & info)
         restoreVideosAlbum(savedInstanceState);
+        if (savedInstanceState != null)
+            mDetailSaved = savedInstanceState.getBoolean(DATA_VIDEO_SAVED, false);
 
         // Check if orientation has changed with a large screen (check two panels expected)
         final Point screenSize = new Point();
@@ -102,10 +112,33 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
 
             // Force to display two panels in same activity (list & details)
             Intent intent = new Intent();
-            intent.putExtra(AlbumActivity.DATA_VIDEO_POSITION, mVideoSelected);
             intent.putExtra(AlbumActivity.DATA_VIDEO_DETAIL, mDetailTag);
+            intent.putExtra(AlbumActivity.DATA_VIDEO_EDITING, mEditing);
+            if (mEditing) {
 
-            setResult(Constants.RESULT_SELECT_VIDEO, intent);
+                intent.putExtra(AlbumActivity.DATA_EDITING_TITLE, mEditTitle);
+                intent.putExtra(AlbumActivity.DATA_EDITING_DESCRIPTION, mEditDescription);
+            }
+
+            if (mDetailSaved) { // Should save detail changes into DB
+
+                intent.putExtra(DATA_TITLE_SAVED,
+                        VideoListActivity.mVideos.get(mVideoSelected).getTitle(null, false, true));
+                intent.putExtra(DATA_DESCRIPTION_SAVED,
+                        VideoListActivity.mVideos.get(mVideoSelected).getDescription(null, true));
+                intent.putExtra(DATA_LOCATION_SAVED,
+                        VideoListActivity.mVideos.get(mVideoSelected).isLocated());
+                intent.putExtra(DATA_LATITUDE_SAVED,
+                        VideoListActivity.mVideos.get(mVideoSelected).getLatitude());
+                intent.putExtra(DATA_LONGITUDE_SAVED,
+                        VideoListActivity.mVideos.get(mVideoSelected).getLongitude());
+                // NB: Needed coz 'VideoListActivity.mVideos' will be replaced with DB data
+
+                setResult(Constants.RESULT_SAVE_VIDEO, intent);
+            }
+            else // Should select video
+                setResult(Constants.RESULT_SELECT_VIDEO, intent);
+
             finish();
             return;
         }
@@ -116,5 +149,12 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
         // Create the detail fragment and add it to the activity (if needed)
         if (getSupportFragmentManager().findFragmentById(R.id.video_detail_container) == null)
             displayVideoDetail();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+
+        outState.putBoolean(DATA_VIDEO_SAVED, mDetailSaved);
+        super.onSaveInstanceState(outState);
     }
 }

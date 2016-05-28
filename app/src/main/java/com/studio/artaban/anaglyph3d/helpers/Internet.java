@@ -24,7 +24,7 @@ public final class Internet {
 
     public static boolean isOnline() { return isOnline(DEFAULT_ONLINE_TIMEOUT); }
     public static boolean isOnline(final int timeOut) {
-        // Check Internet connection even from UI thread (check INTERNET permission first)
+        // Check Internet connection from any thread even UI thread (check INTERNET permission first)
 
         Runnable checkInternet = new Runnable() {
             @Override

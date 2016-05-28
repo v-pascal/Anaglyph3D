@@ -63,7 +63,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     }
     private void setEditMode(boolean editable) { // Update UI components according edit mode
 
-        mVideoListener.setEditFlag(editable);
+        mVideoListener.setEditing(editable);
 
         mEditTitle.setFocusable(editable);
         mEditTitle.setFocusableInTouchMode(editable);
@@ -116,7 +116,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
         // Check if adding video process and not already saved or editing
         assert mVideoListener != null;
         if (((mVideoListener.isVideoCreation()) && (!mVideoListener.isVideoSaved())) ||
-                (mVideoListener.getEditFlag())) {
+                (mVideoListener.getEditing())) {
 
             if (getArguments().containsKey(AlbumActivity.DATA_EDITING_TITLE))
                 mEditTitle.setText(getArguments().getString(AlbumActivity.DATA_EDITING_TITLE));
@@ -136,7 +136,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     public void onPause() {
         super.onPause();
 
-        if (mVideoListener.getEditFlag())
+        if (mVideoListener.getEditing())
             mVideoListener.onStore(mEditTitle.getText().toString(), mEditDescription.getText().toString());
             // Store editing data to keep info when orientation change
     }
@@ -155,7 +155,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
         switch (v.getId()) {
 
             case R.id.image_edit: {
-                final boolean editing = mVideoListener.getEditFlag();
+                final boolean editing = mVideoListener.getEditing();
 
                 v.clearAnimation();
                 v.startAnimation(GrowthAnimation.create(new GrowthAnimation.OnTerminateListener() {
@@ -171,7 +171,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
                     }
                 }));
 
-                if (!mVideoListener.getEditFlag())
+                if (!mVideoListener.getEditing())
                     setEditMode(true); // Start editing
 
                 else {

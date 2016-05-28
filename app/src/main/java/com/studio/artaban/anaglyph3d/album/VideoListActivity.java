@@ -82,16 +82,15 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             DisplayMessage.getInstance().toast(R.string.info_saved, Toast.LENGTH_SHORT);
 
         //////
+        mEditing = false;
         mNewVideoSaved = true;
 
         fillVideoList();
-        selectVideo(false);
+        mVideosView.scrollToPosition(mVideoSelected);
     }
     @Override public void onStore(String title, String description) { super.onStore(title, description);}
     @Override public boolean isVideoCreation() { return super.isVideoCreation(); }
     @Override public boolean isVideoSaved() { return false; }
-    @Override public void setEditFlag(boolean flag) { mEditFlag = flag; }
-    @Override public boolean getEditFlag() { return mEditFlag; }
 
     //
     @Override
@@ -111,17 +110,16 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         Logs.add(Logs.Type.W, "Deleting video: " + video.toString());
         mDB.delete(AlbumTable.TABLE_NAME, new long[]{video.getId()});
 
-        mLastVideoSelected = Constants.NO_DATA;
-        mEditFlag = false;
 
         //////
+        mEditing = false;
+
         if (isVideoCreation())
             mNewVideoSaved = true;
 
         mVideoSelected = 0;
         if ((fillVideoList()) && (mTwoPane)) {
 
-            mLastVideoSelected = 0;
             mDetailTag = DetailPlayerFragment.TAG;
             displayVideoDetail();
         }
@@ -159,6 +157,18 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
                 holder.mTitleView.setTextColor(Color.GREEN);
                 holder.mDateView.setBackgroundColor(getResources().getColor(R.color.darker_gray));
             }
+
+            // Set up video selection border
+            if (mVideoSelected == position) {
+
+                holder.mRootView.setPadding(2, 2, 2, 2);
+                holder.mRootView.setBackgroundColor(Color.RED);
+            }
+            else {
+
+                holder.mRootView.setPadding(0, 0, 0, 0);
+                holder.mRootView.setBackgroundColor(Color.BLACK);
+            }
             AlbumTable.Video video = mVideos.get(position);
             holder.mTitleView.setText(video.getTitle(VideoListActivity.this, true, false));
             holder.mDateView.setText(video.getDate(VideoListActivity.this));
@@ -174,21 +184,20 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
                 @Override
                 public void onClick(View sender) { // Change video selection
 
+                    mLastVideoSelected = mVideoSelected;
                     mVideoSelected = holder.mPosition;
+                    notifyItemChanged(mLastVideoSelected);
+                    notifyItemChanged(mVideoSelected);
+
                     mDetailTag = DetailPlayerFragment.TAG;
-                    if (!saveEditingInfo())
-                        selectVideo(true);
+                    saveEditingInfo(); // If needed
 
-                    else // The video list will be refreshed (no need to "select" the video)
-                        mLastVideoSelected = mVideoSelected;
+                    if (mTwoPane) {
 
-                    // NB: 'saveEditingInfo' method is called after 'mVideoSelected' assignment coz this
-                    //     member is used to "select" the new video selection (see 'onSave' method)
-                    //     -> "select" means manage red border selection (see 'selectVideo' method)
-
-                    if (mTwoPane)
-                        displayVideoDetail(); // Display detail of the selected video
-
+                        // Display detail of the selected video
+                        updateDetailUI();
+                        displayVideoDetail();
+                    }
                     else {
 
                         // Display video details activity
@@ -199,15 +208,6 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
                     }
                 }
             });
-
-            // Check if needed to "select" this video
-            if ((mVideoSelected == position) && (mLastVideoSelected != Constants.NO_DATA)) {
-
-                holder.mRootView.setPadding(2, 2, 2, 2);
-                holder.mRootView.setBackgroundColor(Color.RED);
-            }
-            // NB: Needed when trying to add border to a video item which is not created
-            //     yet (when calling 'selectVideo' method before the video item exists)
         }
 
         @Override public int getItemCount() { return mVideos.size(); }
@@ -238,33 +238,6 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
     private int mLastVideoSelected = Constants.NO_DATA; // Previous selected video position
     private RecyclerView mVideosView; // Recycler view containing videos list
 
-    public void selectVideo(boolean user) { // Manage video list entry selection (border color)
-
-        if (!user) // Not a user click event
-            mVideosView.scrollToPosition(mVideoSelected);
-
-        // Selection border of the Video item management
-        View videoItem = mVideosView.getLayoutManager().findViewByPosition(mVideoSelected);
-        if (videoItem != null) {
-
-            videoItem.setPadding(2, 2, 2, 2);
-            videoItem.setBackgroundColor(Color.RED);
-        }
-        if ((mLastVideoSelected != Constants.NO_DATA) && (mLastVideoSelected != mVideoSelected)) {
-
-            // Un-select previous video
-            videoItem = mVideosView.getLayoutManager().findViewByPosition(mLastVideoSelected);
-            if (videoItem != null) {
-
-                videoItem.setPadding(0, 0, 0, 0);
-                videoItem.setBackgroundColor(Color.BLACK);
-            }
-        }
-        mLastVideoSelected = mVideoSelected;
-
-        if (mTwoPane) // Update detail UI according new selection (if needed)
-            updateDetailUI();
-    }
     private boolean fillVideoList() { // Fill video list recycler view
 
         mVideos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
@@ -281,6 +254,23 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         }
         mVideosView.setAdapter(new AlbumRecyclerViewAdapter());
         return true;
+    }
+    private void selectVideo(Intent data) {
+
+        mDetailTag = data.getExtras().getString(AlbumActivity.DATA_VIDEO_DETAIL,
+                DetailPlayerFragment.TAG);
+        mEditing = data.getExtras().getBoolean(AlbumActivity.DATA_VIDEO_EDITING, false);
+        if (mEditing) {
+
+            mEditTitle = data.getExtras().getString(DATA_EDITING_TITLE);
+            mEditDescription = data.getExtras().getString(DATA_EDITING_DESCRIPTION);
+        }
+
+        mVideosView.scrollToPosition(mVideoSelected);
+
+        // Display detail of the selected video
+        updateDetailUI();
+        displayVideoDetail();
     }
 
     //////
@@ -379,7 +369,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             intent.putExtra(AlbumActivity.DATA_NEW_VIDEO_ADDED, mNewVideoAdded);
             intent.putExtra(AlbumActivity.DATA_NEW_VIDEO_SAVED, mNewVideoSaved);
 
-            intent.putExtra(AlbumActivity.DATA_VIDEO_EDITING, mEditFlag);
+            intent.putExtra(AlbumActivity.DATA_VIDEO_EDITING, mEditing);
             intent.putExtra(AlbumActivity.DATA_EDITING_TITLE, mEditTitle);
             intent.putExtra(AlbumActivity.DATA_EDITING_DESCRIPTION, mEditDescription);
 
@@ -388,9 +378,9 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             startActivityForResult(intent, 0);
             return;
         }
-
         if (mVideoSelected == Constants.NO_DATA)
-            mVideoSelected = 0;
+            mVideoSelected = mLastVideoSelected = 0;
+
         if (!fillVideoList())
             return; // No video to display
 
@@ -398,7 +388,10 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         if (mTwoPane) {
 
             initializeDetailUI();
-            selectVideo(false);
+            mVideosView.scrollToPosition(mVideoSelected);
+
+            // Display detail of the selected video
+            updateDetailUI();
             displayVideoDetail();
         }
     }
@@ -416,8 +409,23 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         switch (resultCode) {
             case Constants.RESULT_SAVE_VIDEO: { // Save from detail activity
 
-                //assert !mTwoPane;
-                onSave(mVideoSelected);
+                if (mTwoPane) {
+
+                    mVideos.get(mVideoSelected).setTitle(data.getExtras()
+                            .getString(VideoDetailActivity.DATA_TITLE_SAVED));
+                    mVideos.get(mVideoSelected).setDescription(data.getExtras()
+                            .getString(VideoDetailActivity.DATA_DESCRIPTION_SAVED));
+                    if (data.getExtras().getBoolean(VideoDetailActivity.DATA_LOCATION_SAVED))
+                        mVideos.get(mVideoSelected).setLocation(
+                                data.getExtras().getDouble(VideoDetailActivity.DATA_LATITUDE_SAVED),
+                                data.getExtras().getDouble(VideoDetailActivity.DATA_LONGITUDE_SAVED));
+                    // NB: Needed coz 'mVideos' has been replaced with DB data in 'onCreate' method
+
+                    onSave(mVideoSelected);
+                    selectVideo(data);
+                }
+                else
+                    onSave(mVideoSelected);
                 break;
             }
             case Constants.RESULT_DELETE_VIDEO: { // Delete from detail activity
@@ -429,12 +437,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             case Constants.RESULT_SELECT_VIDEO: { // From portrait to landscape with two panels
 
                 //assert mTwoPane;
-                mVideoSelected = data.getExtras().getInt(AlbumActivity.DATA_VIDEO_POSITION, 0);
-                mDetailTag = data.getExtras().getString(AlbumActivity.DATA_VIDEO_DETAIL,
-                        DetailPlayerFragment.TAG);
-
-                selectVideo(false);
-                displayVideoDetail();
+                selectVideo(data);
                 break;
             }
         }

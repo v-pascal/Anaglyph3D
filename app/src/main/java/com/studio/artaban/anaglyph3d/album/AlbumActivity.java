@@ -53,10 +53,10 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
     public static final String DATA_VIDEO_POSITION = "position";
     public static final String DATA_VIDEO_DETAIL = "detail";
-    public static final String DATA_NEW_VIDEO_ADDED = "added";
-    public static final String DATA_NEW_VIDEO_SAVED = "saved";
-
     public static final String DATA_VIDEO_EDITING = "editing";
+    public static final String DATA_NEW_VIDEO_ADDED = "newAdded";
+    public static final String DATA_NEW_VIDEO_SAVED = "newSaved";
+
     public static final String DATA_EDITING_TITLE = "title";
     public static final String DATA_EDITING_DESCRIPTION = "description";
 
@@ -72,8 +72,8 @@ public abstract class AlbumActivity extends AppCompatActivity implements
         boolean isVideoCreation(); // Return if new video is selected
         boolean isVideoSaved(); // Return if new video details have been saved
 
-        void setEditFlag(boolean flag);
-        boolean getEditFlag();
+        void setEditing(boolean flag);
+        boolean getEditing();
         // Edit video detail member flag
     }
 
@@ -83,10 +83,13 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     protected int mVideoSelected = Constants.NO_DATA; // Selected video position (or video to select)
     protected String mDetailTag = DetailPlayerFragment.TAG; // Fragment detail displayed (tag)
 
-    protected boolean mEditFlag = false; // Flag to know if editing video info (title & description)
+    protected boolean mEditing = false; // Flag to know if editing video info (title & description)
+    public void setEditing(boolean flag) { mEditing = flag; }
+    public boolean getEditing() { return mEditing; }
+
     protected boolean saveEditingInfo() { // Save video detail if editing when user changes detail displayed
 
-        if (!mEditFlag)
+        if (!mEditing)
             return false; // No editing info to save
 
         ////// Save video detail changes B4:
@@ -98,7 +101,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
         else
             throw new RuntimeException("Unexpected fragment edit mode");
 
-        mEditFlag = false;
+        mEditing = false;
         return true; // Video info saved
     }
 
@@ -155,7 +158,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
             mNewVideoAdded = state.getBoolean(DATA_NEW_VIDEO_ADDED);
             mNewVideoSaved = state.getBoolean(DATA_NEW_VIDEO_SAVED);
 
-            mEditFlag = state.getBoolean(DATA_VIDEO_EDITING);
+            mEditing = state.getBoolean(DATA_VIDEO_EDITING);
             mEditTitle = state.getString(DATA_EDITING_TITLE);
             mEditDescription = state.getString(DATA_EDITING_DESCRIPTION);
 
@@ -173,7 +176,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
                 mNewVideoSaved = getIntent().getBooleanExtra(DATA_NEW_VIDEO_SAVED, false);
 
             if (getIntent().getExtras().containsKey(DATA_VIDEO_EDITING))
-                mEditFlag = getIntent().getBooleanExtra(DATA_VIDEO_EDITING, false);
+                mEditing = getIntent().getBooleanExtra(DATA_VIDEO_EDITING, false);
             if (getIntent().getExtras().containsKey(DATA_EDITING_TITLE))
                 mEditTitle = getIntent().getStringExtra(DATA_EDITING_TITLE);
             if (getIntent().getExtras().containsKey(DATA_EDITING_DESCRIPTION))
@@ -256,7 +259,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
             case DetailEditFragment.TAG: // Edit
                 fragment = new DetailEditFragment();
-                if (mEditFlag) {
+                if (mEditing) {
 
                     arguments.putString(DATA_EDITING_TITLE, mEditTitle);
                     arguments.putString(DATA_EDITING_DESCRIPTION, mEditDescription);
@@ -304,7 +307,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
         outState.putBoolean(DATA_NEW_VIDEO_ADDED, mNewVideoAdded);
         outState.putBoolean(DATA_NEW_VIDEO_SAVED, mNewVideoSaved);
 
-        outState.putBoolean(DATA_VIDEO_EDITING, mEditFlag);
+        outState.putBoolean(DATA_VIDEO_EDITING, mEditing);
         outState.putString(DATA_EDITING_TITLE, mEditTitle);
         outState.putString(DATA_EDITING_DESCRIPTION, mEditDescription);
 

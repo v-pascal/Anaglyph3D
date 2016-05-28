@@ -454,6 +454,11 @@ public class ConnectActivity extends AppCompatActivity {
         }
         switch (resultCode) {
             case Constants.RESULT_NO_VIDEO: {
+
+                mDownloaded = false; // Allow user to download videos if already done
+                assert mMenuOptions.getItem(1).getItemId() == R.id.menu_download;
+                mMenuOptions.getItem(1).setEnabled(true);
+
                 DisplayMessage.getInstance().toast(R.string.no_video, Toast.LENGTH_LONG);
                 //break; // Always restart connectivity thread in this case
             }
