@@ -211,7 +211,7 @@ public class SynchroActivity extends AppCompatActivity {
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
 
             ////// Portrait
-            if (screenSize.x > Constants.LARGE_SCREEN_HEIGHT) // Large screen device
+            if (getResources().getBoolean(R.bool.w480dp)) // Large screen device
                 params.width = (screenSize.x >> 1) - (margin << 1);
                 // == 50% of the screen width
             else // Normal screen device

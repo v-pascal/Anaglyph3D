@@ -30,6 +30,8 @@ import java.io.File;
 public class DetailPlayerFragment extends Fragment {
 
     public static final String TAG = "player";
+
+    //
     private AlbumTable.Video mVideo;
 
     //////

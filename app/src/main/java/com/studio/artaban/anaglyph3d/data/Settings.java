@@ -417,7 +417,7 @@ public class Settings implements IConnectRequest {
 
                 else if (curActivity.getClass().equals(MainActivity.class)) { // Main activity
                     if (reply.has(DATA_KEY_POSITION))
-                        ((MainActivity) curActivity).displayPosition();
+                        ((MainActivity) curActivity).displayPosition(true);
 
                     // Display a message on settings changes
                     int[] ids = new int[messageIds.size() + 1];

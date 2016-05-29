@@ -105,10 +105,7 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
             mDetailSaved = savedInstanceState.getBoolean(DATA_VIDEO_SAVED, false);
 
         // Check if orientation has changed with a large screen (check two panels expected)
-        final Point screenSize = new Point();
-        getWindowManager().getDefaultDisplay().getSize(screenSize);
-        if ((getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) &&
-                (screenSize.x >= Constants.LARGE_SCREEN_WIDTH)) {
+        if (getResources().getBoolean(R.bool.w900dp)) {
 
             // Force to display two panels in same activity (list & details)
             Intent intent = new Intent();

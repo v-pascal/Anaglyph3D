@@ -14,6 +14,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -100,7 +102,44 @@ public class MainActivity extends AppCompatActivity
 
     //
     private String mSubTitle;
-    public void displayPosition() {
+    private boolean mGlassDisplayed;
+
+    private void positionGlass(ImageView glass) { // Position glass image according setting
+
+        RelativeLayout.LayoutParams imgParams = new RelativeLayout.LayoutParams(
+                RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+        if (Settings.getInstance().mPosition) {
+
+            glass.setImageDrawable(getResources().getDrawable(R.drawable.left_glass));
+            if (Build.VERSION.SDK_INT >= 17)
+                imgParams.addRule(RelativeLayout.ALIGN_PARENT_END);
+            imgParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        }
+        else {
+
+            glass.setImageDrawable(getResources().getDrawable(R.drawable.right_glass));
+            if (Build.VERSION.SDK_INT >= 17)
+                imgParams.addRule(RelativeLayout.ALIGN_PARENT_START);
+            imgParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+        }
+        imgParams.addRule(RelativeLayout.CENTER_VERTICAL);
+        glass.setLayoutParams(imgParams);
+    }
+    private void displayGlass(ImageView glass) { // Display animation glass
+
+        positionGlass(glass);
+
+        // Anim glass
+        TranslateAnimation anim = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, (Settings.getInstance().mPosition)? 1f:-1f,
+                Animation.RELATIVE_TO_SELF, 0f,
+                Animation.RELATIVE_TO_SELF, 0f, Animation.RELATIVE_TO_SELF, 0f);
+        anim.setDuration(1500);
+        glass.startAnimation(anim);
+    }
+
+    public void displayPosition(final boolean animation) {
 
         // Display remote device name into subtitle (with position)
         if (Settings.getInstance().mPosition)
@@ -120,25 +159,36 @@ public class MainActivity extends AppCompatActivity
                 final ImageView imgGlass = (ImageView)findViewById(R.id.glass_image);
                 if (imgGlass != null) {
 
-                    RelativeLayout.LayoutParams imgParams = new RelativeLayout.LayoutParams(
-                            RelativeLayout.LayoutParams.WRAP_CONTENT,
-                            RelativeLayout.LayoutParams.WRAP_CONTENT);
-                    if (Settings.getInstance().mPosition) {
+                    if (!animation)
+                        positionGlass(imgGlass);
 
-                        imgGlass.setImageDrawable(getResources().getDrawable(R.drawable.left_glass));
-                        if (Build.VERSION.SDK_INT >= 17)
-                            imgParams.addRule(RelativeLayout.ALIGN_PARENT_END);
-                        imgParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-                    }
-                    else {
+                    else { // Display glass with a translate animation
 
-                        imgGlass.setImageDrawable(getResources().getDrawable(R.drawable.right_glass));
-                        if (Build.VERSION.SDK_INT >= 17)
-                            imgParams.addRule(RelativeLayout.ALIGN_PARENT_START);
-                        imgParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                        imgGlass.clearAnimation();
+                        if (!mGlassDisplayed) {
+
+                            mGlassDisplayed = true;
+                            displayGlass(imgGlass);
+                        }
+                        else {
+
+                            TranslateAnimation anim = new TranslateAnimation(
+                                    Animation.RELATIVE_TO_SELF, 0f, Animation.RELATIVE_TO_SELF,
+                                    (Settings.getInstance().mPosition)? -1f:1f,
+                                    Animation.RELATIVE_TO_SELF, 0f, Animation.RELATIVE_TO_SELF, 0f);
+                            anim.setDuration(1500);
+                            anim.setAnimationListener(new Animation.AnimationListener() {
+
+                                @Override public void onAnimationStart(Animation animation) { }
+                                @Override public void onAnimationRepeat(Animation animation) { }
+                                @Override
+                                public void onAnimationEnd(Animation animation) {
+                                    displayGlass(imgGlass);
+                                }
+                            });
+                            imgGlass.startAnimation(anim);
+                        }
                     }
-                    imgParams.addRule(RelativeLayout.CENTER_VERTICAL);
-                    imgGlass.setLayoutParams(imgParams);
                 }
             }
         });
@@ -214,7 +264,7 @@ public class MainActivity extends AppCompatActivity
         }
 
         // Display remote device name into subtitle (with initial position)
-        displayPosition();
+        displayPosition(true);
     }
 
     @Override
@@ -223,7 +273,7 @@ public class MainActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
         ActivityWrapper.set(this); // Set current activity
 
-        displayPosition(); // In case it has changed
+        displayPosition(false); // In case it has changed
 
         if (requestCode != 0) {
             Logs.add(Logs.Type.F, "Unexpected request code");
