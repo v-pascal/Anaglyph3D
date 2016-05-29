@@ -429,7 +429,7 @@ public class Connectivity {
         ////// Process (connected status):
         // _ Send requests (from request list)
         // _ Receive data: requests & replies (from remote device)
-        private void process() {
+        private boolean process() {
 
             // Check if need to disconnect or if still connected
             if (!isConnected())
@@ -550,7 +550,7 @@ public class Connectivity {
                         case PARTIAL: {
 
                             mMaxWait = mRequestBuffer.handler.getMaxWaitReply(mRequestBuffer.type);
-                            break;
+                            return true;
                         }
                         case SUCCESS: {
 
@@ -569,6 +569,7 @@ public class Connectivity {
                     break;
                 }
             }
+            return false;
         }
 
         //////
@@ -576,6 +577,7 @@ public class Connectivity {
         public void run() {
             Logs.add(Logs.Type.I, "Connectivity thread started");
 
+            boolean waitBuffer = false;
             short devIndex = 0;
             while(!mAbort) {
 
@@ -699,7 +701,7 @@ public class Connectivity {
                     }
                     default: { // Connected
 
-                        process();
+                        waitBuffer = process();
                         break;
                     }
                 }
@@ -707,7 +709,10 @@ public class Connectivity {
                     break; // Exit immediately
 
                 // Sleep
-                try { Thread.sleep(Constants.CONN_WAIT_DELAY, 0); }
+                try {
+                    Thread.sleep((waitBuffer)?
+                            Constants.CONN_WAIT_BUFFER:Constants.CONN_WAIT_DELAY, 0);
+                }
                 catch (InterruptedException e) {
                     Logs.add(Logs.Type.W, "Unable to sleep: " + e.getMessage());
                 }
