@@ -65,7 +65,7 @@ public class Bluetooth {
     };
 
     private final ArrayList<String> mDevices = new ArrayList<>();
-    private final ByteArrayOutputStream mReceived = new ByteArrayOutputStream();
+    private ByteArrayOutputStream mReceived;
     private Status mStatus = Status.DISABLED;
     private String mRemoteDevice;
 
@@ -109,8 +109,7 @@ public class Bluetooth {
                             mProcessing = null;
                         }
                         mProcessing = new ProcessThread(socket);
-                        mReceived.flush();
-                        mReceived.reset();
+                        mReceived = new ByteArrayOutputStream();
                         mStatus = Status.CONNECTED;
                         mProcessing.start();
                     }
@@ -170,8 +169,7 @@ public class Bluetooth {
                     mProcessing = null;
                 }
                 mProcessing = new ProcessThread(mSocket);
-                mReceived.flush();
-                mReceived.reset();
+                mReceived = new ByteArrayOutputStream();
                 mStatus = Status.CONNECTED;
                 mProcessing.start();
             }
