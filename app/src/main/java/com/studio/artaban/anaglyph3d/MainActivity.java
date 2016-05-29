@@ -102,6 +102,8 @@ public class MainActivity extends AppCompatActivity
 
     //
     private String mSubTitle;
+
+    private static final int GLASS_ANIM_DURATION = 1000; // In millisecond
     private boolean mGlassDisplayed;
 
     private void positionGlass(ImageView glass) { // Position glass image according setting
@@ -135,7 +137,7 @@ public class MainActivity extends AppCompatActivity
                 Animation.RELATIVE_TO_SELF, (Settings.getInstance().mPosition)? 1f:-1f,
                 Animation.RELATIVE_TO_SELF, 0f,
                 Animation.RELATIVE_TO_SELF, 0f, Animation.RELATIVE_TO_SELF, 0f);
-        anim.setDuration(1500);
+        anim.setDuration(GLASS_ANIM_DURATION);
         glass.startAnimation(anim);
     }
 
@@ -176,7 +178,7 @@ public class MainActivity extends AppCompatActivity
                                     Animation.RELATIVE_TO_SELF, 0f, Animation.RELATIVE_TO_SELF,
                                     (Settings.getInstance().mPosition)? -1f:1f,
                                     Animation.RELATIVE_TO_SELF, 0f, Animation.RELATIVE_TO_SELF, 0f);
-                            anim.setDuration(1500);
+                            anim.setDuration(GLASS_ANIM_DURATION);
                             anim.setAnimationListener(new Animation.AnimationListener() {
 
                                 @Override public void onAnimationStart(Animation animation) { }
