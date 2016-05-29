@@ -289,7 +289,7 @@ public class ProcessThread extends Thread {
 
                 case INITIALIZATION: {
 
-                    publishProgress(1, (Settings.getInstance().isMaker())? 2:4);
+                    publishProgress(1, 4);
 
                     // Initialize GStreamer library (on UI thread)
                     try { ((ProcessActivity)ActivityWrapper.get()).onInitialize(); }
@@ -309,25 +309,8 @@ public class ProcessThread extends Thread {
                     //////
                     local = true;
                     mConfigured = false;
-                    if (!Settings.getInstance().isMaker())
-                        mStatus = Status.SAVE_PICTURE;
+                    mStatus = Status.SAVE_PICTURE;
 
-                    else { // Maker
-
-                        mStatus = Status.TRANSFER_PICTURE;
-
-                        Bundle data = new Bundle();
-                        data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
-                        data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
-                        data.putByteArray(Frame.DATA_KEY_BUFFER, mPictureRaw);
-
-                        // Send download picture request (upload to remote device)
-                        Connectivity.getInstance().addRequest(Frame.getInstance(),
-                                Frame.REQ_TYPE_DOWNLOAD, data);
-
-                        publishProgress(Frame.getInstance().getTransferSize(),
-                                Frame.getInstance().getBufferSize());
-                    }
                     break;
                 }
                 case WAIT_PICTURE:
@@ -353,7 +336,7 @@ public class ProcessThread extends Thread {
                     break;
                 }
 
-                ////// Called twice: for both local and remote pictures
+                ////// Called twice for both local and remote pictures (!maker only)
                 case SAVE_PICTURE: {
 
                     publishProgress(2 + ((local)? 0:2), 4);
@@ -381,8 +364,10 @@ public class ProcessThread extends Thread {
                                 null, false, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        ActivityWrapper.stopActivity(ProcessActivity.class,
-                                                Constants.NO_DATA, null);
+
+                                        // Send cancel request (this action will finish the activity)
+                                        Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                                                ActivityWrapper.REQ_TYPE_CANCEL, null);
                                     }
                                 });
                     }
@@ -402,8 +387,8 @@ public class ProcessThread extends Thread {
                                     Storage.FILENAME_RAW_PICTURE,
                             width, height, ActivityWrapper.DOCUMENTS_FOLDER +
                                     ((local) ?
-                                    Storage.FILENAME_LOCAL_PICTURE :
-                                    Storage.FILENAME_REMOTE_PICTURE), getOrientation())) {
+                                            Storage.FILENAME_LOCAL_PICTURE :
+                                            Storage.FILENAME_REMOTE_PICTURE), getOrientation())) {
 
                         Logs.add(Logs.Type.E, "Failed to convert contrast picture");
                         mAbort = true;
@@ -413,49 +398,72 @@ public class ProcessThread extends Thread {
                                 null, false, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        ActivityWrapper.stopActivity(ProcessActivity.class,
-                                                Constants.NO_DATA, null);
+
+                                        // Send cancel request (this action will finish the activity)
+                                        Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                                                ActivityWrapper.REQ_TYPE_CANCEL, null);
                                     }
                                 });
                         break;
                     }
-                    if (local)
-                        mStatus = Status.WAIT_PICTURE;
 
-                    else {
+                    if (!Settings.getInstance().isMaker()) { // !Maker
+                        if (local)
+                            mStatus = Status.WAIT_PICTURE;
 
-                        // Load contrast activity //////////////////////////////////////////////////
+                        else {
+
+                            // Load contrast activity //////////////////////////////////////////////////
+                            Bundle data = new Bundle();
+                            data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
+                            data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
+
+                            ActivityWrapper.startActivity(ContrastActivity.class, data,
+                                    Constants.PROCESS_REQUEST_CONTRAST);
+
+                            //////
+                            mStep = Step.VIDEO;
+                            mStatus = Status.TRANSFER_VIDEO;
+
+                            // Send local video file to remote device
+                            if (!Video.sendFile(ActivityWrapper.DOCUMENTS_FOLDER +
+                                    Storage.FILENAME_LOCAL_VIDEO)) {
+
+                                Logs.add(Logs.Type.E, "Failed to load video file");
+                                mAbort = true;
+
+                                // Inform user
+                                DisplayMessage.getInstance().alert(R.string.title_error, R.string.error_load_video,
+                                        null, false, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+
+                                                // Send cancel request (this action will finish the activity)
+                                                Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                                                        ActivityWrapper.REQ_TYPE_CANCEL, null);
+                                            }
+                                        });
+                            }
+                            else
+                                publishProgress(Video.getInstance().getTransferSize(),
+                                        Video.getInstance().getBufferSize());
+                        }
+                    }
+                    else { // Maker
+
+                        mStatus = Status.TRANSFER_PICTURE;
+
                         Bundle data = new Bundle();
                         data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
                         data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
+                        data.putByteArray(Frame.DATA_KEY_BUFFER, mPictureRaw);
 
-                        ActivityWrapper.startActivity(ContrastActivity.class, data,
-                                Constants.PROCESS_REQUEST_CONTRAST);
+                        // Send download picture request (upload to remote device)
+                        Connectivity.getInstance().addRequest(Frame.getInstance(),
+                                Frame.REQ_TYPE_DOWNLOAD, data);
 
-                        //////
-                        mStep = Step.VIDEO;
-                        mStatus = Status.TRANSFER_VIDEO;
-
-                        // Send local video file to remote device
-                        if (!Video.sendFile(ActivityWrapper.DOCUMENTS_FOLDER +
-                                Storage.FILENAME_LOCAL_VIDEO)) {
-
-                            Logs.add(Logs.Type.E, "Failed to load video file");
-                            mAbort = true;
-
-                            // Inform user
-                            DisplayMessage.getInstance().alert(R.string.title_error, R.string.error_load_video,
-                                    null, false, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            ActivityWrapper.stopActivity(ProcessActivity.class,
-                                                    Constants.NO_DATA, null);
-                                        }
-                                    });
-                        }
-                        else
-                            publishProgress(Video.getInstance().getTransferSize(),
-                                    Video.getInstance().getBufferSize());
+                        publishProgress(Frame.getInstance().getTransferSize(),
+                                Frame.getInstance().getBufferSize());
                     }
                     break;
                 }
@@ -552,8 +560,10 @@ public class ProcessThread extends Thread {
                                 null, false, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        ActivityWrapper.stopActivity(ProcessActivity.class,
-                                                Constants.NO_DATA, null);
+
+                                        // Send cancel request (this action will finish the activity)
+                                        Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                                                ActivityWrapper.REQ_TYPE_CANCEL, null);
                                     }
                                 });
                     }
@@ -580,8 +590,10 @@ public class ProcessThread extends Thread {
                                 null, false, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        ActivityWrapper.stopActivity(ProcessActivity.class,
-                                                Constants.NO_DATA, null);
+
+                                        // Send cancel request (this action will finish the activity)
+                                        Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                                                ActivityWrapper.REQ_TYPE_CANCEL, null);
                                     }
                                 });
                         break;
@@ -645,8 +657,10 @@ public class ProcessThread extends Thread {
                                 null, false, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        ActivityWrapper.stopActivity(ProcessActivity.class,
-                                                Constants.NO_DATA, null);
+
+                                        // Send cancel request (this action will finish the activity)
+                                        Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                                                ActivityWrapper.REQ_TYPE_CANCEL, null);
                                     }
                                 });
                         break;
@@ -687,8 +701,10 @@ public class ProcessThread extends Thread {
                                 null, false, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        ActivityWrapper.stopActivity(ProcessActivity.class,
-                                                Constants.NO_DATA, null);
+
+                                        // Send cancel request (this action will finish the activity)
+                                        Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                                                ActivityWrapper.REQ_TYPE_CANCEL, null);
                                     }
                                 });
                         break;
@@ -712,8 +728,10 @@ public class ProcessThread extends Thread {
                                 null, false, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        ActivityWrapper.stopActivity(ProcessActivity.class,
-                                                Constants.NO_DATA, null);
+
+                                        // Send cancel request (this action will finish the activity)
+                                        Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                                                ActivityWrapper.REQ_TYPE_CANCEL, null);
                                     }
                                 });
                     }
