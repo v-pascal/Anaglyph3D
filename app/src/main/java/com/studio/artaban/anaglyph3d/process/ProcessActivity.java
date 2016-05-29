@@ -1,8 +1,11 @@
 package com.studio.artaban.anaglyph3d.process;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -28,6 +31,7 @@ import com.studio.artaban.libGST.GstObject;
  */
 public class ProcessActivity extends AppCompatActivity {
 
+    private WakeLock mWakeLock; // To avoid device in pause during video recording
     public void startRecording() {
 
         runOnUiThread(new Runnable() {
@@ -42,6 +46,11 @@ public class ProcessActivity extends AppCompatActivity {
                 fragTransaction.replace(R.id.main_container, new RecorderFragment(),
                         RecorderFragment.TAG).commit();
                 getSupportFragmentManager().executePendingTransactions();
+
+                // Wake lock during recording
+                mWakeLock = ((PowerManager)getSystemService(Context.POWER_SERVICE))
+                        .newWakeLock(PowerManager.FULL_WAKE_LOCK, "Anaglyph-3D");
+                mWakeLock.acquire();
             }
         });
     }
@@ -59,6 +68,9 @@ public class ProcessActivity extends AppCompatActivity {
     }
     private ProcessThread mProcessThread;
     public void startProcessing(Camera.Size picSize, byte[] picRaw) {
+
+        // Stop wake lock request
+        mWakeLock.release();
 
         // Set unspecified orientation (default device orientation)
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);

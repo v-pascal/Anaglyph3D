@@ -109,8 +109,9 @@ public class Bluetooth {
                             mProcessing = null;
                         }
                         mProcessing = new ProcessThread(socket);
-                        mStatus = Status.CONNECTED;
+                        mReceived.flush();
                         mReceived.reset();
+                        mStatus = Status.CONNECTED;
                         mProcessing.start();
                     }
                 }
@@ -169,8 +170,9 @@ public class Bluetooth {
                     mProcessing = null;
                 }
                 mProcessing = new ProcessThread(mSocket);
-                mStatus = Status.CONNECTED;
+                mReceived.flush();
                 mReceived.reset();
+                mStatus = Status.CONNECTED;
                 mProcessing.start();
             }
             catch (IOException e) {

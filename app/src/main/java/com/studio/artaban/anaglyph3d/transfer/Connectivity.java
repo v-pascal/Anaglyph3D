@@ -261,7 +261,7 @@ public class Connectivity {
                             (message.charAt(7) != SEPARATOR_REQUEST_ID_TYPE) ||
                             (message.charAt(10) != SEPARATOR_TYPE_MESSAGE))) {
 
-                Logs.add(Logs.Type.E, "Wrong request/reply format received");
+                Logs.add(Logs.Type.E, "Wrong request/reply format received #1: " + message);
                 mDisconnectError = true;
                 return null;
             }
@@ -270,7 +270,7 @@ public class Connectivity {
             try { sizeMessage = Integer.parseInt(message.substring(0, 3)); }
             catch (NumberFormatException e) {
 
-                Logs.add(Logs.Type.E, "Wrong request/reply format received");
+                Logs.add(Logs.Type.E, "Wrong request/reply format received #2: " + message);
                 mDisconnectError = true;
                 return null;
             }
