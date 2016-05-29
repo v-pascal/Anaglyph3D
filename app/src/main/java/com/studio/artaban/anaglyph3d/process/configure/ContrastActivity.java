@@ -11,6 +11,7 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
@@ -320,23 +321,10 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         });
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
             ((CoordinatorLayout.LayoutParams)mCancelButton.getLayoutParams()).gravity =
-                    Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+                    Gravity.TOP|Gravity.CENTER_HORIZONTAL;
         else
             ((CoordinatorLayout.LayoutParams)mCancelButton.getLayoutParams()).gravity =
                     Gravity.START|Gravity.CENTER_VERTICAL;
-
-        ////// Load images
-        if (!loadImagesFromFiles(compareImage)) {
-
-            // Inform user
-            DisplayMessage.getInstance().toast(R.string.error_contrast_failed, Toast.LENGTH_LONG);
-
-            finish();
-            return;
-        }
-
-        // Apply contrast & brightness settings
-        mContrastImage.setImageBitmap(applyContrastBrightness(mContrastBitmap, mContrast, mBrightness));
 
         // Set validate button position (not exactly in center when device in portrait)
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -346,6 +334,25 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
             final FloatingActionButton applyButton = (FloatingActionButton)findViewById(R.id.fab_apply);
             applyButton.setTranslationY(-params.height);
         }
+
+        ////// Load images
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+
+                if (!loadImagesFromFiles(compareImage)) {
+
+                    // Inform user
+                    DisplayMessage.getInstance().toast(R.string.error_contrast_failed, Toast.LENGTH_LONG);
+
+                    finish();
+                    return;
+                }
+
+                // Apply contrast & brightness settings
+                mContrastImage.setImageBitmap(applyContrastBrightness(mContrastBitmap, mContrast, mBrightness));
+            }
+        });
     }
 
     @Override

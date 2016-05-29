@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
@@ -763,19 +764,10 @@ public class ProcessThread extends Thread {
                             ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_THUMBNAIL_PICTURE)) {
 
                         Logs.add(Logs.Type.E, "Failed to convert thumbnail picture");
-                        mAbort = true;
 
                         // Inform user
-                        DisplayMessage.getInstance().alert(R.string.title_error,
-                                R.string.error_convert_thumbnail,
-                                null, false, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        ActivityWrapper.stopActivity(ProcessActivity.class,
-                                                Constants.NO_DATA, null);
-                                    }
-                                });
-                        break;
+                        DisplayMessage.getInstance().toast(R.string.error_convert_thumbnail,
+                                Toast.LENGTH_SHORT);
                     }
 
                     // Finish process activity with a display album command as result

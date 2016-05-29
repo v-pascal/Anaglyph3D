@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
+import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v4.app.FragmentTransaction;
@@ -47,7 +48,7 @@ public class ProcessActivity extends AppCompatActivity {
                         RecorderFragment.TAG).commit();
                 getSupportFragmentManager().executePendingTransactions();
 
-                // Wake lock during recording
+                // Wake lock during video recording
                 mWakeLock = ((PowerManager)getSystemService(Context.POWER_SERVICE))
                         .newWakeLock(PowerManager.FULL_WAKE_LOCK, "Anaglyph-3D");
                 mWakeLock.acquire();
@@ -69,8 +70,7 @@ public class ProcessActivity extends AppCompatActivity {
     private ProcessThread mProcessThread;
     public void startProcessing(Camera.Size picSize, byte[] picRaw) {
 
-        // Stop wake lock request
-        mWakeLock.release();
+        mWakeLock.release(); // Stop wake lock requested
 
         // Set unspecified orientation (default device orientation)
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -162,9 +162,6 @@ public class ProcessActivity extends AppCompatActivity {
         // Set current activity
         ActivityWrapper.set(this);
 
-        // Remove all temporary files from storage B4 processing
-        Storage.removeTempFiles(false);
-
         // Set orientation
         Settings.getInstance().mReverse = false;
         if (Settings.getInstance().mOrientation)
@@ -250,5 +247,13 @@ public class ProcessActivity extends AppCompatActivity {
             mProcessThread.release();
             mProcessThread = null;
         }
+
+        // Remove all temporary files from storage
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                Storage.removeTempFiles(false);
+            }
+        });
     }
 }
