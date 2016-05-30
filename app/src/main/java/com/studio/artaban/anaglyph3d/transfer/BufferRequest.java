@@ -119,7 +119,7 @@ public abstract class BufferRequest implements IConnectRequest {
                             ActivityWrapper.get().runOnUiThread(mRunOnUI);
                             mRunOnUI.wait();
                         }
-                        if (++waitEvery == 10) { // Wait 100 ms every 10 packets sent
+                        if (++waitEvery == 12) { // Wait 100 ms every 10 packets sent
 
                             Thread.sleep(300, 0);
                             waitEvery = 0;
