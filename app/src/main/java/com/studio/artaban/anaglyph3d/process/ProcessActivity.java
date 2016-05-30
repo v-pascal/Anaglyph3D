@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
-import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v4.app.FragmentTransaction;
@@ -249,11 +248,6 @@ public class ProcessActivity extends AppCompatActivity {
         }
 
         // Remove all temporary files from storage
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                Storage.removeTempFiles(false);
-            }
-        });
+        Storage.removeTempFiles(false);
     }
 }

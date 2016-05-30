@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity
     //
     private String mSubTitle;
 
-    private static final int GLASS_ANIM_DURATION = 1000; // In millisecond
+    private static final int GLASS_ANIM_DURATION = 700; // In millisecond
     private boolean mGlassDisplayed;
 
     private void positionGlass(ImageView glass) { // Position glass image according setting

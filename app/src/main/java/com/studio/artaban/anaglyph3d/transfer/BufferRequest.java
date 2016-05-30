@@ -86,8 +86,8 @@ public abstract class BufferRequest implements IConnectRequest {
     private boolean send() { // Send buffer...
 
         mTransferSize = 0;
-
         try {
+
             ActivityWrapper.get().runOnUiThread(new Runnable() { // ...via UI thread
                 @Override
                 public void run() {
@@ -105,8 +105,8 @@ public abstract class BufferRequest implements IConnectRequest {
                         }
                         mTransferSize += send;
 
-                        if (++waitEvery == 20) { // Wait 100 ms every 20 packets sent
-                            try { Thread.sleep(100, 0); }
+                        if (++waitEvery == 10) { // Wait 200 ms every 10 packets sent
+                            try { Thread.sleep(200, 0); }
                             catch (InterruptedException e) {
                                 Logs.add(Logs.Type.W, e.getMessage());
                             }

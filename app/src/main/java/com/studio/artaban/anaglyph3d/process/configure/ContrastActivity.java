@@ -11,7 +11,6 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
@@ -336,23 +335,17 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         }
 
         ////// Load images
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
+        if (!loadImagesFromFiles(compareImage)) {
 
-                if (!loadImagesFromFiles(compareImage)) {
+            // Inform user
+            DisplayMessage.getInstance().toast(R.string.error_contrast_failed, Toast.LENGTH_LONG);
 
-                    // Inform user
-                    DisplayMessage.getInstance().toast(R.string.error_contrast_failed, Toast.LENGTH_LONG);
+            finish();
+            return;
+        }
 
-                    finish();
-                    return;
-                }
-
-                // Apply contrast & brightness settings
-                mContrastImage.setImageBitmap(applyContrastBrightness(mContrastBitmap, mContrast, mBrightness));
-            }
-        });
+        // Apply contrast & brightness settings
+        mContrastImage.setImageBitmap(applyContrastBrightness(mContrastBitmap, mContrast, mBrightness));
     }
 
     @Override
