@@ -114,14 +114,25 @@ public class ProcessThread extends Thread {
     private short mSynchroOffset = 0; // Synchronization offset configured by the user
     private boolean mLocalSync = true; // To define from which video to extract the audio (after synchronization)
 
-    private Frame.Orientation getOrientation() { // Return frame orientation according settings
+    private Frame.Orientation getOrientation(boolean local) { // Return frame orientation
+        if (local) {
 
-        if (Settings.getInstance().mOrientation) // Portrait
-            return (Settings.getInstance().mReverse)?
-                    Frame.Orientation.REVERSE_PORTRAIT: Frame.Orientation.PORTRAIT;
-        else // Landscape
-            return (Settings.getInstance().mReverse)?
-                    Frame.Orientation.REVERSE_LANDSCAPE: Frame.Orientation.LANDSCAPE;
+            if (Settings.getInstance().mOrientation) // Portrait
+                return (Settings.getInstance().mReverse)?
+                        Frame.Orientation.REVERSE_PORTRAIT: Frame.Orientation.PORTRAIT;
+            else // Landscape
+                return (Settings.getInstance().mReverse)?
+                        Frame.Orientation.REVERSE_LANDSCAPE: Frame.Orientation.LANDSCAPE;
+        }
+        else { // Remote
+
+            if (Settings.getInstance().mOrientation) // Portrait
+                return (Frame.getInstance().getReverse())?
+                        Frame.Orientation.REVERSE_PORTRAIT: Frame.Orientation.PORTRAIT;
+            else // Landscape
+                return (Frame.getInstance().getReverse())?
+                        Frame.Orientation.REVERSE_LANDSCAPE: Frame.Orientation.LANDSCAPE;
+        }
     }
 
     public static GstObject mGStreamer; // GStreamer object used to manipulate pictures & videos
@@ -404,7 +415,7 @@ public class ProcessThread extends Thread {
                             width, height, ActivityWrapper.DOCUMENTS_FOLDER +
                                     ((local) ?
                                             Storage.FILENAME_LOCAL_PICTURE :
-                                            Storage.FILENAME_REMOTE_PICTURE), getOrientation())) {
+                                            Storage.FILENAME_REMOTE_PICTURE), getOrientation(local))) {
 
                         Logs.add(Logs.Type.E, "Failed to convert correction picture");
                         mAbort = true;
@@ -474,6 +485,7 @@ public class ProcessThread extends Thread {
                         Connectivity.getInstance().addRequest(Frame.getInstance(),
                                 Frame.REQ_TYPE_DOWNLOAD, data);
 
+                        //////
                         publishProgress(Frame.getInstance().getTransferSize(),
                                 Frame.getInstance().getBufferSize());
                     }
@@ -611,7 +623,7 @@ public class ProcessThread extends Thread {
                     if (!Video.extractFramesRGBA(ActivityWrapper.DOCUMENTS_FOLDER + ((local)?
                                     Storage.FILENAME_LOCAL_VIDEO:
                                     Storage.FILENAME_REMOTE_VIDEO),
-                            getOrientation(), ActivityWrapper.DOCUMENTS_FOLDER + ((local)?
+                            getOrientation(local), ActivityWrapper.DOCUMENTS_FOLDER + ((local)?
                                     Constants.PROCESS_LOCAL_FRAMES:
                                     Constants.PROCESS_REMOTE_FRAMES))) {
 

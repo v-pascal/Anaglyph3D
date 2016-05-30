@@ -47,7 +47,7 @@ public abstract class BufferRequest implements IConnectRequest {
     @Override public final short getMaxWaitReply(byte type) { return Constants.CONN_MAXWAIT_DEFAULT; }
 
     @Override
-    public final ReceiveResult receiveReply(byte type, String reply) {
+    public ReceiveResult receiveReply(byte type, String reply) {
         return (send())? ReceiveResult.SUCCESS:ReceiveResult.ERROR;
     }
     @Override
@@ -83,7 +83,7 @@ public abstract class BufferRequest implements IConnectRequest {
     private byte[] mBuffer = new byte[1]; // Must be defined (see 'getBufferSize' method)
     private int mTransferSize = 0;
 
-    private boolean send() { // Send buffer...
+    protected boolean send() { // Send buffer...
 
         mTransferSize = 0;
         try {

@@ -3,6 +3,7 @@ package com.studio.artaban.anaglyph3d.media;
 import android.os.Bundle;
 
 import com.studio.artaban.anaglyph3d.data.Constants;
+import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.process.ProcessThread;
 import com.studio.artaban.anaglyph3d.transfer.BufferRequest;
@@ -38,6 +39,7 @@ public class Frame extends BufferRequest {
         // Get picture data
         mWidth = data.getInt(DATA_KEY_WIDTH);
         mHeight = data.getInt(DATA_KEY_HEIGHT);
+        mReverse = data.getBoolean(DATA_KEY_REVERSE);
 
         JSONObject request = getBufferRequest(type, data);
         if (request != null) {
@@ -45,6 +47,7 @@ public class Frame extends BufferRequest {
 
                 request.put(DATA_KEY_WIDTH, mWidth);
                 request.put(DATA_KEY_HEIGHT, mHeight);
+                request.put(DATA_KEY_REVERSE, mReverse);
 
                 return request.toString();
             }
@@ -74,8 +77,11 @@ public class Frame extends BufferRequest {
         try {
             mWidth = picture.getInt(DATA_KEY_WIDTH);
             mHeight = picture.getInt(DATA_KEY_HEIGHT);
+            mReverse = picture.getBoolean(DATA_KEY_REVERSE);
 
-            return result;
+            // Reply current reverse setting
+            return ((Settings.getInstance().mReverse)?
+                    Constants.CONN_REQUEST_ANSWER_TRUE:Constants.CONN_REQUEST_ANSWER_FALSE);
         }
         catch (JSONException e) {
             Logs.add(Logs.Type.E, e.getMessage());
@@ -83,12 +89,22 @@ public class Frame extends BufferRequest {
         return null;
     }
 
+    @Override
+    public ReceiveResult receiveReply(byte type, String reply) {
+
+        mReverse = reply.equals(Constants.CONN_REQUEST_ANSWER_TRUE); // Receive remote reverse setting
+        return (send())?
+                ReceiveResult.SUCCESS:ReceiveResult.ERROR;
+    }
+
     //////
-    private int mWidth;
-    private int mHeight;
+    private int mWidth; // Frame width
+    private int mHeight; // Frame height
+    private boolean mReverse; // Reverse picture
 
     public int getWidth() { return mWidth; }
     public int getHeight() { return mHeight; }
+    public boolean getReverse() { return mReverse; }
 
     //////
     public enum Orientation {
