@@ -24,6 +24,7 @@ public class Frame extends BufferRequest {
     // Data keys
     public static final String DATA_KEY_WIDTH = "width";
     public static final String DATA_KEY_HEIGHT = "height";
+    public static final String DATA_KEY_REVERSE = "reverse";
 
     //////
     @Override

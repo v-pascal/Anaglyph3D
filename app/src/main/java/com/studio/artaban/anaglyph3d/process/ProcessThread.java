@@ -467,6 +467,7 @@ public class ProcessThread extends Thread {
                         Bundle data = new Bundle();
                         data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
                         data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
+                        data.putBoolean(Frame.DATA_KEY_REVERSE, Settings.getInstance().mReverse);
                         data.putByteArray(Frame.DATA_KEY_BUFFER, mPictureRaw);
 
                         // Send download picture request (upload to remote device)
