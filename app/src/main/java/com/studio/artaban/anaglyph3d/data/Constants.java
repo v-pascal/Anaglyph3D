@@ -60,9 +60,9 @@ public final class Constants {
     public static final int CONFIG_MIN_DURATION = 10; // Minimum duration (in seconds)
     public static final int CONFIG_MAX_DURATION = 180; // Maximum duration (in seconds)
 
-    public static final short CONFIG_DEFAULT_FPS = 10; // Default frames per second
-    public static final int CONFIG_MIN_FPS = 5; // Minimum frames per second
-    public static final int CONFIG_MAX_FPS = 20; // Maximum frames per second
+    public static final short CONFIG_DEFAULT_FPS = 9; // Default frames per second
+    public static final short CONFIG_MIN_FPS = 8; // Minimum frames per second
+    public static final short CONFIG_MAX_FPS = 18; // Maximum frames per second
 
 
     ////// Extensions

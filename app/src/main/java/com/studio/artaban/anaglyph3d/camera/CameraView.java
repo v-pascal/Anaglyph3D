@@ -5,7 +5,6 @@ import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.content.Context;
-import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
 import android.os.Handler;
 import android.util.AttributeSet;
@@ -23,6 +22,7 @@ import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.process.ProcessActivity;
+import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -146,6 +146,25 @@ public class CameraView extends SurfaceView
 
             Logs.add(Logs.Type.E, "Failed to start recorder");
             DisplayMessage.getInstance().toast(R.string.error_start_recording, Toast.LENGTH_LONG);
+
+            //////
+
+
+
+
+
+
+
+
+            //quit application
+
+
+
+
+
+
+
+
             return false;
         }
         return true;
@@ -214,10 +233,8 @@ public class CameraView extends SurfaceView
             mMediaRecorder.setOrientationHint(180);
 
         mMediaRecorder.setMaxDuration(Settings.getInstance().mDuration * 1000);
-        //mMediaRecorder.setVideoFrameRate(Settings.getInstance().mFps);
-        // BUG: Not working! Start recording failed if defined.
-
         mMediaRecorder.setVideoEncodingBitRate(3000000);
+        mMediaRecorder.setVideoFrameRate(Settings.getInstance().mFps);
         mMediaRecorder.setOutputFile(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_LOCAL_VIDEO);
 
         try { mMediaRecorder.prepare(); }
@@ -350,6 +367,25 @@ public class CameraView extends SurfaceView
             mCamera.getParameters().setPreviewSize(mPreviewSize.width, mPreviewSize.height);
             mCamera.getParameters().setPreviewFormat(ImageFormat.NV21);
             if (mTakePicture) {
+
+
+
+
+
+
+
+
+                //mCamera.getParameters().setPreviewFpsRange(
+                //        Settings.getInstance().mFps - 1,
+                //        Settings.getInstance().mFps + 1);
+
+                //getSupportedPreviewFpsRange
+                mCamera.getParameters().setPreviewFrameRate(Settings.getInstance().mFps);
+
+
+
+
+
 
                 mRawPicture = new byte[(mPreviewSize.width * mPreviewSize.height * 3) >> 1]; // NV21 buffer size
                 mCamera.setPreviewCallback(new Camera.PreviewCallback() {

@@ -212,9 +212,6 @@ public class SettingsActivity extends SettingsParentActivity
         //mFpsPreference.setOnPreferenceChangeListener(this);
         // BUG: Not working! 'onPreferenceChange' never called...
 
-        mFpsPreference.setEnabled(false);
-        // BUG: FPS setting cannot be apply to the video recorder!
-
         preferenceCat.addPreference(mDurationPreference);
         preferenceCat.addPreference(mFpsPreference);
     }
