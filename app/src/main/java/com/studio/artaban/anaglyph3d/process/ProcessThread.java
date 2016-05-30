@@ -378,7 +378,10 @@ public class ProcessThread extends Thread {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
 
-                                        // Send cancel request (this action will finish the activity)
+                                        ActivityWrapper.stopActivity(ProcessActivity.class,
+                                                Constants.NO_DATA, null);
+
+                                        // Send cancel request (this action will finish the remote activity)
                                         Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                                                 ActivityWrapper.REQ_TYPE_CANCEL, null);
                                     }
@@ -412,7 +415,10 @@ public class ProcessThread extends Thread {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
 
-                                        // Send cancel request (this action will finish the activity)
+                                        ActivityWrapper.stopActivity(ProcessActivity.class,
+                                                Constants.NO_DATA, null);
+
+                                        // Send cancel request (this action will finish the remote activity)
                                         Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                                                 ActivityWrapper.REQ_TYPE_CANCEL, null);
                                     }
@@ -425,14 +431,6 @@ public class ProcessThread extends Thread {
                             mStatus = Status.WAIT_PICTURE;
 
                         else {
-
-                            // Load correction activity ////////////////////////////////////////////
-                            Bundle data = new Bundle();
-                            data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
-                            data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
-
-                            ActivityWrapper.startActivity(CorrectionActivity.class, data,
-                                    Constants.PROCESS_REQUEST_CORRECTION);
 
                             //////
                             mStep = Step.VIDEO;
@@ -451,15 +449,27 @@ public class ProcessThread extends Thread {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
 
-                                                // Send cancel request (this action will finish the activity)
+                                                ActivityWrapper.stopActivity(ProcessActivity.class,
+                                                        Constants.NO_DATA, null);
+
+                                                // Send cancel request (this action will finish the remote activity)
                                                 Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                                                         ActivityWrapper.REQ_TYPE_CANCEL, null);
                                             }
                                         });
+                                break;
                             }
                             else
                                 publishProgress(Video.getInstance().getTransferSize(),
                                         Video.getInstance().getBufferSize());
+
+                            // Load correction activity ////////////////////////////////////////////
+                            Bundle data = new Bundle();
+                            data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
+                            data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
+
+                            ActivityWrapper.startActivity(CorrectionActivity.class, data,
+                                    Constants.PROCESS_REQUEST_CORRECTION);
                         }
                     }
                     else { // Maker
@@ -577,7 +587,10 @@ public class ProcessThread extends Thread {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
 
-                                        // Send cancel request (this action will finish the activity)
+                                        ActivityWrapper.stopActivity(ProcessActivity.class,
+                                                Constants.NO_DATA, null);
+
+                                        // Send cancel request (this action will finish the remote activity)
                                         Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                                                 ActivityWrapper.REQ_TYPE_CANCEL, null);
                                     }
@@ -607,7 +620,10 @@ public class ProcessThread extends Thread {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
 
-                                        // Send cancel request (this action will finish the activity)
+                                        ActivityWrapper.stopActivity(ProcessActivity.class,
+                                                Constants.NO_DATA, null);
+
+                                        // Send cancel request (this action will finish the remote activity)
                                         Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                                                 ActivityWrapper.REQ_TYPE_CANCEL, null);
                                     }
@@ -674,7 +690,10 @@ public class ProcessThread extends Thread {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
 
-                                        // Send cancel request (this action will finish the activity)
+                                        ActivityWrapper.stopActivity(ProcessActivity.class,
+                                                Constants.NO_DATA, null);
+
+                                        // Send cancel request (this action will finish the remote activity)
                                         Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                                                 ActivityWrapper.REQ_TYPE_CANCEL, null);
                                     }
@@ -718,7 +737,10 @@ public class ProcessThread extends Thread {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
 
-                                        // Send cancel request (this action will finish the activity)
+                                        ActivityWrapper.stopActivity(ProcessActivity.class,
+                                                Constants.NO_DATA, null);
+
+                                        // Send cancel request (this action will finish the remote activity)
                                         Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                                                 ActivityWrapper.REQ_TYPE_CANCEL, null);
                                     }
@@ -745,7 +767,10 @@ public class ProcessThread extends Thread {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
 
-                                        // Send cancel request (this action will finish the activity)
+                                        ActivityWrapper.stopActivity(ProcessActivity.class,
+                                                Constants.NO_DATA, null);
+
+                                        // Send cancel request (this action will finish the remote activity)
                                         Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                                                 ActivityWrapper.REQ_TYPE_CANCEL, null);
                                     }

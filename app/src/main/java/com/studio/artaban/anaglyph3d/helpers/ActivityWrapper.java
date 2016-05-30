@@ -12,6 +12,8 @@ import com.studio.artaban.anaglyph3d.MainActivity;
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.process.ProcessActivity;
+import com.studio.artaban.anaglyph3d.process.configure.CorrectionActivity;
+import com.studio.artaban.anaglyph3d.process.configure.SynchroActivity;
 import com.studio.artaban.anaglyph3d.transfer.IConnectRequest;
 
 import java.io.ByteArrayOutputStream;
@@ -98,7 +100,11 @@ public class ActivityWrapper implements IConnectRequest {
 
             case REQ_TYPE_CANCEL: {
 
+                // Close process activity (after having close any descent activities if any)
+                stopActivity(CorrectionActivity.class, Constants.NO_DATA, null);
+                stopActivity(SynchroActivity.class, Constants.NO_DATA, null);
                 stopActivity(ProcessActivity.class, Constants.NO_DATA, null);
+
                 break; // Reply not considered (see below)
             }
         }
@@ -167,7 +173,7 @@ public class ActivityWrapper implements IConnectRequest {
             Logs.add(Logs.Type.F, "Wrong activity reference");
         }
     }
-    public static void stopActivity(final Class activity, final int result, final Bundle data) {
+    public static boolean stopActivity(final Class activity, final int result, final Bundle data) {
         try { // Stop expected activity (if active)
 
             Activity curActivity = get();
@@ -184,11 +190,13 @@ public class ActivityWrapper implements IConnectRequest {
                         curActivity.setResult(result);
                 }
                 curActivity.finish();
+                return true;
             }
         }
         catch (NullPointerException e) {
             Logs.add(Logs.Type.F, "Wrong activity reference");
         }
+        return false;
     }
 
     //
