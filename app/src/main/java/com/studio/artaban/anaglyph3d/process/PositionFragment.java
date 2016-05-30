@@ -22,6 +22,7 @@ import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 /**
  * Created by pascal on 13/04/16.
@@ -57,21 +58,23 @@ public class PositionFragment extends Fragment {
                 getDefaultDisplay().getRotation();
 
         if (Settings.getInstance().mReverse) {
-            if (Settings.getInstance().mOrientation) {
-                if (orientation != Surface.ROTATION_270)
+            if (Settings.getInstance().mOrientation) { // Portrait
+                if (orientation != Surface.ROTATION_180)
                     orientation = Constants.NO_DATA; // Not in reversed portrait
             }
-            else if (orientation != Surface.ROTATION_180)
+            else if (orientation != Surface.ROTATION_270)
                 orientation = Constants.NO_DATA; // Not in reversed landscape
         }
         else {
-            if (Settings.getInstance().mOrientation) {
+            if (Settings.getInstance().mOrientation) { // Portrait
                 if (orientation != Surface.ROTATION_0)
                     orientation = Constants.NO_DATA; // Not in portrait
             }
             else if (orientation != Surface.ROTATION_90)
                 orientation = Constants.NO_DATA; // Not in landscape
         }
+        // TODO: Manage landscape natural orientation devices
+
         if (orientation == Constants.NO_DATA) {
 
             // Inform user the reverse option cannot be applied to this device
