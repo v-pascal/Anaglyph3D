@@ -197,13 +197,19 @@ public class ProcessActivity extends AppCompatActivity {
                                     CorrectionActivity.DEFAULT_BALANCE),
                             data.getBooleanExtra(CorrectionActivity.DATA_KEY_LOCAL,
                                     CorrectionActivity.DEFAULT_LOCAL_FRAME));
-                else
+
+                else if (resultCode != Constants.RESULT_LOST_CONNECTION)
                     ProcessThread.applyCorrection(CorrectionActivity.DEFAULT_CONTRAST,
                             CorrectionActivity.DEFAULT_BRIGHTNESS,
                             CorrectionActivity.DEFAULT_BALANCE,
                             CorrectionActivity.DEFAULT_BALANCE,
                             CorrectionActivity.DEFAULT_BALANCE,
                             CorrectionActivity.DEFAULT_LOCAL_FRAME);
+                else {
+
+                    setResult(Constants.RESULT_LOST_CONNECTION);
+                    finish();
+                }
                 break;
             }
             case Constants.PROCESS_REQUEST_SYNCHRO: {
@@ -214,9 +220,20 @@ public class ProcessActivity extends AppCompatActivity {
                                     SynchroActivity.DEFAULT_OFFSET),
                             data.getBooleanExtra(SynchroActivity.DATA_KEY_SYNCHRO_LOCAL,
                                     SynchroActivity.DEFAULT_LOCAL));
-                else
+
+                else if (resultCode != Constants.RESULT_LOST_CONNECTION)
                     mProcessThread.applySynchronization(SynchroActivity.DEFAULT_OFFSET,
                             SynchroActivity.DEFAULT_LOCAL);
+                else {
+
+                    setResult(Constants.RESULT_LOST_CONNECTION);
+                    finish();
+                }
+                break;
+            }
+            default: {
+
+                Logs.add(Logs.Type.F, "Unexpected request code");
                 break;
             }
         }

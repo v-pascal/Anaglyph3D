@@ -22,7 +22,6 @@ import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
-import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 /**
  * Created by pascal on 13/04/16.
