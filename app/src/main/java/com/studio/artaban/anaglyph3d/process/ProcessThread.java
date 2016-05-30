@@ -457,19 +457,7 @@ public class ProcessThread extends Thread {
                                                         ActivityWrapper.REQ_TYPE_CANCEL, null);
                                             }
                                         });
-                                break;
                             }
-                            else
-                                publishProgress(Video.getInstance().getTransferSize(),
-                                        Video.getInstance().getBufferSize());
-
-                            // Load correction activity ////////////////////////////////////////////
-                            Bundle data = new Bundle();
-                            data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
-                            data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
-
-                            ActivityWrapper.startActivity(CorrectionActivity.class, data,
-                                    Constants.PROCESS_REQUEST_CORRECTION);
                         }
                     }
                     else { // Maker
@@ -500,8 +488,23 @@ public class ProcessThread extends Thread {
                             Video.getInstance().getBufferSize());
 
                     //////
-                    if (Video.getInstance().getTransferSize() == Video.getInstance().getBufferSize())
-                        mStatus = (Settings.getInstance().isMaker())? Status.SAVE_VIDEO:Status.WAIT_CORRECTION;
+                    if (Video.getInstance().getTransferSize() == Video.getInstance().getBufferSize()) {
+                        if (Settings.getInstance().isMaker())
+                            mStatus = Status.SAVE_VIDEO;
+
+                        else { // !Maker
+
+                            mStatus = Status.WAIT_CORRECTION;
+
+                            // Load correction activity ////////////////////////////////////////////
+                            Bundle data = new Bundle();
+                            data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
+                            data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
+
+                            ActivityWrapper.startActivity(CorrectionActivity.class, data,
+                                    Constants.PROCESS_REQUEST_CORRECTION);
+                        }
+                    }
                     break;
                 }
                 case TRANSFER_CORRECTION:

@@ -105,8 +105,8 @@ public abstract class BufferRequest implements IConnectRequest {
                         }
                         mTransferSize += send;
 
-                        if (++waitEvery == 10) { // Wait 200 ms every 10 packets sent
-                            try { Thread.sleep(200, 0); }
+                        if (++waitEvery == 10) { // Wait 300 ms every 10 packets sent
+                            try { Thread.sleep(300, 0); }
                             catch (InterruptedException e) {
                                 Logs.add(Logs.Type.W, e.getMessage());
                             }

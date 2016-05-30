@@ -35,7 +35,7 @@ public final class Constants {
     public static final String CONN_SECURE_NAME = "ANAGLYPH-3D"; // Bluetooth connection name
 
     public static final short CONN_WAIT_DELAY = 10; // Connection loop sleep (in milliseconds)
-    public static final short CONN_WAIT_BUFFER = 50; // Connection loop sleep when receiving buffer (in milliseconds)
+    public static final short CONN_WAIT_BUFFER = 100; // Connection loop sleep when receiving buffer (in milliseconds)
 
     // Maximum delay to receive reply before disconnect (in loop count)
     public static final short CONN_MAXWAIT_DEFAULT = 200;
@@ -56,7 +56,7 @@ public final class Constants {
     public static final int CONFIG_PERFORMANCE_LOOP = 4096; // Loop count for performance calculation
 
     public static final boolean CONFIG_DEFAULT_ORIENTATION = true; // Default orientation (portrait)
-    public static final short CONFIG_DEFAULT_DURATION = 10; // Default duration (in seconds)
+    public static final short CONFIG_DEFAULT_DURATION = 30; // Default duration (in seconds)
     public static final int CONFIG_MIN_DURATION = 10; // Minimum duration (in seconds)
     public static final int CONFIG_MAX_DURATION = 180; // Maximum duration (in seconds)
 
