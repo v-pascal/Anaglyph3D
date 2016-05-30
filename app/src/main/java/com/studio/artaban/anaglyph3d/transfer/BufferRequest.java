@@ -48,7 +48,9 @@ public abstract class BufferRequest implements IConnectRequest {
 
     @Override
     public ReceiveResult receiveReply(byte type, String reply) {
-        return (send())? ReceiveResult.SUCCESS:ReceiveResult.ERROR;
+
+        send();
+        return ReceiveResult.SUCCESS;
     }
     @Override
     public final ReceiveResult receiveBuffer(ByteArrayOutputStream buffer) {
@@ -83,45 +85,55 @@ public abstract class BufferRequest implements IConnectRequest {
     private byte[] mBuffer = new byte[1]; // Must be defined (see 'getBufferSize' method)
     private int mTransferSize = 0;
 
-    protected boolean send() { // Send buffer...
+    private int mBufferSent;
+    private final Runnable mRunOnUI = new Runnable() {
+        @Override
+        public void run() { // ...via UI thread
+
+            int toSend = ((mBufferSent + Bluetooth.MAX_SEND_BUFFER) < mBuffer.length)?
+                    Bluetooth.MAX_SEND_BUFFER:mBuffer.length - mBufferSent;
+
+            // Send buffer packet
+            if (!Connectivity.getInstance().send(mBuffer, mBufferSent, toSend))
+                Logs.add(Logs.Type.E, "Failed to send buffer packet");
+            else
+                mTransferSize += toSend;
+
+            synchronized (this) { notify(); }
+        }
+    };
+    protected void send() { // Send buffer...
 
         mTransferSize = 0;
-        try {
-
-            ActivityWrapper.get().runOnUiThread(new Runnable() { // ...via UI thread
-                @Override
-                public void run() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
 
                     int waitEvery = 0;
-                    for (int sent = 0; sent < mBuffer.length; sent += Bluetooth.MAX_SEND_BUFFER) {
-                        int send = ((sent + Bluetooth.MAX_SEND_BUFFER) < mBuffer.length) ?
-                                Bluetooth.MAX_SEND_BUFFER : mBuffer.length - sent;
+                    for (mBufferSent = 0; mBufferSent < mBuffer.length;
+                         mBufferSent += Bluetooth.MAX_SEND_BUFFER) {
 
-                        // Send buffer packet
-                        if (!Connectivity.getInstance().send(mBuffer, sent, send)) {
+                        synchronized (mRunOnUI) {
 
-                            Logs.add(Logs.Type.E, "Failed to send buffer packet");
-                            break;
+                            ActivityWrapper.get().runOnUiThread(mRunOnUI);
+                            mRunOnUI.wait();
                         }
-                        mTransferSize += send;
+                        if (++waitEvery == 10) { // Wait 100 ms every 10 packets sent
 
-                        if (++waitEvery == 10) { // Wait 300 ms every 10 packets sent
-                            try { Thread.sleep(300, 0); }
-                            catch (InterruptedException e) {
-                                Logs.add(Logs.Type.W, e.getMessage());
-                            }
+                            Thread.sleep(300, 0);
                             waitEvery = 0;
                         }
                     }
                 }
-            });
-            return true;
-        }
-        catch (NullPointerException e) {
-
-            Logs.add(Logs.Type.F, "Wrong activity reference");
-            return false;
-        }
+                catch (NullPointerException e) {
+                    Logs.add(Logs.Type.F, "Wrong activity reference");
+                }
+                catch (InterruptedException e) {
+                    Logs.add(Logs.Type.W, e.getMessage());
+                }
+            }
+        }).start();
     }
 
     //

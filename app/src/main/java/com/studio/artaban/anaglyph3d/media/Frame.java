@@ -93,8 +93,9 @@ public class Frame extends BufferRequest {
     public ReceiveResult receiveReply(byte type, String reply) {
 
         mReverse = reply.equals(Constants.CONN_REQUEST_ANSWER_TRUE); // Receive remote reverse setting
-        return (send())?
-                ReceiveResult.SUCCESS:ReceiveResult.ERROR;
+
+        send();
+        return ReceiveResult.SUCCESS;
     }
 
     //////

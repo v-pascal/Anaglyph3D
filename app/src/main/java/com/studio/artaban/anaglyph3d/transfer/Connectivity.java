@@ -598,10 +598,12 @@ public class Connectivity {
                                 long performance = System.currentTimeMillis();
                                 double calculate = 0;
                                 for (int i = 0; i < Constants.CONFIG_PERFORMANCE_LOOP; ++i)
-                                    calculate += Math.sqrt(Math.cbrt(Math.cos(Math.sin(randoms[i])) * 1000000));
+                                    calculate += Math.sqrt(Math.cbrt(Math.acos(Math.cos(
+                                            Math.sin(randoms[i]))) * 1000000));
 
                                 Settings.getInstance().mPerformance =
                                         System.currentTimeMillis() - performance;
+                                Logs.add(Logs.Type.W, "Performance result: " + calculate);
                             }
                         });
                         performThread.setPriority(Thread.MAX_PRIORITY);
