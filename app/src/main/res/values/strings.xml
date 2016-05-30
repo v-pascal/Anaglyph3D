@@ -134,7 +134,6 @@
     <string name="title_activity_correction">Frames correction</string>
     <string name="title_activity_synchro">Synchronization (optional)</string>
     <string name="ask_skip_step">Are you sure you want to skip this step?</string>
-    <string name="menu_contrast">Contrast</string>
     <string name="no_video">The videos album is empty!</string>
     <string name="title_detail_format">MMM d, \'yy - hh:mm</string>
     <string name="date_detail_format">MM/dd/yyyy - hh:mm</string>
@@ -175,11 +174,11 @@
 
     <!-- Process error -->
     <string name="error_start_recording">ERROR: Unable to start recording! A media resource is in use. Restart your device to fix this.</string>
-    <string name="error_save_picture">Failed to save picture to set contrast &amp; brightness!</string>
+    <string name="error_save_picture">Failed to save picture to set correction!</string>
     <string name="error_load_video">Failed to load local video!</string>
-    <string name="error_contrast_failed">WARNING: Failed to display contrast &amp; brightness image! Step cancelled.</string>
+    <string name="error_correction_failed">WARNING: Failed to display correction image! Step cancelled.</string>
     <string name="error_save_video">Failed to save transferred video!</string>
-    <string name="error_convert_contrast">Failed to convert contrast &amp; brightness image!</string>
+    <string name="error_convert_correction">Failed to convert correction image!</string>
     <string name="error_extract_frames">Failed to extract frames from the video!</string>
     <string name="error_extract_audio">Failed to extract audio from the video!</string>
     <string name="error_make_video">Failed to make the anaglyph 3D video!</string>
@@ -188,19 +187,19 @@
     <string name="error_convert_thumbnail">Failed to convert picture to display the video thumbnail!</string>
 
     <!-- Process step -->
-    <string name="step_contrast">Contrast &amp; brightness</string>
+    <string name="step_correction">Frames correction</string>
     <string name="step_video">Videos transfer &amp; extraction</string>
     <string name="step_frames">Frames conversion</string>
     <string name="step_anaglyph">Make &amp; transfer 3D video</string>
 
     <!-- Process status -->
     <string name="status_initialize">Process initialization...</string>
-    <string name="status_save_raw">Store picture to set contrast &amp; brightness...</string>
-    <string name="status_convert_raw">Convert picture to set contrast &amp; brightness...</string>
-    <string name="status_transfer_raw">Transfer picture to set contrast &amp; brightness</string>
+    <string name="status_save_raw">Store picture to set frames correction...</string>
+    <string name="status_convert_raw">Convert picture to set frames correction...</string>
+    <string name="status_transfer_raw">Transfer picture to set frames correction</string>
     <string name="status_transfer_video">Transfer the video</string>
-    <string name="status_wait_contrast">Waiting contrast &amp; brightness setting...</string>
-    <string name="status_transfer_contrast">Transfer contrast &amp; brightness setting...</string>
+    <string name="status_wait_correction">Waiting frames correction...</string>
+    <string name="status_transfer_correction">Transfer frames correction...</string>
     <string name="status_save_video">Save the transferred video...</string>
     <string name="status_extract_left">Left camera video extracting...</string>
     <string name="status_extract_right">Right camera video extracting...</string>

@@ -89,44 +89,6 @@ public class Frame extends BufferRequest {
     public int getWidth() { return mWidth; }
     public int getHeight() { return mHeight; }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public void init() {
-        mWidth = 640;
-        mHeight = 480;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     //////
     public enum Orientation {
 

@@ -58,17 +58,17 @@ public class ProcessThread extends Thread {
 
     public enum Step {
 
-        CONTRAST, // Contrast & brightness
+        CORRECTION, // Frames correction
         VIDEO, // Video transfer & extraction
         FRAMES, // Frames conversion
         MAKE // Make & transfer 3D video
     }
     private enum Status {
 
-        ////// Contrast & brightness step
+        ////// Frames correction step
         INITIALIZATION (R.string.status_initialize), // Initialize process (GStreamer)
         TRANSFER_PICTURE (R.string.status_transfer_raw), // Transfer picture (to remote device which is not the maker)
-        WAIT_PICTURE (R.string.status_transfer_raw), // Wait until contrast & brightness picture has been received (to device which is not the maker)
+        WAIT_PICTURE (R.string.status_transfer_raw), // Wait until frames correction has been received (to device which is not the maker)
         SAVE_PICTURE (R.string.status_save_raw), // Save raw picture into local file
         CONVERT_PICTURE (R.string.status_convert_raw), // Convert local picture from NV21 to ARGB
 
@@ -81,11 +81,11 @@ public class ProcessThread extends Thread {
         MERGE_FPS (R.string.status_merge_fps), // Remove the too many RGB pictures from camera video with bigger FPS
         WAIT_SYNCHRO (Constants.NO_DATA), // Wait synchro configuration
         EXTRACT_AUDIO (R.string.status_extract_audio), // Extract audio from one of the videos
-        TRANSFER_CONTRAST (R.string.status_transfer_contrast), // Transfer the contrast & brightness (from device which is not the maker)
-        WAIT_CONTRAST (R.string.status_wait_contrast), // Wait until contrast & brightness has been received
+        TRANSFER_CORRECTION (R.string.status_transfer_correction), // Transfer frames correction (from device which is not the maker)
+        WAIT_CORRECTION (R.string.status_wait_correction), // Wait until frames correction has been received
 
         ////// Frames conversion step
-        FRAMES_CONVERSION (R.string.status_frames_conversion), // Color frame (in blue or red), and apply contrast & brightness
+        FRAMES_CONVERSION (R.string.status_frames_conversion), // Color frame (in blue or red), and apply correction
 
         ////// Make & transfer 3D video step
         MAKE_3D_VIDEO (R.string.status_make_anaglyph), // Make the anaglyph 3D video
@@ -99,17 +99,17 @@ public class ProcessThread extends Thread {
         Status(int id) { stringId = id; }
         public int getStringId() { return stringId; }
     }
-    private Step mStep = Step.CONTRAST;
+    private Step mStep = Step.CORRECTION;
     private Status mStatus = Status.INITIALIZATION;
 
-    private static boolean mConfigured = false; // Flag to know if user has configured the contrast & brightness
+    private static boolean mConfigured = false; // Flag to know if user has configured the frames correction
 
     private static float mContrast = CorrectionActivity.DEFAULT_CONTRAST; // Contrast configured by the user
     private static float mBrightness = CorrectionActivity.DEFAULT_BRIGHTNESS; // Brightness configured by the user
     private static float mRedBalance = CorrectionActivity.DEFAULT_BALANCE; // Red balance configured by the user
     private static float mGreenBalance = CorrectionActivity.DEFAULT_BALANCE; // Green balance configured by the user
     private static float mBlueBalance = CorrectionActivity.DEFAULT_BALANCE; // Blue balance configured by the user
-    private static boolean mLocalFrame = CorrectionActivity.DEFAULT_LOCAL_FRAME; // Flag to know on which frames to apply contrast
+    private static boolean mLocalFrame = CorrectionActivity.DEFAULT_LOCAL_FRAME; // Flag to know on which frames to apply correction
 
     private short mSynchroOffset = 0; // Synchronization offset configured by the user
     private boolean mLocalSync = true; // To define from which video to extract the audio (after synchronization)
@@ -146,14 +146,14 @@ public class ProcessThread extends Thread {
     }
 
     //////
-    private static ContrastTransfer mTransfer;
-    public static ContrastTransfer getInstance() {
+    private static CorrectionTransfer mTransfer;
+    public static CorrectionTransfer getInstance() {
         if (mTransfer == null)
-            mTransfer = new ContrastTransfer();
+            mTransfer = new CorrectionTransfer();
 
         return mTransfer;
     }
-    private static class ContrastTransfer implements IConnectRequest {
+    private static class CorrectionTransfer implements IConnectRequest {
 
         @Override public char getRequestId() { return IConnectRequest.REQ_PROCESS; }
         @Override public boolean getRequestMerge() { return false; }
@@ -166,6 +166,9 @@ public class ProcessThread extends Thread {
                 JSONObject request = new JSONObject();
                 request.put(CorrectionActivity.DATA_KEY_CONTRAST, mContrast);
                 request.put(CorrectionActivity.DATA_KEY_BRIGHTNESS, mBrightness);
+                request.put(CorrectionActivity.DATA_KEY_RED_BALANCE, mRedBalance);
+                request.put(CorrectionActivity.DATA_KEY_GREEN_BALANCE, mGreenBalance);
+                request.put(CorrectionActivity.DATA_KEY_BLUE_BALANCE, mBlueBalance);
                 request.put(CorrectionActivity.DATA_KEY_LOCAL, mLocalFrame);
 
                 return request.toString();
@@ -211,7 +214,7 @@ public class ProcessThread extends Thread {
         public String message = "";
         public int progress = 0;
         public int max = 1;
-        public Step step = Step.CONTRAST;
+        public Step step = Step.CORRECTION;
         public boolean heavy = false;
     }
     public static final ProgressStatus mProgress = new ProgressStatus();
@@ -253,8 +256,8 @@ public class ProcessThread extends Thread {
                     case WAIT_3D_VIDEO:
                     case MAKE_3D_VIDEO:
 
-                    case WAIT_CONTRAST:
-                    case TRANSFER_CONTRAST:
+                    case WAIT_CORRECTION:
+                    case TRANSFER_CORRECTION:
 
                     case CONVERT_PICTURE:
                     case SAVE_VIDEO:
@@ -400,11 +403,11 @@ public class ProcessThread extends Thread {
                                             Storage.FILENAME_LOCAL_PICTURE :
                                             Storage.FILENAME_REMOTE_PICTURE), getOrientation())) {
 
-                        Logs.add(Logs.Type.E, "Failed to convert contrast picture");
+                        Logs.add(Logs.Type.E, "Failed to convert correction picture");
                         mAbort = true;
 
                         // Inform user
-                        DisplayMessage.getInstance().alert(R.string.title_error, R.string.error_convert_contrast,
+                        DisplayMessage.getInstance().alert(R.string.title_error, R.string.error_convert_correction,
                                 null, false, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
@@ -423,7 +426,7 @@ public class ProcessThread extends Thread {
 
                         else {
 
-                            // Load contrast activity //////////////////////////////////////////////////
+                            // Load correction activity ////////////////////////////////////////////
                             Bundle data = new Bundle();
                             data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
                             data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
@@ -488,16 +491,16 @@ public class ProcessThread extends Thread {
 
                     //////
                     if (Video.getInstance().getTransferSize() == Video.getInstance().getBufferSize())
-                        mStatus = (Settings.getInstance().isMaker())? Status.SAVE_VIDEO:Status.WAIT_CONTRAST;
+                        mStatus = (Settings.getInstance().isMaker())? Status.SAVE_VIDEO:Status.WAIT_CORRECTION;
                     break;
                 }
-                case TRANSFER_CONTRAST:
-                case WAIT_CONTRAST: { // Wait contrast configuration or transfer for the maker
+                case TRANSFER_CORRECTION:
+                case WAIT_CORRECTION: { // Wait frames correction configuration or transfer (for the maker)
 
                     sleep();
                     publishProgress(0, 1);
 
-                    if (mStatus == Status.TRANSFER_CONTRAST) {
+                    if (mStatus == Status.TRANSFER_CORRECTION) {
                         if (Settings.getInstance().isMaker()) {
 
                             // Contrast & brightness configuration has been received
@@ -505,6 +508,9 @@ public class ProcessThread extends Thread {
 
                             data.contrast = mContrast;
                             data.brightness = mBrightness;
+                            data.red = mRedBalance;
+                            data.green = mGreenBalance;
+                            data.blue = mBlueBalance;
                             data.local = mLocalFrame;
                             data.offset = mSynchroOffset;
                             data.localSync = mLocalSync;
@@ -526,15 +532,15 @@ public class ProcessThread extends Thread {
                     //else {
 
                     // IF Maker
-                    // Wait 'applyContrastBrightness' call from connectivity thread (once received)
+                    // Wait 'applyCorrection' call from connectivity thread (once received)
                     // ELSE
-                    // Wait contrast configuration (wait 'applyContrastBrightness' call from process activity)
+                    // Wait frames correction configuration (wait 'applyCorrection' call from process activity)
 
-                    // ...Nothing else to do (status will be updated 'applyContrastBrightness' via code below)
+                    // ...Nothing else to do (status will be updated 'applyCorrection' via code below)
                     // }
                     if (mConfigured) {
                         mConfigured = false;
-                        mStatus = Status.TRANSFER_CONTRAST;
+                        mStatus = Status.TRANSFER_CORRECTION;
                     }
                     break;
                 }
@@ -677,7 +683,7 @@ public class ProcessThread extends Thread {
                     }
 
                     //////
-                    mStatus = Status.WAIT_CONTRAST;
+                    mStatus = Status.WAIT_CORRECTION;
                     break;
                 }
                 case FRAMES_CONVERSION: {

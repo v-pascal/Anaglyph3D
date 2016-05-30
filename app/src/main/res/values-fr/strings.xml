@@ -48,7 +48,6 @@
     <string name="title_activity_correction">Correction des images</string>
     <string name="title_activity_synchro">Synchronisation (optionnel)</string>
     <string name="ask_skip_step">Etes-vous sûr de vouloir passer cette étape?</string>
-    <string name="menu_contrast">Contraste</string>
     <string name="no_video">L\'album vidéo est vide!</string>
     <string name="title_detail_format">d MMM yyyy - hh:mm</string>
     <string name="date_detail_format">dd/MM/yyyy - hh:mm</string>
@@ -89,11 +88,11 @@
 
     <!-- Process error -->
     <string name="error_start_recording">ERREUR: Enregistrement vidéo impossible! Ce média est en cours d\'utilisation. Redémarrer votre périphérique pour fixer ce problème.</string>
-    <string name="error_save_picture">Impossible de sauvegarder l\'image de configuration du contraste &amp; luminisité!</string>
+    <string name="error_save_picture">Impossible de sauvegarder l\'image de correction!</string>
     <string name="error_load_video">Impossible de charger la vidéo!</string>
-    <string name="error_contrast_failed">ATTENTION: Impossible d\'afficher les images de configuration du contraste &amp; luminosité! Etape annulée.</string>
+    <string name="error_correction_failed">ATTENTION: Impossible d\'afficher les images de correction! Etape annulée.</string>
     <string name="error_save_video">Impossible de sauvegarder la vidéo ainsi transférée!</string>
-    <string name="error_convert_contrast">Impossible de convertir l\'image de configuration du contraste &amp; luminosité!</string>
+    <string name="error_convert_correction">Impossible de convertir l\'image de correction!</string>
     <string name="error_extract_frames">Impossible d\'extraire les images de la vidéo!</string>
     <string name="error_extract_audio">Impossible d\'extraire l\'audio de la vidéo!</string>
     <string name="error_make_video">Echec durant le montage de la vidéo 3D anaglyphe!</string>
@@ -102,19 +101,19 @@
     <string name="error_convert_thumbnail">Echec durant la conversion de l\'image en vignette!</string>
 
     <!-- Process step -->
-    <string name="step_contrast">Contraste &amp; luminosité</string>
+    <string name="step_correction">Correction des images</string>
     <string name="step_video">Transfert &amp; extraction des vidéos</string>
     <string name="step_frames">Conversion des images</string>
     <string name="step_anaglyph">Création &amp; transfert de la vidéo 3D</string>
 
     <!-- Process status -->
     <string name="status_initialize">Initialisation du processus...</string>
-    <string name="status_save_raw">Stocke l\'image du contraste &amp; luminosité...</string>
-    <string name="status_convert_raw">Convertit l\'image du contraste &amp; luminosité...</string>
-    <string name="status_transfer_raw">Transfert de l\'image du contraste &amp; luminosité</string>
+    <string name="status_save_raw">Stocke l\'image de correction...</string>
+    <string name="status_convert_raw">Convertit l\'image de correction...</string>
+    <string name="status_transfer_raw">Transfert de l\'image de correction</string>
     <string name="status_transfer_video">Transfert de la vidéo</string>
-    <string name="status_wait_contrast">Contraste &amp; luminosité en attente...</string>
-    <string name="status_transfer_contrast">Transfert du contraste &amp; luminosité...</string>
+    <string name="status_wait_correction">Correction des images en attente...</string>
+    <string name="status_transfer_correction">Transfert des corrections...</string>
     <string name="status_save_video">Sauvegarde de la vidéo transférée...</string>
     <string name="status_extract_left">Extraction de la vidéo gauche...</string>
     <string name="status_extract_right">Extraction de la vidéo droite...</string>

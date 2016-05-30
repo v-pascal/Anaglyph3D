@@ -15,8 +15,6 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -364,79 +362,6 @@ public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnS
             mCorrectionType = savedInstanceState.getShort(DATA_KEY_CORRECTION);
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        Bundle datas = new Bundle();
-        datas.putInt(Frame.DATA_KEY_WIDTH, 640);
-        datas.putInt(Frame.DATA_KEY_HEIGHT, 480);
-        getIntent().putExtra(Constants.DATA_ACTIVITY, datas);
-
-        File documents = getExternalFilesDir(null);
-        if (documents != null)
-            ActivityWrapper.DOCUMENTS_FOLDER = documents.getAbsolutePath();
-        else
-            Logs.add(Logs.Type.F, "Failed to get documents folder");
-        TypedValue typedValue = new TypedValue();
-        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, typedValue, true))
-            ActivityWrapper.ACTION_BAR_HEIGHT = TypedValue.complexToDimensionPixelSize(typedValue.data,
-                    getResources().getDisplayMetrics());
-        else {
-            ActivityWrapper.ACTION_BAR_HEIGHT = 0;
-            Logs.add(Logs.Type.W, "'android.R.attr.actionBarSize' attribute not found");
-        }
-        ActivityWrapper.FAB_SIZE = Math.round(Constants.FAB_SIZE_DPI *
-                (getResources().getDisplayMetrics().xdpi/ DisplayMetrics.DENSITY_DEFAULT));
-        Settings.getInstance().initResolutions();
-        Frame.getInstance().init();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // Set layout to display according orientation
         final ViewStub stubView = (ViewStub) findViewById(R.id.layout_container);
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
@@ -513,7 +438,7 @@ public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnS
         if (!loadImagesFromFiles(compareImage)) {
 
             // Inform user
-            DisplayMessage.getInstance().toast(R.string.error_contrast_failed, Toast.LENGTH_LONG);
+            DisplayMessage.getInstance().toast(R.string.error_correction_failed, Toast.LENGTH_LONG);
 
             finish();
             return;
