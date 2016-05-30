@@ -408,6 +408,12 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             return;
         }
         switch (resultCode) {
+            case Constants.RESULT_LOST_CONNECTION: {
+
+                setResult(Constants.RESULT_LOST_CONNECTION);
+                finish();
+                break;
+            }
             case Constants.RESULT_SAVE_VIDEO: { // Save from detail activity (or portrait to landscape
                                                 // with two panels)
                 mLockMessage = true;
