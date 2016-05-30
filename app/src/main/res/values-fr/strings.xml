@@ -45,7 +45,7 @@
     <string name="device_not_ready">ATTENTION: Démarrage de l\'enregistrement impossible! La caméra distante n\'est pas prête.</string>
     <string name="reverse_disabled">ATTENTION: Impossible de retourner l\'écran! Vérifiez la configuration de votre périphérique.</string>
     <string name="status_label">Statut:</string>
-    <string name="title_activity_contrast">Contraste &amp; luminosité</string>
+    <string name="title_activity_correction">Correction des images</string>
     <string name="title_activity_synchro">Synchronisation (optionnel)</string>
     <string name="ask_skip_step">Etes-vous sûr de vouloir passer cette étape?</string>
     <string name="menu_contrast">Contraste</string>
@@ -73,6 +73,11 @@
     <string name="wrong_videos_attr">ERREUR: Echec durant le téléchargement! Réponse du webservice de STUDIO-Artaban incorrecte.</string>
     <string name="no_internet">ERREUR: Pas de connexion Internet!</string>
     <string name="no_storage">ERREUR: Impossible d\'accéder à l\'espace de stockage! Arrêt de l\'application.</string>
+    <string name="contrast">Contraste</string>
+    <string name="brightness">Luminosité</string>
+    <string name="red_balance">Balance de rouge</string>
+    <string name="green_balance">Balance de vert</string>
+    <string name="blue_balance">Balance de bleu</string>
 
     <!-- Share to local folder activity -->
     <string name="my_files">Mes fichiers</string>

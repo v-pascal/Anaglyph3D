@@ -17,7 +17,7 @@ import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
-import com.studio.artaban.anaglyph3d.process.configure.ContrastActivity;
+import com.studio.artaban.anaglyph3d.process.configure.CorrectionActivity;
 import com.studio.artaban.anaglyph3d.process.configure.SynchroActivity;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 import com.studio.artaban.libGST.GstObject;
@@ -181,20 +181,29 @@ public class ProcessActivity extends AppCompatActivity {
         ActivityWrapper.set(this); // Set current activity
 
         switch (requestCode) {
-            case Constants.PROCESS_REQUEST_CONTRAST: {
+            case Constants.PROCESS_REQUEST_CORRECTION: {
 
                 if (resultCode == RESULT_OK)
-                    ProcessThread.applyContrastBrightness(
-                            data.getFloatExtra(ContrastActivity.DATA_KEY_CONTRAST,
-                                    ContrastActivity.DEFAULT_CONTRAST),
-                            data.getFloatExtra(ContrastActivity.DATA_KEY_BRIGHTNESS,
-                                    ContrastActivity.DEFAULT_BRIGHTNESS),
-                            data.getBooleanExtra(ContrastActivity.DATA_KEY_LOCAL,
-                                    ContrastActivity.DEFAULT_LOCAL_FRAME));
+                    ProcessThread.applyCorrection(
+                            data.getFloatExtra(CorrectionActivity.DATA_KEY_CONTRAST,
+                                    CorrectionActivity.DEFAULT_CONTRAST),
+                            data.getFloatExtra(CorrectionActivity.DATA_KEY_BRIGHTNESS,
+                                    CorrectionActivity.DEFAULT_BRIGHTNESS),
+                            data.getFloatExtra(CorrectionActivity.DATA_KEY_RED_BALANCE,
+                                    CorrectionActivity.DEFAULT_BALANCE),
+                            data.getFloatExtra(CorrectionActivity.DATA_KEY_GREEN_BALANCE,
+                                    CorrectionActivity.DEFAULT_BALANCE),
+                            data.getFloatExtra(CorrectionActivity.DATA_KEY_BLUE_BALANCE,
+                                    CorrectionActivity.DEFAULT_BALANCE),
+                            data.getBooleanExtra(CorrectionActivity.DATA_KEY_LOCAL,
+                                    CorrectionActivity.DEFAULT_LOCAL_FRAME));
                 else
-                    ProcessThread.applyContrastBrightness(ContrastActivity.DEFAULT_CONTRAST,
-                            ContrastActivity.DEFAULT_BRIGHTNESS,
-                            ContrastActivity.DEFAULT_LOCAL_FRAME);
+                    ProcessThread.applyCorrection(CorrectionActivity.DEFAULT_CONTRAST,
+                            CorrectionActivity.DEFAULT_BRIGHTNESS,
+                            CorrectionActivity.DEFAULT_BALANCE,
+                            CorrectionActivity.DEFAULT_BALANCE,
+                            CorrectionActivity.DEFAULT_BALANCE,
+                            CorrectionActivity.DEFAULT_LOCAL_FRAME);
                 break;
             }
             case Constants.PROCESS_REQUEST_SYNCHRO: {

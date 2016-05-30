@@ -72,11 +72,11 @@ public final class Constants {
 
 
     ////// Process
-    public static final int PROCESS_REQUEST_CONTRAST = 1; // Contrast & brightness activity request code
+    public static final int PROCESS_REQUEST_CORRECTION = 1; // Contrast & brightness activity request code
     public static final int PROCESS_REQUEST_SYNCHRO = 2; // Synchronization activity request code
 
     public static final short PROCESS_WAIT_TRANSFER = 500; // Progress loop sleep (in milliseconds)
-    public static final short PROCESS_MAX_FPS = 15; // Maximum FPS expected (used to define storage space need)
+    public static final short PROCESS_MAX_FPS = 18; // Maximum FPS expected (used to define storage space need)
 
     public static final String PROCESS_LOCAL_PREFIX = "local";
     public static final String PROCESS_REMOTE_PREFIX = "remote";

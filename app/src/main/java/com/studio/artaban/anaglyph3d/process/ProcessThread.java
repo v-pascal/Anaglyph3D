@@ -15,7 +15,7 @@ import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.media.Frame;
 import com.studio.artaban.anaglyph3d.media.Video;
-import com.studio.artaban.anaglyph3d.process.configure.ContrastActivity;
+import com.studio.artaban.anaglyph3d.process.configure.CorrectionActivity;
 import com.studio.artaban.anaglyph3d.process.configure.SynchroActivity;
 import com.studio.artaban.anaglyph3d.transfer.IConnectRequest;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
@@ -104,9 +104,12 @@ public class ProcessThread extends Thread {
 
     private static boolean mConfigured = false; // Flag to know if user has configured the contrast & brightness
 
-    private static float mContrast = ContrastActivity.DEFAULT_CONTRAST; // Contrast configured by the user
-    private static float mBrightness = ContrastActivity.DEFAULT_BRIGHTNESS; // Brightness configured by the user
-    private static boolean mLocalFrame = ContrastActivity.DEFAULT_LOCAL_FRAME; // Flag to know on which frames to apply contrast
+    private static float mContrast = CorrectionActivity.DEFAULT_CONTRAST; // Contrast configured by the user
+    private static float mBrightness = CorrectionActivity.DEFAULT_BRIGHTNESS; // Brightness configured by the user
+    private static float mRedBalance = CorrectionActivity.DEFAULT_BALANCE; // Red balance configured by the user
+    private static float mGreenBalance = CorrectionActivity.DEFAULT_BALANCE; // Green balance configured by the user
+    private static float mBlueBalance = CorrectionActivity.DEFAULT_BALANCE; // Blue balance configured by the user
+    private static boolean mLocalFrame = CorrectionActivity.DEFAULT_LOCAL_FRAME; // Flag to know on which frames to apply contrast
 
     private short mSynchroOffset = 0; // Synchronization offset configured by the user
     private boolean mLocalSync = true; // To define from which video to extract the audio (after synchronization)
@@ -130,9 +133,13 @@ public class ProcessThread extends Thread {
 
         mStatus = Status.EXTRACT_AUDIO;
     }
-    public static void applyContrastBrightness(float contrast, float brightness, boolean local) {
+    public static void applyCorrection(float contrast, float brightness, float red, float green,
+                                       float blue, boolean local) {
         mContrast = contrast;
         mBrightness = brightness;
+        mRedBalance = red;
+        mGreenBalance = green;
+        mBlueBalance = blue;
         mLocalFrame = local;
 
         mConfigured = true;
@@ -157,9 +164,9 @@ public class ProcessThread extends Thread {
             try {
 
                 JSONObject request = new JSONObject();
-                request.put(ContrastActivity.DATA_KEY_CONTRAST, mContrast);
-                request.put(ContrastActivity.DATA_KEY_BRIGHTNESS, mBrightness);
-                request.put(ContrastActivity.DATA_KEY_LOCAL, mLocalFrame);
+                request.put(CorrectionActivity.DATA_KEY_CONTRAST, mContrast);
+                request.put(CorrectionActivity.DATA_KEY_BRIGHTNESS, mBrightness);
+                request.put(CorrectionActivity.DATA_KEY_LOCAL, mLocalFrame);
 
                 return request.toString();
             }
@@ -173,9 +180,12 @@ public class ProcessThread extends Thread {
             try {
 
                 JSONObject config = new JSONObject(request);
-                applyContrastBrightness((float)config.getDouble(ContrastActivity.DATA_KEY_CONTRAST),
-                        (float)config.getDouble(ContrastActivity.DATA_KEY_BRIGHTNESS),
-                        config.getBoolean(ContrastActivity.DATA_KEY_LOCAL));
+                applyCorrection((float) config.getDouble(CorrectionActivity.DATA_KEY_CONTRAST),
+                        (float) config.getDouble(CorrectionActivity.DATA_KEY_BRIGHTNESS),
+                        (float) config.getDouble(CorrectionActivity.DATA_KEY_RED_BALANCE),
+                        (float) config.getDouble(CorrectionActivity.DATA_KEY_GREEN_BALANCE),
+                        (float) config.getDouble(CorrectionActivity.DATA_KEY_BLUE_BALANCE),
+                        config.getBoolean(CorrectionActivity.DATA_KEY_LOCAL));
 
                 return Constants.CONN_REQUEST_ANSWER_TRUE;
             }
@@ -418,8 +428,8 @@ public class ProcessThread extends Thread {
                             data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
                             data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
 
-                            ActivityWrapper.startActivity(ContrastActivity.class, data,
-                                    Constants.PROCESS_REQUEST_CONTRAST);
+                            ActivityWrapper.startActivity(CorrectionActivity.class, data,
+                                    Constants.PROCESS_REQUEST_CORRECTION);
 
                             //////
                             mStep = Step.VIDEO;

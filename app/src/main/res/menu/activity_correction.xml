@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_contrast" android:title="@string/contrast" />
+    <item android:id="@+id/menu_brightness"  android:title="@string/brightness" />
+    <item android:id="@+id/menu_red_balance"  android:title="@string/red_balance" />
+    <item android:id="@+id/menu_green_balance"  android:title="@string/green_balance" />
+    <item android:id="@+id/menu_blue_balance"  android:title="@string/blue_balance" />
+</menu>

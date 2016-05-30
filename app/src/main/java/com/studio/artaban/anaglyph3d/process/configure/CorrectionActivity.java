@@ -15,7 +15,10 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
@@ -38,31 +41,40 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
+public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
 
     public static final String DATA_KEY_CONTRAST = "contrast";
     public static final String DATA_KEY_BRIGHTNESS = "brightness";
+    public static final String DATA_KEY_RED_BALANCE = "redBalance";
+    public static final String DATA_KEY_GREEN_BALANCE = "greenBalance";
+    public static final String DATA_KEY_BLUE_BALANCE = "blueBalance";
     public static final String DATA_KEY_LOCAL = "local";
 
     private static final String DATA_KEY_CHANGED = "changed";
+    private static final String DATA_KEY_CORRECTION = "correction";
     // Data keys
 
     public static final float DEFAULT_CONTRAST = 1f;
     public static final float DEFAULT_BRIGHTNESS = 0f;
+    public static final float DEFAULT_BALANCE = 1f;
     public static final boolean DEFAULT_LOCAL_FRAME = true;
     // Default values
 
-    public static Bitmap applyContrastBrightness(Bitmap curBitmap, float contrast, float brightness) {
+    public static Bitmap applyCorrection(Bitmap curBitmap, float contrast, float brightness,
+                                         float red, float green, float blue) {
 
         ColorMatrix matrix = new ColorMatrix(new float[] {
 
-                contrast, 0, 0, 0, brightness,
-                0, contrast, 0, 0, brightness,
-                0, 0, contrast, 0, brightness,
+                red * contrast, 0, 0, 0, brightness,
+                0, green * contrast, 0, 0, brightness,
+                0, 0, blue * contrast, 0, brightness,
                 0, 0, 0, 1, 0
         });
         // With: Contrast in [0;10] and 1 as default
         //       Brightness in [-255;255] and 0 as default
+        //       red balance in [0.5;1.5] and 1 as default
+        //       green balance in [0.5;1.5] and 1 as default
+        //       blue balance in [0.5;1.5] and 1 as default
         // So: Contrast 0...1...10 => Progress 0...50...100
         //     Brightness -255...0...255 => Progress 0...255...510
 
@@ -78,9 +90,9 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
     }
 
     //////
-    private ImageView mContrastImage;
-    private Bitmap mContrastBitmap;
-    // Contrast & brightness image info
+    private ImageView mCorrectionImage;
+    private Bitmap mCorrectionBitmap;
+    // Contrast, brightness & color balance displayed image
 
     private boolean loadImagesFromFiles(ImageView compareImage) { // Load both images from RGBA files
 
@@ -129,9 +141,9 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
             if (new FileInputStream(imageFile).read(imageBuffer) != imageBuffer.length)
                 throw new IOException();
 
-            mContrastBitmap = Bitmap.createBitmap(imageWidth, imageHeight, Bitmap.Config.ARGB_8888);
-            mContrastBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(imageBuffer));
-            mContrastImage.setImageBitmap(mContrastBitmap);
+            mCorrectionBitmap = Bitmap.createBitmap(imageWidth, imageHeight, Bitmap.Config.ARGB_8888);
+            mCorrectionBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(imageBuffer));
+            mCorrectionImage.setImageBitmap(mCorrectionBitmap);
         }
         catch (IOException e) {
 
@@ -185,16 +197,79 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
     //////
     private float mContrast = DEFAULT_CONTRAST;
     private float mBrightness = DEFAULT_BRIGHTNESS;
+    private float mRedBalance = DEFAULT_BALANCE;
+    private float mGreenBalance = DEFAULT_BALANCE;
+    private float mBlueBalance = DEFAULT_BALANCE;
     private boolean mLocalFrame = DEFAULT_LOCAL_FRAME;
+    // Contrast, brightness & color balance data
 
     private boolean mChanged = false;
     private FloatingActionButton mCancelButton;
 
-    //
-    private void onUpdateContrastBrightness(SeekBar seekBar) {
-        switch (seekBar.getId()) {
+    private static final short CORRECTION_ID_CONTRAST = 1;
+    private static final short CORRECTION_ID_BRIGHTNESS = 2;
+    private static final short CORRECTION_ID_RED_BALANCE = 3;
+    private static final short CORRECTION_ID_GREEN_BALANCE = 4;
+    private static final short CORRECTION_ID_BLUE_BALANCE = 5;
 
-            case R.id.seek_contrast:
+    private short mCorrectionType = CORRECTION_ID_CONTRAST; // Correction in progress
+    private SeekBar mSeekBar; // Seek bar to set correction
+    private ImageView mCorrectionIcon; // Icon of the correction type
+
+    private boolean displayCorrection(short type) {
+        switch (type) {
+
+            case CORRECTION_ID_CONTRAST:
+                mSeekBar.setMax(100);
+                if (mContrast < DEFAULT_CONTRAST) // Contrast [0;1] -> Progress [0;50]
+                    mSeekBar.setProgress((int)(50f * mContrast));
+                else // Contrast [1;10] -> Progress [50;100]
+                    mSeekBar.setProgress((int)(50 * (mContrast - DEFAULT_CONTRAST) / (float)9) + 50);
+
+                mCorrectionIcon.setImageDrawable(getResources().getDrawable(R.drawable.contrast));
+                mCorrectionType = type;
+                return true;
+
+            case CORRECTION_ID_BRIGHTNESS:
+                mSeekBar.setMax(510); // == 2 * 255
+                mSeekBar.setProgress((int) mBrightness + 255);
+
+                mCorrectionIcon.setImageDrawable(getResources().getDrawable(R.drawable.brightness));
+                mCorrectionType = type;
+                return true;
+
+            case CORRECTION_ID_RED_BALANCE:
+                mSeekBar.setMax(10);
+                mSeekBar.setProgress((int) (mRedBalance * 10f) - 5);
+
+                mCorrectionIcon.setImageDrawable(getResources().getDrawable(R.drawable.red_balance));
+                mCorrectionType = type;
+                return true;
+
+            case CORRECTION_ID_GREEN_BALANCE:
+                mSeekBar.setMax(10);
+                mSeekBar.setProgress((int) (mGreenBalance * 10f) - 5);
+
+                mCorrectionIcon.setImageDrawable(getResources().getDrawable(R.drawable.green_balance));
+                mCorrectionType = type;
+                return true;
+
+            case CORRECTION_ID_BLUE_BALANCE:
+                mSeekBar.setMax(10);
+                mSeekBar.setProgress((int) (mBlueBalance * 10f) - 5);
+
+                mCorrectionIcon.setImageDrawable(getResources().getDrawable(R.drawable.blue_balance));
+                mCorrectionType = type;
+                return true;
+        }
+        return false;
+    }
+
+    //
+    private void onUpdateCorrection(SeekBar seekBar) {
+        switch (mCorrectionType) {
+
+            case CORRECTION_ID_CONTRAST:
                 if (seekBar.getProgress() < 50)
                     mContrast = seekBar.getProgress() / (float)50;
                 else
@@ -204,11 +279,24 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
                 //       Progress in [50;100] -> Contrast [1;10]
                 break;
 
-            case R.id.seek_brightness:
+            case CORRECTION_ID_BRIGHTNESS:
                 mBrightness = seekBar.getProgress() - 255;
                 break;
+
+            case CORRECTION_ID_RED_BALANCE:
+                mRedBalance = (seekBar.getProgress() + 5) / 10f;
+                break;
+
+            case CORRECTION_ID_GREEN_BALANCE:
+                mGreenBalance = (seekBar.getProgress() + 5) / 10f;
+                break;
+
+            case CORRECTION_ID_BLUE_BALANCE:
+                mBlueBalance = (seekBar.getProgress() + 5) / 10f;
+                break;
         }
-        mContrastImage.setImageBitmap(applyContrastBrightness(mContrastBitmap, mContrast, mBrightness));
+        mCorrectionImage.setImageBitmap(applyCorrection(mCorrectionBitmap, mContrast, mBrightness,
+                mRedBalance, mGreenBalance, mBlueBalance));
         if (!mChanged) {
 
             mChanged = true;
@@ -221,6 +309,9 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         Intent intent = new Intent();
         intent.putExtra(DATA_KEY_CONTRAST, mContrast);
         intent.putExtra(DATA_KEY_BRIGHTNESS, mBrightness);
+        intent.putExtra(DATA_KEY_RED_BALANCE, mRedBalance);
+        intent.putExtra(DATA_KEY_GREEN_BALANCE, mGreenBalance);
+        intent.putExtra(DATA_KEY_BLUE_BALANCE, mBlueBalance);
         intent.putExtra(DATA_KEY_LOCAL, mLocalFrame);
 
         setResult(RESULT_OK, intent);
@@ -243,7 +334,7 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_contrast);
+        setContentView(R.layout.activity_correction);
 
         // Set current activity
         ActivityWrapper.set(this);
@@ -265,34 +356,103 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
 
             mContrast = savedInstanceState.getFloat(DATA_KEY_CONTRAST);
             mBrightness = savedInstanceState.getFloat(DATA_KEY_BRIGHTNESS);
+            mRedBalance = savedInstanceState.getFloat(DATA_KEY_RED_BALANCE);
+            mGreenBalance = savedInstanceState.getFloat(DATA_KEY_GREEN_BALANCE);
+            mBlueBalance = savedInstanceState.getFloat(DATA_KEY_BLUE_BALANCE);
+
             mChanged = savedInstanceState.getBoolean(DATA_KEY_CHANGED);
+            mCorrectionType = savedInstanceState.getShort(DATA_KEY_CORRECTION);
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        Bundle datas = new Bundle();
+        datas.putInt(Frame.DATA_KEY_WIDTH, 640);
+        datas.putInt(Frame.DATA_KEY_HEIGHT, 480);
+        getIntent().putExtra(Constants.DATA_ACTIVITY, datas);
+
+        File documents = getExternalFilesDir(null);
+        if (documents != null)
+            ActivityWrapper.DOCUMENTS_FOLDER = documents.getAbsolutePath();
+        else
+            Logs.add(Logs.Type.F, "Failed to get documents folder");
+        TypedValue typedValue = new TypedValue();
+        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, typedValue, true))
+            ActivityWrapper.ACTION_BAR_HEIGHT = TypedValue.complexToDimensionPixelSize(typedValue.data,
+                    getResources().getDisplayMetrics());
+        else {
+            ActivityWrapper.ACTION_BAR_HEIGHT = 0;
+            Logs.add(Logs.Type.W, "'android.R.attr.actionBarSize' attribute not found");
+        }
+        ActivityWrapper.FAB_SIZE = Math.round(Constants.FAB_SIZE_DPI *
+                (getResources().getDisplayMetrics().xdpi/ DisplayMetrics.DENSITY_DEFAULT));
+        Settings.getInstance().initResolutions();
+        Frame.getInstance().init();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         // Set layout to display according orientation
         final ViewStub stubView = (ViewStub) findViewById(R.id.layout_container);
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
-            stubView.setLayoutResource(R.layout.contrast_portrait);
+            stubView.setLayoutResource(R.layout.correction_portrait);
         else
-            stubView.setLayoutResource(R.layout.contrast_landscape);
+            stubView.setLayoutResource(R.layout.correction_landscape);
 
         final View rootView = stubView.inflate();
-        mContrastImage = (ImageView)rootView.findViewById(R.id.image_contrast);
+        mCorrectionImage = (ImageView)rootView.findViewById(R.id.image_contrast);
+        mCorrectionIcon = (ImageView)rootView.findViewById(R.id.correction_icon);
         final ImageView compareImage = (ImageView)rootView.findViewById(R.id.image_compare);
 
-        // Set contrast seek bar position
-        final SeekBar contrastSeek = (SeekBar)rootView.findViewById(R.id.seek_contrast);
-        contrastSeek.setMax(100);
-        if (mContrast < DEFAULT_CONTRAST) // Contrast [0;1] -> Progress [0;50]
-            contrastSeek.setProgress(50 * (int)mContrast);
-        else // Contrast [1;10] -> Progress [50;100]
-            contrastSeek.setProgress((int)(50 * (mContrast - DEFAULT_CONTRAST) / (float)9) + 50);
-        contrastSeek.setOnSeekBarChangeListener(this);
-
-        // Set brightness seek bar position
-        final SeekBar brightnessSeek = (SeekBar)rootView.findViewById(R.id.seek_brightness);
-        brightnessSeek.setMax(510); // == 2 * 255
-        brightnessSeek.setProgress((int)mBrightness + 255);
-        brightnessSeek.setOnSeekBarChangeListener(this);
+        // Set seek bar position according correction type
+        mSeekBar = (SeekBar)rootView.findViewById(R.id.seek_correction);
+        mSeekBar.setOnSeekBarChangeListener(this);
+        displayCorrection(mCorrectionType);
 
         // Configure the floating button that allows user to cancel settings (and that informs user on
         // which image the contrast & brightness configuration is applied)
@@ -309,13 +469,29 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
                 // Reset contrast & brightness settings
                 mContrast = DEFAULT_CONTRAST;
                 mBrightness = DEFAULT_BRIGHTNESS;
+                mRedBalance = DEFAULT_BALANCE;
+                mGreenBalance = DEFAULT_BALANCE;
+                mBlueBalance = DEFAULT_BALANCE;
                 mChanged = false;
 
-                contrastSeek.setProgress(50);
-                brightnessSeek.setProgress(255);
+                switch (mCorrectionType) {
 
-                mContrastImage.setImageBitmap(applyContrastBrightness(mContrastBitmap,
-                        DEFAULT_CONTRAST, DEFAULT_BRIGHTNESS));
+                    case CORRECTION_ID_CONTRAST:
+                        mSeekBar.setProgress(50);
+                        break;
+
+                    case CORRECTION_ID_BRIGHTNESS:
+                        mSeekBar.setProgress(255);
+                        break;
+
+                    case CORRECTION_ID_RED_BALANCE:
+                    case CORRECTION_ID_GREEN_BALANCE:
+                    case CORRECTION_ID_BLUE_BALANCE:
+                        mSeekBar.setProgress(5);
+                        break;
+                }
+                mCorrectionImage.setImageBitmap(applyCorrection(mCorrectionBitmap, DEFAULT_CONTRAST,
+                        DEFAULT_BRIGHTNESS, DEFAULT_BALANCE, DEFAULT_BALANCE, DEFAULT_BALANCE));
             }
         });
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
@@ -328,10 +504,9 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         // Set validate button position (not exactly in center when device in portrait)
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
 
-            final ImageView icon = (ImageView)rootView.findViewById(R.id.brightness_icon);
-            LayoutParams params = (LayoutParams)icon.getLayoutParams();
+            LayoutParams params = (LayoutParams)mCorrectionIcon.getLayoutParams();
             final FloatingActionButton applyButton = (FloatingActionButton)findViewById(R.id.fab_apply);
-            applyButton.setTranslationY(-params.height);
+            applyButton.setTranslationY(-(params.height >> 1));
         }
 
         ////// Load images
@@ -345,7 +520,14 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
         }
 
         // Apply contrast & brightness settings
-        mContrastImage.setImageBitmap(applyContrastBrightness(mContrastBitmap, mContrast, mBrightness));
+        mCorrectionImage.setImageBitmap(applyCorrection(mCorrectionBitmap, mContrast, mBrightness,
+                mRedBalance, mGreenBalance, mBlueBalance));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_correction, menu);
+        return true;
     }
 
     @Override
@@ -353,7 +535,12 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
 
         outState.putFloat(DATA_KEY_CONTRAST, mContrast);
         outState.putFloat(DATA_KEY_BRIGHTNESS, mBrightness);
+        outState.putFloat(DATA_KEY_RED_BALANCE, mRedBalance);
+        outState.putFloat(DATA_KEY_GREEN_BALANCE, mGreenBalance);
+        outState.putFloat(DATA_KEY_BLUE_BALANCE, mBlueBalance);
+
         outState.putBoolean(DATA_KEY_CHANGED, mChanged);
+        outState.putShort(DATA_KEY_CORRECTION, mCorrectionType);
 
         super.onSaveInstanceState(outState);
     }
@@ -361,18 +548,44 @@ public class ContrastActivity extends AppCompatActivity implements SeekBar.OnSee
     @Override public void onBackPressed() { onCancel(); }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
+        short correction = 0;
+        switch (item.getItemId()) {
 
-            onCancel();
-            return true;
+            case android.R.id.home:
+                onCancel();
+                return true;
+
+            // Change correction type
+            case R.id.menu_contrast:
+                correction = CORRECTION_ID_CONTRAST;
+                break;
+
+            case R.id.menu_brightness:
+                correction = CORRECTION_ID_BRIGHTNESS;
+                break;
+
+            case R.id.menu_red_balance:
+                correction = CORRECTION_ID_RED_BALANCE;
+                break;
+
+            case R.id.menu_green_balance:
+                correction = CORRECTION_ID_GREEN_BALANCE;
+                break;
+
+            case R.id.menu_blue_balance:
+                correction = CORRECTION_ID_BLUE_BALANCE;
+                break;
         }
+        if (displayCorrection(correction))
+            return true;
+
         return super.onOptionsItemSelected(item);
     }
 
     //////
     @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (fromUser)
-            onUpdateContrastBrightness(seekBar);
+            onUpdateCorrection(seekBar);
     }
     @Override public void onStartTrackingTouch(SeekBar seekBar) { }
     @Override public void onStopTrackingTouch(SeekBar seekBar) { }

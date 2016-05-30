@@ -5,6 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.studio.artaban.anaglyph3d.process.configure.ContrastActivity"
-    tools:showIn="@layout/activity_contrast"
+    tools:context=".process.configure.CorrectionActivity"
+    tools:showIn="@layout/activity_correction"
     android:id="@+id/layout_container"/>

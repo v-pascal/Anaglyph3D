@@ -42,45 +42,7 @@
             android:layout_marginRight="@dimen/contrast_icon_margin"
             android:layout_marginEnd="@dimen/contrast_icon_margin"
             android:padding="5dp"
-            android:src="@drawable/brightness"
-            android:id="@+id/brightness_icon"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="-"/>
-
-        <SeekBar
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center_vertical"
-            android:id="@+id/seek_brightness"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/contrast_margin"
-            android:layout_marginEnd="@dimen/contrast_margin"
-            android:layout_gravity="center_vertical"
-            android:text="+"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:layout_width="46dp"
-            android:layout_height="46dp"
-            android:layout_marginLeft="@dimen/contrast_margin"
-            android:layout_marginStart="@dimen/contrast_margin"
-            android:layout_marginRight="@dimen/contrast_icon_margin"
-            android:layout_marginEnd="@dimen/contrast_icon_margin"
-            android:padding="5dp"
+            android:id="@+id/correction_icon"
             android:src="@drawable/contrast"/>
 
         <TextView
@@ -94,7 +56,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="center_vertical"
-            android:id="@+id/seek_contrast"/>
+            android:id="@+id/seek_correction"/>
 
         <TextView
             android:layout_width="wrap_content"

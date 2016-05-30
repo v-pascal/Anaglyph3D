@@ -9,7 +9,7 @@ import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.process.ProcessThread;
-import com.studio.artaban.anaglyph3d.process.configure.ContrastActivity;
+import com.studio.artaban.anaglyph3d.process.configure.CorrectionActivity;
 import com.studio.artaban.anaglyph3d.transfer.BufferRequest;
 import com.studio.artaban.anaglyph3d.transfer.IConnectRequest;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
@@ -170,6 +170,9 @@ public class Video extends BufferRequest {
 
         public float contrast; // Configured contrast
         public float brightness; // Configured brightness
+        public float red; // Red balance
+        public float green; // Green balance
+        public float blue; // Blue balance
         public boolean local; // Flag to define on which frames to apply contrast & brightness
 
         public short offset; // Configured synchronization
@@ -219,10 +222,10 @@ public class Video extends BufferRequest {
                 Bitmap remoteBitmap = Bitmap.createBitmap(frameWidth, frameHeight, Bitmap.Config.ARGB_8888);
 
                 boolean applyContrast =
-                        (data.brightness > ContrastActivity.DEFAULT_BRIGHTNESS) ||
-                        (data.brightness < ContrastActivity.DEFAULT_BRIGHTNESS) ||
-                        (data.contrast > ContrastActivity.DEFAULT_CONTRAST) ||
-                        (data.contrast < ContrastActivity.DEFAULT_CONTRAST); // ...compare float values
+                        (data.brightness > CorrectionActivity.DEFAULT_BRIGHTNESS) ||
+                        (data.brightness < CorrectionActivity.DEFAULT_BRIGHTNESS) ||
+                        (data.contrast > CorrectionActivity.DEFAULT_CONTRAST) ||
+                        (data.contrast < CorrectionActivity.DEFAULT_CONTRAST); // ...compare float values
 
                 byte[] buffer = new byte[localBitmap.getByteCount()];
                 for (int i = 0; i < mFrameCount; ++i) {
@@ -263,14 +266,14 @@ public class Video extends BufferRequest {
                         if (!data.local) {
                             // -> '!data.local' instead of 'data.local' coz a local frame on the remote
                             //    device == local frame on current device
-                            bmpContrastLocal = ContrastActivity.applyContrastBrightness(localBitmap,
-                                    data.contrast, data.brightness);
+                            bmpContrastLocal = CorrectionActivity.applyCorrection(localBitmap,
+                                    data.contrast, data.brightness, data.red, data.green, data.blue);
                             bmpContrastRemote = remoteBitmap;
                         }
                         else {
                             bmpContrastLocal = localBitmap;
-                            bmpContrastRemote = ContrastActivity.applyContrastBrightness(remoteBitmap,
-                                    data.contrast, data.brightness);
+                            bmpContrastRemote = CorrectionActivity.applyCorrection(remoteBitmap,
+                                    data.contrast, data.brightness, data.red, data.green, data.blue);
                         }
                     }
                     else {
