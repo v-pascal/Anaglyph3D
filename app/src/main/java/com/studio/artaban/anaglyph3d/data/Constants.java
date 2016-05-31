@@ -53,16 +53,13 @@ public final class Constants {
 
     ////// Settings
     public static final String CONFIG_RESOLUTION_SEPARATOR = " x "; // Separator between with and height
+    public static final String CONFIG_FPS_SEPARATOR = " < "; // Separator between min & max fps range
     public static final int CONFIG_PERFORMANCE_LOOP = 4096; // Loop count for performance calculation
 
     public static final boolean CONFIG_DEFAULT_ORIENTATION = true; // Default orientation (portrait)
     public static final short CONFIG_DEFAULT_DURATION = 30; // Default duration (in seconds)
     public static final int CONFIG_MIN_DURATION = 10; // Minimum duration (in seconds)
     public static final int CONFIG_MAX_DURATION = 180; // Maximum duration (in seconds)
-
-    public static final short CONFIG_DEFAULT_FPS = 9; // Default frames per second
-    public static final short CONFIG_MIN_FPS = 8; // Minimum frames per second
-    public static final short CONFIG_MAX_FPS = 18; // Maximum frames per second
 
 
     ////// Extensions
@@ -76,7 +73,7 @@ public final class Constants {
     public static final int PROCESS_REQUEST_SYNCHRO = 2; // Synchronization activity request code
 
     public static final short PROCESS_WAIT_TRANSFER = 700; // Progress loop sleep (in milliseconds)
-    public static final short PROCESS_MAX_FPS = 18; // Maximum FPS expected (used to define storage space need)
+    public static final short PROCESS_MAX_FPS = 16; // Maximum FPS expected (used to define storage space need)
 
     public static final String PROCESS_LOCAL_PREFIX = "local";
     public static final String PROCESS_REMOTE_PREFIX = "remote";

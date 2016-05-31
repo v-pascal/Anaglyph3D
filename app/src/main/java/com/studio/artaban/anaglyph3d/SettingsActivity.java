@@ -73,18 +73,11 @@ public class SettingsActivity extends SettingsParentActivity
                 setSummary(String.valueOf(mNumberValue));
 
                 // Replace 'onPreferenceChange' call here
-                if (getKey().equals(Settings.DATA_KEY_DURATION)) {
+                assert getKey().equals(Settings.DATA_KEY_DURATION);
 
-                    Settings.getInstance().mDuration = (short)mNumberValue;
-                    Connectivity.getInstance().addRequest(Settings.getInstance(),
-                            Settings.REQ_TYPE_DURATION, null);
-                }
-                else if (getKey().equals(Settings.DATA_KEY_FPS)) {
-
-                    Settings.getInstance().mFps = (short)mNumberValue;
-                    Connectivity.getInstance().addRequest(Settings.getInstance(),
-                            Settings.REQ_TYPE_FPS, null);
-                }
+                Settings.getInstance().mDuration = (short)mNumberValue;
+                Connectivity.getInstance().addRequest(Settings.getInstance(),
+                        Settings.REQ_TYPE_DURATION, null);
             }
         }
     };
@@ -116,7 +109,7 @@ public class SettingsActivity extends SettingsParentActivity
                     mDurationPreference.setDefaultValue((int)Settings.getInstance().mDuration);
 
                 if (settings.has(Settings.DATA_KEY_FPS))
-                    mFpsPreference.setDefaultValue((int)Settings.getInstance().mFps);
+                    updateFpsRanges();
             }
         });
     }
@@ -134,6 +127,19 @@ public class SettingsActivity extends SettingsParentActivity
         mResolutionList.setSummary(resolution);
     }
 
+    // Fill & Set fps ranges preference list and value
+    private void updateFpsRanges() {
+
+        final String[] fpsRanges = Settings.getInstance().getFpsRanges();
+        mFpsList.setEntries(fpsRanges);
+        mFpsList.setEntryValues(fpsRanges);
+
+        final String fpsRange = Settings.getInstance().getFpsRange();
+        mFpsList.setDefaultValue(fpsRange);
+        mFpsList.setValue(fpsRange);
+        mFpsList.setSummary(fpsRange);
+    }
+
     private boolean mPositionLock = true;
     private boolean mOrientationLock = true;
     // Needed to avoid to send settings request to remote device during assignment (init or update)
@@ -148,7 +154,7 @@ public class SettingsActivity extends SettingsParentActivity
     private SwitchPreference mOrientationSwitch;
     private ListPreference mResolutionList;
     private NumberPickerPreference mDurationPreference;
-    private NumberPickerPreference mFpsPreference;
+    private ListPreference mFpsList;
 
     //////
     @Override
@@ -179,6 +185,10 @@ public class SettingsActivity extends SettingsParentActivity
         mResolutionList.setOnPreferenceChangeListener(this);
         updateResolutions();
 
+        mFpsList = (ListPreference)findPreference(Settings.DATA_KEY_FPS);
+        mFpsList.setOnPreferenceChangeListener(this);
+        updateFpsRanges();
+
         mPositionSwitch = (SwitchPreference)findPreference(Settings.DATA_KEY_POSITION);
         mPositionSwitch.setChecked(Settings.getInstance().mPosition);
         mPositionSwitch.setOnPreferenceChangeListener(this);
@@ -202,18 +212,7 @@ public class SettingsActivity extends SettingsParentActivity
         //mDurationPreference.setOnPreferenceChangeListener(this);
         // BUG: Not working! 'onPreferenceChange' never called...
 
-        mFpsPreference = new NumberPickerPreference(this, null);
-        mFpsPreference.setKey(Settings.DATA_KEY_FPS);
-        mFpsPreference.setTitle(R.string.frame_per_second);
-        mFpsPreference.setDialogTitle(R.string.frame_per_second);
-        mFpsPreference.setDefaultValue((int)Settings.getInstance().mFps);
-        mFpsPreference.mMin = Constants.CONFIG_MIN_FPS;
-        mFpsPreference.mMax = Constants.CONFIG_MAX_FPS;
-        //mFpsPreference.setOnPreferenceChangeListener(this);
-        // BUG: Not working! 'onPreferenceChange' never called...
-
         preferenceCat.addPreference(mDurationPreference);
-        preferenceCat.addPreference(mFpsPreference);
     }
 
     @Override
@@ -259,8 +258,16 @@ public class SettingsActivity extends SettingsParentActivity
                     Settings.REQ_TYPE_RESOLUTION, null);
             return true;
         }
+        else if (preference.getKey().equals(Settings.DATA_KEY_FPS)) {
+
+            preference.setSummary((String) newValue);
+            Settings.getInstance().setFps((String) newValue,
+                    (String[]) ((ListPreference) preference).getEntryValues());
+            Connectivity.getInstance().addRequest(Settings.getInstance(),
+                    Settings.REQ_TYPE_FPS, null);
+            return true;
+        }
         //else if (preference.getKey().equals(Settings.DATA_KEY_DURATION)) {
-        //else if (preference.getKey().equals(Settings.DATA_KEY_FPS)) {
         // BUG: Never called! Done in 'NumberPickerPreference.onDialogClosed' method
 
         return false;

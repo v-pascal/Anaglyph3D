@@ -3,12 +3,15 @@
     <string name="app_name">3D Anaglyphe</string>
     <string name="find_camera">Sélectionnez la caméra recherché...</string>
     <string name="no_bluetooth">Bluetooth non disponible!</string>
+
     <string name="navigation_drawer_close">Ferme la navigation</string>
     <string name="navigation_drawer_open">Ouvre la navigation</string>
+
     <string name="nav_album">Album vidéos</string>
     <string name="nav_settings">Paramètres</string>
     <string name="nav_disconnect">Déconnexion</string>
     <string name="nav_quit">Quitter</string>
+
     <string name="camera_left">Caméra gauche</string>
     <string name="camera_right">Caméra droite</string>
     <string name="company_name">Par STUDIO Artaban</string>
@@ -25,9 +28,9 @@
     <string name="landscape">Paysage</string>
     <string name="portrait">Portrait</string>
     <string name="duration">Durée (en secondes)</string>
-    <string name="frame_per_second">Images par seconde (FPS)</string>
+    <string name="frame_per_second">FPS (intervalle)</string>
     <string name="title_warning">ATTENTION</string>
-    <string name="warning_not_matching">Aucune des resolutions de la caméra distante ne corresponde à l\'une de vos propres résolutions!\n\nPériphérique distant:</string>
+    <string name="warning_not_matching">Aucune des resolutions &amp; FPS de la caméra distante ne corresponde à l\'une des vôtres!\n\nPériphérique distant:</string>
     <string name="title_confirm">CONFIRMATION</string>
     <string name="confirm_quit">Etes-vous sûr de vouloir quitter l\'application?</string>
     <string name="confirm_disconnect">Souhaitez-vous vraiment vous déconnecter?</string>

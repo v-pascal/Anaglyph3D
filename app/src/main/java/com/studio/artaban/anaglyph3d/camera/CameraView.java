@@ -60,7 +60,7 @@ public class CameraView extends SurfaceView
         }
         return camera;
     }
-    public static boolean getAvailableResolutions(ArrayList<Size> resolutions) {
+    public static boolean getAvailableSettings(ArrayList<Size> resolutions, ArrayList<int[]> fps) {
 
         Camera camera = getCamera();
         if (camera == null) {
@@ -79,11 +79,18 @@ public class CameraView extends SurfaceView
                     });
             return false;
         }
+
+        // Resolutions
         List<Size> camResolutions = camera.getParameters().getSupportedVideoSizes();
         if (camResolutions == null)
             camResolutions = camera.getParameters().getSupportedPreviewSizes();
         for (final Size camResolution: camResolutions)
             resolutions.add(camResolution);
+
+        // Frames per second (range)
+        List<int[]> camFPS = camera.getParameters().getSupportedPreviewFpsRange();
+        for (int[] walk: camFPS)
+            fps.add(walk);
 
         camera.release();
         return true;
@@ -148,23 +155,7 @@ public class CameraView extends SurfaceView
             DisplayMessage.getInstance().toast(R.string.error_start_recording, Toast.LENGTH_LONG);
 
             //////
-
-
-
-
-
-
-
-
-            //quit application
-
-
-
-
-
-
-
-
+            Connectivity.getInstance().disconnect();
             return false;
         }
         return true;
@@ -234,7 +225,9 @@ public class CameraView extends SurfaceView
 
         mMediaRecorder.setMaxDuration(Settings.getInstance().mDuration * 1000);
         mMediaRecorder.setVideoEncodingBitRate(3000000);
-        mMediaRecorder.setVideoFrameRate(Settings.getInstance().mFps);
+        mMediaRecorder.setVideoFrameRate(
+                (Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] +
+                 Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MAX_INDEX]) / 2000);
         mMediaRecorder.setOutputFile(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_LOCAL_VIDEO);
 
         try { mMediaRecorder.prepare(); }
@@ -366,26 +359,11 @@ public class CameraView extends SurfaceView
             mPreviewSize = getPreviewResolution();
             mCamera.getParameters().setPreviewSize(mPreviewSize.width, mPreviewSize.height);
             mCamera.getParameters().setPreviewFormat(ImageFormat.NV21);
-            if (mTakePicture) {
+            if (mTakePicture) { // Check to prepare recording
 
-
-
-
-
-
-
-
-                //mCamera.getParameters().setPreviewFpsRange(
-                //        Settings.getInstance().mFps - 1,
-                //        Settings.getInstance().mFps + 1);
-
-                //getSupportedPreviewFpsRange
-                mCamera.getParameters().setPreviewFrameRate(Settings.getInstance().mFps);
-
-
-
-
-
+                mCamera.getParameters().setPreviewFpsRange(
+                        Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX],
+                        Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MAX_INDEX]);
 
                 mRawPicture = new byte[(mPreviewSize.width * mPreviewSize.height * 3) >> 1]; // NV21 buffer size
                 mCamera.setPreviewCallback(new Camera.PreviewCallback() {

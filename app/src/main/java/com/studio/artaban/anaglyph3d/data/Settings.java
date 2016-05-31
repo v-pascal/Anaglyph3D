@@ -1,6 +1,7 @@
 package com.studio.artaban.anaglyph3d.data;
 
 import android.app.Activity;
+import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -46,8 +47,10 @@ public class Settings implements IConnectRequest {
     public static final String DATA_KEY_ORIENTATION = "orientation";
     public static final String DATA_KEY_DURATION = "duration";
     public static final String DATA_KEY_FPS = "fps";
+    private static final String DATA_KEY_MIN_FPS = "minFps";
+    private static final String DATA_KEY_MAX_FPS = "maxFps";
 
-    // Getters
+    ////// Getters
     public boolean isMaster() { return mMaster; }
     public boolean isMaker() { return mMaker; }
     public String getRemoteDevice() { // Return remote device name
@@ -57,6 +60,7 @@ public class Settings implements IConnectRequest {
 
         return null;
     }
+
     public String[] getResolutions() {
 
         String[] resolutions = new String[mResolutions.size()];
@@ -72,10 +76,25 @@ public class Settings implements IConnectRequest {
                 mResolution.width + Constants.CONFIG_RESOLUTION_SEPARATOR + mResolution.height:
                 mResolution.height + Constants.CONFIG_RESOLUTION_SEPARATOR + mResolution.width;
     }
+
+    public String[] getFpsRanges() {
+
+        String[] ranges = new String[mFpsRanges.size()];
+        for (int i = 0; i < mFpsRanges.size(); ++i)
+            ranges[i] = mFpsRanges.get(i)[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] + Constants.CONFIG_FPS_SEPARATOR +
+                    mFpsRanges.get(i)[Camera.Parameters.PREVIEW_FPS_MAX_INDEX];
+
+        return ranges;
+    }
+    public String getFpsRange() {
+        return mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] + Constants.CONFIG_FPS_SEPARATOR +
+                mFps[Camera.Parameters.PREVIEW_FPS_MAX_INDEX];
+    }
+
     public int getResolutionWidth() { return (mOrientation)? mResolution.height:mResolution.width; }
     public int getResolutionHeight() { return (mOrientation)? mResolution.width:mResolution.height; }
 
-    // Setter
+    ////// Setter
     public boolean setResolution(String resolution, String[] list) {
 
         int resolutionIndex = Constants.NO_DATA;
@@ -92,21 +111,38 @@ public class Settings implements IConnectRequest {
         mResolution = mResolutions.get(resolutionIndex);
         return true;
     }
+    public boolean setFps(String fps, String[] list) {
 
-    // Data
+        int rangeIndex = Constants.NO_DATA;
+        for (int i = 0; i < list.length; ++i) {
+            if (list[i].equals(fps)) {
+
+                rangeIndex = i;
+                break;
+            }
+        }
+        if (rangeIndex == Constants.NO_DATA)
+            return false;
+
+        mFps = mFpsRanges.get(rangeIndex);
+        return true;
+    }
+
+    ////// Data
     private boolean mMaster; // Master device which has priority (false for slave device)
     private String mRemoteDevice; // Remote device info
     public long mPerformance = 1000; // Device performance representation (lowest is best)
     private boolean mMaker = true; // Flag to know which device will have to make the final video (best performance)
 
-    private final ArrayList<Size> mResolutions = new ArrayList<>(); // Resolutions list
+    private final ArrayList<Size> mResolutions = new ArrayList<>(); // Available resolutions list
+    private final ArrayList<int[]> mFpsRanges = new ArrayList<>(); // Available fps range list (scaled by 1000)
 
     public boolean mPosition = true; // Left camera position (false for right position)
     public boolean mReverse = false; // Reverse device orientation flag (see 'onReversePosition' method)
     public Size mResolution; // Selected resolution
     public boolean mOrientation = Constants.CONFIG_DEFAULT_ORIENTATION; // Portrait orientation (false for landscape orientation)
     public short mDuration = Constants.CONFIG_DEFAULT_DURATION; // Video duration (in seconds)
-    public short mFps = Constants.CONFIG_DEFAULT_FPS; // Frames per second
+    public int[] mFps; // Frames per second range (scaled by 1000)
 
     // Request types (mask)
     public static final byte REQ_TYPE_INITIALIZE = 0x01;
@@ -164,6 +200,53 @@ public class Settings implements IConnectRequest {
         return mergedResolutions;
     }
 
+    private static JSONArray getFpsRangesArray(ArrayList<int[]> ranges) {
+
+        JSONArray rangesArray = new JSONArray();
+        for (int[] range : ranges) {
+
+            JSONObject limits = new JSONObject();
+            try {
+                limits.put(DATA_KEY_MIN_FPS, range[Camera.Parameters.PREVIEW_FPS_MIN_INDEX]);
+                limits.put(DATA_KEY_MAX_FPS, range[Camera.Parameters.PREVIEW_FPS_MAX_INDEX]);
+
+                rangesArray.put(limits);
+            }
+            catch (JSONException e) {
+
+                Logs.add(Logs.Type.E, e.getMessage());
+                return null;
+            }
+        }
+        return rangesArray;
+    }
+    private ArrayList<int[]> getMergedFpsRanges(JSONArray ranges) {
+
+        ArrayList<int[]> mergedRanges = new ArrayList<>();
+        try {
+            for (int i = 0; i < ranges.length(); ++i) {
+
+                JSONObject remoteRange = ranges.getJSONObject(i);
+                for (int[] localRange : mFpsRanges) {
+
+                    if ((remoteRange.getInt(DATA_KEY_MIN_FPS) == localRange[Camera.Parameters.PREVIEW_FPS_MIN_INDEX]) &&
+                            (remoteRange.getInt(DATA_KEY_MAX_FPS) == localRange[Camera.Parameters.PREVIEW_FPS_MAX_INDEX]))
+                        mergedRanges.add(localRange);
+                }
+            }
+        }
+        catch (JSONException e) {
+            Logs.add(Logs.Type.E, e.getMessage());
+        }
+        if (!mergedRanges.isEmpty()) { // Do not update available camera fps ranges if
+                                       // once merged there is no matched fps range
+            mFpsRanges.clear();
+            for (int[] range : mergedRanges)
+                mFpsRanges.add(range);
+        }
+        return mergedRanges;
+    }
+
     //////
     @Override public char getRequestId() { return IConnectRequest.REQ_SETTINGS; }
     @Override public boolean getRequestMerge() { return true; }
@@ -187,18 +270,19 @@ public class Settings implements IConnectRequest {
             // Set up default settings
             mOrientation = Constants.CONFIG_DEFAULT_ORIENTATION;
             mDuration = Constants.CONFIG_DEFAULT_DURATION;
-            mFps = Constants.CONFIG_DEFAULT_FPS;
 
-            // Only resolutions may change (all other settings are in default state, see just above)
-            // -> It should contain only resolutions that are available on both devices (master & slave)
+            // Only resolutions & FPS may change (all other settings are in default state, see just above)
+            // -> They should contain only resolutions & FPS that are available on both devices (master & slave)
             mResolutions.clear();
+            mFpsRanges.clear();
 
             // Get available camera resolutions
-            if (!CameraView.getAvailableResolutions(mResolutions))
+            if (!CameraView.getAvailableSettings(mResolutions, mFpsRanges))
                 return null;
 
-            // Select default resolution
+            // Select default resolution & fps
             mResolution = mResolutions.get(0);
+            mFps = mFpsRanges.get(0);
 
             if (!mMaster)
                 return null; // Only master device send initialize request
@@ -207,8 +291,11 @@ public class Settings implements IConnectRequest {
         JSONObject request = new JSONObject();
         if (type == REQ_TYPE_INITIALIZE) { // Initialize settings request
 
-            // Add resolutions
-            try { request.put(DATA_KEY_RESOLUTIONS, getResolutionsArray(mResolutions)); }
+            // Add resolutions & fps ranges
+            try {
+                request.put(DATA_KEY_RESOLUTIONS, getResolutionsArray(mResolutions));
+                request.put(DATA_KEY_FPS, getFpsRangesArray(mFpsRanges));
+            }
             catch (JSONException e) {
 
                 Logs.add(Logs.Type.E, e.getMessage());
@@ -269,7 +356,13 @@ public class Settings implements IConnectRequest {
             }
             if ((type & REQ_TYPE_FPS) == REQ_TYPE_FPS) {
 
-                try { request.put(DATA_KEY_FPS, mFps); }
+                JSONObject limits = new JSONObject();
+                try {
+                    limits.put(DATA_KEY_MIN_FPS, mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX]);
+                    limits.put(DATA_KEY_MAX_FPS, mFps[Camera.Parameters.PREVIEW_FPS_MAX_INDEX]);
+
+                    request.put(DATA_KEY_FPS, limits);
+                }
                 catch (JSONException e) {
 
                     Logs.add(Logs.Type.E, e.getMessage());
@@ -296,18 +389,23 @@ public class Settings implements IConnectRequest {
             try {
                 mMaker = mPerformance < settings.getLong(DATA_KEY_PERFORMANCE);
 
-                // Update resolutions to merge available camera resolutions of the
+                // Update resolutions & fps ranges to merge available camera resolutions & fps of the
                 // remote device with the current ones.
                 final ArrayList<Size> mergedResolutions = getMergedResolutions(
                         settings.getJSONArray(DATA_KEY_RESOLUTIONS));
+                final ArrayList<int[]> mergedFpsRanges = getMergedFpsRanges(
+                        settings.getJSONArray(DATA_KEY_FPS));
 
-                // Return maker flag & merged resolutions array (even if empty)
+                // Return maker flag & merged resolutions & fps ranges array (even if empties)
                 reply.put(DATA_KEY_PERFORMANCE, mMaker);
                 reply.put(DATA_KEY_RESOLUTIONS, getResolutionsArray(mergedResolutions));
+                reply.put(DATA_KEY_FPS, getFpsRangesArray(mergedFpsRanges));
 
-                if (!mergedResolutions.isEmpty()) {
+                if ((!mergedResolutions.isEmpty()) && (!mergedFpsRanges.isEmpty())) {
 
-                    mResolution = mResolutions.get(0); // Select resolution (default)
+                    // Select resolution & fps (default)
+                    mResolution = mResolutions.get(0);
+                    mFps = mFpsRanges.get(0);
 
                     // Start main activity
                     ActivityWrapper.startActivity(MainActivity.class, null, 0);
@@ -395,7 +493,10 @@ public class Settings implements IConnectRequest {
             if (((type & REQ_TYPE_FPS) == REQ_TYPE_FPS) &&
                     ((previousType & REQ_TYPE_FPS) != REQ_TYPE_FPS)) {
                 try {
-                    mFps = (short)settings.getInt(DATA_KEY_FPS);
+                    JSONObject limits = settings.getJSONObject(DATA_KEY_FPS);
+                    String fps = limits.getInt(DATA_KEY_MIN_FPS) + Constants.CONFIG_FPS_SEPARATOR +
+                            limits.getInt(DATA_KEY_MAX_FPS);
+                    setFps(fps, getFpsRanges());
                     reply.put(DATA_KEY_FPS, true); // Ok
                     messageIds.add(R.string.video_fps);
                 }
@@ -453,9 +554,10 @@ public class Settings implements IConnectRequest {
                 mMaker = !receive.getBoolean(DATA_KEY_PERFORMANCE);
 
                 JSONArray resolutions = receive.getJSONArray(DATA_KEY_RESOLUTIONS);
-                if (resolutions.length() == 0) {
+                JSONArray fpsRanges = receive.getJSONArray(DATA_KEY_FPS);
+                if ((resolutions.length() == 0) || (fpsRanges.length() == 0)) {
 
-                    // No available camera resolution is matching between remote and local device
+                    // No available camera resolution or fps is matching between remote and local device
                     Connectivity.getInstance().mNotMatchingDevices.add(mRemoteDevice);
 
                     DisplayMessage.getInstance().alert(R.string.title_warning,
@@ -465,10 +567,13 @@ public class Settings implements IConnectRequest {
                     return ReceiveResult.ERROR; // ...will disconnect
                 }
 
-                // Remove resolutions that are not matching with the remote device (from 'mResolutions')
+                // Remove resolutions & fps ranges that are not matching with the remote device
                 getMergedResolutions(resolutions);
+                getMergedFpsRanges(fpsRanges);
 
-                mResolution = mResolutions.get(0); // Select resolution (default)
+                // Select resolution & fps (default)
+                mResolution = mResolutions.get(0);
+                mFps = mFpsRanges.get(0);
 
                 // Start main activity
                 ActivityWrapper.startActivity(MainActivity.class, null, 0);
