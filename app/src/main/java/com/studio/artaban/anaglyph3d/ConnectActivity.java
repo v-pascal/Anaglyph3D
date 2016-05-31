@@ -521,11 +521,20 @@ public class ConnectActivity extends AppCompatActivity {
                     return true;
                 }
 
-                // Stop connectivity (do not attempt to connect when video album is displayed)
-                Connectivity.getInstance().stop();
+                // Confirm by the user to download
+                DisplayMessage.getInstance().alert(R.string.title_confirm, R.string.confirm_download,
+                        null, true, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                mDownloadTask = new DownloadVideosTask();
-                mDownloadTask.execute();
+                                // Stop connectivity (do not attempt to connect when video album is displayed)
+                                Connectivity.getInstance().stop();
+
+                                mDownloadTask = new DownloadVideosTask();
+                                mDownloadTask.execute();
+                            }
+                        });
+
                 return true;
             }
             case R.id.menu_quit: {

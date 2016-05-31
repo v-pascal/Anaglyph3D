@@ -1,25 +1,12 @@
 <resources>
     <string name="app_name">Anaglyph 3D</string>
-    <string name="find_camera">Select the searched camera...</string>
-    <string name="image_desc_devices" translatable="false">Camera devices/Warning image</string>
-    <string name="no_bluetooth">Bluetooth not available!</string>
-
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-
-    <string name="nav_album">Videos album</string>
-    <string name="nav_settings">Settings</string>
-    <string name="nav_disconnect">Disconnect</string>
-    <string name="nav_quit">Quit</string>
-
-    <string name="image_desc_icon" translatable="false">Application icon</string>
     <string name="company_name">By STUDIO Artaban</string>
+
+    <string name="find_camera">Select the searched camera...</string>
+    <string name="no_bluetooth">Bluetooth not available!</string>
     <string name="company_email" translatable="false">contact@studio-artaban.com</string>
-    <string name="image_desc_glass" translatable="false">Left/Right glass</string>
     <string name="camera_left">Left camera</string>
     <string name="camera_right">Right camera</string>
-    <string name="title_error">ERROR</string>
-    <string name="camera_disabled">Failed to acquire camera feature. It may be used by another application.</string>
     <string name="close">Close</string>
     <string name="device_position">Device position</string>
     <string name="left">Gauche</string>
@@ -32,15 +19,6 @@
     <string name="portrait">Portrait</string>
     <string name="duration">Duration (in seconds)</string>
     <string name="frame_per_second">FPS range</string>
-    <string name="title_warning">WARNING</string>
-    <string name="warning_not_matching">The available camera resolutions &amp; FPS of the device you attempt to connect are not matching with your own device!\n\nRemote device:</string>
-    <string name="title_confirm">CONFIRM</string>
-    <string name="confirm_quit">Do you really want to quit the application?</string>
-    <string name="confirm_disconnect">Do you really want to disconnect from the remote device?</string>
-    <string name="connection_lost">WARNING: Connection lost!</string>
-    <string name="image_desc_album" translatable="false">Album icon</string>
-    <string name="image_desc_warning" translatable="false">Warning image</string>
-    <string name="connection_error">ERROR: Data transfer error! Connection closed.</string>
     <string name="video_orientation">Video orientation</string>
     <string name="camera_position">Camera position</string>
     <string name="settings_updated">Settings updated:</string>
@@ -48,44 +26,77 @@
     <string name="video_album">Videos album</string>
     <string name="video_fps">Frame per second (FPS)</string>
     <string name="video_resolution">Video resolution</string>
-    <string name="not_discoverable">WARNING: Bluetooth discoverable permission has expired! Restart application to make it visible again.</string>
     <string name="devices_distance">Distance between cameras:\n6cm - 7cm</string>
-    <string name="device_not_ready">WARNING: Failed to start recording! Remote device not ready.</string>
-    <string name="image_desc_counter" translatable="false">Downcount image</string>
-    <string name="reverse_disabled">WARNING: Unable to reverse screen! Check your device settings.</string>
     <string name="status_label">Status:</string>
-    <string name="title_activity_correction">Frames correction</string>
-    <string name="title_activity_synchro">Synchronization (optional)</string>
-    <string name="ask_skip_step">Are you sure you want to skip this step?</string>
-    <string name="no_video">The videos album is empty!</string>
     <string name="title_detail_format">MMM d, \'yy - hh:mm</string>
     <string name="date_detail_format">MM/dd/yyyy - hh:mm</string>
-    <string name="no_video_location">WARNING: New video saved but failed to geolocate it! Check your device location settings.</string>
     <string name="chose_player">Select the video player</string>
     <string name="title">Title :</string>
     <string name="description">Description :</string>
     <string name="undefined">Undefined</string>
-    <string name="info_saved">Video info saved!</string>
-    <string name="confirm_cancel_modify">Do you really want to cancel modifications?</string>
-    <string name="confirm_cancel_create">Do you really want to cancel video add and lost it from your device for good?</string>
-    <string name="confirm_delete">Do you really want to delete this video?</string>
     <string name="video_location">Video location</string>
     <string name="user_location">You\'re location</string>
-    <string name="no_geolocation">WARNING: Failed to display geolocation! Check your device location settings.</string>
     <string name="chose_share">Share via</string>
     <string name="nav_download">Download videos</string>
     <string name="downloading_videos">Downloading anaglyph 3D videos%1$s</string>
-    <string name="confirm_cancel_download">Do you really want to close the application and thus cancel the download?</string>
-    <string name="webservice_unavailable">ERROR: Failed to download videos! STUDIO-Artaban webservice is unavailable.</string>
-    <string name="download_cancelled">WARNING: Videos download has been cancelled!</string>
-    <string name="wrong_videos_attr">ERROR: Failed to download videos! Wrong STUDIO-Artaban webservice reply.</string>
-    <string name="no_internet">ERROR: No Internet connection!</string>
-    <string name="no_storage">ERROR: Failed to access storage! Application terminated.</string>
     <string name="contrast">Contrast</string>
     <string name="brightness">Brightness</string>
     <string name="red_balance">Red balance</string>
     <string name="green_balance">Green balance</string>
     <string name="blue_balance">Blue balance</string>
+
+    <!-- User messages -->
+    <string name="camera_disabled">Failed to acquire camera feature. It may be used by another application.</string>
+    <string name="warning_not_matching">The available camera resolutions &amp; FPS of the device you attempt to connect are not matching with your own device!\n\nRemote device:</string>
+    <string name="connection_lost">WARNING: Connection lost!</string>
+    <string name="connection_error">ERROR: Data transfer error! Connection closed.</string>
+    <string name="not_discoverable">WARNING: Bluetooth discoverable permission has expired! Restart application to make it visible again.</string>
+    <string name="device_not_ready">WARNING: Failed to start recording! Remote device not ready.</string>
+    <string name="reverse_disabled">WARNING: Unable to reverse screen! Check your device settings.</string>
+    <string name="ask_skip_step">Are you sure you want to skip this step?</string>
+    <string name="no_video">The videos album is empty!</string>
+    <string name="no_video_location">WARNING: New video saved but failed to geolocate it! Check your device location settings.</string>
+    <string name="no_geolocation">WARNING: Failed to display geolocation! Check your device location settings.</string>
+    <string name="info_saved">Video info saved!</string>
+    <string name="webservice_unavailable">ERROR: Failed to download videos! STUDIO-Artaban webservice is unavailable.</string>
+    <string name="download_cancelled">WARNING: Videos download has been cancelled!</string>
+    <string name="wrong_videos_attr">ERROR: Failed to download videos! Wrong STUDIO-Artaban webservice reply.</string>
+    <string name="no_internet">ERROR: No Internet connection!</string>
+    <string name="no_storage">ERROR: Failed to access storage! Application terminated.</string>
+
+    <!-- Image description -->
+    <string name="image_desc_devices" translatable="false">Camera devices/Warning image</string>
+    <string name="image_desc_icon" translatable="false">Application icon</string>
+    <string name="image_desc_glass" translatable="false">Left/Right glass</string>
+    <string name="image_desc_album" translatable="false">Album icon</string>
+    <string name="image_desc_warning" translatable="false">Warning image</string>
+    <string name="image_desc_counter" translatable="false">Downcount image</string>
+
+    <!-- Titles -->
+    <string name="title_error">ERROR</string>
+    <string name="title_warning">WARNING</string>
+    <string name="title_confirm">CONFIRM</string>
+
+    <string name="title_activity_correction">Frames correction</string>
+    <string name="title_activity_synchro">Synchronization (optional)</string>
+
+    <!-- Menus -->
+    <string name="nav_album">Videos album</string>
+    <string name="nav_settings">Settings</string>
+    <string name="nav_disconnect">Disconnect</string>
+    <string name="nav_quit">Quit</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!-- Confirmation -->
+    <string name="confirm_quit">Do you really want to quit the application?</string>
+    <string name="confirm_disconnect">Do you really want to disconnect from the remote device?</string>
+    <string name="confirm_cancel_modify">Do you really want to cancel modifications?</string>
+    <string name="confirm_cancel_create">Do you really want to cancel video add and lost it from your device for good?</string>
+    <string name="confirm_delete">Do you really want to delete this video?</string>
+    <string name="confirm_cancel_download">Do you really want to close the application and thus cancel the download?</string>
+    <string name="confirm_download">Do you really want to download videos now?</string>
 
     <!-- Share to local folder activity -->
     <string name="my_files">My files</string>

@@ -1,22 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">3D Anaglyphe</string>
+    <string name="company_name">Par STUDIO Artaban</string>
+
     <string name="find_camera">Sélectionnez la caméra recherché...</string>
     <string name="no_bluetooth">Bluetooth non disponible!</string>
-
-    <string name="navigation_drawer_close">Ferme la navigation</string>
-    <string name="navigation_drawer_open">Ouvre la navigation</string>
-
-    <string name="nav_album">Album vidéos</string>
-    <string name="nav_settings">Paramètres</string>
-    <string name="nav_disconnect">Déconnexion</string>
-    <string name="nav_quit">Quitter</string>
-
     <string name="camera_left">Caméra gauche</string>
     <string name="camera_right">Caméra droite</string>
-    <string name="company_name">Par STUDIO Artaban</string>
-    <string name="title_error">ERREUR</string>
-    <string name="camera_disabled">Impossible d\'accéder à la caméra. Celle-ci doit être utilisée par une autre application.</string>
     <string name="close">Fermer</string>
     <string name="device_position">Position du périphérique</string>
     <string name="left">Gauche</string>
@@ -29,57 +19,76 @@
     <string name="portrait">Portrait</string>
     <string name="duration">Durée (en secondes)</string>
     <string name="frame_per_second">FPS (intervalle)</string>
-    <string name="title_warning">ATTENTION</string>
-    <string name="warning_not_matching">Aucune des resolutions &amp; FPS de la caméra distante ne corresponde à l\'une des vôtres!\n\nPériphérique distant:</string>
-    <string name="title_confirm">CONFIRMATION</string>
-    <string name="confirm_quit">Etes-vous sûr de vouloir quitter l\'application?</string>
-    <string name="confirm_disconnect">Souhaitez-vous vraiment vous déconnecter?</string>
-    <string name="connection_lost">ATTENTION: Connexion perdu!</string>
     <string name="video_album">Album vidéo</string>
-    <string name="connection_error">ATTENTION: Erreur durant le transfert de données! Connexion fermé.</string>
     <string name="video_orientation">Orientation de la video</string>
     <string name="camera_position">Position de la camera</string>
     <string name="settings_updated">Paramètre(s) mis à jour:</string>
     <string name="video_duration">Durée de la vidéo</string>
     <string name="video_fps">Images par seconde</string>
     <string name="video_resolution">Résolution vidéo</string>
-    <string name="not_discoverable">ATTENTION: L\'autorisation de visibilité Bluetooth a expiré! Redémarrez l\'application pour l\'autoriser à nouveau.</string>
     <string name="devices_distance">Distance entre les caméras:\n6cm - 7cm</string>
-    <string name="device_not_ready">ATTENTION: Démarrage de l\'enregistrement impossible! La caméra distante n\'est pas prête.</string>
-    <string name="reverse_disabled">ATTENTION: Impossible de retourner l\'écran! Vérifiez la configuration de votre périphérique.</string>
     <string name="status_label">Statut:</string>
-    <string name="title_activity_correction">Correction des images</string>
-    <string name="title_activity_synchro">Synchronisation (optionnel)</string>
-    <string name="ask_skip_step">Etes-vous sûr de vouloir passer cette étape?</string>
-    <string name="no_video">L\'album vidéo est vide!</string>
     <string name="title_detail_format">d MMM yyyy - hh:mm</string>
     <string name="date_detail_format">dd/MM/yyyy - hh:mm</string>
-    <string name="no_video_location">ATTENTION: Echec durant la géolocalisation de la nouvelle vidéo ainsi enregistrée! Vérifiez vos paramètres de localisation.</string>
     <string name="chose_player">Choix du lecteur vidéo</string>
     <string name="title">Titre :</string>
     <string name="description">Description :</string>
     <string name="undefined">Non défini</string>
-    <string name="info_saved">Les infos de la vidéo ont été enregistrées!</string>
-    <string name="confirm_cancel_modify">Etes-vous sûr de vouloir annuler vos modifications?</string>
-    <string name="confirm_cancel_create">Etes-vous sûr de vouloir annuler l\'ajout de cette vidéo sur votre périphérique?</string>
-    <string name="confirm_delete">Etes-vous sûr de vouloir supprimer cette vidéo?</string>
     <string name="video_location">Localisation de la vidéo</string>
     <string name="user_location">Votre localisation</string>
-    <string name="no_geolocation">ATTENTION: Géolocalisation impossible! Vérifiez vos paramètres de localisation.</string>
     <string name="chose_share">Partager vers</string>
     <string name="nav_download">Télécharger vidéos</string>
     <string name="downloading_videos">Téléchargement de vidéos en anaglyphe%1$s</string>
-    <string name="confirm_cancel_download">Etes-vous sûr de vouloir fermer l\'application et annuler ainsi le téléchargement?</string>
-    <string name="webservice_unavailable">ERREUR: Echec durant le téléchargement! Le webservice de STUDIO-Artaban est indisponible.</string>
-    <string name="download_cancelled">ATTENTION: Le téléchargement des vidéos a été annulé!</string>
-    <string name="wrong_videos_attr">ERREUR: Echec durant le téléchargement! Réponse du webservice de STUDIO-Artaban incorrecte.</string>
-    <string name="no_internet">ERREUR: Pas de connexion Internet!</string>
-    <string name="no_storage">ERREUR: Impossible d\'accéder à l\'espace de stockage! Arrêt de l\'application.</string>
     <string name="contrast">Contraste</string>
     <string name="brightness">Luminosité</string>
     <string name="red_balance">Balance de rouge</string>
     <string name="green_balance">Balance de vert</string>
     <string name="blue_balance">Balance de bleu</string>
+
+    <!-- User messages -->
+    <string name="camera_disabled">Impossible d\'accéder à la caméra. Celle-ci doit être utilisée par une autre application.</string>
+    <string name="warning_not_matching">Aucune des resolutions &amp; FPS de la caméra distante ne corresponde à l\'une des vôtres!\n\nPériphérique distant:</string>
+    <string name="connection_lost">ATTENTION: Connexion perdu!</string>
+    <string name="connection_error">ATTENTION: Erreur durant le transfert de données! Connexion fermé.</string>
+    <string name="not_discoverable">ATTENTION: L\'autorisation de visibilité Bluetooth a expiré! Redémarrez l\'application pour l\'autoriser à nouveau.</string>
+    <string name="device_not_ready">ATTENTION: Démarrage de l\'enregistrement impossible! La caméra distante n\'est pas prête.</string>
+    <string name="reverse_disabled">ATTENTION: Impossible de retourner l\'écran! Vérifiez la configuration de votre périphérique.</string>
+    <string name="ask_skip_step">Etes-vous sûr de vouloir passer cette étape?</string>
+    <string name="no_video">L\'album vidéo est vide!</string>
+    <string name="no_video_location">ATTENTION: Echec durant la géolocalisation de la nouvelle vidéo ainsi enregistrée! Vérifiez vos paramètres de localisation.</string>
+    <string name="no_geolocation">ATTENTION: Géolocalisation impossible! Vérifiez vos paramètres de localisation.</string>
+    <string name="info_saved">Les infos de la vidéo ont été enregistrées!</string>
+    <string name="webservice_unavailable">ERREUR: Echec durant le téléchargement! Le webservice de STUDIO-Artaban est indisponible.</string>
+    <string name="download_cancelled">ATTENTION: Le téléchargement des vidéos a été annulé!</string>
+    <string name="wrong_videos_attr">ERREUR: Echec durant le téléchargement! Réponse du webservice de STUDIO-Artaban incorrecte.</string>
+    <string name="no_internet">ERREUR: Pas de connexion Internet!</string>
+    <string name="no_storage">ERREUR: Impossible d\'accéder à l\'espace de stockage! Arrêt de l\'application.</string>
+
+    <!-- Titles -->
+    <string name="title_error">ERREUR</string>
+    <string name="title_warning">ATTENTION</string>
+    <string name="title_confirm">CONFIRMATION</string>
+
+    <string name="title_activity_correction">Correction des images</string>
+    <string name="title_activity_synchro">Synchronisation (optionnel)</string>
+
+    <!-- Menus -->
+    <string name="nav_album">Album vidéos</string>
+    <string name="nav_settings">Paramètres</string>
+    <string name="nav_disconnect">Déconnexion</string>
+    <string name="nav_quit">Quitter</string>
+
+    <string name="navigation_drawer_close">Ferme la navigation</string>
+    <string name="navigation_drawer_open">Ouvre la navigation</string>
+
+    <!-- Confirmation -->
+    <string name="confirm_quit">Etes-vous sûr de vouloir quitter l\'application?</string>
+    <string name="confirm_disconnect">Souhaitez-vous vraiment vous déconnecter?</string>
+    <string name="confirm_cancel_modify">Etes-vous sûr de vouloir annuler vos modifications?</string>
+    <string name="confirm_cancel_create">Etes-vous sûr de vouloir annuler l\'ajout de cette vidéo sur votre périphérique?</string>
+    <string name="confirm_delete">Etes-vous sûr de vouloir supprimer cette vidéo?</string>
+    <string name="confirm_cancel_download">Etes-vous sûr de vouloir fermer l\'application et annuler ainsi le téléchargement?</string>
+    <string name="confirm_download">Etes-vous sûr de vouloir télécharger les vidéos?</string>
 
     <!-- Share to local folder activity -->
     <string name="my_files">Mes fichiers</string>
