@@ -251,7 +251,7 @@ public class AlbumTable implements IDataTable {
     @Override
     public <T> List<T> getAllEntries(SQLiteDatabase db) {
 
-        Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, COLUMN_DATE);
+        Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, DataField.COLUMN_ID);
         List<Video> videos = new ArrayList<>();
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
