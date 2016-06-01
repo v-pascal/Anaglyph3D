@@ -1,21 +1,14 @@
 package com.studio.artaban.anaglyph3d;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.Toast;
 
-import com.studio.artaban.anaglyph3d.album.AlbumActivity;
-import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
-import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Internet;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
@@ -31,49 +24,37 @@ import java.text.SimpleDateFormat;
 
 public class DownloadFragment extends Fragment {
 
+    public static final String TAG = "download";
+
+    //
     private OnInteractionListener mListener;
     public interface OnInteractionListener { ///////////////////////////////////////////////////////
 
         void onPreExecute();
-        void onProgressUpdate(int progess);
-        void onPostExecute(int result);
+        void onProgressUpdate(int progress, int totalSize, short video, short totalVideos);
+        void onPostExecute(int result, Parcelable[] videos);
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////
 
     //
-    private boolean mDownloading; // Downloading videos flag
+    public void start() {
 
-    private void displayDownload(boolean enable) { // Enable/Disable download videos UI components
-        if (enable) { // Enable download components
+        mDownloadTask = new DownloadVideosTask();
+        mDownloadTask.execute();
+    }
+    public void stop() {
 
-            mTextInfo.setText(getString(R.string.downloading_videos, "..."));
-            mProgressBar.setMax(1);
-            mProgressBar.setProgress(0);
-
-            //
-            final LinearLayout choice = (LinearLayout)findViewById(R.id.container_choice);
-            assert choice != null;
-            choice.setVisibility(View.GONE);
-            final LinearLayout download = (LinearLayout)findViewById(R.id.container_download);
-            assert download != null;
-            download.setVisibility(View.VISIBLE);
-        }
-        else { // Disable download components
-
-            final LinearLayout download = (LinearLayout)findViewById(R.id.container_download);
-            assert download != null;
-            download.setVisibility(View.GONE);
-            final LinearLayout choice = (LinearLayout)findViewById(R.id.container_choice);
-            assert choice != null;
-            choice.setVisibility(View.VISIBLE);
-        }
-        assert mMenuOptions.getItem(0).getItemId() == R.id.menu_album;
-        mMenuOptions.getItem(0).setEnabled(!enable);
-        assert mMenuOptions.getItem(1).getItemId() == R.id.menu_download;
-        mMenuOptions.getItem(1).setEnabled(!enable);
+        if (mDownloadTask != null)
+            mDownloadTask.cancel(true);
+    }
+    public boolean isDownloading() {
+        return mDownloading;
     }
 
+    //
+    private boolean mDownloading;
     private DownloadVideosTask mDownloadTask;
+
     private class DownloadVideosTask extends AsyncTask<Void, Integer, Integer> implements
             Internet.OnDownloadListener {
 
@@ -218,7 +199,8 @@ public class DownloadFragment extends Fragment {
                             album.getInt(AlbumTable.COLUMN_THUMBNAIL_WIDTH), // Thumbnail width
                             album.getInt(AlbumTable.COLUMN_THUMBNAIL_HEIGHT)); // Thumbnail height
 
-                    ++mCurVideo;
+                    if (mTotalVideos != mCurVideo)
+                        ++mCurVideo;
                 }
             }
             catch (JSONException e) {
@@ -241,40 +223,24 @@ public class DownloadFragment extends Fragment {
 
         @Override
         protected void onPreExecute() {
-            mDownloading = true;
-            displayDownload(true);
-        }
 
+            mDownloading = true;
+
+            assert mListener != null;
+            mListener.onPreExecute();
+        }
         @Override
         protected void onProgressUpdate(Integer... values) {
-
-            mProgressBar.setMax(mTotalSize);
-            mProgressBar.setProgress(mProgressBar.getProgress() + values[0]);
-
-            mTextInfo.setText(getString(R.string.downloading_videos, ": " +
-                    mCurVideo + "/" + mTotalVideos));
+            assert mListener != null;
+            mListener.onProgressUpdate(values[0], mTotalSize, mCurVideo, mTotalVideos);
         }
-
         @Override
         protected void onPostExecute(Integer result) {
+
             mDownloading = false;
-            displayDownload(false);
 
-            if (result != Constants.NO_DATA) // Display error message
-                DisplayMessage.getInstance().toast(result, Toast.LENGTH_LONG);
-
-            else {
-
-                mDownloaded = true;
-                assert mMenuOptions.getItem(1).getItemId() == R.id.menu_download;
-                mMenuOptions.getItem(1).setEnabled(false);
-
-                // Display videos album to add video entries into DB
-                Intent intent = new Intent(ChoiceActivity.this, VideoListActivity.class);
-                intent.putExtra(AlbumActivity.DATA_VIDEOS_DOWNLOADED, mDownloadedVideos);
-
-                startActivityForResult(intent, 0);
-            }
+            assert mListener != null;
+            mListener.onPostExecute(result, mDownloadedVideos);
         }
 
         //////
@@ -285,16 +251,6 @@ public class DownloadFragment extends Fragment {
             if (mPublishProgress)
                 publishProgress(read);
         }
-    }
-
-    public void start() {
-
-    }
-    public void stop() {
-
-    }
-    public boolean isDownloading() {
-        return mDownloading;
     }
 
     //////
@@ -312,7 +268,7 @@ public class DownloadFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+        setRetainInstance(true); // Retain fragment instance
     }
 
     @Override

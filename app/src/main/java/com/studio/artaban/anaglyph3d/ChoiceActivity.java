@@ -4,9 +4,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Parcelable;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,7 +21,6 @@ import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.album.AlbumActivity;
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
-import com.studio.artaban.anaglyph3d.data.AlbumTable;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
@@ -29,19 +28,18 @@ import com.studio.artaban.anaglyph3d.helpers.Internet;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
-public class ChoiceActivity extends AppCompatActivity {
+public class ChoiceActivity extends AppCompatActivity implements DownloadFragment.OnInteractionListener {
 
     private static final String PREFERENCE_NAME = "AnaglyphPreferences";
     private static final String PREFERENCE_DATA_DOWNLOADED = "downloadedData";
+
+    private static final String DATA_KEY_PROGRESS = "progress";
+    private static final String DATA_KEY_PROGRESS_MAX = "progressMax";
+    private static final String DATA_KEY_INFO = "info";
+
+    private static final int REQUEST_DOWNLOAD = 1;
 
     //
     private Menu mMenuOptions; // Activity menu
@@ -49,9 +47,17 @@ public class ChoiceActivity extends AppCompatActivity {
     private TextView mTextInfo; // Download text info
 
     private boolean mDownloaded; // Downloaded videos flag (persistent data)
+    private DownloadFragment mDownloadTask; // Download fragment
 
     public void onReal3D(View sender) {
 
+        ////// Load connect activity
+        Intent intent = new Intent(this, ConnectActivity.class);
+        startActivityForResult(intent, 0);
+    }
+    public void onSimulated3D(View sender) {
+
+        ////// Load main activity
 
 
 
@@ -62,17 +68,73 @@ public class ChoiceActivity extends AppCompatActivity {
 
 
     }
-    public void onSimulated3D(View sender) {
 
+    ////// Download videos
+    @Override public void onPreExecute() {
 
+        displayDownload(true);
+        displayMenu();
 
+        mProgressBar.setMax(1);
+        mProgressBar.setProgress(0);
+        mTextInfo.setText(getString(R.string.downloading_videos, "..."));
+    }
+    @Override
+    public void onProgressUpdate(int progress, int totalSize, short video, short totalVideos) {
 
+        mProgressBar.setMax(totalSize);
+        mProgressBar.setProgress(mProgressBar.getProgress() + progress);
+        mTextInfo.setText(getString(R.string.downloading_videos, ": " + video + "/" + totalVideos));
+    }
+    @Override
+    public void onPostExecute(int result, Parcelable[] videos) {
 
+        if (result != Constants.NO_DATA) { // Display error message
 
+            displayDownload(false);
+            displayMenu();
+            DisplayMessage.getInstance().toast(result, Toast.LENGTH_LONG);
+        }
+        else {
 
+            mDownloaded = true;
+            displayMenu();
 
+            // Display videos album to add video entries into DB
+            Intent intent = new Intent(ChoiceActivity.this, VideoListActivity.class);
+            intent.putExtra(AlbumActivity.DATA_VIDEOS_DOWNLOADED, videos);
 
+            startActivityForResult(intent, REQUEST_DOWNLOAD);
+        }
+    }
 
+    //
+    private void displayDownload(boolean enable) { // Enable/Disable download videos UI components
+        if (enable) { // Enable download components
+
+            final LinearLayout choice = (LinearLayout)findViewById(R.id.container_choice);
+            assert choice != null;
+            choice.setVisibility(View.GONE);
+            final LinearLayout download = (LinearLayout)findViewById(R.id.container_download);
+            assert download != null;
+            download.setVisibility(View.VISIBLE);
+        }
+        else { // Disable download components
+
+            final LinearLayout download = (LinearLayout)findViewById(R.id.container_download);
+            assert download != null;
+            download.setVisibility(View.GONE);
+            final LinearLayout choice = (LinearLayout)findViewById(R.id.container_choice);
+            assert choice != null;
+            choice.setVisibility(View.VISIBLE);
+        }
+    }
+    public void displayMenu() { // Enable/Disable menu item according data
+
+        assert mMenuOptions.getItem(0).getItemId() == R.id.menu_album;
+        mMenuOptions.getItem(0).setEnabled(!mDownloadTask.isDownloading());
+        assert mMenuOptions.getItem(1).getItemId() == R.id.menu_download;
+        mMenuOptions.getItem(1).setEnabled(!mDownloadTask.isDownloading() & !mDownloaded);
     }
 
     //////
@@ -126,9 +188,25 @@ public class ChoiceActivity extends AppCompatActivity {
         SharedPreferences settings = getSharedPreferences(PREFERENCE_NAME, 0);
         mDownloaded = settings.getBoolean(PREFERENCE_DATA_DOWNLOADED, false);
 
-        //
+        // Restore saved data (if any)
         mProgressBar = (ProgressBar)findViewById(R.id.progress_download);
         mTextInfo = (TextView)findViewById(R.id.text_download);
+        if (savedInstanceState != null) {
+
+            mProgressBar.setMax(savedInstanceState.getInt(DATA_KEY_PROGRESS_MAX));
+            mProgressBar.setProgress(savedInstanceState.getInt(DATA_KEY_PROGRESS));
+            mTextInfo.setText(savedInstanceState.getString(DATA_KEY_INFO));
+        }
+
+        FragmentManager manager = getSupportFragmentManager();
+        mDownloadTask = (DownloadFragment)manager.findFragmentByTag(DownloadFragment.TAG);
+        if (mDownloadTask == null) {
+
+            mDownloadTask = new DownloadFragment();
+            manager.beginTransaction().add(mDownloadTask, DownloadFragment.TAG).commit();
+            manager.executePendingTransactions();
+        }
+        displayDownload(mDownloadTask.isDownloading());
     }
 
     @Override
@@ -137,7 +215,10 @@ public class ChoiceActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         ActivityWrapper.set(this); // Set current activity
 
-        if (requestCode != 0) {
+        if (requestCode == REQUEST_DOWNLOAD)
+            displayDownload(false);
+
+        else if (requestCode != 0) {
             Logs.add(Logs.Type.F, "Unexpected request code");
             return;
         }
@@ -145,9 +226,6 @@ public class ChoiceActivity extends AppCompatActivity {
             case Constants.RESULT_NO_VIDEO: {
 
                 mDownloaded = false; // Allow user to download videos if already done
-                assert mMenuOptions.getItem(1).getItemId() == R.id.menu_download;
-                mMenuOptions.getItem(1).setEnabled(true);
-
                 DisplayMessage.getInstance().toast(R.string.no_video, Toast.LENGTH_LONG);
                 break;
             }
@@ -160,7 +238,7 @@ public class ChoiceActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (mDownloading) {
+        if (mDownloadTask.isDownloading()) {
 
             moveTaskToBack(true); // Put application into background (paused)
             return;
@@ -175,11 +253,7 @@ public class ChoiceActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.activity_connect, menu);
         mMenuOptions = menu;
 
-        if (mDownloaded) { // Check if videos have been already downloaded
-
-            assert mMenuOptions.getItem(1).getItemId() == R.id.menu_download;
-            mMenuOptions.getItem(1).setEnabled(false);
-        }
+        displayMenu();
         return true;
     }
 
@@ -208,9 +282,7 @@ public class ChoiceActivity extends AppCompatActivity {
                         null, true, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
-                                mDownloadTask = new DownloadVideosTask();
-                                mDownloadTask.execute();
+                                mDownloadTask.start();
                             }
                         });
 
@@ -218,7 +290,7 @@ public class ChoiceActivity extends AppCompatActivity {
             }
             case R.id.menu_quit: {
 
-                if (mDownloading) {
+                if (mDownloadTask.isDownloading()) {
 
                     // Confirm by user to cancel download
                     DisplayMessage.getInstance().alert(R.string.title_warning,
@@ -253,14 +325,24 @@ public class ChoiceActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+
+        outState.putInt(DATA_KEY_PROGRESS, mProgressBar.getProgress());
+        outState.putInt(DATA_KEY_PROGRESS_MAX, mProgressBar.getMax());
+        outState.putString(DATA_KEY_INFO, mTextInfo.getText().toString());
+
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     protected void onDestroy() {
 
         super.onDestroy();
         if (isFinishing()) {
 
             Storage.removeTempFiles(false);
-            if (mDownloading)
-                mDownloadTask.cancel(true);
+            if (mDownloadTask.isDownloading())
+                mDownloadTask.stop();
 
             // Free GStreamer library dependencies (if any)
             System.exit(0);
