@@ -149,4 +149,7 @@
     <string name="status_save_anaglyph">Saving anaglyph 3D video file...</string>
     <string name="status_convert_thumbnail">Thumbnail picture conversion...</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>
