@@ -86,8 +86,6 @@ public class ChoiceActivity extends AppCompatActivity {
     private class DownloadVideosTask extends AsyncTask<Void, Integer, Integer> implements
             Internet.OnDownloadListener {
 
-        private static final String WEBSERVICE_URL = "http://studio-artaban.com/Anaglyph3D/videos.php";
-
         private static final String JSON_VIDEOS = "videos";
         private static final String JSON_VIDEO = "video";
         private static final String JSON_THUMBNAIL = "thumbnail";
@@ -143,7 +141,7 @@ public class ChoiceActivity extends AppCompatActivity {
 
             // Download JSON videos attributes under a web service
             mPublishProgress = false;
-            int resultId = getResultId(Internet.downloadHttpFile(WEBSERVICE_URL,
+            int resultId = getResultId(Internet.downloadHttpFile(Constants.DOWNLOAD_URL,
                     ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD +
                             Storage.FILENAME_DOWNLOAD_JSON, this));
             if (resultId != Constants.NO_DATA)

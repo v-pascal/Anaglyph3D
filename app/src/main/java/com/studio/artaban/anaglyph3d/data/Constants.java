@@ -79,4 +79,8 @@ public final class Constants {
     public static final String PROCESS_LOCAL_FRAMES = File.separator + PROCESS_LOCAL_PREFIX + "%04d" + EXTENSION_RGBA;
     public static final String PROCESS_REMOTE_FRAMES = File.separator + PROCESS_REMOTE_PREFIX + "%04d" + EXTENSION_RGBA;
 
+
+    ////// Download videos
+    public static final String DOWNLOAD_URL = "http://studio-artaban.com/Anaglyph3D/videos.php";
+
 }
