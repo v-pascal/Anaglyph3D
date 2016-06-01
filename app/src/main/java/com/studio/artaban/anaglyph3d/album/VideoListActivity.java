@@ -298,8 +298,6 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
 
         // Restore videos album (manage video selection & info), and check connection for default result
         restoreVideosAlbum(savedInstanceState);
-        if (!getIntent().getBooleanExtra(Constants.DATA_CONNECTION_ESTABLISHED, false))
-            setResult(Constants.RESULT_RESTART_CONNECTION); // Must restart connection (not connected)
 
         // Open database & get video entries
         mDB = new Database(this);

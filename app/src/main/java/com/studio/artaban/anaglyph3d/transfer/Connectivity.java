@@ -398,13 +398,17 @@ public class Connectivity {
         // Close connection
         private void close() {
 
-            // Close current activity (back to connect activity if not already the case)
+            ////////////// Close current activity (back to connect activity if not already the case)
             try {
                 Activity curActivity = ActivityWrapper.get();
                 if (!curActivity.getClass().equals(ConnectActivity.class)) { // Not connect activity
 
                     curActivity.setResult(Constants.RESULT_LOST_CONNECTION);
                     curActivity.finish();
+
+                    // TODO: Replace 'finish' method call above with a 'close' method call of a
+                    //       connected activity interface (implemented by all activities that
+                    //       need connection)
                 }
             }
             catch (NullPointerException e) {

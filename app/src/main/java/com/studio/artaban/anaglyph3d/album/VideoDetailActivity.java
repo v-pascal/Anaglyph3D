@@ -1,9 +1,7 @@
 package com.studio.artaban.anaglyph3d.album;
 
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;

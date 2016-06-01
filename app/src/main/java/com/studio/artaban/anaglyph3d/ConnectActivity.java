@@ -440,10 +440,6 @@ public class ConnectActivity extends AppCompatActivity {
             return;
         }
         switch (resultCode) {
-            case Constants.RESULT_RESTART_CONNECTION: {
-                Connectivity.getInstance().start(this); // Restart connectivity
-                break;
-            }
             case Constants.RESULT_QUIT_APPLICATION: {
 
                 // Quit application

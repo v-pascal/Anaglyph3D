@@ -17,12 +17,11 @@ public final class Constants {
     ////// Activity
     public static final int RESULT_QUIT_APPLICATION = 300; // Quit application requested result
     public static final int RESULT_LOST_CONNECTION = 301; // Connection lost result
-    public static final int RESULT_RESTART_CONNECTION = 302; // Active connect activity result
-    public static final int RESULT_DISPLAY_ALBUM = 303; // Display album with current 3D video result
-    public static final int RESULT_NO_VIDEO = 304; // No video result
-    public static final int RESULT_SELECT_VIDEO = 305; // Select video result
-    public static final int RESULT_SAVE_VIDEO = 306; // Save video result
-    public static final int RESULT_DELETE_VIDEO = 307; // Delete video result
+    public static final int RESULT_DISPLAY_ALBUM = 302; // Display album with current 3D video result
+    public static final int RESULT_NO_VIDEO = 303; // No video result
+    public static final int RESULT_SELECT_VIDEO = 304; // Select video result
+    public static final int RESULT_SAVE_VIDEO = 305; // Save video result
+    public static final int RESULT_DELETE_VIDEO = 306; // Delete video result
 
     // Data keys
     public static final String DATA_ACTIVITY = "data"; // Bundle activity data key

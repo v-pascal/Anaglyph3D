@@ -10,9 +10,44 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.studio.artaban.anaglyph3d.ChoiceActivity">
 
-    <TextView
-        android:text="OLA!"
+    <!-- Choice -->
+    <include
+        layout="@layout/content_choice"
+        android:layout_centerInParent="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content" />
+
+    <!-- Download -->
+    <LinearLayout
+        android:id="@+id/container_download"
+        android:visibility="gone"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/image_download"
+            android:adjustViewBounds="true"
+            android:scaleType="fitXY"
+            android:paddingBottom="25dp"
+            android:src="@drawable/download_anim"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/text_download"
+            android:paddingBottom="18dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/progress_height"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:progressDrawable="@drawable/process_progress"
+            android:id="@+id/progress_download" />
+
+    </LinearLayout>
 
 </RelativeLayout>
