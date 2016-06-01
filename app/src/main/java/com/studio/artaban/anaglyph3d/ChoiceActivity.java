@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Build;
 import android.os.Parcelable;
 import android.support.v4.app.FragmentManager;
@@ -14,6 +15,7 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -118,9 +120,13 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
             final LinearLayout download = (LinearLayout)findViewById(R.id.container_download);
             assert download != null;
             download.setVisibility(View.VISIBLE);
+            final ImageView image = (ImageView)findViewById(R.id.image_download);
+            ((AnimationDrawable)image.getDrawable()).start();
         }
         else { // Disable download components
 
+            final ImageView image = (ImageView)findViewById(R.id.image_download);
+            ((AnimationDrawable)image.getDrawable()).stop();
             final LinearLayout download = (LinearLayout)findViewById(R.id.container_download);
             assert download != null;
             download.setVisibility(View.GONE);
