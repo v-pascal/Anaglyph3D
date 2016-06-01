@@ -48,6 +48,32 @@ public class ChoiceActivity extends AppCompatActivity {
     private ProgressBar mProgressBar; // Download progress bar
     private TextView mTextInfo; // Download text info
 
+    public void onReal3D(View sender) {
+
+
+
+
+
+
+
+
+
+
+    }
+    public void onSimulated3D(View sender) {
+
+
+
+
+
+
+
+
+
+
+    }
+
+
     ////// Download videos
     private boolean mDownloading; // Downloading videos flag
     private boolean mDownloaded; // Downloaded videos flag (persistent data)
