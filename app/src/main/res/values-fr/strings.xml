@@ -44,6 +44,8 @@
     <string name="red_balance">Balance de rouge</string>
     <string name="green_balance">Balance de vert</string>
     <string name="blue_balance">Balance de bleu</string>
+    <string name="simulated_3d">3D simulée</string>
+    <string name="real_3d">3D réelle</string>
 
     <!-- User messages -->
     <string name="camera_disabled">Impossible d\'accéder à la caméra. Celle-ci doit être utilisée par une autre application.</string>

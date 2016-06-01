@@ -44,6 +44,8 @@
     <string name="red_balance">Red balance</string>
     <string name="green_balance">Green balance</string>
     <string name="blue_balance">Blue balance</string>
+    <string name="simulated_3d">Simulated 3D</string>
+    <string name="real_3d">Real 3D</string>
 
     <!-- User messages -->
     <string name="camera_disabled">Failed to acquire camera feature. It may be used by another application.</string>

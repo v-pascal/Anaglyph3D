@@ -5,14 +5,25 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <TextView
-        android:text="A"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+    <!-- Simulated 3D  -->
+    <include
+        layout="@layout/layout_simulated_3d"
+        android:gravity="center"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
 
-    <TextView
-        android:text="B"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+    <ImageView
+        android:src="@drawable/separator_thin"
+        android:layout_width="2dp"
+        android:layout_height="match_parent"/>
+
+    <!-- Real 3D  -->
+    <include
+        layout="@layout/layout_real_3d"
+        android:gravity="center"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1" />
 
 </LinearLayout>
