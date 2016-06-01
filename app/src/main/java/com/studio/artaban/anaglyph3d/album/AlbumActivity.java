@@ -61,6 +61,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     public static final String DATA_EDITING_DESCRIPTION = "description";
 
     public static final String DATA_VIDEOS_DOWNLOADED = "downloaded";
+    public static final String DATA_DOWNLOAD_ADDED = "downloadAdded";
 
     //////
     public interface OnVideoAlbumListener { //////////////////////// Videos album listener interface
@@ -162,7 +163,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
             mEditTitle = state.getString(DATA_EDITING_TITLE);
             mEditDescription = state.getString(DATA_EDITING_DESCRIPTION);
 
-            mDownloadAdded = state.getBoolean(DATA_VIDEOS_DOWNLOADED);
+            mDownloadAdded = state.getBoolean(DATA_DOWNLOAD_ADDED);
         }
         else if (getIntent().getExtras() != null) {
 
@@ -182,8 +183,8 @@ public abstract class AlbumActivity extends AppCompatActivity implements
             if (getIntent().getExtras().containsKey(DATA_EDITING_DESCRIPTION))
                 mEditDescription = getIntent().getStringExtra(DATA_EDITING_DESCRIPTION);
 
-            if (getIntent().getExtras().containsKey(DATA_VIDEOS_DOWNLOADED))
-                mDownloadAdded = getIntent().getBooleanExtra(DATA_VIDEOS_DOWNLOADED, false);
+            if (getIntent().getExtras().containsKey(DATA_DOWNLOAD_ADDED))
+                mDownloadAdded = getIntent().getBooleanExtra(DATA_DOWNLOAD_ADDED, false);
 
             // Needed with detail activity child
         }
@@ -311,7 +312,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
         outState.putString(DATA_EDITING_TITLE, mEditTitle);
         outState.putString(DATA_EDITING_DESCRIPTION, mEditDescription);
 
-        outState.putBoolean(DATA_VIDEOS_DOWNLOADED, mDownloadAdded);
+        outState.putBoolean(DATA_DOWNLOAD_ADDED, mDownloadAdded);
 
         super.onSaveInstanceState(outState);
     }

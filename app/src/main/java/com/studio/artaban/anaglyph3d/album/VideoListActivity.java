@@ -372,7 +372,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             intent.putExtra(AlbumActivity.DATA_EDITING_TITLE, mEditTitle);
             intent.putExtra(AlbumActivity.DATA_EDITING_DESCRIPTION, mEditDescription);
 
-            intent.putExtra(AlbumActivity.DATA_VIDEOS_DOWNLOADED, mDownloadAdded);
+            intent.putExtra(AlbumActivity.DATA_DOWNLOAD_ADDED, mDownloadAdded);
 
             startActivityForResult(intent, 0);
             return;
