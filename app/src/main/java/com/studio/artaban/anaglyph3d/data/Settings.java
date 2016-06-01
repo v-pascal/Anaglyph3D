@@ -81,14 +81,15 @@ public class Settings implements IConnectRequest {
 
         String[] ranges = new String[mFpsRanges.size()];
         for (int i = 0; i < mFpsRanges.size(); ++i)
-            ranges[i] = mFpsRanges.get(i)[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] + Constants.CONFIG_FPS_SEPARATOR +
-                    mFpsRanges.get(i)[Camera.Parameters.PREVIEW_FPS_MAX_INDEX];
+            ranges[i] = (mFpsRanges.get(i)[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000) +
+                    Constants.CONFIG_FPS_SEPARATOR +
+                    (mFpsRanges.get(i)[Camera.Parameters.PREVIEW_FPS_MAX_INDEX] / 1000);
 
         return ranges;
     }
     public String getFpsRange() {
-        return mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] + Constants.CONFIG_FPS_SEPARATOR +
-                mFps[Camera.Parameters.PREVIEW_FPS_MAX_INDEX];
+        return (mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000) + Constants.CONFIG_FPS_SEPARATOR +
+                (mFps[Camera.Parameters.PREVIEW_FPS_MAX_INDEX] / 1000);
     }
 
     public int getResolutionWidth() { return (mOrientation)? mResolution.height:mResolution.width; }
