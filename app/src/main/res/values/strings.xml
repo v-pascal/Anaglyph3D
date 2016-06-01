@@ -77,6 +77,7 @@
     <string name="title_warning">WARNING</string>
     <string name="title_confirm">CONFIRM</string>
 
+    <string name="title_activity_connect">Connection</string>
     <string name="title_activity_correction">Frames correction</string>
     <string name="title_activity_synchro">Synchronization (optional)</string>
 

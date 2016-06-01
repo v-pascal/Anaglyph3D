@@ -8,6 +8,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Parcelable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -50,9 +51,7 @@ import java.text.SimpleDateFormat;
  */
 public class ConnectActivity extends AppCompatActivity {
 
-    private static final String PREFERENCE_NAME = "AnaglyphPreferences";
-    private static final String PREFERENCE_DATA_DOWNLOADED = "downloadedData";
-
+    /*
     //////
     private ProgressBar mProgressBar; // Download or connection progress bar
     private ImageView mLeftDevice; // Left device image
@@ -60,9 +59,13 @@ public class ConnectActivity extends AppCompatActivity {
     private ImageView mImageInfo; // Download or no bluetooth available image
     private TextView mTextInfo; // Text info to display
 
-    private Menu mMenuOptions; // Activity menu
-
     //
+    */
+
+
+
+
+
     private void setDeviceAnimation(boolean right) {
 
         // Display alpha animation on device glass image (according position)
@@ -80,6 +83,7 @@ public class ConnectActivity extends AppCompatActivity {
 
         Connectivity.getInstance().mListenDevice = !right;
     }
+    /*
     private void displayError() { // Display no bluetooth UI components
 
         mProgressBar.setVisibility(View.GONE);
@@ -367,6 +371,7 @@ public class ConnectActivity extends AppCompatActivity {
                 publishProgress(read);
         }
     }
+    */
 
     //
     public void onLeftDeviceClick(View sender) { setDeviceAnimation(false); }
@@ -381,36 +386,6 @@ public class ConnectActivity extends AppCompatActivity {
         // Set current activity
         ActivityWrapper.set(this);
 
-        // Get documents folder of the application
-        File documents = getExternalFilesDir(null);
-        if (documents != null) {
-
-            ActivityWrapper.DOCUMENTS_FOLDER = documents.getAbsolutePath();
-            Storage.createFolder(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD);
-        }
-        else {
-
-            Logs.add(Logs.Type.F, "Failed to get documents folder");
-            DisplayMessage.getInstance().toast(R.string.no_storage, Toast.LENGTH_LONG);
-            finish();
-            return;
-        }
-
-        // Restore persistent data (downloaded videos flag)
-        SharedPreferences settings = getSharedPreferences(PREFERENCE_NAME, 0);
-        mDownloaded = settings.getBoolean(PREFERENCE_DATA_DOWNLOADED, false);
-
-        // Get action bar height
-        TypedValue typedValue = new TypedValue();
-        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, typedValue, true))
-            ActivityWrapper.ACTION_BAR_HEIGHT = TypedValue.complexToDimensionPixelSize(typedValue.data,
-                    getResources().getDisplayMetrics());
-        else {
-
-            ActivityWrapper.ACTION_BAR_HEIGHT = 0;
-            Logs.add(Logs.Type.W, "'android.R.attr.actionBarSize' attribute not found");
-        }
-
         // Add and set app bar
         final Toolbar appBar = (Toolbar)findViewById(R.id.appBar);
         setSupportActionBar(appBar);
@@ -423,18 +398,30 @@ public class ConnectActivity extends AppCompatActivity {
         else // Default status bar color (API < 21)
             appBar.setBackgroundColor(Color.argb(255, 30, 30, 30));
 
-        mProgressBar = (ProgressBar)findViewById(R.id.progress_bar);
-        mTextInfo = (TextView)findViewById(R.id.text_info);
-        mLeftDevice = (ImageView)findViewById(R.id.left_device);
-        mRightDevice = (ImageView)findViewById(R.id.right_device);
-        mImageInfo = (ImageView)findViewById(R.id.image_info);
+        // Show the Up button in the action bar.
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null)
+            actionBar.setDisplayHomeAsUpEnabled(true);
 
         // Start connectivity
-        mBluetoothAvailable = Connectivity.getInstance().start(this);
-        if (!mBluetoothAvailable) {
+        if (!Connectivity.getInstance().start(this)) {
 
             // Failed to enable Bluetooth connectivity
-            displayError();
+            final ProgressBar progressBar = (ProgressBar)findViewById(R.id.progress_bar);
+            if (progressBar != null)
+                progressBar.setVisibility(View.GONE);
+            final TextView textView = (TextView) findViewById(R.id.text_info);
+            if (textView != null)
+                textView.setText(R.string.no_bluetooth);
+            final ImageView devLeft = (ImageView)findViewById(R.id.left_device);
+            if (devLeft != null)
+                devLeft.setVisibility(View.GONE);
+            final ImageView devRight = (ImageView)findViewById(R.id.right_device);
+            if (devRight != null)
+                devRight.setVisibility(View.GONE);
+            final ImageView imgWarning = (ImageView)findViewById(R.id.image_warning);
+            if (imgWarning != null)
+                imgWarning.setVisibility(View.VISIBLE);
             return;
         }
 
@@ -453,109 +440,26 @@ public class ConnectActivity extends AppCompatActivity {
             return;
         }
         switch (resultCode) {
-            case Constants.RESULT_NO_VIDEO: {
-
-                mDownloaded = false; // Allow user to download videos if already done
-                assert mMenuOptions.getItem(1).getItemId() == R.id.menu_download;
-                mMenuOptions.getItem(1).setEnabled(true);
-
-                DisplayMessage.getInstance().toast(R.string.no_video, Toast.LENGTH_LONG);
-                //break; // Always restart connectivity thread in this case
-            }
             case Constants.RESULT_RESTART_CONNECTION: {
                 Connectivity.getInstance().start(this); // Restart connectivity
                 break;
             }
             case Constants.RESULT_QUIT_APPLICATION: {
-                finish(); // Quit application
+
+                // Quit application
+                setResult(Constants.RESULT_QUIT_APPLICATION);
+                finish();
                 break;
             }
         }
     }
 
     @Override
-    public void onBackPressed() {
-        if (mDownloading) {
-
-            moveTaskToBack(true); // Put application into background (paused)
-            return;
-        }
-        // Finish application
-        super.onBackPressed();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        getMenuInflater().inflate(R.menu.activity_connect, menu);
-        mMenuOptions = menu;
-
-        if (mDownloaded) { // Check if videos have been already downloaded
-
-            assert mMenuOptions.getItem(1).getItemId() == R.id.menu_download;
-            mMenuOptions.getItem(1).setEnabled(false);
-        }
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+        if (item.getItemId() == android.R.id.home) {
 
-            case R.id.menu_album: {
-
-                // Stop connectivity (do not attempt to connect when video album is displayed)
-                Connectivity.getInstance().stop();
-
-                // Display album activity
-                Intent intent = new Intent(this, VideoListActivity.class);
-                startActivityForResult(intent, 0);
-                return true;
-            }
-            case R.id.menu_download: {
-
-                // Check Internet connection
-                if (!Internet.isOnline(1500)) {
-
-                    DisplayMessage.getInstance().toast(R.string.no_internet, Toast.LENGTH_LONG);
-                    return true;
-                }
-
-                // Confirm by the user to download
-                DisplayMessage.getInstance().alert(R.string.title_confirm, R.string.confirm_download,
-                        null, true, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-
-                                // Stop connectivity (do not attempt to connect when video album is displayed)
-                                Connectivity.getInstance().stop();
-
-                                mDownloadTask = new DownloadVideosTask();
-                                mDownloadTask.execute();
-                            }
-                        });
-
-                return true;
-            }
-            case R.id.menu_quit: {
-
-                if (mDownloading) {
-
-                    // Confirm by user to cancel download
-                    DisplayMessage.getInstance().alert(R.string.title_warning,
-                            R.string.confirm_cancel_download, null, true,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    finish();
-                                }
-                            });
-                }
-                else
-                    finish();
-
-                return true;
-            }
+            finish();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -573,28 +477,8 @@ public class ConnectActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop(){
-        super.onStop();
-
-        SharedPreferences prefs = getSharedPreferences(PREFERENCE_NAME, 0);
-        if (prefs != null) {
-
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putBoolean(PREFERENCE_DATA_DOWNLOADED, mDownloaded);
-            editor.apply();
-        }
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
-
         Connectivity.getInstance().destroy();
-        if (mDownloading)
-            mDownloadTask.cancel(true);
-        Storage.removeTempFiles(false);
-
-        // Free GStreamer library dependencies (if any)
-        System.exit(0);
     }
 }

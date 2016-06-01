@@ -69,6 +69,7 @@
     <string name="title_warning">ATTENTION</string>
     <string name="title_confirm">CONFIRMATION</string>
 
+    <string name="title_activity_connect">Connexion</string>
     <string name="title_activity_correction">Correction des images</string>
     <string name="title_activity_synchro">Synchronisation (optionnel)</string>
 

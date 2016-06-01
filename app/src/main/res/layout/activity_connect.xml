@@ -49,7 +49,8 @@
                 android:scaleType="fitCenter" />
 
             <ImageView
-                android:id="@+id/image_info"
+                android:id="@+id/image_warning"
+                android:src="@drawable/warning"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
