@@ -96,6 +96,27 @@ public class Settings implements IConnectRequest {
     public int getResolutionHeight() { return (mOrientation)? mResolution.width:mResolution.height; }
 
     ////// Setter
+    public boolean initialize() { // Initialize camera settings
+
+        // Set up default settings
+        mOrientation = Constants.CONFIG_DEFAULT_ORIENTATION;
+        mDuration = Constants.CONFIG_DEFAULT_DURATION;
+
+        // Only resolutions & FPS may change (all other settings are in default state, see just above)
+        // -> They should contain only resolutions & FPS that are available on both devices (master & slave)
+        mResolutions.clear();
+        mFpsRanges.clear();
+
+        // Get available camera resolutions
+        if (!CameraView.getAvailableSettings(mResolutions, mFpsRanges))
+            return false;
+
+        // Select default resolution & fps
+        mResolution = mResolutions.get(0);
+        mFps = mFpsRanges.get(0);
+
+        return true;
+    }
     public boolean setResolution(String resolution, String[] list) {
 
         int resolutionIndex = Constants.NO_DATA;
@@ -138,6 +159,7 @@ public class Settings implements IConnectRequest {
     private final ArrayList<Size> mResolutions = new ArrayList<>(); // Available resolutions list
     private final ArrayList<int[]> mFpsRanges = new ArrayList<>(); // Available fps range list (scaled by 1000)
 
+    public boolean mSimulated = false; // Simulated 3D flag
     public boolean mPosition = true; // Left camera position (false for right position)
     public boolean mReverse = false; // Reverse device orientation flag (see 'onReversePosition' method)
     public Size mResolution; // Selected resolution
@@ -268,22 +290,8 @@ public class Settings implements IConnectRequest {
             mPosition = data.getBoolean(DATA_KEY_POSITION);
             mRemoteDevice = data.getString(DATA_KEY_REMOTE_DEVICE);
 
-            // Set up default settings
-            mOrientation = Constants.CONFIG_DEFAULT_ORIENTATION;
-            mDuration = Constants.CONFIG_DEFAULT_DURATION;
-
-            // Only resolutions & FPS may change (all other settings are in default state, see just above)
-            // -> They should contain only resolutions & FPS that are available on both devices (master & slave)
-            mResolutions.clear();
-            mFpsRanges.clear();
-
-            // Get available camera resolutions
-            if (!CameraView.getAvailableSettings(mResolutions, mFpsRanges))
+            if (!initialize()) // Initialize camera settings
                 return null;
-
-            // Select default resolution & fps
-            mResolution = mResolutions.get(0);
-            mFps = mFpsRanges.get(0);
 
             if (!mMaster)
                 return null; // Only master device send initialize request
@@ -408,7 +416,7 @@ public class Settings implements IConnectRequest {
                     mResolution = mResolutions.get(0);
                     mFps = mFpsRanges.get(0);
 
-                    // Start main activity
+                    ////// Start main activity
                     ActivityWrapper.startActivity(MainActivity.class, null, 0);
                 }
             }
@@ -576,7 +584,7 @@ public class Settings implements IConnectRequest {
                 mResolution = mResolutions.get(0);
                 mFps = mFpsRanges.get(0);
 
-                // Start main activity
+                ////// Start main activity
                 ActivityWrapper.startActivity(MainActivity.class, null, 0);
             }
             catch (JSONException e) {

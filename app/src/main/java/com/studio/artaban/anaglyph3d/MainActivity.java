@@ -102,8 +102,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     //
-    private String mSubTitle;
-
     private static final int GLASS_ANIM_DURATION = 700; // In millisecond
     private boolean mGlassDisplayed;
 
@@ -142,14 +140,15 @@ public class MainActivity extends AppCompatActivity
         glass.startAnimation(anim);
     }
 
-    public void displayPosition(final boolean animation) {
+    public void displayPosition(final boolean back) {
 
         // Display remote device name into subtitle (with position)
+        final StringBuilder subTitle = new StringBuilder();
         if (Settings.getInstance().mPosition)
-            mSubTitle = getResources().getString(R.string.camera_right);
+            subTitle.append(getResources().getString(R.string.camera_right));
         else
-            mSubTitle = getResources().getString(R.string.camera_left);
-        mSubTitle += " : " + Settings.getInstance().getRemoteDevice();
+            subTitle.append(getResources().getString(R.string.camera_left));
+        subTitle.append(" : " + Settings.getInstance().getRemoteDevice());
 
         runOnUiThread(new Runnable() { // Need if called from connectivity thread
             @Override
@@ -157,12 +156,12 @@ public class MainActivity extends AppCompatActivity
 
                 final Toolbar appBar = (Toolbar) findViewById(R.id.toolbar);
                 if (appBar != null)
-                    appBar.setSubtitle(mSubTitle);
+                    appBar.setSubtitle(subTitle);
 
-                final ImageView imgGlass = (ImageView)findViewById(R.id.glass_image);
+                final ImageView imgGlass = (ImageView)findViewById(R.id.image_glass);
                 if (imgGlass != null) {
 
-                    if (!animation)
+                    if (!back) // Check back animation
                         positionGlass(imgGlass);
 
                     else { // Display glass with a translate animation
@@ -266,9 +265,6 @@ public class MainActivity extends AppCompatActivity
             navigationView.setItemTextAppearance(R.style.NavDrawerTextStyle);
         }
 
-        // Display remote device name into subtitle (with initial position)
-        displayPosition(true);
-
         // Remove all temporary files from storage
         new Handler().post(new Runnable() {
             @Override
@@ -276,6 +272,30 @@ public class MainActivity extends AppCompatActivity
                 Storage.removeTempFiles(false);
             }
         });
+
+        // Display remote device name into subtitle with initial position (if needed)
+        if (!Settings.getInstance().mSimulated)
+            displayPosition(true);
+
+        else {
+
+            // Display glasses for real 3D (with a scale animation)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
     }
 
     @Override
@@ -284,7 +304,8 @@ public class MainActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
         ActivityWrapper.set(this); // Set current activity
 
-        displayPosition(false); // In case it has changed
+        if (!Settings.getInstance().mSimulated)
+            displayPosition(false); // In case it has changed
 
         if (requestCode != 0) {
             Logs.add(Logs.Type.F, "Unexpected request code");
@@ -339,8 +360,10 @@ public class MainActivity extends AppCompatActivity
         if ((drawer != null) && (drawer.isDrawerOpen(GravityCompat.START)))
             drawer.closeDrawer(GravityCompat.START);
 
-        else // Put application into background (paused)
-            moveTaskToBack(true);
+        else if (!Settings.getInstance().mSimulated)
+            moveTaskToBack(true); // Put application into background for real 3D (paused)
+        else
+            super.onBackPressed(); // Finish activity (for simulated 3D)
     }
 
     //////

@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.studio.artaban.anaglyph3d.album.AlbumActivity;
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.Constants;
+import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Internet;
@@ -53,22 +54,23 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
 
     public void onReal3D(View sender) {
 
-        ////// Load connect activity
+        Settings.getInstance().mSimulated = false;
+
+        ////// Start connect activity
         Intent intent = new Intent(this, ConnectActivity.class);
         startActivityForResult(intent, 0);
     }
     public void onSimulated3D(View sender) {
 
-        ////// Load main activity
+        Settings.getInstance().mSimulated = true;
 
+        // Initialize camera settings
+        if (!Settings.getInstance().initialize())
+            return; // Error: failed to initialize camera (will quit application)
 
-
-
-
-
-
-
-
+        ////// Start main activity
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivityForResult(intent, 0);
     }
 
     ////// Download videos
