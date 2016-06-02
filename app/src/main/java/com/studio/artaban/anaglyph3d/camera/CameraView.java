@@ -226,8 +226,7 @@ public class CameraView extends SurfaceView
         mMediaRecorder.setMaxDuration(Settings.getInstance().mDuration * 1000);
         mMediaRecorder.setVideoEncodingBitRate(3000000);
         mMediaRecorder.setVideoFrameRate(
-                (Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] +
-                 Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MAX_INDEX]) / 2000);
+                Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000);
         mMediaRecorder.setOutputFile(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_LOCAL_VIDEO);
 
         try { mMediaRecorder.prepare(); }
