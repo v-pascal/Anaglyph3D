@@ -89,8 +89,22 @@ public class CameraView extends SurfaceView
 
         // Frames per second (range)
         List<int[]> camFPS = camera.getParameters().getSupportedPreviewFpsRange();
-        for (int[] walk: camFPS)
+        for (int[] walk: camFPS) {
+
+
+
+
+
+            // Check if minimum FPS already exists
             fps.add(walk);
+
+
+
+
+
+
+
+        }
 
         camera.release();
         return true;

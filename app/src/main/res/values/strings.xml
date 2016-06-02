@@ -18,7 +18,7 @@
     <string name="landscape">Landscape</string>
     <string name="portrait">Portrait</string>
     <string name="duration">Duration (in seconds)</string>
-    <string name="frame_per_second">FPS range</string>
+    <string name="frame_per_second">Frames per second</string>
     <string name="video_orientation">Video orientation</string>
     <string name="camera_position">Camera position</string>
     <string name="settings_updated">Settings updated:</string>

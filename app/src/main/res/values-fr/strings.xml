@@ -18,7 +18,7 @@
     <string name="landscape">Paysage</string>
     <string name="portrait">Portrait</string>
     <string name="duration">Durée (en secondes)</string>
-    <string name="frame_per_second">FPS (intervalle)</string>
+    <string name="frame_per_second">Images par seconde</string>
     <string name="video_album">Album vidéo</string>
     <string name="video_orientation">Orientation de la video</string>
     <string name="camera_position">Position de la camera</string>

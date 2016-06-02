@@ -79,17 +79,49 @@ public class Settings implements IConnectRequest {
 
     public String[] getFpsRanges() {
 
+
+
+
+
+
+
+
+
         String[] ranges = new String[mFpsRanges.size()];
         for (int i = 0; i < mFpsRanges.size(); ++i)
             ranges[i] = (mFpsRanges.get(i)[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000) +
                     Constants.CONFIG_FPS_SEPARATOR +
                     (mFpsRanges.get(i)[Camera.Parameters.PREVIEW_FPS_MAX_INDEX] / 1000);
 
+
+
+
+
+
+
+
+
         return ranges;
     }
     public String getFpsRange() {
+
+
+
+
+
+
+
+
+
         return (mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000) + Constants.CONFIG_FPS_SEPARATOR +
                 (mFps[Camera.Parameters.PREVIEW_FPS_MAX_INDEX] / 1000);
+
+
+
+
+
+
+
     }
 
     public int getResolutionWidth() { return (mOrientation)? mResolution.height:mResolution.width; }
@@ -245,6 +277,19 @@ public class Settings implements IConnectRequest {
     }
     private ArrayList<int[]> getMergedFpsRanges(JSONArray ranges) {
 
+
+
+
+
+
+
+
+
+
+
+
+
+
         ArrayList<int[]> mergedRanges = new ArrayList<>();
         try {
             for (int i = 0; i < ranges.length(); ++i) {
@@ -267,6 +312,18 @@ public class Settings implements IConnectRequest {
             for (int[] range : mergedRanges)
                 mFpsRanges.add(range);
         }
+
+
+
+
+
+
+
+
+
+
+
+
         return mergedRanges;
     }
 
