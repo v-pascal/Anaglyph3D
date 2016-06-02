@@ -26,6 +26,9 @@ import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -89,22 +92,34 @@ public class CameraView extends SurfaceView
 
         // Frames per second (range)
         List<int[]> camFPS = camera.getParameters().getSupportedPreviewFpsRange();
-        for (int[] walk: camFPS) {
+        for (int[] cam: camFPS) {
 
+            // Check if minimum FPS already exists and if so replace it by the new one (only if
+            // the maximum FPS is less than previous one)
 
+            boolean toReplace = true; // To add (as well)
+            for (int i = 0; i < fps.size(); ++i) {
 
+                if (fps.get(i)[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] == cam[Camera.Parameters.PREVIEW_FPS_MIN_INDEX]) {
 
-
-            // Check if minimum FPS already exists
-            fps.add(walk);
-
-
-
-
-
-
-
+                    if (fps.get(i)[Camera.Parameters.PREVIEW_FPS_MAX_INDEX] > cam[Camera.Parameters.PREVIEW_FPS_MAX_INDEX])
+                        fps.remove(i); // Replace it
+                    else
+                        toReplace = false; // Keep previous one
+                    break;
+                }
+                //else // Add it (if last entry)
+            }
+            if (toReplace)
+                fps.add(cam);
         }
+        Collections.sort(fps, new Comparator<int[]>() {
+            @Override
+            public int compare(int[] lhs, int[] rhs) {
+                return (lhs[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] < rhs[Camera.Parameters.PREVIEW_FPS_MIN_INDEX])?
+                        1:2; // Never == 0 coz always different
+            }
+        });
 
         camera.release();
         return true;
