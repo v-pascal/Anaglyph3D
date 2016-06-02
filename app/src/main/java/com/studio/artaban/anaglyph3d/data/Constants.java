@@ -22,6 +22,7 @@ public final class Constants {
     public static final int RESULT_SELECT_VIDEO = 304; // Select video result
     public static final int RESULT_SAVE_VIDEO = 305; // Save video result
     public static final int RESULT_DELETE_VIDEO = 306; // Delete video result
+    public static final int RESULT_FAILED_RECORDING = 307; // Failed recording result
 
     // Data keys
     public static final String DATA_ACTIVITY = "data"; // Bundle activity data key
