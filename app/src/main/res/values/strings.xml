@@ -48,7 +48,7 @@
     <string name="real_3d">Real 3D</string>
 
     <!-- User messages -->
-    <string name="camera_disabled">Failed to acquire camera feature. It may be used by another application.</string>
+    <string name="camera_disabled">Failed to acquire camera feature! It may be used by another application.</string>
     <string name="warning_not_matching">The available camera resolutions &amp; FPS of the device you attempt to connect are not matching with your own device!\n\nRemote device:</string>
     <string name="connection_lost">WARNING: Connection lost!</string>
     <string name="connection_error">ERROR: Data transfer error! Connection closed.</string>

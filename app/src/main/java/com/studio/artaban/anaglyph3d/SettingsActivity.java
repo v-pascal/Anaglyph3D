@@ -192,6 +192,7 @@ public class SettingsActivity extends SettingsParentActivity
         mPositionSwitch = (SwitchPreference)findPreference(Settings.DATA_KEY_POSITION);
         mPositionSwitch.setChecked(Settings.getInstance().mPosition);
         mPositionSwitch.setOnPreferenceChangeListener(this);
+        mPositionSwitch.setEnabled(!Settings.getInstance().mSimulated);
 
         mOrientationSwitch = (SwitchPreference)findPreference(Settings.DATA_KEY_ORIENTATION);
         mOrientationSwitch.setChecked(Settings.getInstance().mOrientation);

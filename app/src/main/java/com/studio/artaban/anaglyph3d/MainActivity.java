@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.animation.Animation;
+import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -45,8 +46,6 @@ public class MainActivity extends AppCompatActivity
 
                 // Display album activity
                 Intent intent = new Intent(this, VideoListActivity.class);
-                intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, true);
-
                 startActivityForResult(intent, 0);
                 break;
             }
@@ -103,6 +102,8 @@ public class MainActivity extends AppCompatActivity
 
     //
     private static final int GLASS_ANIM_DURATION = 700; // In millisecond
+    private static final int GLASSES_ANIM_DURATION = 1000; // In millisecond
+
     private boolean mGlassDisplayed;
 
     private void positionGlass(ImageView glass) { // Position glass image according setting
@@ -261,8 +262,14 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         if (navigationView != null) {
+
             navigationView.setNavigationItemSelectedListener(this);
             navigationView.setItemTextAppearance(R.style.NavDrawerTextStyle);
+            if (Settings.getInstance().mSimulated) {
+
+                assert navigationView.getMenu().getItem(2).getItemId() == R.id.navDisconnect;
+                navigationView.getMenu().getItem(2).setVisible(false);
+            }
         }
 
         // Remove all temporary files from storage
@@ -280,21 +287,14 @@ public class MainActivity extends AppCompatActivity
         else {
 
             // Display glasses for real 3D (with a scale animation)
+            ScaleAnimation anim = new ScaleAnimation(0f, 1f, 0f, 1f,
+                    Animation.RELATIVE_TO_SELF, 0.5f,
+                    Animation.RELATIVE_TO_SELF, 0.5f);
+            anim.setDuration(GLASSES_ANIM_DURATION);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            final ImageView imgGlass = (ImageView)findViewById(R.id.image_glass);
+            assert imgGlass != null;
+            imgGlass.startAnimation(anim);
         }
     }
 
@@ -328,7 +328,6 @@ public class MainActivity extends AppCompatActivity
                 // Display album activity to add the new video into the album
                 Intent intent = new Intent(this, VideoListActivity.class);
                 intent.putExtra(Constants.DATA_ACTIVITY, data.getBundleExtra(Constants.DATA_ACTIVITY));
-                intent.putExtra(Constants.DATA_CONNECTION_ESTABLISHED, true);
                 intent.putExtra(Constants.DATA_ADD_VIDEO, true);
 
                 startActivityForResult(intent, 0);
