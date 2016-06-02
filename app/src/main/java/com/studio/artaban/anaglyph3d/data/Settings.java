@@ -87,16 +87,16 @@ public class Settings implements IConnectRequest {
 
 
 
+        /*
         String[] ranges = new String[mFpsRanges.size()];
         for (int i = 0; i < mFpsRanges.size(); ++i)
             ranges[i] = (mFpsRanges.get(i)[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000) +
                     Constants.CONFIG_FPS_SEPARATOR +
                     (mFpsRanges.get(i)[Camera.Parameters.PREVIEW_FPS_MAX_INDEX] / 1000);
-
-
-
-
-
+                    */
+        String[] ranges = new String[mFpsRanges.size()];
+        for (int i = 0; i < mFpsRanges.size(); ++i)
+            ranges[i] = String.valueOf(mFpsRanges.get(i)[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000);
 
 
 
@@ -113,9 +113,11 @@ public class Settings implements IConnectRequest {
 
 
 
+        /*
         return (mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000) + Constants.CONFIG_FPS_SEPARATOR +
                 (mFps[Camera.Parameters.PREVIEW_FPS_MAX_INDEX] / 1000);
-
+                */
+        return String.valueOf(mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000);
 
 
 
@@ -277,19 +279,6 @@ public class Settings implements IConnectRequest {
     }
     private ArrayList<int[]> getMergedFpsRanges(JSONArray ranges) {
 
-
-
-
-
-
-
-
-
-
-
-
-
-
         ArrayList<int[]> mergedRanges = new ArrayList<>();
         try {
             for (int i = 0; i < ranges.length(); ++i) {
@@ -297,9 +286,32 @@ public class Settings implements IConnectRequest {
                 JSONObject remoteRange = ranges.getJSONObject(i);
                 for (int[] localRange : mFpsRanges) {
 
+
+
+
+
+
+
+
+                    /*
                     if ((remoteRange.getInt(DATA_KEY_MIN_FPS) == localRange[Camera.Parameters.PREVIEW_FPS_MIN_INDEX]) &&
                             (remoteRange.getInt(DATA_KEY_MAX_FPS) == localRange[Camera.Parameters.PREVIEW_FPS_MAX_INDEX]))
                         mergedRanges.add(localRange);
+                        */
+
+                    if (remoteRange.getInt(DATA_KEY_MIN_FPS) == localRange[Camera.Parameters.PREVIEW_FPS_MIN_INDEX])
+                        mergedRanges.add(localRange);
+
+
+
+
+
+
+
+
+
+
+
                 }
             }
         }
@@ -312,18 +324,6 @@ public class Settings implements IConnectRequest {
             for (int[] range : mergedRanges)
                 mFpsRanges.add(range);
         }
-
-
-
-
-
-
-
-
-
-
-
-
         return mergedRanges;
     }
 
@@ -560,8 +560,24 @@ public class Settings implements IConnectRequest {
                     ((previousType & REQ_TYPE_FPS) != REQ_TYPE_FPS)) {
                 try {
                     JSONObject limits = settings.getJSONObject(DATA_KEY_FPS);
+
+
+
+
+
+
+                    /*
                     String fps = limits.getInt(DATA_KEY_MIN_FPS) + Constants.CONFIG_FPS_SEPARATOR +
                             limits.getInt(DATA_KEY_MAX_FPS);
+                            */
+
+                    String fps = String.valueOf(limits.getInt(DATA_KEY_MIN_FPS));
+
+
+
+
+
+
                     setFps(fps, getFpsRanges());
                     reply.put(DATA_KEY_FPS, true); // Ok
                     messageIds.add(R.string.video_fps);

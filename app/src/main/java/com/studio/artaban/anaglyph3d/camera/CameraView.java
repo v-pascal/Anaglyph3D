@@ -83,14 +83,14 @@ public class CameraView extends SurfaceView
             return false;
         }
 
-        // Resolutions
+        ////// Resolutions
         List<Size> camResolutions = camera.getParameters().getSupportedVideoSizes();
         if (camResolutions == null)
             camResolutions = camera.getParameters().getSupportedPreviewSizes();
         for (final Size camResolution: camResolutions)
             resolutions.add(camResolution);
 
-        // Frames per second (range)
+        ////// Frames per second (range)
         List<int[]> camFPS = camera.getParameters().getSupportedPreviewFpsRange();
         for (int[] cam: camFPS) {
 

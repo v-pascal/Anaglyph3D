@@ -51,7 +51,6 @@ public final class Constants {
 
     ////// Settings
     public static final String CONFIG_RESOLUTION_SEPARATOR = " x "; // Separator between with and height
-    public static final String CONFIG_FPS_SEPARATOR = " < "; // Separator between min & max fps range
     public static final int CONFIG_PERFORMANCE_LOOP = 4096; // Loop count for performance calculation
 
     public static final boolean CONFIG_DEFAULT_ORIENTATION = true; // Default orientation (portrait)
