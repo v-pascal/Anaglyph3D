@@ -1,5 +1,6 @@
 package com.studio.artaban.anaglyph3d.helpers;
 
+import android.hardware.Camera;
 import android.os.StatFs;
 
 import com.studio.artaban.anaglyph3d.data.Constants;
@@ -99,14 +100,17 @@ public final class Storage {
     public static long isStorageEnough() { // Return if available storage space is enough to process
 
         // Get storage space need (according settings)
-        long need = Constants.PROCESS_MAX_FPS * // Maximum FPS expected
+        long need = Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] * // FPS
                 Settings.getInstance().mDuration * // Video duration (in second)
                 Settings.getInstance().mResolution.height * // Video height (in pixel)
                 Settings.getInstance().mResolution.width * // Video width (in pixel)
                 4 * // For RGBA info (in bytes)
                 2; // For both local and remote files
 
-        need += 5000000; // Add video & picture files size
+        if (Settings.getInstance().mSimulated)
+            need >>= 1; // Only local files
+
+        need += 4000000; // Add video & picture files size
 
         // Get available storage space
         StatFs stat = new StatFs(ActivityWrapper.DOCUMENTS_FOLDER);

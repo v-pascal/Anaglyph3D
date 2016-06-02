@@ -31,7 +31,9 @@ import com.studio.artaban.libGST.GstObject;
  */
 public class ProcessActivity extends AppCompatActivity {
 
+    private static final String WAKE_LOCK_NAME = "Anaglyph-3D";
     private WakeLock mWakeLock; // To avoid device in pause during video recording
+
     public void startRecording() {
 
         runOnUiThread(new Runnable() {
@@ -49,7 +51,7 @@ public class ProcessActivity extends AppCompatActivity {
 
                 // Wake lock during video recording
                 mWakeLock = ((PowerManager)getSystemService(Context.POWER_SERVICE))
-                        .newWakeLock(PowerManager.FULL_WAKE_LOCK, "Anaglyph-3D");
+                        .newWakeLock(PowerManager.FULL_WAKE_LOCK, WAKE_LOCK_NAME);
                 mWakeLock.acquire();
             }
         });
@@ -168,9 +170,20 @@ public class ProcessActivity extends AppCompatActivity {
         else
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
-        // Add position fragment
+        // Add fragment according settings
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
-        fragTransaction.add(R.id.main_container, new PositionFragment(), PositionFragment.TAG).commit();
+        if (!Settings.getInstance().mSimulated) // Add position fragment
+            fragTransaction.add(R.id.main_container, new PositionFragment(), PositionFragment.TAG).commit();
+
+        else { // Add recorder fragment
+
+            fragTransaction.add(R.id.main_container, new RecorderFragment(), RecorderFragment.TAG).commit();
+
+            // Wake lock during video recording
+            mWakeLock = ((PowerManager)getSystemService(Context.POWER_SERVICE))
+                    .newWakeLock(PowerManager.FULL_WAKE_LOCK, WAKE_LOCK_NAME);
+            mWakeLock.acquire();
+        }
         getSupportFragmentManager().executePendingTransactions();
     }
 

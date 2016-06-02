@@ -29,6 +29,7 @@ import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
+import com.studio.artaban.anaglyph3d.process.ProcessActivity;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 /**
@@ -101,8 +102,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     //
-    private static final int GLASS_ANIM_DURATION = 700; // In millisecond
-    private static final int GLASSES_ANIM_DURATION = 1000; // In millisecond
+    private static final int GLASS_ANIM_DURATION = 700; // In millisecond (translate animation)
+    private static final int GLASSES_ANIM_DURATION = 1000; // In millisecond (scale animation)
 
     private boolean mGlassDisplayed;
 
@@ -384,11 +385,19 @@ public class MainActivity extends AppCompatActivity
     public void onClick(View view) { // Start recording
         if (checkMemorySpace()) {
 
-            // Add connectivity request to check if remote device is ready...
-            Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
-                    ActivityWrapper.REQ_TYPE_READY, null);
+            if (!Settings.getInstance().mSimulated) {
 
-            // ...let's start the process activity if so
+                // Add connectivity request to check if remote device is ready...
+                Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                        ActivityWrapper.REQ_TYPE_READY, null);
+
+                // ...let's start the process activity if so
+            }
+            else {
+
+                Intent intent = new Intent(this, ProcessActivity.class);
+                startActivityForResult(intent, 0);
+            }
         }
     }
 }

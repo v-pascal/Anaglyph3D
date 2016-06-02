@@ -181,10 +181,31 @@ public class CameraView extends SurfaceView
         catch (Exception e) {
 
             Logs.add(Logs.Type.E, "Failed to start recorder");
-            DisplayMessage.getInstance().toast(R.string.error_start_recording, Toast.LENGTH_LONG);
 
-            //////
+
+
+
+
+
+
+
+
+
+
+            DisplayMessage.getInstance().toast(R.string.error_start_recording, Toast.LENGTH_LONG);
             Connectivity.getInstance().disconnect();
+            //force to quit application!
+
+
+
+
+
+
+
+
+
+
+
             return false;
         }
         return true;

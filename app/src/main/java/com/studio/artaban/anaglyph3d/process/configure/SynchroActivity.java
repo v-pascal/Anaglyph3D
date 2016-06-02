@@ -47,7 +47,7 @@ public class SynchroActivity extends AppCompatActivity {
     public static final boolean DEFAULT_LOCAL = true;
     // Default values
 
-    private static final int FRAME_REMAINING = Constants.PROCESS_MAX_FPS;
+    private static final int FRAME_REMAINING = 16;
     // Offset limit == frame count - FRAME_REMAINING
 
     //////

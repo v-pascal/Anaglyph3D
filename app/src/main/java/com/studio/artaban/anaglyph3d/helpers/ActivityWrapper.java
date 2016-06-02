@@ -75,7 +75,7 @@ public class ActivityWrapper implements IConnectRequest {
                     if (curActivity.getClass().equals(MainActivity.class)) {
                         if (((MainActivity)curActivity).isReady()) {
 
-                            // Start process activity
+                            ////// Start process activity
                             startActivity(ProcessActivity.class, null, 0);
 
                             return Constants.CONN_REQUEST_ANSWER_TRUE;
