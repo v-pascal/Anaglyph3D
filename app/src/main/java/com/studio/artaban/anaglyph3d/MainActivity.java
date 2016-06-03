@@ -64,7 +64,8 @@ public class MainActivity extends AppCompatActivity
 
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                Connectivity.getInstance().disconnect();
+                                if (which == DialogInterface.BUTTON_POSITIVE)
+                                    Connectivity.getInstance().disconnect();
                             }
                         });
                 break;
@@ -76,8 +77,9 @@ public class MainActivity extends AppCompatActivity
 
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                ActivityWrapper.stopActivity(MainActivity.class,
-                                        Constants.RESULT_QUIT_APPLICATION, null);
+                                if (which == DialogInterface.BUTTON_POSITIVE)
+                                    ActivityWrapper.stopActivity(MainActivity.class,
+                                            Constants.RESULT_QUIT_APPLICATION, null);
                             }
                         });
                 break;

@@ -10,7 +10,15 @@
         android:adjustViewBounds="true"
         android:layout_centerHorizontal="true"
         android:scaleType="fitCenter"
-        android:alpha="0.5"
+
+
+
+
+        android:translationX="30dp"
+
+
+
+
         android:id="@+id/image_left"/>
     <ImageView
         android:layout_height="match_parent"
@@ -18,6 +26,7 @@
         android:adjustViewBounds="true"
         android:layout_centerHorizontal="true"
         android:scaleType="fitCenter"
+        android:alpha="0.5"
         android:id="@+id/image_right"/>
 
 </RelativeLayout>

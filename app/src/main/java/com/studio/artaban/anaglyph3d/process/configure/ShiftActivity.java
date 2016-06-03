@@ -7,8 +7,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Build;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -29,7 +31,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-public class ShiftActivity extends AppCompatActivity {
+public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
 
     // Data keys
     public static final String DATA_KEY_SHIFT = "shift";
@@ -42,11 +44,9 @@ public class ShiftActivity extends AppCompatActivity {
 
     public static Bitmap applyCorrection(Bitmap curBitmap, boolean left, float shift, float gushing) {
 
-        float red = 1f, green = 1f, blue = 1f;
-        if (left)
-            green = blue = 0f;
-        else
-            red = 0f;
+        float red = 1f, green = 0f, blue = 1f;
+        if (left) green = blue = 0f;
+        else red = 0f;
 
         ColorMatrix matrix = new ColorMatrix(new float[] {
 
@@ -74,13 +74,21 @@ public class ShiftActivity extends AppCompatActivity {
 
 
 
+        Matrix transform = new Matrix();
+        transform.preTranslate(shift, 0f);
 
 
 
 
+        //Bitmap bitmap = Bitmap.createBitmap(curBitmap.getWidth(), curBitmap.getHeight(),
+        //        curBitmap.getConfig());
 
-        Bitmap bitmap = Bitmap.createBitmap(curBitmap.getWidth(), curBitmap.getHeight(),
-                curBitmap.getConfig());
+
+        Bitmap bitmap = Bitmap.createBitmap(curBitmap, 0, 0,
+                curBitmap.getWidth(), curBitmap.getHeight(), transform, true);
+
+
+
 
         Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint();
@@ -92,11 +100,8 @@ public class ShiftActivity extends AppCompatActivity {
 
     //
     private ImageView mLeftImage, mRightImage;
+    private FloatingActionButton mCancelButton;
     private Bitmap mBitmap;
-
-    private float mShift = DEFAULT_SHIFT; // Shift configured
-    private float mGushing = DEFAULT_GUSHING; // Gushing configuration
-    private boolean mChanged = false; // User configuration flag
 
     private boolean loadFrame() { // Load frame file to define 3D simulation
 
@@ -111,10 +116,6 @@ public class ShiftActivity extends AppCompatActivity {
 
             mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
             mBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(imageBuffer));
-
-            //
-            mLeftImage.setImageBitmap(mBitmap);
-            mRightImage.setImageBitmap(mBitmap);
         }
         catch (IOException e) {
 
@@ -122,6 +123,71 @@ public class ShiftActivity extends AppCompatActivity {
             return false;
         }
         return true;
+    }
+
+    //
+    private float mShift = DEFAULT_SHIFT; // Shift configured
+    private float mGushing = DEFAULT_GUSHING; // Gushing configuration
+    private boolean mChanged = false; // User configuration flag
+
+    private void onUpdateSettings(SeekBar seekBar) {
+        switch (seekBar.getId()) {
+
+            case R.id.seek_shift:
+
+
+
+
+
+                //mShift = seekBar.getProgress() / 10f;
+                //mShift = (float)seekBar.getProgress();
+                mShift = (float)seekBar.getProgress();
+
+
+
+
+
+
+                break;
+
+            case R.id.seek_gushing:
+
+
+
+
+
+                break;
+        }
+        mLeftImage.setImageBitmap(applyCorrection(mBitmap, true, mShift, mGushing));
+        mRightImage.setImageBitmap(applyCorrection(mBitmap, false, mShift, mGushing));
+
+        if (!mChanged) {
+
+            mChanged = true;
+            mCancelButton.setImageDrawable(getResources().getDrawable(
+                    R.drawable.ic_invert_colors_off_white_48dp));
+        }
+    }
+    public void onValidateContrast(View sender) { // Validate contrast & brightness settings
+
+        Intent intent = new Intent();
+        intent.putExtra(DATA_KEY_SHIFT, mShift);
+        intent.putExtra(DATA_KEY_GUSHING, mGushing);
+
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+    private void onCancel() {
+
+        // Ask user to confirm shift & gushing step skip
+        DisplayMessage.getInstance().alert(R.string.title_warning, R.string.ask_skip_step, null,
+                true, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == DialogInterface.BUTTON_POSITIVE)
+                            finish();
+                    }
+                });
     }
 
     //////
@@ -190,8 +256,54 @@ public class ShiftActivity extends AppCompatActivity {
 
 
 
+        // Set up seek bars
+        final SeekBar shift = (SeekBar)findViewById(R.id.seek_shift);
+        shift.setOnSeekBarChangeListener(this);
 
 
+
+
+
+        shift.setMax(100);
+        shift.setProgress(0);
+
+
+
+
+
+        final SeekBar gushing = (SeekBar)findViewById(R.id.seek_gushing);
+        gushing.setOnSeekBarChangeListener(this);
+
+        // Configure the floating button that allows user to cancel settings
+        mCancelButton = (FloatingActionButton)findViewById(R.id.fab_cancel);
+        mCancelButton.setImageDrawable(getResources().getDrawable((!mChanged) ?
+                R.drawable.ic_invert_colors_white_48dp : R.drawable.ic_invert_colors_off_white_48dp));
+        mCancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                mCancelButton.setImageDrawable(getResources().getDrawable(
+                        R.drawable.ic_invert_colors_white_48dp));
+
+                // Reset shift & gushing settings
+                mShift = DEFAULT_SHIFT;
+                mGushing = DEFAULT_GUSHING;
+                mChanged = false;
+
+
+
+
+
+                //shift.setProgress(5);
+
+
+
+
+
+                mLeftImage.setImageBitmap(applyCorrection(mBitmap, true, DEFAULT_SHIFT, DEFAULT_GUSHING));
+                mRightImage.setImageBitmap(applyCorrection(mBitmap, false, DEFAULT_SHIFT, DEFAULT_GUSHING));
+            }
+        });
 
         // Load & Display frame image
         mLeftImage = (ImageView)findViewById(R.id.image_left);
@@ -211,69 +323,6 @@ public class ShiftActivity extends AppCompatActivity {
         mRightImage.setImageBitmap(applyCorrection(mBitmap, false, mShift, mGushing));
     }
 
-    //
-    private void onUpdateSettings(SeekBar seekBar) {
-        /*
-        switch (mCorrectionType) {
-
-            case CORRECTION_ID_CONTRAST:
-                if (seekBar.getProgress() < 50)
-                    mContrast = seekBar.getProgress() / (float)50;
-                else
-                    mContrast = (9 * (seekBar.getProgress() - 50) / (float)50) + 1;
-
-                // With: Progress in [0;50] -> Contrast [0;1]
-                //       Progress in [50;100] -> Contrast [1;10]
-                break;
-
-            case CORRECTION_ID_BRIGHTNESS:
-                mBrightness = seekBar.getProgress() - 255;
-                break;
-
-            case CORRECTION_ID_RED_BALANCE:
-                mRedBalance = (seekBar.getProgress() + 5) / 10f;
-                break;
-
-            case CORRECTION_ID_GREEN_BALANCE:
-                mGreenBalance = (seekBar.getProgress() + 5) / 10f;
-                break;
-
-            case CORRECTION_ID_BLUE_BALANCE:
-                mBlueBalance = (seekBar.getProgress() + 5) / 10f;
-                break;
-        }
-        mCorrectionImage.setImageBitmap(applyCorrection(mCorrectionBitmap, mContrast, mBrightness,
-                mRedBalance, mGreenBalance, mBlueBalance));
-        if (!mChanged) {
-
-            mChanged = true;
-            mCancelButton.setImageDrawable(getResources().getDrawable(
-                    R.drawable.ic_invert_colors_off_white_48dp));
-        }
-        */
-    }
-    public void onValidateContrast(View sender) { // Validate contrast & brightness settings
-
-        Intent intent = new Intent();
-        intent.putExtra(DATA_KEY_SHIFT, mShift);
-        intent.putExtra(DATA_KEY_GUSHING, mGushing);
-
-        setResult(RESULT_OK, intent);
-        finish();
-    }
-    private void onCancel() {
-
-        // Ask user to confirm shift & gushing step skip
-        DisplayMessage.getInstance().alert(R.string.title_warning, R.string.ask_skip_step, null,
-                true, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (which == DialogInterface.BUTTON_POSITIVE)
-                            finish();
-                    }
-                });
-    }
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
 
@@ -282,4 +331,9 @@ public class ShiftActivity extends AppCompatActivity {
         outState.putBoolean(DATA_KEY_CHANGED, mChanged);
         super.onSaveInstanceState(outState);
     }
+
+    //////
+    @Override public void onStartTrackingTouch(SeekBar seekBar) { }
+    @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) { }
+    @Override public void onStopTrackingTouch(SeekBar seekBar) { onUpdateSettings(seekBar); }
 }

@@ -404,7 +404,8 @@ public abstract class AlbumActivity extends AppCompatActivity implements
                         null, true, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                onDelete(); // Delete selected video
+                                if (which == DialogInterface.BUTTON_POSITIVE)
+                                    onDelete(); // Delete selected video
                             }
                         });
                 break;

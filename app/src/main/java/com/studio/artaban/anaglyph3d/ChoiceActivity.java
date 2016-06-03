@@ -290,7 +290,8 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
                         null, true, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                mDownloadTask.start();
+                                if (which == DialogInterface.BUTTON_POSITIVE)
+                                    mDownloadTask.start();
                             }
                         });
 
@@ -306,7 +307,8 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    finish();
+                                    if (which == DialogInterface.BUTTON_POSITIVE)
+                                        finish();
                                 }
                             });
                 }

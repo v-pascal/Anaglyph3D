@@ -195,8 +195,10 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
-                                ActivityWrapper.hideSoftKeyboard();
+                                if (which != DialogInterface.BUTTON_POSITIVE)
+                                    return;
 
+                                ActivityWrapper.hideSoftKeyboard();
                                 if ((mVideoListener.isVideoCreation()) && (!mVideoListener.isVideoSaved()))
                                     mVideoListener.onDelete(); // Cancel video creation
 
