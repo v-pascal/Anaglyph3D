@@ -46,9 +46,9 @@ public class ShiftActivity extends AppCompatActivity {
         // Restore previous settings (if any)
         if (savedInstanceState != null) {
 
-            mShift = savedInstanceState.getFloat(DATA_KEY_SHIFT);
-            mGushing = savedInstanceState.getFloat(DATA_KEY_GUSHING);
-            mChanged = savedInstanceState.getBoolean(DATA_KEY_CHANGED);
+            //mShift = savedInstanceState.getFloat(DATA_KEY_SHIFT);
+            //mGushing = savedInstanceState.getFloat(DATA_KEY_GUSHING);
+            //mChanged = savedInstanceState.getBoolean(DATA_KEY_CHANGED);
         }
 
 
