@@ -6,43 +6,26 @@
     android:orientation="vertical"
     tools:context="com.studio.artaban.anaglyph3d.process.configure.ShiftActivity">
 
-    <RelativeLayout
+    <!-- Left & Right images -->
+    <include
+        layout="@layout/layout_shift"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="@android:color/black">
+        android:layout_weight="1" />
 
-        <ImageView
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"
-            android:adjustViewBounds="true"
-            android:layout_centerHorizontal="true"
-            android:scaleType="fitCenter"
-            android:tint="#0000ffff"
-            android:id="@+id/image_left"/>
-        <ImageView
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"
-            android:adjustViewBounds="true"
-            android:layout_centerHorizontal="true"
-            android:scaleType="fitCenter"
-            android:tint="#80ff0000"
-            android:id="@+id/image_right"/>
-
-    </RelativeLayout>
-
+    <!-- Configuration controls -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <ImageView
-            android:layout_width="46dp"
-            android:layout_height="46dp"
-            android:layout_marginLeft="@dimen/contrast_margin"
-            android:layout_marginStart="@dimen/contrast_margin"
-            android:layout_marginRight="@dimen/contrast_icon_margin"
-            android:layout_marginEnd="@dimen/contrast_icon_margin"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginLeft="64dp"
+            android:layout_marginStart="64dp"
+            android:layout_marginRight="32dp"
+            android:layout_marginEnd="32dp"
             android:padding="5dp"
             android:src="@drawable/shift"
             android:id="@+id/shift_icon"/>
@@ -54,7 +37,7 @@
             android:text="@string/letter_left"/>
 
         <SeekBar
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="center_vertical"
@@ -63,25 +46,16 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/contrast_margin"
-            android:layout_marginEnd="@dimen/contrast_margin"
             android:layout_gravity="center_vertical"
             android:text="@string/letter_right"/>
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
         <ImageView
-            android:layout_width="46dp"
-            android:layout_height="46dp"
-            android:layout_marginLeft="@dimen/contrast_margin"
-            android:layout_marginStart="@dimen/contrast_margin"
-            android:layout_marginRight="@dimen/contrast_icon_margin"
-            android:layout_marginEnd="@dimen/contrast_icon_margin"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginLeft="64dp"
+            android:layout_marginStart="64dp"
+            android:layout_marginRight="32dp"
+            android:layout_marginEnd="32dp"
             android:padding="5dp"
             android:src="@drawable/gushing"/>
 
@@ -92,7 +66,7 @@
             android:text="@string/letter_left"/>
 
         <SeekBar
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="center_vertical"
@@ -101,8 +75,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/contrast_margin"
-            android:layout_marginEnd="@dimen/contrast_margin"
+            android:layout_marginRight="64dp"
+            android:layout_marginEnd="64dp"
             android:layout_gravity="center_vertical"
             android:text="@string/letter_right"/>
 

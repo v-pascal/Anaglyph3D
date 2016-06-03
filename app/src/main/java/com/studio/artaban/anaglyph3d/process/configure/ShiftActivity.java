@@ -9,11 +9,6 @@ import android.os.Bundle;
 import android.widget.ImageView;
 
 import com.studio.artaban.anaglyph3d.R;
-import com.studio.artaban.anaglyph3d.helpers.Logs;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
 
 public class ShiftActivity extends AppCompatActivity {
 
@@ -24,6 +19,10 @@ public class ShiftActivity extends AppCompatActivity {
     //
     private ImageView mLeftImage, mRightImage;
     private Bitmap mLeftBitmap, mRightBitmap;
+
+    private float mShift; // Shift configured
+    private float mGushing; // Gushing configuration
+    private boolean mChanged; // User configuration flag
 
     //////
     @Override
@@ -46,11 +45,12 @@ public class ShiftActivity extends AppCompatActivity {
         // Restore previous settings (if any)
         if (savedInstanceState != null) {
 
-            //mShift = savedInstanceState.getFloat(DATA_KEY_SHIFT);
-            //mGushing = savedInstanceState.getFloat(DATA_KEY_GUSHING);
-            //mChanged = savedInstanceState.getBoolean(DATA_KEY_CHANGED);
+            mShift = savedInstanceState.getFloat(DATA_KEY_SHIFT);
+            mGushing = savedInstanceState.getFloat(DATA_KEY_GUSHING);
+            mChanged = savedInstanceState.getBoolean(DATA_KEY_CHANGED);
         }
-
+        mLeftImage = (ImageView)findViewById(R.id.image_left);
+        mRightImage = (ImageView)findViewById(R.id.image_right);
 
 
 
@@ -79,5 +79,14 @@ public class ShiftActivity extends AppCompatActivity {
 
 
 
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+
+        outState.putFloat(DATA_KEY_SHIFT, mShift);
+        outState.putFloat(DATA_KEY_GUSHING, mGushing);
+        outState.putBoolean(DATA_KEY_CHANGED, mChanged);
+        super.onSaveInstanceState(outState);
     }
 }
