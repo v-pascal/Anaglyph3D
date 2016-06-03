@@ -125,6 +125,7 @@
     <string name="error_load_anaglyph">Failed to load 3D anaglyph video!</string>
     <string name="error_storage_available">Not enough storage memory space available! With current settings the next memory size is needed:</string>
     <string name="error_convert_thumbnail">Failed to convert picture to display the video thumbnail!</string>
+    <string name="error_shift_failed">WARNING: Failed to display frame picture to configure simulated 3D! Use default ones.</string>
 
     <!-- Process step -->
     <string name="step_correction">Frames correction</string>

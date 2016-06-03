@@ -117,6 +117,7 @@
     <string name="error_load_anaglyph">Impossible de charger la vidéo anaglyphe 3D!</string>
     <string name="error_storage_available">Mémoire de stockage insuffisante! Avec les paramètres actuels la taille mémoire suivante est nécessaire:</string>
     <string name="error_convert_thumbnail">Echec durant la conversion de l\'image en vignette!</string>
+    <string name="error_shift_failed">ATTENTION: Impossible d\'afficher l\'image pour configurer la 3D simulée! Utilisation de la configuration par défaut.</string>
 
     <!-- Process step -->
     <string name="step_correction">Correction des images</string>
