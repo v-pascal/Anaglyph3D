@@ -46,6 +46,8 @@
     <string name="blue_balance">Blue balance</string>
     <string name="simulated_3d">Simulated 3D</string>
     <string name="real_3d">Real 3D</string>
+    <string name="letter_left">L</string>
+    <string name="letter_right">R</string>
 
     <!-- User messages -->
     <string name="camera_disabled">Failed to acquire camera feature! It may be used by another application.</string>
@@ -82,6 +84,7 @@
     <string name="title_activity_connect">Connection</string>
     <string name="title_activity_correction">Frames correction</string>
     <string name="title_activity_synchro">Synchronization (optional)</string>
+    <string name="title_activity_shift">3D gushing</string>
 
     <!-- Menus -->
     <string name="nav_album">Videos album</string>

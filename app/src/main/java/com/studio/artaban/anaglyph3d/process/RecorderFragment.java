@@ -42,8 +42,7 @@ public class RecorderFragment extends Fragment {
 
     public void updateDownCount() { // Called by both devices until counter equal zero
 
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
+        new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 if (mCounter == 0) { // Finished to display down count...
@@ -62,25 +61,31 @@ public class RecorderFragment extends Fragment {
                 switch (mCounter--) {
                     case 4:
                         mImageCounter.setImageDrawable(getActivity().getResources().
-                                getDrawable(R.drawable.counter_4)); break;
+                                getDrawable(R.drawable.counter_4));
+                        break;
                     case 3:
                         mImageCounter.setImageDrawable(getActivity().getResources().
-                                getDrawable(R.drawable.counter_3)); break;
+                                getDrawable(R.drawable.counter_3));
+                        break;
                     case 2:
                         mImageCounter.setImageDrawable(getActivity().getResources().
-                                getDrawable(R.drawable.counter_2)); break;
+                                getDrawable(R.drawable.counter_2));
+                        break;
                     case 1:
                         mImageCounter.setImageDrawable(getActivity().getResources().
-                                getDrawable(R.drawable.counter_1)); break;
+                                getDrawable(R.drawable.counter_1));
+                        break;
                 }
                 final AlphaAnimation anim = new AlphaAnimation(1.0f, 0f);
                 anim.setDuration(1000);
                 anim.setFillAfter(true);
                 anim.setAnimationListener(new Animation.AnimationListener() {
+
                     @Override public void onAnimationStart(Animation animation) { }
                     @Override public void onAnimationRepeat(Animation animation) { }
                     @Override
                     public void onAnimationEnd(Animation animation) {
+
                         if (Settings.getInstance().isMaker())
                             return; // ...only for device which is not the maker
 

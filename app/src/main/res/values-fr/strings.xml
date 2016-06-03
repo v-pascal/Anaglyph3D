@@ -46,6 +46,8 @@
     <string name="blue_balance">Balance de bleu</string>
     <string name="simulated_3d">3D simulée</string>
     <string name="real_3d">3D réelle</string>
+    <string name="letter_left">G</string>
+    <string name="letter_right">D</string>
 
     <!-- User messages -->
     <string name="camera_disabled">Impossible d\'accéder à la caméra! Celle-ci doit être utilisée par une autre application.</string>
@@ -74,6 +76,7 @@
     <string name="title_activity_connect">Connexion</string>
     <string name="title_activity_correction">Correction des images</string>
     <string name="title_activity_synchro">Synchronisation (optionnel)</string>
+    <string name="title_activity_shift">Jaillissement 3D</string>
 
     <!-- Menus -->
     <string name="nav_album">Album vidéos</string>

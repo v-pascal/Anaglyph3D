@@ -98,7 +98,10 @@ public class Settings implements IConnectRequest {
         // Set up default settings
         mOrientation = Constants.CONFIG_DEFAULT_ORIENTATION;
         mDuration = Constants.CONFIG_DEFAULT_DURATION;
-        mMaker = true; // Needed when for simulated 3D
+
+        mMaker = true;
+        mReverse = false;
+        // Needed for simulated 3D initialization
 
         // Only resolutions & FPS may change (all other settings are in default state, see just above)
         // -> They should contain only resolutions & FPS that are available on both devices (master & slave)

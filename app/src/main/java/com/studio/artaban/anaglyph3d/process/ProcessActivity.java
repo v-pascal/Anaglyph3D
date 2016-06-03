@@ -175,16 +175,34 @@ public class ProcessActivity extends AppCompatActivity {
         if (!Settings.getInstance().mSimulated) // Add position fragment
             fragTransaction.add(R.id.main_container, new PositionFragment(), PositionFragment.TAG).commit();
 
-        else { // Add recorder fragment
+        else { // Add recorder fragment (start recording)
 
-            fragTransaction.add(R.id.main_container, new RecorderFragment(), RecorderFragment.TAG).commit();
+            final RecorderFragment recorder = new RecorderFragment();
+            fragTransaction.add(R.id.main_container, recorder, RecorderFragment.TAG).commit();
+            getSupportFragmentManager().executePendingTransactions();
 
             // Wake lock during video recording
             mWakeLock = ((PowerManager)getSystemService(Context.POWER_SERVICE))
                     .newWakeLock(PowerManager.FULL_WAKE_LOCK, WAKE_LOCK_NAME);
             mWakeLock.acquire();
+
+            // Display down count B4 recording
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for (short i = 0; i < 4; ++i) {
+
+                        recorder.updateDownCount();
+
+                        // Delay
+                        try { Thread.sleep(1500, 0); }
+                        catch (InterruptedException e) {
+                            Logs.add(Logs.Type.E, e.getMessage());
+                        }
+                    }
+                }
+            }).start();
         }
-        getSupportFragmentManager().executePendingTransactions();
     }
 
     @Override
@@ -242,6 +260,23 @@ public class ProcessActivity extends AppCompatActivity {
                     setResult(Constants.RESULT_LOST_CONNECTION);
                     finish();
                 }
+                break;
+            }
+            case Constants.PROCESS_REQUEST_SHIFT: {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 break;
             }
             default: {

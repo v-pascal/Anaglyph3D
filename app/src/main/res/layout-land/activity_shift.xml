@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.studio.artaban.anaglyph3d.process.configure.ShiftActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@android:color/black">
+
+        <ImageView
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:adjustViewBounds="true"
+            android:layout_centerHorizontal="true"
+            android:scaleType="fitCenter"
+            android:id="@+id/image_left"/>
+        <ImageView
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:adjustViewBounds="true"
+            android:layout_centerHorizontal="true"
+            android:scaleType="fitCenter"
+            android:alpha="0.5"
+            android:id="@+id/image_right"/>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginLeft="64dp"
+            android:layout_marginStart="64dp"
+            android:layout_marginRight="32dp"
+            android:layout_marginEnd="32dp"
+            android:padding="5dp"
+            android:src="@drawable/shift"
+            android:id="@+id/shift_icon"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/letter_left"/>
+
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:id="@+id/seek_shift"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/letter_right"/>
+
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginLeft="64dp"
+            android:layout_marginStart="64dp"
+            android:layout_marginRight="32dp"
+            android:layout_marginEnd="32dp"
+            android:padding="5dp"
+            android:src="@drawable/gushing"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/letter_left"/>
+
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:id="@+id/seek_gushing"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="64dp"
+            android:layout_marginEnd="64dp"
+            android:layout_gravity="center_vertical"
+            android:text="@string/letter_right"/>
+
+    </LinearLayout>
+
+</LinearLayout>

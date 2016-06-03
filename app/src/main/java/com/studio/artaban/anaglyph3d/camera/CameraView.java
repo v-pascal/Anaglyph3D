@@ -183,7 +183,8 @@ public class CameraView extends SurfaceView
             Logs.add(Logs.Type.E, "Failed to start recorder");
 
             // Force to quit application (after having displayed a message to user)
-            ActivityWrapper.stopActivity(ProcessActivity.class, Constants.RESULT_FAILED_RECORDING, null);
+            ActivityWrapper.stopActivity(ProcessActivity.class,
+                    Constants.RESULT_FAILED_RECORDING, null);
             return false;
         }
         return true;

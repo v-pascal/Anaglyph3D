@@ -16,6 +16,7 @@ import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.media.Frame;
 import com.studio.artaban.anaglyph3d.media.Video;
 import com.studio.artaban.anaglyph3d.process.configure.CorrectionActivity;
+import com.studio.artaban.anaglyph3d.process.configure.ShiftActivity;
 import com.studio.artaban.anaglyph3d.process.configure.SynchroActivity;
 import com.studio.artaban.anaglyph3d.transfer.IConnectRequest;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
@@ -29,6 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Set;
 
 /**
  * Created by pascal on 23/04/16.
@@ -313,7 +315,8 @@ public class ProcessThread extends Thread {
 
                 case INITIALIZATION: {
 
-                    publishProgress(1, 4);
+                    if (!Settings.getInstance().mSimulated) publishProgress(1, 5);
+                    else publishProgress(1, 3);
 
                     // Initialize GStreamer library (on UI thread)
                     try { ((ProcessActivity)ActivityWrapper.get()).onInitialize(); }
@@ -363,7 +366,8 @@ public class ProcessThread extends Thread {
                 ////// Called twice for both local and remote pictures (!maker only)
                 case SAVE_PICTURE: {
 
-                    publishProgress(2 + ((local)? 0:2), 4);
+                    if (!Settings.getInstance().mSimulated) publishProgress(2 + ((local)? 0:2), 5);
+                    else publishProgress(2, 3);
 
                     // Save NV21 local/remote raw picture file
                     try {
@@ -402,7 +406,8 @@ public class ProcessThread extends Thread {
                 }
                 case CONVERT_PICTURE: {
 
-                    publishProgress(3 + ((local)? 0:2), 4);
+                    if (!Settings.getInstance().mSimulated) publishProgress(3 + ((local)? 0:2), 5);
+                    else publishProgress(3, 3);
 
                     // Convert NV21 to RGBA picture file
 
@@ -473,21 +478,34 @@ public class ProcessThread extends Thread {
                     }
                     else { // Maker
 
-                        mStatus = Status.TRANSFER_PICTURE;
+                        if (!Settings.getInstance().mSimulated) { // Real 3D
 
-                        Bundle data = new Bundle();
-                        data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
-                        data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
-                        data.putBoolean(Frame.DATA_KEY_REVERSE, Settings.getInstance().mReverse);
-                        data.putByteArray(Frame.DATA_KEY_BUFFER, mPictureRaw);
+                            mStatus = Status.TRANSFER_PICTURE;
 
-                        // Send download picture request (upload to remote device)
-                        Connectivity.getInstance().addRequest(Frame.getInstance(),
-                                Frame.REQ_TYPE_DOWNLOAD, data);
+                            Bundle data = new Bundle();
+                            data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
+                            data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
+                            data.putBoolean(Frame.DATA_KEY_REVERSE, Settings.getInstance().mReverse);
+                            data.putByteArray(Frame.DATA_KEY_BUFFER, mPictureRaw);
 
-                        //////
-                        publishProgress(Frame.getInstance().getTransferSize(),
-                                Frame.getInstance().getBufferSize());
+                            // Send download picture request (upload to remote device)
+                            Connectivity.getInstance().addRequest(Frame.getInstance(),
+                                    Frame.REQ_TYPE_DOWNLOAD, data);
+
+                            //////
+                            publishProgress(Frame.getInstance().getTransferSize(),
+                                    Frame.getInstance().getBufferSize());
+                        }
+                        else { // Simulated 3D
+
+                            // Start shift activity ////////////////////////////////////////////////
+                            Bundle data = new Bundle();
+                            data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
+                            data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
+
+                            ActivityWrapper.startActivity(ShiftActivity.class, data,
+                                    Constants.PROCESS_REQUEST_SHIFT);
+                        }
                     }
                     break;
                 }
