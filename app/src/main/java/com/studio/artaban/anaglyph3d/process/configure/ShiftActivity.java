@@ -14,6 +14,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -44,6 +45,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
 
     public static Bitmap applyCorrection(Bitmap curBitmap, boolean left, float shift, float gushing) {
 
+        /*
         float red = 1f, green = 0f, blue = 1f;
         if (left) green = blue = 0f;
         else red = 0f;
@@ -55,6 +57,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
                 0, 0, blue, 0, 0,
                 0, 0, 0, 1, 0
         });
+        */
 
 
 
@@ -74,8 +77,14 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
 
 
 
-        Matrix transform = new Matrix();
-        transform.preTranslate(shift, 0f);
+        //Matrix transform = new Matrix();
+        //transform.preTranslate(shift, 0f);
+        //if (left)
+        //    transform.postScale(2f, 1f);
+        //else
+        //    transform.postTranslate(5f, 0f);
+        // rotate the Bitmap
+        //transform.postRotate(45);
 
 
 
@@ -84,16 +93,20 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
         //        curBitmap.getConfig());
 
 
-        Bitmap bitmap = Bitmap.createBitmap(curBitmap, 0, 0,
-                curBitmap.getWidth(), curBitmap.getHeight(), transform, true);
+        //Bitmap bitmap = Bitmap.createBitmap(curBitmap, 0, 0,
+        //        curBitmap.getWidth(), curBitmap.getHeight(), transform, true);
+        Bitmap bitmap = Bitmap.createScaledBitmap(curBitmap, 1280, 960, false);
+
+        //Bitmap bitmap2 = Bitmap.createScaledBitmap(curBitmap, 640, 480, false);
 
 
 
-
+        /*
         Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint();
         paint.setColorFilter(new ColorMatrixColorFilter(matrix));
         canvas.drawBitmap(curBitmap, 0, 0, paint);
+        */
 
         return bitmap;
     }
@@ -159,7 +172,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
                 break;
         }
         mLeftImage.setImageBitmap(applyCorrection(mBitmap, true, mShift, mGushing));
-        mRightImage.setImageBitmap(applyCorrection(mBitmap, false, mShift, mGushing));
+        //mRightImage.setImageBitmap(applyCorrection(mBitmap, false, mShift, mGushing));
 
         if (!mChanged) {
 
@@ -288,8 +301,9 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
                 // Reset shift & gushing settings
                 mShift = DEFAULT_SHIFT;
                 mGushing = DEFAULT_GUSHING;
-                mChanged = false;
+                //mChanged = false;
 
+                mChanged = !mChanged;
 
 
 
@@ -300,8 +314,9 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
 
 
 
-                mLeftImage.setImageBitmap(applyCorrection(mBitmap, true, DEFAULT_SHIFT, DEFAULT_GUSHING));
-                mRightImage.setImageBitmap(applyCorrection(mBitmap, false, DEFAULT_SHIFT, DEFAULT_GUSHING));
+                //mLeftImage.setImageBitmap(applyCorrection(mBitmap, true, DEFAULT_SHIFT, DEFAULT_GUSHING));
+                mLeftImage.setImageBitmap(applyCorrection(mBitmap, mChanged, DEFAULT_SHIFT, DEFAULT_GUSHING));
+                //mRightImage.setImageBitmap(applyCorrection(mBitmap, false, DEFAULT_SHIFT, DEFAULT_GUSHING));
             }
         });
 
@@ -320,7 +335,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
 
         // Apply shift & gushing settings
         mLeftImage.setImageBitmap(applyCorrection(mBitmap, true, mShift, mGushing));
-        mRightImage.setImageBitmap(applyCorrection(mBitmap, false, mShift, mGushing));
+        //mRightImage.setImageBitmap(applyCorrection(mBitmap, false, mShift, mGushing));
     }
 
     @Override
@@ -330,6 +345,17 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
         outState.putFloat(DATA_KEY_GUSHING, mGushing);
         outState.putBoolean(DATA_KEY_CHANGED, mChanged);
         super.onSaveInstanceState(outState);
+    }
+
+    @Override public void onBackPressed() { onCancel(); }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+
+            onCancel();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     //////
