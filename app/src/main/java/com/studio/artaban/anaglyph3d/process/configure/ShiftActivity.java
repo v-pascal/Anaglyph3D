@@ -3,12 +3,7 @@ package com.studio.artaban.anaglyph3d.process.configure;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
@@ -43,21 +38,15 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
     public static final float DEFAULT_SHIFT = 0f;
     public static final float DEFAULT_GUSHING = 0f;
 
+    private static final short MIN_SHIFT = 5; // Minimum shift between left & right images (in pixel)
+    private static final float MAX_SHIFT_RATIO = 1 / 3f; // Maximum shift between left & right images (image width proportional)
+    private short mMinShift; // Minimum shift between left & right images (in progress graduation)
+
     public static Bitmap applyCorrection(Bitmap curBitmap, float shift, float gushing) {
 
-        /*
-        float red = 1f, green = 0f, blue = 1f;
-        if (left) green = blue = 0f;
-        else red = 0f;
-
-        ColorMatrix matrix = new ColorMatrix(new float[] {
-
-                red, 0, 0, 0, 0,
-                0, green, 0, 0, 0,
-                0, 0, blue, 0, 0,
-                0, 0, 0, 1, 0
-        });
-        */
+        // With:
+        // _ shift in [-MAX_SHIFT_RATIO;MAX_SHIFT_RATIO]
+        // _ gushing in [-2;-1] and [1;2] with default 0 (not defined: nothing to apply)
 
 
 
@@ -66,51 +55,74 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
 
 
 
-        // With: Contrast in [0;10] and 1 as default
-        //       Brightness in [-255;255] and 0 as default
-        //       red balance in [0.5;1.5] and 1 as default
-        //       green balance in [0.5;1.5] and 1 as default
-        //       blue balance in [0.5;1.5] and 1 as default
-        // So: Contrast 0...1...10 => Progress 0...50...100
-        //     Brightness -255...0...255 => Progress 0...255...510
+        boolean reverse = gushing < 0.5f; // Negative
+        Bitmap gushingBitmap = curBitmap;
+        if (!((gushing < 1f) && (gushing > -1f))) { // != 0 (defined)
+
+            if (reverse) // To apply on blue frame
+                gushing *= -1f;
+
+            gushingBitmap = Bitmap.createScaledBitmap(curBitmap,
+                    (int) (curBitmap.getWidth() * gushing),
+                    (int) (curBitmap.getHeight() * gushing), false);
+        }
 
 
 
 
-        //Matrix transform = new Matrix();
-        //transform.setTranslate(1.5f, 100f);
-        //transform.setScale(2f, 2f, 0f, 0f);
-        //transform.postTranslate(1.5f, 100f);
-        //transform.preTranslate(shift, 0f);
-        //if (left)
-        //    transform.postScale(2f, 1f);
-        //else
-        //    transform.postTranslate(5f, 0f);
-        // rotate the Bitmap
-        //transform.postRotate(45);
 
 
 
 
-        //Bitmap bitmap = Bitmap.createBitmap(curBitmap.getWidth(), curBitmap.getHeight(),
-        //        curBitmap.getConfig());
+        //
+        int offsetShift = (int)(shift * curBitmap.getWidth());
+        int pixelShift = offsetShift;
+        if (offsetShift < 0) { // To apply on blue frame
+
+            offsetShift = 0;
+            pixelShift = -offsetShift;
+        }
 
 
-        //Bitmap bitmap = Bitmap.createBitmap(curBitmap, 0, 0,
-        //        curBitmap.getWidth(), curBitmap.getHeight(), transform, true);
-
-
-        Bitmap bitmap = Bitmap.createScaledBitmap(curBitmap,
-                curBitmap.getWidth(), curBitmap.getHeight(), false);
 
 
 
-        /*
-        Canvas canvas = new Canvas(bitmap);
-        Paint paint = new Paint();
-        paint.setColorFilter(new ColorMatrixColorFilter(matrix));
-        canvas.drawBitmap(curBitmap, 0, 0, paint);
-        */
+        //int width = curBitmap.getWidth() - (pixelShift << 1);
+        int width = curBitmap.getWidth() - pixelShift;
+        int height = curBitmap.getHeight();
+
+
+
+
+
+        Logs.add(Logs.Type.E, "O: " + offsetShift + " W: " + width);
+        Bitmap bitmap = Bitmap.createBitmap(gushingBitmap, offsetShift, 0, width - pixelShift, height);
+
+
+
+
+
+
+        for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < width; ++x) {
+
+
+
+
+
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
 
         return bitmap;
     }
@@ -151,23 +163,22 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
         switch (seekBar.getId()) {
 
             case R.id.seek_shift:
+                int progress = seekBar.getProgress();
+                if (seekBar.getProgress() >= 50) {
+                     if ((seekBar.getProgress() - 50) < mMinShift)
+                        progress = 50 + mMinShift;
+                }
+                else if ((50 - seekBar.getProgress()) < mMinShift)
+                    progress = 50 - mMinShift;
+                // NB: Needed to avoid left & right images overlay (minimum shift rule applied)
 
-
-
-
-
-                //mShift = seekBar.getProgress() / 10f;
-                //mShift = (float)seekBar.getProgress();
-                mShift = (float)seekBar.getProgress();
-
-
-
-
-
-
+                progress -= 50;
+                mShift = progress * MAX_SHIFT_RATIO / 50f;
                 break;
 
             case R.id.seek_gushing:
+
+
 
 
 
@@ -275,18 +286,8 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
         // Set up seek bars
         final SeekBar shift = (SeekBar)findViewById(R.id.seek_shift);
         shift.setOnSeekBarChangeListener(this);
-
-
-
-
-
         shift.setMax(100);
-        shift.setProgress(0);
-
-
-
-
-
+        shift.setProgress(50);
         final SeekBar gushing = (SeekBar)findViewById(R.id.seek_gushing);
         gushing.setOnSeekBarChangeListener(this);
 
@@ -304,16 +305,11 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
                 // Reset shift & gushing settings
                 mShift = DEFAULT_SHIFT;
                 mGushing = DEFAULT_GUSHING;
-                //mChanged = false;
-
-                mChanged = !mChanged;
-
+                mChanged = false;
 
 
 
                 //shift.setProgress(5);
-
-
 
 
 
@@ -332,6 +328,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
             finish();
             return;
         }
+        mMinShift = (short)(MIN_SHIFT * 50f / (mBitmap.getWidth() * MAX_SHIFT_RATIO));
 
         // Apply shift & gushing settings
         mImage.setImageBitmap(applyCorrection(mBitmap, mShift, mGushing));
