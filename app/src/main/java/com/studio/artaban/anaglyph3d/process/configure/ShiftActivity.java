@@ -43,7 +43,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
     public static final float DEFAULT_SHIFT = 0f;
     public static final float DEFAULT_GUSHING = 0f;
 
-    public static Bitmap applyCorrection(Bitmap curBitmap, boolean left, float shift, float gushing) {
+    public static Bitmap applyCorrection(Bitmap curBitmap, float shift, float gushing) {
 
         /*
         float red = 1f, green = 0f, blue = 1f;
@@ -78,6 +78,9 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
 
 
         //Matrix transform = new Matrix();
+        //transform.setTranslate(1.5f, 100f);
+        //transform.setScale(2f, 2f, 0f, 0f);
+        //transform.postTranslate(1.5f, 100f);
         //transform.preTranslate(shift, 0f);
         //if (left)
         //    transform.postScale(2f, 1f);
@@ -95,9 +98,10 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
 
         //Bitmap bitmap = Bitmap.createBitmap(curBitmap, 0, 0,
         //        curBitmap.getWidth(), curBitmap.getHeight(), transform, true);
-        Bitmap bitmap = Bitmap.createScaledBitmap(curBitmap, 1280, 960, false);
 
-        //Bitmap bitmap2 = Bitmap.createScaledBitmap(curBitmap, 640, 480, false);
+
+        Bitmap bitmap = Bitmap.createScaledBitmap(curBitmap,
+                curBitmap.getWidth(), curBitmap.getHeight(), false);
 
 
 
@@ -112,7 +116,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
     }
 
     //
-    private ImageView mLeftImage, mRightImage;
+    private ImageView mImage;
     private FloatingActionButton mCancelButton;
     private Bitmap mBitmap;
 
@@ -171,8 +175,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
 
                 break;
         }
-        mLeftImage.setImageBitmap(applyCorrection(mBitmap, true, mShift, mGushing));
-        //mRightImage.setImageBitmap(applyCorrection(mBitmap, false, mShift, mGushing));
+        mImage.setImageBitmap(applyCorrection(mBitmap, mShift, mGushing));
 
         if (!mChanged) {
 
@@ -314,15 +317,12 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
 
 
 
-                //mLeftImage.setImageBitmap(applyCorrection(mBitmap, true, DEFAULT_SHIFT, DEFAULT_GUSHING));
-                mLeftImage.setImageBitmap(applyCorrection(mBitmap, mChanged, DEFAULT_SHIFT, DEFAULT_GUSHING));
-                //mRightImage.setImageBitmap(applyCorrection(mBitmap, false, DEFAULT_SHIFT, DEFAULT_GUSHING));
+                mImage.setImageBitmap(applyCorrection(mBitmap, DEFAULT_SHIFT, DEFAULT_GUSHING));
             }
         });
 
         // Load & Display frame image
-        mLeftImage = (ImageView)findViewById(R.id.image_left);
-        mRightImage = (ImageView)findViewById(R.id.image_right);
+        mImage = (ImageView)findViewById(R.id.image_final);
 
         if (!loadFrame()) {
 
@@ -334,8 +334,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
         }
 
         // Apply shift & gushing settings
-        mLeftImage.setImageBitmap(applyCorrection(mBitmap, true, mShift, mGushing));
-        //mRightImage.setImageBitmap(applyCorrection(mBitmap, false, mShift, mGushing));
+        mImage.setImageBitmap(applyCorrection(mBitmap, mShift, mGushing));
     }
 
     @Override

@@ -6,12 +6,15 @@
     android:orientation="vertical"
     tools:context="com.studio.artaban.anaglyph3d.process.configure.ShiftActivity">
 
-    <!-- Left & Right images -->
-    <include
-        layout="@layout/layout_shift"
+    <!-- Final image -->
+    <ImageView
+        android:id="@+id/image_final"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:background="@android:color/black"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"/>
 
     <!-- Configuration controls -->
     <LinearLayout
