@@ -42,11 +42,14 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
     private static final float MAX_SHIFT_RATIO = 1 / 3f; // Maximum shift between left & right images (image width proportional)
     private short mMinShift; // Minimum shift between left & right images (in progress graduation)
 
+    private static final short MIN_GUSHING = 5; // Minimum gushing to seek (in seek bar progression)
+    private static final float MAX_GUSHING_RATIO = 1.3f; // Maximum gushing ratio (image scale)
+
     public static Bitmap applyCorrection(Bitmap curBitmap, float shift, float gushing) {
 
         // With:
         // _ shift in [-MAX_SHIFT_RATIO;MAX_SHIFT_RATIO]
-        // _ gushing in [-2;-1] and [1;2] with default 0 (not defined: nothing to apply)
+        // _ gushing in [-MAX_GUSHING_RATIO;-1] and [1;MAX_GUSHING_RATIO] with default 0 (nothing to apply)
 
         int offsetX = 0, offsetY = 0;
 
@@ -90,9 +93,9 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
             for (int x = 0; x < width; ++x) {
 
 
-
             }
         }
+
 
 
 
@@ -144,17 +147,26 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
                 }
                 else if ((50 - seekBar.getProgress()) < mMinShift)
                     progress = 50 - mMinShift;
-                // NB: Needed to avoid left & right images overlay (minimum shift rule applied)
+                // NB: Needed to avoid left & right images perfect overlay (minimum shift rule applied)
 
                 progress -= 50;
                 mShift = progress * MAX_SHIFT_RATIO / 50f;
                 break;
 
             case R.id.seek_gushing:
-                if (seekBar.getProgress() >= 50)
-                    mGushing = seekBar.getProgress() / 50f;
+                if (((seekBar.getProgress() >= 50) && ((seekBar.getProgress() - 50) < MIN_GUSHING)) ||
+                        ((seekBar.getProgress() < 50) && ((50 - seekBar.getProgress()) < MIN_GUSHING))) {
+
+                    mGushing = 0f;
+                    break;
+                }
+                // NB: Needed to set default gushing value (no gushing to apply)
+
+                if (seekBar.getProgress() > 50)
+                    mGushing = ((seekBar.getProgress() - 50f) * (MAX_GUSHING_RATIO - 1f) + 50f) / 50f;
                 else
-                    mGushing = (seekBar.getProgress() / 49f) - 2f;
+                    mGushing = ((seekBar.getProgress() * (MAX_GUSHING_RATIO - 1f)) -
+                            (49f * MAX_GUSHING_RATIO)) / 49f;
                 break;
         }
         mImage.setImageBitmap(applyCorrection(mBitmap, mShift, mGushing));
