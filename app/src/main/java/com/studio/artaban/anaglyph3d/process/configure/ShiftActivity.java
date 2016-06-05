@@ -34,23 +34,22 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
     public static final String DATA_KEY_GUSHING = "gushing";
     private static final String DATA_KEY_CHANGED = "changed";
 
-    //
-    private static final short MIN_SHIFT = 10; // Minimum shift between left & right images (in pixel)
-    private static final float MAX_SHIFT_RATIO = 1 / 8f; // Maximum shift between left & right images (image width proportional)
-    private short mMinShift; // Minimum shift between left & right images (in progress graduation)
-
-    private static final short MIN_GUSHING = 5; // Minimum gushing to seek (in seek bar progression)
-    private static final float MAX_GUSHING_RATIO = 1.25f; // Maximum gushing ratio (image scale)
-
     // Default configuration
     public static final float DEFAULT_SHIFT = 0f;
     public static final float DEFAULT_GUSHING = 0f;
 
+    //
+    private static final float MIN_SHIFT = 1 / 90f; // Minimum shift between left & right images (image width proportional)
+    private static final float MAX_SHIFT_RATIO = 1 / 20f; // Maximum shift between left & right images (image width proportional)
+
+    private static final short MIN_GUSHING = 5; // Minimum gushing to seek (in seek bar progression)
+    private static final float MAX_GUSHING_RATIO = 1.1f; // Maximum gushing ratio (image scale)
+
     public static Bitmap applySimulation(Bitmap curBitmap, float shift, float gushing) {
-        // NB: Need large heap memory coz three bitmaps are opened here to make simulated 3D frame
+        // NB: Need large heap memory coz three bitmaps are opened simultaneously to make simulated 3D frame
 
         // With:
-        // _ shift in [-MAX_SHIFT_RATIO;MAX_SHIFT_RATIO]
+        // _ shift in [-MAX_SHIFT_RATIO;MAX_SHIFT_RATIO] with default 0 (minimum shift to apply)
         // _ gushing in [-MAX_GUSHING_RATIO;-1] and [1;MAX_GUSHING_RATIO] with default 0 (nothing to apply)
 
         int offsetX = 0, offsetY = 0;
@@ -73,7 +72,12 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
         }
 
         //
+        int minShift = (int)(MIN_SHIFT * curBitmap.getWidth());
         int pixelShift = (int)(shift * curBitmap.getWidth());
+        if (((pixelShift < 0) && (pixelShift > -minShift)) || ((pixelShift >= 0) && (pixelShift < minShift)))
+            pixelShift = minShift;
+            // Needed to avoid to display left & right images in perfect overlay (without 3D)
+
         boolean shiftBlue = false;
         if (pixelShift < 0) { // To apply on blue frame
 
@@ -81,7 +85,6 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
             offsetX += pixelShift;
             shiftBlue = true;
         }
-
         int width = curBitmap.getWidth() - pixelShift;
         int height = curBitmap.getHeight();
 
@@ -151,17 +154,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
         switch (seekBar.getId()) {
 
             case R.id.seek_shift:
-                int progress = seekBar.getProgress();
-                if (seekBar.getProgress() >= 50) {
-                     if ((seekBar.getProgress() - 50) < mMinShift)
-                        progress = 50 + mMinShift;
-                }
-                else if ((50 - seekBar.getProgress()) < mMinShift)
-                    progress = 50 - mMinShift;
-                // NB: Needed to avoid left & right images perfect overlay (minimum shift rule applied)
-
-                progress -= 50;
-                mShift = progress * MAX_SHIFT_RATIO / 50f;
+                mShift = ((seekBar.getProgress() - 50) * MAX_SHIFT_RATIO) / 50f;
                 break;
 
             case R.id.seek_gushing:
@@ -323,7 +316,6 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
             finish();
             return;
         }
-        mMinShift = (short)(MIN_SHIFT * 50f / (mBitmap.getWidth() * MAX_SHIFT_RATIO));
 
         // Apply shift & gushing settings
         mImage.setImageBitmap(applySimulation(mBitmap, mShift, mGushing));
