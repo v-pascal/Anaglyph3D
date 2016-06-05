@@ -45,7 +45,8 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
     private static final short MIN_GUSHING = 5; // Minimum gushing to seek (in seek bar progression)
     private static final float MAX_GUSHING_RATIO = 1.3f; // Maximum gushing ratio (image scale)
 
-    public static Bitmap applyCorrection(Bitmap curBitmap, float shift, float gushing) {
+    public static Bitmap applySimulation(Bitmap curBitmap, float shift, float gushing) {
+        // NB: Need large heap memory coz three bitmaps are opened below to make simulated 3D frame
 
         // With:
         // _ shift in [-MAX_SHIFT_RATIO;MAX_SHIFT_RATIO]
@@ -53,9 +54,11 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
 
         int offsetX = 0, offsetY = 0;
 
-        Bitmap gushingBitmap = curBitmap;
-        boolean gushingBlue = gushing < 0.5f; // Negative
-        if (!((gushing < 1f) && (gushing > -1f))) { // != 0 (defined)
+        Bitmap gushingBitmap = null;
+        boolean noGushing = (gushing < 1f) && (gushing > -1f);
+        boolean gushingBlue = gushing < 0.5f; // Negative setting
+
+        if (!noGushing) {
 
             if (gushingBlue) // To apply on blue frame
                 gushing *= -1f;
@@ -80,8 +83,37 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
 
         int width = curBitmap.getWidth() - pixelShift;
         int height = curBitmap.getHeight();
-        Bitmap bitmap = Bitmap.createBitmap(gushingBitmap, offsetX, offsetY, width, height);
 
+        Bitmap redBitmap;
+        Bitmap Bitmap3D; // Blue bitmap
+
+        if (!noGushing) {
+            if (!gushingBlue) {
+
+                redBitmap = Bitmap.createBitmap(gushingBitmap, (!shiftBlue)?
+                        (offsetX + pixelShift):(offsetX - pixelShift), offsetY, width, height);
+                Bitmap3D = Bitmap.createBitmap(curBitmap, (shiftBlue)? pixelShift:0, 0, width, height);
+            }
+            else {
+
+                redBitmap = Bitmap.createBitmap(curBitmap, (!shiftBlue)? pixelShift:0, 0, width, height);
+                Bitmap3D = Bitmap.createBitmap(gushingBitmap, (shiftBlue)?
+                        (offsetX - pixelShift):offsetX, offsetY, width, height);
+            }
+        }
+        else {
+
+            redBitmap = Bitmap.createBitmap(curBitmap, (!shiftBlue)? pixelShift:0, 0, width, height);
+            Bitmap3D = Bitmap.createBitmap(curBitmap, (shiftBlue)? pixelShift:0, 0, width, height);
+        }
+
+
+
+        //Bitmap redBitmap = Bitmap.createBitmap(gushingBitmap, offsetX - pixelShift, offsetY, width, height);
+        //Bitmap redBitmap = Bitmap.createBitmap(gushingBitmap, offsetX, offsetY, width, height);
+
+        //Bitmap Bitmap3D = Bitmap.createBitmap(curBitmap, 0, 0, width, height);
+        //Bitmap Bitmap3D = Bitmap.createBitmap(curBitmap, pixelShift, 0, width, height);
 
 
 
@@ -101,7 +133,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
 
 
 
-        return bitmap;
+        return Bitmap3D;
     }
 
     //
@@ -169,7 +201,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
                             (49f * MAX_GUSHING_RATIO)) / 49f;
                 break;
         }
-        mImage.setImageBitmap(applyCorrection(mBitmap, mShift, mGushing));
+        mImage.setImageBitmap(applySimulation(mBitmap, mShift, mGushing));
 
         if (!mChanged) {
 
@@ -302,7 +334,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
 
 
 
-                mImage.setImageBitmap(applyCorrection(mBitmap, DEFAULT_SHIFT, DEFAULT_GUSHING));
+                mImage.setImageBitmap(applySimulation(mBitmap, DEFAULT_SHIFT, DEFAULT_GUSHING));
             }
         });
 
@@ -320,7 +352,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
         mMinShift = (short)(MIN_SHIFT * 50f / (mBitmap.getWidth() * MAX_SHIFT_RATIO));
 
         // Apply shift & gushing settings
-        mImage.setImageBitmap(applyCorrection(mBitmap, mShift, mGushing));
+        mImage.setImageBitmap(applySimulation(mBitmap, mShift, mGushing));
     }
 
     @Override
