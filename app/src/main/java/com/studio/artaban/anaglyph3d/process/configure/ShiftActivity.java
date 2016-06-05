@@ -46,7 +46,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
     private static final float MAX_GUSHING_RATIO = 1.3f; // Maximum gushing ratio (image scale)
 
     public static Bitmap applySimulation(Bitmap curBitmap, float shift, float gushing) {
-        // NB: Need large heap memory coz three bitmaps are opened below to make simulated 3D frame
+        // NB: Need large heap memory coz three bitmaps are opened here to make simulated 3D frame
 
         // With:
         // _ shift in [-MAX_SHIFT_RATIO;MAX_SHIFT_RATIO]
@@ -85,55 +85,42 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
         int height = curBitmap.getHeight();
 
         Bitmap redBitmap;
-        Bitmap Bitmap3D; // Blue bitmap
+        Bitmap bitmap3D; // Blue bitmap
 
         if (!noGushing) {
             if (!gushingBlue) {
 
                 redBitmap = Bitmap.createBitmap(gushingBitmap, (!shiftBlue)?
                         (offsetX + pixelShift):(offsetX - pixelShift), offsetY, width, height);
-                Bitmap3D = Bitmap.createBitmap(curBitmap, (shiftBlue)? pixelShift:0, 0, width, height);
+                bitmap3D = Bitmap.createBitmap(curBitmap, (shiftBlue)? pixelShift:0, 0, width, height);
             }
             else {
 
                 redBitmap = Bitmap.createBitmap(curBitmap, (!shiftBlue)? pixelShift:0, 0, width, height);
-                Bitmap3D = Bitmap.createBitmap(gushingBitmap, (shiftBlue)?
+                bitmap3D = Bitmap.createBitmap(gushingBitmap, (shiftBlue)?
                         (offsetX - pixelShift):offsetX, offsetY, width, height);
             }
         }
         else {
 
             redBitmap = Bitmap.createBitmap(curBitmap, (!shiftBlue)? pixelShift:0, 0, width, height);
-            Bitmap3D = Bitmap.createBitmap(curBitmap, (shiftBlue)? pixelShift:0, 0, width, height);
+            bitmap3D = Bitmap.createBitmap(curBitmap, (shiftBlue)? pixelShift:0, 0, width, height);
         }
 
-
-
-        //Bitmap redBitmap = Bitmap.createBitmap(gushingBitmap, offsetX - pixelShift, offsetY, width, height);
-        //Bitmap redBitmap = Bitmap.createBitmap(gushingBitmap, offsetX, offsetY, width, height);
-
-        //Bitmap Bitmap3D = Bitmap.createBitmap(curBitmap, 0, 0, width, height);
-        //Bitmap Bitmap3D = Bitmap.createBitmap(curBitmap, pixelShift, 0, width, height);
-
-
-
-
-
-        Logs.add(Logs.Type.E, "OX: " + offsetX + " W: " + width);
-
+        //
         for (int y = 0; y < height; ++y) {
             for (int x = 0; x < width; ++x) {
 
 
+
+
+
+
+
+
             }
         }
-
-
-
-
-
-
-        return Bitmap3D;
+        return bitmap3D;
     }
 
     //
