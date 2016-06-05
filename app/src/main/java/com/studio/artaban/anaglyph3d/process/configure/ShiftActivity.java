@@ -34,16 +34,17 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
     public static final String DATA_KEY_GUSHING = "gushing";
     private static final String DATA_KEY_CHANGED = "changed";
 
-    // Default configuration
-    public static final float DEFAULT_SHIFT = 0f;
-    public static final float DEFAULT_GUSHING = 0f;
-
-    private static final short MIN_SHIFT = 5; // Minimum shift between left & right images (in pixel)
-    private static final float MAX_SHIFT_RATIO = 1 / 3f; // Maximum shift between left & right images (image width proportional)
+    //
+    private static final short MIN_SHIFT = 10; // Minimum shift between left & right images (in pixel)
+    private static final float MAX_SHIFT_RATIO = 1 / 8f; // Maximum shift between left & right images (image width proportional)
     private short mMinShift; // Minimum shift between left & right images (in progress graduation)
 
     private static final short MIN_GUSHING = 5; // Minimum gushing to seek (in seek bar progression)
-    private static final float MAX_GUSHING_RATIO = 1.3f; // Maximum gushing ratio (image scale)
+    private static final float MAX_GUSHING_RATIO = 1.25f; // Maximum gushing ratio (image scale)
+
+    // Default configuration
+    public static final float DEFAULT_SHIFT = 0f;
+    public static final float DEFAULT_GUSHING = 0f;
 
     public static Bitmap applySimulation(Bitmap curBitmap, float shift, float gushing) {
         // NB: Need large heap memory coz three bitmaps are opened here to make simulated 3D frame
@@ -107,21 +108,14 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
 
         //
         for (int y = 0; y < height; ++y) {
-            for (int x = 0; x < width; ++x) {
-
-
-
-
-
-
-
-
-            }
+            for (int x = 0; x < width; ++x)
+                bitmap3D.setPixel(x, y, (redBitmap.getPixel(x, y) & 0xffff0000) |
+                        (bitmap3D.getPixel(x, y) & 0xff00ffff));
         }
         return bitmap3D;
     }
 
-    //
+    //////
     private ImageView mImage;
     private FloatingActionButton mCancelButton;
     private Bitmap mBitmap;
@@ -311,13 +305,8 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
                 mGushing = DEFAULT_GUSHING;
                 mChanged = false;
 
-
-
-
-                //shift.setProgress(5);
-
-
-
+                shift.setProgress(50);
+                gushing.setProgress(50);
 
                 mImage.setImageBitmap(applySimulation(mBitmap, DEFAULT_SHIFT, DEFAULT_GUSHING));
             }
