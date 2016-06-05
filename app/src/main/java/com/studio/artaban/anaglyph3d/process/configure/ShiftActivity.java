@@ -48,70 +48,51 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
         // _ shift in [-MAX_SHIFT_RATIO;MAX_SHIFT_RATIO]
         // _ gushing in [-2;-1] and [1;2] with default 0 (not defined: nothing to apply)
 
+        int offsetX = 0, offsetY = 0;
 
-
-
-
-
-
-
-        boolean reverse = gushing < 0.5f; // Negative
         Bitmap gushingBitmap = curBitmap;
+        boolean gushingBlue = gushing < 0.5f; // Negative
         if (!((gushing < 1f) && (gushing > -1f))) { // != 0 (defined)
 
-            if (reverse) // To apply on blue frame
+            if (gushingBlue) // To apply on blue frame
                 gushing *= -1f;
 
             gushingBitmap = Bitmap.createScaledBitmap(curBitmap,
                     (int) (curBitmap.getWidth() * gushing),
                     (int) (curBitmap.getHeight() * gushing), false);
+
+            offsetX = (int)((curBitmap.getWidth() * gushing) - curBitmap.getWidth()) >> 1;
+            offsetY = (int)((curBitmap.getHeight() * gushing) - curBitmap.getHeight()) >> 1;
         }
-
-
-
-
-
-
-
 
         //
         int pixelShift = (int)(shift * curBitmap.getWidth());
-        int offsetShift = 0;
+        boolean shiftBlue = false;
         if (pixelShift < 0) { // To apply on blue frame
 
             pixelShift = -pixelShift;
-            offsetShift = pixelShift;
+            offsetX += pixelShift;
+            shiftBlue = true;
         }
-
 
         int width = curBitmap.getWidth() - pixelShift;
         int height = curBitmap.getHeight();
-
-
-        Logs.add(Logs.Type.E, "O: " + offsetShift + " W: " + width);
-        Bitmap bitmap = Bitmap.createBitmap(gushingBitmap, offsetShift, 0, width, height);
+        Bitmap bitmap = Bitmap.createBitmap(gushingBitmap, offsetX, offsetY, width, height);
 
 
 
 
 
+
+        Logs.add(Logs.Type.E, "OX: " + offsetX + " W: " + width);
 
         for (int y = 0; y < height; ++y) {
             for (int x = 0; x < width; ++x) {
 
 
 
-
-
             }
         }
-
-
-
-
-
-
-
 
 
 
@@ -170,13 +151,10 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
                 break;
 
             case R.id.seek_gushing:
-
-
-
-
-
-
-
+                if (seekBar.getProgress() >= 50)
+                    mGushing = seekBar.getProgress() / 50f;
+                else
+                    mGushing = (seekBar.getProgress() / 49f) - 2f;
                 break;
         }
         mImage.setImageBitmap(applyCorrection(mBitmap, mShift, mGushing));
@@ -278,11 +256,15 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
 
         // Set up seek bars
         final SeekBar shift = (SeekBar)findViewById(R.id.seek_shift);
+        assert shift != null;
         shift.setOnSeekBarChangeListener(this);
         shift.setMax(100);
         shift.setProgress(50);
         final SeekBar gushing = (SeekBar)findViewById(R.id.seek_gushing);
+        assert gushing != null;
         gushing.setOnSeekBarChangeListener(this);
+        gushing.setMax(100);
+        gushing.setProgress(50);
 
         // Configure the floating button that allows user to cancel settings
         mCancelButton = (FloatingActionButton)findViewById(R.id.fab_cancel);
@@ -302,7 +284,9 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
 
 
 
+
                 //shift.setProgress(5);
+
 
 
 
