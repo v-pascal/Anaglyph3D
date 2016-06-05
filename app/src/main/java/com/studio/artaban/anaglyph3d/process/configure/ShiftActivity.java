@@ -95,14 +95,12 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
                 bitmap3D = Bitmap.createBitmap(curBitmap, (shiftBlue)? pixelShift:0, 0, width, height);
             }
             else {
-
                 redBitmap = Bitmap.createBitmap(curBitmap, (!shiftBlue)? pixelShift:0, 0, width, height);
                 bitmap3D = Bitmap.createBitmap(gushingBitmap, (shiftBlue)?
                         (offsetX - pixelShift):offsetX, offsetY, width, height);
             }
         }
         else {
-
             redBitmap = Bitmap.createBitmap(curBitmap, (!shiftBlue)? pixelShift:0, 0, width, height);
             bitmap3D = Bitmap.createBitmap(curBitmap, (shiftBlue)? pixelShift:0, 0, width, height);
         }
