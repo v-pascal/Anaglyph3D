@@ -75,28 +75,21 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
 
 
         //
-        int offsetShift = (int)(shift * curBitmap.getWidth());
-        int pixelShift = offsetShift;
-        if (offsetShift < 0) { // To apply on blue frame
+        int pixelShift = (int)(shift * curBitmap.getWidth());
+        int offsetShift = 0;
+        if (pixelShift < 0) { // To apply on blue frame
 
-            offsetShift = 0;
-            pixelShift = -offsetShift;
+            pixelShift = -pixelShift;
+            offsetShift = pixelShift;
         }
 
 
-
-
-
-        //int width = curBitmap.getWidth() - (pixelShift << 1);
         int width = curBitmap.getWidth() - pixelShift;
         int height = curBitmap.getHeight();
 
 
-
-
-
         Logs.add(Logs.Type.E, "O: " + offsetShift + " W: " + width);
-        Bitmap bitmap = Bitmap.createBitmap(gushingBitmap, offsetShift, 0, width - pixelShift, height);
+        Bitmap bitmap = Bitmap.createBitmap(gushingBitmap, offsetShift, 0, width, height);
 
 
 
