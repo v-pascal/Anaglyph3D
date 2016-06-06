@@ -18,6 +18,7 @@ import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.process.configure.CorrectionActivity;
+import com.studio.artaban.anaglyph3d.process.configure.ShiftActivity;
 import com.studio.artaban.anaglyph3d.process.configure.SynchroActivity;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 import com.studio.artaban.libGST.GstObject;
@@ -264,19 +265,17 @@ public class ProcessActivity extends AppCompatActivity {
             }
             case Constants.PROCESS_REQUEST_SHIFT: {
 
+                if (resultCode == RESULT_OK)
+                    mProcessThread.applySimulation(
+                            data.getFloatExtra(ShiftActivity.DATA_KEY_SHIFT,
+                                    ShiftActivity.DEFAULT_SHIFT),
+                            data.getFloatExtra(ShiftActivity.DATA_KEY_GUSHING,
+                                    ShiftActivity.DEFAULT_GUSHING));
 
-
-
-
-
-
-
-
-
-
-
-
-
+                //else if (resultCode != Constants.RESULT_LOST_CONNECTION) // Could not happen
+                else
+                    mProcessThread.applySimulation(ShiftActivity.DEFAULT_SHIFT,
+                            ShiftActivity.DEFAULT_GUSHING);
                 break;
             }
             default: {

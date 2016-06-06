@@ -14,6 +14,7 @@ import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.media.Frame;
+import com.studio.artaban.anaglyph3d.media.MediaProcess;
 import com.studio.artaban.anaglyph3d.media.Video;
 import com.studio.artaban.anaglyph3d.process.configure.CorrectionActivity;
 import com.studio.artaban.anaglyph3d.process.configure.ShiftActivity;
@@ -73,6 +74,7 @@ public class ProcessThread extends Thread {
         WAIT_PICTURE (R.string.status_transfer_raw), // Wait until frames correction has been received (to device which is not the maker)
         SAVE_PICTURE (R.string.status_save_raw), // Save raw picture into local file
         CONVERT_PICTURE (R.string.status_convert_raw), // Convert local picture from NV21 to ARGB
+        WAIT_SHIFT (Constants.NO_DATA), // Waiting simulated 3D configuration
 
         ////// Video transfer & extraction step
         TRANSFER_VIDEO (R.string.status_transfer_video), // Transfer video
@@ -116,6 +118,9 @@ public class ProcessThread extends Thread {
     private short mSynchroOffset = 0; // Synchronization offset configured by the user
     private boolean mLocalSync = true; // To define from which video to extract the audio (after synchronization)
 
+    private float mShift = ShiftActivity.DEFAULT_SHIFT; // Left & right images shift configured by the user
+    private float mGushing = ShiftActivity.DEFAULT_GUSHING; // 3D gushing configured by the user
+
     private Frame.Orientation getOrientation(boolean local) { // Return frame orientation
         if (local) {
 
@@ -156,6 +161,12 @@ public class ProcessThread extends Thread {
         mLocalFrame = local;
 
         mConfigured = true;
+    }
+    public void applySimulation(float shift, float gushing) {
+        mShift = shift;
+        mGushing = gushing;
+
+        mStatus = Status.EXTRACT_FRAMES_LEFT;
     }
 
     //////
@@ -277,6 +288,12 @@ public class ProcessThread extends Thread {
                     case EXTRACT_FRAMES_LEFT:
                     case EXTRACT_FRAMES_RIGHT:
                     case EXTRACT_AUDIO: {
+
+                        // Change status message when extracting frames with a simulated 3D operation
+                        if ((Settings.getInstance().mSimulated) && // -> No camera position info
+                                (mStatus == Status.EXTRACT_FRAMES_LEFT))
+                            mProgress.message = ActivityWrapper.get().getResources()
+                                    .getString(R.string.status_extract_frames);
 
                         mProgress.heavy = true; // Set indeterminate progress bar style
                         break;
@@ -498,6 +515,9 @@ public class ProcessThread extends Thread {
                         }
                         else { // Simulated 3D
 
+                            mStep = Step.VIDEO;
+                            mStatus = Status.WAIT_SHIFT;
+
                             // Start shift activity ////////////////////////////////////////////////
                             Bundle data = new Bundle();
                             data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
@@ -667,9 +687,16 @@ public class ProcessThread extends Thread {
 
                     //////
                     if (local) {
+                        if (!Settings.getInstance().mSimulated) { // Real 3D
 
-                        local = false; // Extract right video frames
-                        mStatus = Status.EXTRACT_FRAMES_RIGHT;
+                            local = false; // Extract right video frames
+                            mStatus = Status.EXTRACT_FRAMES_RIGHT;
+                        }
+                        else { // Simulated 3D
+
+                            mLocalSync = false; // Needed to extract sound from local video (not remote)
+                            mStatus = Status.EXTRACT_AUDIO;
+                        }
                     }
                     else {
 
@@ -688,7 +715,7 @@ public class ProcessThread extends Thread {
                     //////
                     if (Video.getInstance().getProceedFrame() == Video.getInstance().getTotalFrame()) {
 
-                        // Load synchronization activity ///////////////////////////////////
+                        // Load synchronization activity ///////////////////////////////////////////
                         Bundle data = new Bundle();
                         data.putInt(SynchroActivity.DATA_KEY_FRAME_COUNT,
                                 Video.getInstance().getFrameCount());
@@ -701,6 +728,7 @@ public class ProcessThread extends Thread {
                     }
                     break;
                 }
+                case WAIT_SHIFT: // Wait simulated 3D configuration (waiting 'applySimulation' call)
                 case WAIT_SYNCHRO: { // Wait synchro configuration (maker only)
 
                     sleep();
@@ -736,17 +764,27 @@ public class ProcessThread extends Thread {
                     }
 
                     //////
-                    mStatus = Status.WAIT_CORRECTION;
+                    if (!Settings.getInstance().mSimulated) // Real 3D
+                        mStatus = Status.WAIT_CORRECTION;
+
+                    else { // Simulated 3D
+
+                        mStep = Step.FRAMES;
+                        mStatus = Status.FRAMES_CONVERSION;
+
+                        Frame.getInstance().convertFrames(mShift, mGushing);
+                    }
                     break;
                 }
                 case FRAMES_CONVERSION: {
 
                     sleep();
-                    publishProgress(Video.getInstance().getProceedFrame(),
-                            Video.getInstance().getTotalFrame());
+                    MediaProcess media = (!Settings.getInstance().mSimulated)?
+                            Video.getInstance():Frame.getInstance();
+                    publishProgress(media.getProceedFrame(), media.getTotalFrame());
 
                     //////
-                    if (Video.getInstance().getProceedFrame() == Video.getInstance().getTotalFrame()) {
+                    if (media.getProceedFrame() == media.getTotalFrame()) {
 
                         local = true; // 'jpegStep' step
                         mStep = Step.MAKE;
@@ -757,10 +795,24 @@ public class ProcessThread extends Thread {
                 case MAKE_3D_VIDEO: {
 
                     publishProgress(0, 1);
-                    if (!Video.makeAnaglyphVideo(local, Video.getInstance().getFrameCount(),
-                            ActivityWrapper.DOCUMENTS_FOLDER + ((mLocalSync)?
-                            Constants.PROCESS_LOCAL_FRAMES:
-                            Constants.PROCESS_REMOTE_FRAMES))) {
+
+                    boolean made;
+                    if (!Settings.getInstance().mSimulated) // Real 3D
+                        made = Video.makeAnaglyphVideo(local,
+                                Settings.getInstance().getResolutionWidth(),
+                                Settings.getInstance().getResolutionHeight(),
+                                Video.getInstance().getFrameCount(), ActivityWrapper.DOCUMENTS_FOLDER +
+                                        ((mLocalSync)?
+                                                Constants.PROCESS_LOCAL_FRAMES:
+                                                Constants.PROCESS_REMOTE_FRAMES));
+                    else // Simulated
+                        made = Video.makeAnaglyphVideo(local,
+                                Frame.getInstance().getWidth(),
+                                Frame.getInstance().getHeight(),
+                                Frame.getInstance().getFrameCount(), ActivityWrapper.DOCUMENTS_FOLDER +
+                                        Constants.PROCESS_LOCAL_FRAMES);
+
+                    if (!made) {
 
                         Logs.add(Logs.Type.E, "Failed to make anaglyph video");
                         mAbort = true;
@@ -787,7 +839,13 @@ public class ProcessThread extends Thread {
                     }
 
                     //////
-                    mStatus = Status.TRANSFER_3D_VIDEO;
+                    if (!Settings.getInstance().mSimulated) // Real 3D
+                        mStatus = Status.TRANSFER_3D_VIDEO;
+
+                    else { // Simulated 3D
+                        mStatus = Status.TERMINATION;
+                        break;
+                    }
 
                     // Send 3D video to remote device
                     if (!Video.sendFile(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_3D_VIDEO)) {
@@ -875,7 +933,7 @@ public class ProcessThread extends Thread {
                     break;
                 }
             }
-            if (!mAbort)
+            if ((!mAbort) && (!Settings.getInstance().mSimulated))
                 mAbort = !Connectivity.getInstance().isConnected();
         }
         Logs.add(Logs.Type.I, "Process thread stopped");

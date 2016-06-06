@@ -1,22 +1,31 @@
 package com.studio.artaban.anaglyph3d.media;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
+import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
+import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.process.ProcessThread;
-import com.studio.artaban.anaglyph3d.transfer.BufferRequest;
+import com.studio.artaban.anaglyph3d.process.configure.ShiftActivity;
 import com.studio.artaban.anaglyph3d.transfer.IConnectRequest;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
 /**
  * Created by pascal on 21/04/16.
  * Frame class to manage frame transfer & conversion
  */
-public class Frame extends BufferRequest {
+public class Frame extends MediaProcess {
 
     private static Frame ourInstance = new Frame();
     public static Frame getInstance() { return ourInstance; }
@@ -106,6 +115,70 @@ public class Frame extends BufferRequest {
     public int getWidth() { return mWidth; }
     public int getHeight() { return mHeight; }
     public boolean getReverse() { return mReverse; }
+
+    //
+    public void convertFrames(final float shift, final float gushing) {
+
+        mProceedFrame = 0;
+        mTotalFrame = 1;
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                // Define progress bounds
+                mFrameCount = Storage.getFrameFileCount(true);
+                mTotalFrame = mFrameCount;
+
+                //
+                Bitmap frameBitmap = Bitmap.createBitmap(
+                        Settings.getInstance().getResolutionWidth(),
+                        Settings.getInstance().getResolutionHeight(), Bitmap.Config.ARGB_8888);
+
+                byte[] buffer = new byte[frameBitmap.getByteCount()];
+
+                // Apply simulated 3D configured by the user on each frame files
+                for (int i = 0; i < mFrameCount; ++i) {
+
+                    ++mProceedFrame;
+                    String fileIndex = String.format("%04d", i);
+
+                    // Get local frame buffer
+                    File localFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + File.separator +
+                            Constants.PROCESS_LOCAL_PREFIX + fileIndex + Constants.EXTENSION_RGBA);
+                    try {
+                        if (new FileInputStream(localFile).read(buffer) != buffer.length)
+                            throw new IOException();
+                        frameBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(buffer));
+                    }
+                    catch (IOException e) {
+                        Logs.add(Logs.Type.F, "Failed to load RGBA file: " + localFile.getAbsolutePath());
+                        continue;
+                    }
+
+                    // Convert frame into simulated 3D frame & store it into buffer
+                    Bitmap bitmap3D = ShiftActivity.applySimulation(frameBitmap, shift, gushing);
+                    ByteBuffer buffer3D = ByteBuffer.wrap(buffer);
+                    bitmap3D.copyPixelsToBuffer(buffer3D);
+
+                    // Store new frame resolution
+                    if (i == 0) {
+                        mWidth = bitmap3D.getWidth();
+                        mHeight = bitmap3D.getHeight();
+                    }
+
+                    try { // Save converted frame file
+                        new FileOutputStream(localFile).write(buffer3D.array(), 0, bitmap3D.getByteCount());
+                    }
+                    catch (IOException e) {
+                        Logs.add(Logs.Type.F, "Failed to save anaglyph frame file: " +
+                                localFile.getAbsolutePath());
+                    }
+                }
+
+            }
+        }).start();
+    }
 
     //////
     public enum Orientation {

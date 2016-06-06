@@ -10,7 +10,6 @@ import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.process.ProcessThread;
 import com.studio.artaban.anaglyph3d.process.configure.CorrectionActivity;
-import com.studio.artaban.anaglyph3d.transfer.BufferRequest;
 import com.studio.artaban.anaglyph3d.transfer.IConnectRequest;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
@@ -28,7 +27,7 @@ import java.util.Arrays;
  * Created by pascal on 26/04/16.
  * Video class to manage video transfer & extraction
  */
-public class Video extends BufferRequest {
+public class Video extends MediaProcess {
 
     private static Video ourInstance = new Video();
     public static Video getInstance() { return ourInstance; }
@@ -55,17 +54,6 @@ public class Video extends BufferRequest {
     }
 
     //////
-    private int mTotalFrame = 1;
-    private int mProceedFrame = 0;
-
-    private int mFrameCount = 0;
-
-    public int getTotalFrame() { return mTotalFrame; }
-    public int getProceedFrame() { return mProceedFrame; }
-
-    public int getFrameCount() { return mFrameCount; }
-
-    //
     public void mergeFrameFiles() {
 
         mProceedFrame = 0;
@@ -76,34 +64,8 @@ public class Video extends BufferRequest {
             public void run() {
 
                 ////// Get local & remote frame count
-                File frames = new File(ActivityWrapper.DOCUMENTS_FOLDER);
-                File[] files = frames.listFiles(new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String filename) {
-
-                        // BUG: Only +[0-9] regex is not matching! Not greedy by default !?! See below...
-                        if (filename.matches("^" + Constants.PROCESS_LOCAL_PREFIX + "+[0-9]*[0-9]\\" +
-                                Constants.EXTENSION_RGBA + "$"))
-                            return true;
-
-                        return false;
-                    }
-                });
-                int localCount = files.length;
-
-                frames = new File(ActivityWrapper.DOCUMENTS_FOLDER);
-                files = frames.listFiles(new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String filename) {
-
-                        if (filename.matches("^" + Constants.PROCESS_REMOTE_PREFIX + "+[0-9]*[0-9]\\" +
-                                Constants.EXTENSION_RGBA + "$"))
-                            return true;
-
-                        return false;
-                    }
-                });
-                int remoteCount = files.length;
+                int localCount = Storage.getFrameFileCount(true);
+                int remoteCount = Storage.getFrameFileCount(false);
 
                 // Check if needed to set FPS matching
                 if (localCount == remoteCount) {
@@ -127,8 +89,8 @@ public class Video extends BufferRequest {
                     mFrameCount = localCount;
                 }
 
-                frames = new File(ActivityWrapper.DOCUMENTS_FOLDER);
-                files = frames.listFiles(new FilenameFilter() {
+                File frames = new File(ActivityWrapper.DOCUMENTS_FOLDER);
+                File[] files = frames.listFiles(new FilenameFilter() {
                     @Override
                     public boolean accept(File dir, String filename) {
 
@@ -342,10 +304,8 @@ public class Video extends BufferRequest {
                 AUDIO_WAV_FILENAME + "\"");
     }
 
-    public static boolean makeAnaglyphVideo(boolean jpegStep, int frameCount, String files) {
-
-        int frameWidth = Settings.getInstance().getResolutionWidth();
-        int frameHeight = Settings.getInstance().getResolutionHeight();
+    public static boolean makeAnaglyphVideo(boolean jpegStep, int frameWidth, int frameHeight,
+                                            int frameCount, String files) {
         if (jpegStep)
             return ProcessThread.mGStreamer.launch("multifilesrc location=\"" + files + "\" index=0" +
                     " caps=\"video/x-raw,format=RGBA,width=" + frameWidth + ",height=" + frameHeight +

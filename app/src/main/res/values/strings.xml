@@ -84,7 +84,7 @@
     <string name="title_activity_connect">Connection</string>
     <string name="title_activity_correction">Frames correction</string>
     <string name="title_activity_synchro">Synchronization (optional)</string>
-    <string name="title_activity_shift">3D gushing</string>
+    <string name="title_activity_shift">3D simulation</string>
 
     <!-- Menus -->
     <string name="nav_album">Videos album</string>
@@ -152,6 +152,7 @@
     <string name="status_transfer_anaglyph">Transfer anaglyph 3D video</string>
     <string name="status_save_anaglyph">Saving anaglyph 3D video file...</string>
     <string name="status_convert_thumbnail">Thumbnail picture conversion...</string>
+    <string name="status_extract_frames">Camera video extracting...</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

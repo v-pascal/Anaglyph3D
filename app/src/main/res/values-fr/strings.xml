@@ -76,7 +76,7 @@
     <string name="title_activity_connect">Connexion</string>
     <string name="title_activity_correction">Correction des images</string>
     <string name="title_activity_synchro">Synchronisation (optionnel)</string>
-    <string name="title_activity_shift">Jaillissement 3D</string>
+    <string name="title_activity_shift">Simulation 3D</string>
 
     <!-- Menus -->
     <string name="nav_album">Album vidéos</string>
@@ -144,5 +144,6 @@
     <string name="status_transfer_anaglyph">Transfert de la vidéo 3D</string>
     <string name="status_save_anaglyph">Enregistrement de la vidéo 3D en cours...</string>
     <string name="status_convert_thumbnail">Conversion de l\'image en vignette...</string>
+    <string name="status_extract_frames">Extraction des images de la vidéo...</string>
 
 </resources>

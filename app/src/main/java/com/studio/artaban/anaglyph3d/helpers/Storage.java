@@ -97,6 +97,26 @@ public final class Storage {
         }
     }
 
+    public static int getFrameFileCount(final boolean local) {
+        // Return the number of frame files contained in documents folder (local or remote frame files)
+
+        File frames = new File(ActivityWrapper.DOCUMENTS_FOLDER);
+        File[] files = frames.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String filename) {
+
+                // BUG: Only +[0-9] regex is not matching! Not greedy by default !?! See below...
+                if (filename.matches("^" + ((local)?
+                        Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX) +
+                        "+[0-9]*[0-9]\\" + Constants.EXTENSION_RGBA + "$"))
+                    return true;
+
+                return false;
+            }
+        });
+        return files.length;
+    }
+
     public static long isStorageEnough() { // Return if available storage space is enough to process
 
         // Get storage space need (according settings)

@@ -233,43 +233,6 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
             mChanged = savedInstanceState.getBoolean(DATA_KEY_CHANGED);
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        getIntent().putExtra(Frame.DATA_KEY_WIDTH, 640);
-        getIntent().putExtra(Frame.DATA_KEY_HEIGHT, 480);
-        File documents = getExternalFilesDir(null);
-        if (documents != null)
-            ActivityWrapper.DOCUMENTS_FOLDER = documents.getAbsolutePath();
-        else
-            Logs.add(Logs.Type.F, "Failed to get documents folder");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // Set up seek bars
         final SeekBar shift = (SeekBar)findViewById(R.id.seek_shift);
         assert shift != null;
