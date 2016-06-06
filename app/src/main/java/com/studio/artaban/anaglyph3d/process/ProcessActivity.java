@@ -209,7 +209,7 @@ public class ProcessActivity extends AppCompatActivity {
         else
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
-        // Add position or confirm fragment according settings
+        // Add fragment according settings
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
         if (!Settings.getInstance().mSimulated) // Add position fragment (real 3D)
             fragTransaction.add(R.id.main_container, new PositionFragment(), PositionFragment.TAG).commit();
