@@ -118,6 +118,7 @@ public class Frame extends MediaProcess {
 
     //
     public void convertFrames(final float shift, final float gushing) {
+        // Convert video frames by adding simulated 3D configured by the user
 
         mProceedFrame = 0;
         mTotalFrame = 1;

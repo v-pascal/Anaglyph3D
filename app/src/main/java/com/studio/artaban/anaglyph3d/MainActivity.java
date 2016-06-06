@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
+import android.view.SurfaceView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -23,6 +24,7 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
+import com.studio.artaban.anaglyph3d.camera.CameraView;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
@@ -271,7 +273,7 @@ public class MainActivity extends AppCompatActivity
             if (Settings.getInstance().mSimulated) {
 
                 assert navigationView.getMenu().getItem(2).getItemId() == R.id.navDisconnect;
-                navigationView.getMenu().getItem(2).setVisible(false);
+                navigationView.getMenu().getItem(2).setEnabled(false);
             }
         }
 
@@ -299,6 +301,25 @@ public class MainActivity extends AppCompatActivity
             assert imgGlass != null;
             imgGlass.startAnimation(anim);
         }
+
+
+
+
+
+
+
+
+        final SurfaceView camera = (SurfaceView)findViewById(R.id.view_camera);
+        assert camera != null;
+        //camera.stop();
+        camera.clearAnimation();
+
+
+
+
+
+
+
     }
 
     @Override
@@ -400,7 +421,7 @@ public class MainActivity extends AppCompatActivity
     public void onClick(View view) { // Start recording
         if (checkMemorySpace()) {
 
-            if (!Settings.getInstance().mSimulated) {
+            if (!Settings.getInstance().mSimulated) { // Real 3D
 
                 // Add connectivity request to check if remote device is ready...
                 Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
@@ -408,8 +429,27 @@ public class MainActivity extends AppCompatActivity
 
                 // ...let's start the process activity if so
             }
-            else {
+            else { // Simulated 3D
 
+
+
+
+
+
+
+                //CameraView camera = (CameraView)findViewById(R.id.view_camera);
+                final SurfaceView camera = (SurfaceView)findViewById(R.id.view_camera);
+                assert camera != null;
+                //camera.stop();
+                camera.clearAnimation();
+
+
+
+
+
+
+
+                // Start process activity
                 Intent intent = new Intent(this, ProcessActivity.class);
                 startActivityForResult(intent, 0);
             }

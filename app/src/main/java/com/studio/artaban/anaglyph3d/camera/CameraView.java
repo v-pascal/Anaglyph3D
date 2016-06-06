@@ -12,7 +12,6 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
@@ -22,11 +21,9 @@ import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.process.ProcessActivity;
-import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -207,6 +204,38 @@ public class CameraView extends SurfaceView
             }, Constants.CONN_WAIT_DELAY);
         }
     }
+
+
+
+
+
+
+
+
+
+
+    public boolean stop() {
+
+        if (mCamera == null)
+            return false;
+
+        mCamera.stopPreview();
+        try { mCamera.setPreviewDisplay(null); }
+        catch (IOException e) {
+            Logs.add(Logs.Type.W, "Failed to remove preview display");
+        }
+        mCamera.setPreviewCallback(null);
+
+        release();
+        return true;
+    }
+
+
+
+
+
+
+
 
     //
     private void stopPreview() {

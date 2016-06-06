@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
+import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v4.app.FragmentTransaction;
@@ -35,6 +36,9 @@ public class ProcessActivity extends AppCompatActivity {
     private static final String WAKE_LOCK_NAME = "Anaglyph-3D";
     private WakeLock mWakeLock; // To avoid device in pause during video recording
 
+    private static final int DOWNCOUNT_DELAY = 1500; // Delay between down count (simulated 3D only)
+
+    //
     public void startRecording() {
 
         runOnUiThread(new Runnable() {
@@ -173,10 +177,10 @@ public class ProcessActivity extends AppCompatActivity {
 
         // Add fragment according settings
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
-        if (!Settings.getInstance().mSimulated) // Add position fragment
+        if (!Settings.getInstance().mSimulated) // Add position fragment (real 3D)
             fragTransaction.add(R.id.main_container, new PositionFragment(), PositionFragment.TAG).commit();
 
-        else { // Add recorder fragment (start recording)
+        else { // Add recorder fragment (start recording for simulated 3D)
 
             final RecorderFragment recorder = new RecorderFragment();
             fragTransaction.add(R.id.main_container, recorder, RecorderFragment.TAG).commit();
@@ -188,7 +192,7 @@ public class ProcessActivity extends AppCompatActivity {
             mWakeLock.acquire();
 
             // Display down count B4 recording
-            new Thread(new Runnable() {
+            new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     for (short i = 0; i < 4; ++i) {
@@ -196,13 +200,13 @@ public class ProcessActivity extends AppCompatActivity {
                         recorder.updateDownCount();
 
                         // Delay
-                        try { Thread.sleep(1500, 0); }
+                        try { Thread.sleep(DOWNCOUNT_DELAY, 0); }
                         catch (InterruptedException e) {
                             Logs.add(Logs.Type.E, e.getMessage());
                         }
                     }
                 }
-            }).start();
+            }, DOWNCOUNT_DELAY);
         }
     }
 

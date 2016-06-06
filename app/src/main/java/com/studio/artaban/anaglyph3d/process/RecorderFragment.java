@@ -201,17 +201,14 @@ public class RecorderFragment extends Fragment {
         ((RelativeLayout) rootView).addView(mCameraView, 0, params);
 
         // Send start down count request (if not the maker)
-        if (!Settings.getInstance().isMaker()) {
-
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
+        if (!Settings.getInstance().isMaker())
+            new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                             ActivityWrapper.REQ_TYPE_DOWNCOUNT, null);
                 }
             }, 1000);
-        }
 
         // Disable sound that is played when recording
         ((AudioManager)getContext().getSystemService(Context.AUDIO_SERVICE)).

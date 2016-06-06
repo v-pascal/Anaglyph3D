@@ -9,6 +9,7 @@
     tools:showIn="@layout/app_bar_main">
 
     <com.studio.artaban.anaglyph3d.camera.CameraView
+        android:id="@+id/view_camera"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
