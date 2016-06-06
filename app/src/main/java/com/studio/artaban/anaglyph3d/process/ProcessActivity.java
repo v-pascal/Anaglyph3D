@@ -67,7 +67,7 @@ public class ProcessActivity extends AppCompatActivity {
             @Override
             public void run() { // Update down count
 
-                RecorderFragment recorder = (RecorderFragment)getSupportFragmentManager().
+                RecorderFragment recorder = (RecorderFragment) getSupportFragmentManager().
                         findFragmentByTag(RecorderFragment.TAG);
                 recorder.updateDownCount();
             }
@@ -93,10 +93,43 @@ public class ProcessActivity extends AppCompatActivity {
 
     //
     public void onValidatePosition(View sender) {
+        // User has confirmed to start video recorder
 
-        // Send start request to remote device
-        Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
-                ActivityWrapper.REQ_TYPE_START, null);
+        if (!Settings.getInstance().mSimulated) // Real 3D
+            Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                    ActivityWrapper.REQ_TYPE_START, null);
+            // Send start request to remote device
+
+        else { // Simulated 3D
+
+            final RecorderFragment recorder = new RecorderFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.main_container, recorder, RecorderFragment.TAG)
+                    .commit();
+            getSupportFragmentManager().executePendingTransactions();
+
+            // Wake lock during video recording
+            mWakeLock = ((PowerManager)getSystemService(Context.POWER_SERVICE))
+                    .newWakeLock(PowerManager.FULL_WAKE_LOCK, WAKE_LOCK_NAME);
+            mWakeLock.acquire();
+
+            // Display down count B4 recording
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    for (short i = 0; i < 4; ++i) {
+
+                        recorder.updateDownCount();
+
+                        // Delay
+                        try { Thread.sleep(DOWNCOUNT_DELAY, 0); }
+                        catch (InterruptedException e) {
+                            Logs.add(Logs.Type.E, e.getMessage());
+                        }
+                    }
+                }
+            }, DOWNCOUNT_DELAY);
+        }
     }
     public void onReversePosition(View sender) {
 
@@ -117,6 +150,7 @@ public class ProcessActivity extends AppCompatActivity {
 
         ((PositionFragment)getSupportFragmentManager().findFragmentByTag(PositionFragment.TAG)).reverse();
     }
+
     public void onUpdateProgress() {
 
         runOnUiThread(new Runnable() {
@@ -175,39 +209,13 @@ public class ProcessActivity extends AppCompatActivity {
         else
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
-        // Add fragment according settings
+        // Add position or confirm fragment according settings
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
         if (!Settings.getInstance().mSimulated) // Add position fragment (real 3D)
             fragTransaction.add(R.id.main_container, new PositionFragment(), PositionFragment.TAG).commit();
-
-        else { // Add recorder fragment (start recording for simulated 3D)
-
-            final RecorderFragment recorder = new RecorderFragment();
-            fragTransaction.add(R.id.main_container, recorder, RecorderFragment.TAG).commit();
-            getSupportFragmentManager().executePendingTransactions();
-
-            // Wake lock during video recording
-            mWakeLock = ((PowerManager)getSystemService(Context.POWER_SERVICE))
-                    .newWakeLock(PowerManager.FULL_WAKE_LOCK, WAKE_LOCK_NAME);
-            mWakeLock.acquire();
-
-            // Display down count B4 recording
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    for (short i = 0; i < 4; ++i) {
-
-                        recorder.updateDownCount();
-
-                        // Delay
-                        try { Thread.sleep(DOWNCOUNT_DELAY, 0); }
-                        catch (InterruptedException e) {
-                            Logs.add(Logs.Type.E, e.getMessage());
-                        }
-                    }
-                }
-            }, DOWNCOUNT_DELAY);
-        }
+        else // Add confirm fragment (simulated 3D)
+            fragTransaction.add(R.id.main_container, new ConfirmFragment(), ConfirmFragment.TAG).commit();
+        getSupportFragmentManager().executePendingTransactions();
     }
 
     @Override
@@ -294,8 +302,8 @@ public class ProcessActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
 
-        if ((getSupportFragmentManager().findFragmentByTag(PositionFragment.TAG) != null) &&
-                (!isFinishing())) {
+        if ((!isFinishing()) &&
+                (getSupportFragmentManager().findFragmentByTag(PositionFragment.TAG) != null)) {
 
             finish(); // Finish activity when paused
 

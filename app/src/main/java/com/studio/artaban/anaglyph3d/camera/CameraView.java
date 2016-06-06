@@ -205,38 +205,6 @@ public class CameraView extends SurfaceView
         }
     }
 
-
-
-
-
-
-
-
-
-
-    public boolean stop() {
-
-        if (mCamera == null)
-            return false;
-
-        mCamera.stopPreview();
-        try { mCamera.setPreviewDisplay(null); }
-        catch (IOException e) {
-            Logs.add(Logs.Type.W, "Failed to remove preview display");
-        }
-        mCamera.setPreviewCallback(null);
-
-        release();
-        return true;
-    }
-
-
-
-
-
-
-
-
     //
     private void stopPreview() {
 
