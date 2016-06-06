@@ -27,7 +27,7 @@ import com.studio.artaban.libGST.GstObject;
 /**
  * Created by pascal on 12/04/16.
  * Activity to manage video recording and transferring using fragments:
- * _ Position fragment: to inform user on devices position
+ * _ Position fragment: to inform user on devices position & settings
  * _ Recorder fragment: to start recording
  * _ Process fragment: to make the video (status fragment)
  */
@@ -209,12 +209,9 @@ public class ProcessActivity extends AppCompatActivity {
         else
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
-        // Add fragment according settings
+        // Add position fragment
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
-        if (!Settings.getInstance().mSimulated) // Add position fragment (real 3D)
-            fragTransaction.add(R.id.main_container, new PositionFragment(), PositionFragment.TAG).commit();
-        else // Add confirm fragment (simulated 3D)
-            fragTransaction.add(R.id.main_container, new ConfirmFragment(), ConfirmFragment.TAG).commit();
+        fragTransaction.add(R.id.main_container, new PositionFragment(), PositionFragment.TAG).commit();
         getSupportFragmentManager().executePendingTransactions();
     }
 
