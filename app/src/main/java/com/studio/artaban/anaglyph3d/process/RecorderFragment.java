@@ -41,68 +41,76 @@ public class RecorderFragment extends Fragment {
     private ImageView mImageCounter;
     private int mCounter = MAX_COUNTER;
 
+    private void downCount() { // Display down count update
+
+        if (mCounter == 0) { // Finished to display down count...
+
+            // Start recording
+            mImageCounter.setVisibility(View.GONE);
+            mCameraView.startRecording();
+
+            // Display recording info
+            mRecordingHandler.post(mRecordingRunnable);
+            return;
+        }
+
+        // Display next down count
+        mImageCounter.clearAnimation();
+        switch (mCounter--) {
+            case 4:
+                mImageCounter.setImageDrawable(getActivity().getResources().
+                        getDrawable(R.drawable.counter_4));
+                break;
+            case 3:
+                mImageCounter.setImageDrawable(getActivity().getResources().
+                        getDrawable(R.drawable.counter_3));
+                break;
+            case 2:
+                mImageCounter.setImageDrawable(getActivity().getResources().
+                        getDrawable(R.drawable.counter_2));
+                break;
+            case 1:
+                mImageCounter.setImageDrawable(getActivity().getResources().
+                        getDrawable(R.drawable.counter_1));
+                break;
+        }
+        final AlphaAnimation anim = new AlphaAnimation(1.0f, 0f);
+        anim.setDuration(1000);
+        anim.setFillAfter(true);
+        anim.setAnimationListener(new Animation.AnimationListener() {
+
+            @Override public void onAnimationStart(Animation animation) { }
+            @Override public void onAnimationRepeat(Animation animation) { }
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+                if (Settings.getInstance().isMaker())
+                    return; // ...only for device which is not the maker
+
+                // Send down count request to the maker
+                Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                        ActivityWrapper.REQ_TYPE_DOWNCOUNT, null);
+
+                if (mCounter == 0)
+                    mCameraView.postRecording();
+            }
+        });
+
+        playBip();
+        mImageCounter.startAnimation(anim);
+    }
     public void updateDownCount() { // Called by both devices until counter equal zero
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (mCounter == 0) { // Finished to display down count...
-
-                    // Start recording
-                    mImageCounter.setVisibility(View.GONE);
-                    mCameraView.startRecording();
-
-                    // Display recording info
-                    mRecordingHandler.post(mRecordingRunnable);
-                    return;
+        if (!Settings.getInstance().mSimulated) // Real 3D
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    downCount();
                 }
+            }, Constants.CONN_WAIT_DELAY << 1);
 
-                // Display next down count
-                mImageCounter.clearAnimation();
-                switch (mCounter--) {
-                    case 4:
-                        mImageCounter.setImageDrawable(getActivity().getResources().
-                                getDrawable(R.drawable.counter_4));
-                        break;
-                    case 3:
-                        mImageCounter.setImageDrawable(getActivity().getResources().
-                                getDrawable(R.drawable.counter_3));
-                        break;
-                    case 2:
-                        mImageCounter.setImageDrawable(getActivity().getResources().
-                                getDrawable(R.drawable.counter_2));
-                        break;
-                    case 1:
-                        mImageCounter.setImageDrawable(getActivity().getResources().
-                                getDrawable(R.drawable.counter_1));
-                        break;
-                }
-                final AlphaAnimation anim = new AlphaAnimation(1.0f, 0f);
-                anim.setDuration(1000);
-                anim.setFillAfter(true);
-                anim.setAnimationListener(new Animation.AnimationListener() {
-
-                    @Override public void onAnimationStart(Animation animation) { }
-                    @Override public void onAnimationRepeat(Animation animation) { }
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-
-                        if (Settings.getInstance().isMaker())
-                            return; // ...only for device which is not the maker
-
-                        // Send down count request to the maker
-                        Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
-                                ActivityWrapper.REQ_TYPE_DOWNCOUNT, null);
-
-                        if (mCounter == 0)
-                            mCameraView.postRecording();
-                    }
-                });
-
-                playBip();
-                mImageCounter.startAnimation(anim);
-            }
-        }, Constants.CONN_WAIT_DELAY << 1);
+        else // Simulated 3D (should be done on UI thread immediately)
+            downCount();
     }
 
     private void playBip() { // Play a bip sound during the down count
