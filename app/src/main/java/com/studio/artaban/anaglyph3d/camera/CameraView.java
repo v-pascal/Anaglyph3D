@@ -237,6 +237,11 @@ public class CameraView extends SurfaceView
         mMediaRecorder.setVideoSize(Settings.getInstance().mResolution.width,
                 Settings.getInstance().mResolution.height);
 
+        if (!Settings.getInstance().mSimulated) // Real 3D (that needs a specific FPS)
+            mMediaRecorder.setVideoFrameRate(
+                    Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000);
+        //else // Use default FPS when simulated 3D is requested (avoid start recorder failure)
+
         // Set orientation
         if (Settings.getInstance().mOrientation) { // Portrait
 
@@ -249,20 +254,6 @@ public class CameraView extends SurfaceView
 
         mMediaRecorder.setMaxDuration(Settings.getInstance().mDuration * 1000);
         mMediaRecorder.setVideoEncodingBitRate(3000000);
-
-
-
-
-
-
-        //mMediaRecorder.setVideoFrameRate(
-        //        Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000);
-
-
-
-
-
-
         mMediaRecorder.setOutputFile(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_LOCAL_VIDEO);
 
         try { mMediaRecorder.prepare(); }
@@ -396,9 +387,15 @@ public class CameraView extends SurfaceView
             mCamera.getParameters().setPreviewFormat(ImageFormat.NV21);
             if (mTakePicture) { // Check to prepare recording
 
-                mCamera.getParameters().setPreviewFpsRange(
-                        Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX],
-                        Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MAX_INDEX]);
+                if (!Settings.getInstance().mSimulated) { // Real 3D (that needs a specific FPS)
+
+                    mCamera.getParameters().setPreviewFpsRange(
+                            Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX],
+                            Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MAX_INDEX]);
+                    mCamera.getParameters().setPreviewFrameRate(
+                            Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX]);
+                }
+                //else // Use default FPS when simulated 3D is requested (avoid start recorder failure)
 
                 mRawPicture = new byte[(mPreviewSize.width * mPreviewSize.height * 3) >> 1]; // NV21 buffer size
                 mCamera.setPreviewCallback(new Camera.PreviewCallback() {
