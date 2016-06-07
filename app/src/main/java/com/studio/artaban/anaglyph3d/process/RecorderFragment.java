@@ -33,12 +33,13 @@ import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 public class RecorderFragment extends Fragment {
 
     public static final String TAG = "recorder";
+    public static final int MAX_COUNTER = 4;
 
     //////
     private CameraView mCameraView;
 
     private ImageView mImageCounter;
-    private int mCounter = 4;
+    private int mCounter = MAX_COUNTER;
 
     public void updateDownCount() { // Called by both devices until counter equal zero
 

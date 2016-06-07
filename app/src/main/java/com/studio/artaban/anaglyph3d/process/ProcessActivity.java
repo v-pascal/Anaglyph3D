@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
-import android.os.Handler;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v4.app.FragmentTransaction;
@@ -36,7 +35,7 @@ public class ProcessActivity extends AppCompatActivity {
     private static final String WAKE_LOCK_NAME = "Anaglyph-3D";
     private WakeLock mWakeLock; // To avoid device in pause during video recording
 
-    private static final int DOWNCOUNT_DELAY = 1500; // Delay between down count (simulated 3D only)
+    private static final int DOWNCOUNT_DELAY = 1000; // Delay between down count (simulated 3D only)
 
     //
     public void startRecording() {
@@ -77,6 +76,7 @@ public class ProcessActivity extends AppCompatActivity {
     public void startProcessing(Camera.Size picSize, byte[] picRaw) {
 
         mWakeLock.release(); // Stop wake lock requested
+        mWakeLock = null;
 
         // Set unspecified orientation (default device orientation)
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -114,21 +114,47 @@ public class ProcessActivity extends AppCompatActivity {
             mWakeLock.acquire();
 
             // Display down count B4 recording
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    for (short i = 0; i < 4; ++i) {
+            new Thread(new Runnable() {
 
-                        recorder.updateDownCount();
+                private void sleep() { // Delay
 
-                        // Delay
-                        try { Thread.sleep(DOWNCOUNT_DELAY, 0); }
-                        catch (InterruptedException e) {
-                            Logs.add(Logs.Type.E, e.getMessage());
-                        }
+                    try { Thread.sleep(DOWNCOUNT_DELAY, 0); }
+                    catch (InterruptedException e) {
+                        Logs.add(Logs.Type.E, e.getMessage());
                     }
                 }
-            }, DOWNCOUNT_DELAY);
+
+                @Override
+                public void run() {
+
+                    sleep();
+                    Runnable runDownCount = new Runnable() {
+                        @Override
+                        public void run() {
+
+                            recorder.updateDownCount();
+                            synchronized (this) { notify(); }
+                        }
+                    };
+
+                    // Decrease down count
+                    for (short i = 0; i < (RecorderFragment.MAX_COUNTER + 1); ++i) {
+                        // + 1 above to loop one more time in order to start recording
+
+                        synchronized (runDownCount) {
+
+                            runOnUiThread(runDownCount);
+
+                            // Wait down count update finished on UI thread
+                            try { runDownCount.wait(); }
+                            catch (InterruptedException e) {
+                                Logs.add(Logs.Type.E, e.getMessage());
+                            }
+                        }
+                        sleep(); // Delay
+                    }
+                }
+            }).start();
         }
     }
     public void onReversePosition(View sender) {
@@ -330,6 +356,8 @@ public class ProcessActivity extends AppCompatActivity {
             mProcessThread.release();
             mProcessThread = null;
         }
+        if (mWakeLock != null)
+            mWakeLock.release();
 
         // Remove all temporary files from storage
         Storage.removeTempFiles(false);
