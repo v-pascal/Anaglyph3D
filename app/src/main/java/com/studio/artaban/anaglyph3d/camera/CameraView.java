@@ -164,8 +164,7 @@ public class CameraView extends SurfaceView
         // ...only called by the device which is not the maker
 
         // Stop camera preview (in a few milliseconds)
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
+        new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 stopPreview();
@@ -195,8 +194,7 @@ public class CameraView extends SurfaceView
         }
         else { // Start recording (camera preview already stopped)
 
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
+            new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     startRecorder();
