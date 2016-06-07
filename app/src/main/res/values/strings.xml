@@ -26,7 +26,7 @@
     <string name="video_album">Videos album</string>
     <string name="video_fps">Frame per second (FPS)</string>
     <string name="video_resolution">Video resolution</string>
-    <string name="devices_distance">Distance between cameras:\n6cm - 7cm</string>
+    <string name="devices_distance">Cameras distance: 6cm - 7cm</string>
     <string name="status_label">Status:</string>
     <string name="title_detail_format">MMM d, \'yy - hh:mm</string>
     <string name="date_detail_format">MM/dd/yyyy - hh:mm</string>
@@ -48,6 +48,7 @@
     <string name="real_3d">Real 3D</string>
     <string name="letter_left">L</string>
     <string name="letter_right">R</string>
+    <string name="settings">\u2022 Resolution: %1$s\n\u2022 Duration: %2$d sec\n\u2022 FPS: %3$d</string>
 
     <!-- User messages -->
     <string name="camera_disabled">Failed to acquire camera feature! It may be used by another application.</string>

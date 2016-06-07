@@ -137,6 +137,8 @@ public class ProcessActivity extends AppCompatActivity {
         // -> When cameras cannot be placed at the expected distance due to the location of the camera
         //    on a particular device (often the case for landscape orientation), this option allows the
         //    user to reverse it in order to place the camera as the expected distance
+        if (Settings.getInstance().mSimulated)
+            return; // Option only available for real 3D
 
         Settings.getInstance().mReverse = !Settings.getInstance().mReverse;
 

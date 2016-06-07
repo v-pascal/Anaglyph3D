@@ -26,7 +26,7 @@
     <string name="video_duration">Durée de la vidéo</string>
     <string name="video_fps">Images par seconde</string>
     <string name="video_resolution">Résolution vidéo</string>
-    <string name="devices_distance">Distance entre les caméras:\n6cm - 7cm</string>
+    <string name="devices_distance">Distance des caméras: 6cm - 7cm</string>
     <string name="status_label">Statut:</string>
     <string name="title_detail_format">d MMM yyyy - hh:mm</string>
     <string name="date_detail_format">dd/MM/yyyy - hh:mm</string>
@@ -48,6 +48,7 @@
     <string name="real_3d">3D réelle</string>
     <string name="letter_left">G</string>
     <string name="letter_right">D</string>
+    <string name="settings">\u2022 Resolution: %1$s\n\u2022 Durée: %2$d sec\n\u2022 FPS: %3$d</string>
 
     <!-- User messages -->
     <string name="camera_disabled">Impossible d\'accéder à la caméra! Celle-ci doit être utilisée par une autre application.</string>

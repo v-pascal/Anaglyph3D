@@ -7,4 +7,5 @@
     <color name="full_blue">#ff0000ff</color>
     <color name="darker_gray">#ff505050</color>
     <color name="lighter_gray">#ff707070</color>
+    <color name="darker_white">#ffb0b0b0</color>
 </resources>

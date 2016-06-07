@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.Point;
+import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -16,6 +17,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.R;
@@ -114,6 +116,13 @@ public class PositionFragment extends Fragment {
         final Point screenSize = new Point();
         getActivity().getWindowManager().getDefaultDisplay().getSize(screenSize);
 
+        // Set up settings info
+        final TextView textSetting = (TextView)rootView.findViewById(R.id.text_setting);
+        textSetting.setText(getString(R.string.settings,
+                Settings.getInstance().getResolution(),
+                Settings.getInstance().mDuration,
+                Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000));
+
         // Set up back device image
         mBackImage = (ImageView)rootView.findViewById(R.id.back_device);
         if (mBackImage != null) {
@@ -139,8 +148,8 @@ public class PositionFragment extends Fragment {
                 params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
             }
 
-            // The back device image should take place in 50% of the screen height...
-            params.height = (int)(screenSize.y * 0.5f);
+            // The back device image should take place in 40% of the screen height...
+            params.height = (int)(screenSize.y * 0.4f);
             if (Settings.getInstance().mOrientation) // Portrait
                 params.width = (int)(((float)params.height * BACK_DEVICE_WIDTH) / BACK_DEVICE_HEIGHT);
             else // Landscape
@@ -189,6 +198,14 @@ public class PositionFragment extends Fragment {
             }
             backReverse.setLayoutParams(params);
             backReverse.requestLayout();
+        }
+        if (Settings.getInstance().mSimulated) { // Simulated 3D
+
+            mBackImage.setImageDrawable(getResources().getDrawable(R.drawable.left_device));
+            backReverse.setImageDrawable(getResources().getDrawable(R.drawable.simulated_device));
+
+            final TextView textDistance = (TextView)rootView.findViewById(R.id.text_distance);
+            textDistance.setText(getString(R.string.simulated_3d));
         }
         rootView.invalidate();
         return rootView;
