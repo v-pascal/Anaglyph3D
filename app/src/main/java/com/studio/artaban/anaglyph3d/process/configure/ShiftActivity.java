@@ -16,6 +16,8 @@ import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.data.Constants;
+import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
@@ -126,15 +128,19 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
     private boolean loadFrame() { // Load frame file to define 3D simulation
 
         File imageFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_LOCAL_PICTURE);
-        int width = getIntent().getIntExtra(Frame.DATA_KEY_WIDTH, 0);
-        int height = getIntent().getIntExtra(Frame.DATA_KEY_HEIGHT, 0);
+        Bundle data = getIntent().getBundleExtra(Constants.DATA_ACTIVITY);
+        int width = data.getInt(Frame.DATA_KEY_WIDTH);
+        int height = data.getInt(Frame.DATA_KEY_HEIGHT);
 
         byte[] imageBuffer = new byte[(int)imageFile.length()];
         try {
             if (new FileInputStream(imageFile).read(imageBuffer) != imageBuffer.length)
                 throw new IOException();
 
-            mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            if (!Settings.getInstance().mOrientation) // Landscape
+                mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+            else // Portrait
+                mBitmap = Bitmap.createBitmap(height, width, Bitmap.Config.ARGB_8888);
             mBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(imageBuffer));
         }
         catch (IOException e) {
