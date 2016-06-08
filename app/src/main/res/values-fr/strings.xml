@@ -106,7 +106,7 @@
     <string name="picture_not_copied">ATTENTION: Echec durant la copie de l\'image vers le répertoire \'Pictures%1$s\'!</string>
 
     <!-- Process error -->
-    <string name="error_start_recording">Enregistrement vidéo impossible! Ce média est en cours d\'utilisation. Arrêtez toutes vos applications ou redémarrer votre périphérique pour fixer ce problème.</string>
+    <string name="error_start_recording">Enregistrement vidéo impossible! Ce média est en cours d\'utilisation, ou ne peut être configuré comme spécifié dans les paramètres. L\'application va se terminée.</string>
     <string name="error_save_picture">Impossible de sauvegarder l\'image de correction!</string>
     <string name="error_load_video">Impossible de charger la vidéo!</string>
     <string name="error_correction_failed">ATTENTION: Impossible d\'afficher les images de correction! Etape annulée.</string>

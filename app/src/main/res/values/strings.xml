@@ -114,7 +114,7 @@
     <string name="picture_not_copied">WARNING: Failed to copy picture file into \'Pictures%1$s\' folder!</string>
 
     <!-- Process error -->
-    <string name="error_start_recording">Unable to start recording! A media resource is in use. Close all of your applications or restart your device to fix this.</string>
+    <string name="error_start_recording">Unable to start recording! The media resource is in use or cannot be configured as expected. The application will be closed.</string>
     <string name="error_save_picture">Failed to save picture to set correction!</string>
     <string name="error_load_video">Failed to load local video!</string>
     <string name="error_correction_failed">WARNING: Failed to display correction image! Step cancelled.</string>

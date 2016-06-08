@@ -191,11 +191,19 @@ public class SettingsActivity extends SettingsParentActivity
 
         mPositionSwitch = (SwitchPreference)findPreference(Settings.DATA_KEY_POSITION);
         mPositionSwitch.setChecked(Settings.getInstance().mPosition);
+        if (Settings.getInstance().mPosition) // Left camera
+            mPositionSwitch.setSummary(getResources().getString(R.string.left));
+        else // Right camera
+            mPositionSwitch.setSummary(getResources().getString(R.string.right));
         mPositionSwitch.setOnPreferenceChangeListener(this);
         mPositionSwitch.setEnabled(!Settings.getInstance().mSimulated);
 
         mOrientationSwitch = (SwitchPreference)findPreference(Settings.DATA_KEY_ORIENTATION);
         mOrientationSwitch.setChecked(Settings.getInstance().mOrientation);
+        if (Settings.getInstance().mOrientation) // Portrait
+            mOrientationSwitch.setSummary(getResources().getString(R.string.portrait));
+        else // Landscape
+            mOrientationSwitch.setSummary(getResources().getString(R.string.landscape));
         mOrientationSwitch.setOnPreferenceChangeListener(this);
 
         // Add number picker dialog preferences programmatically (needed coz API level 21 requirement)
@@ -229,6 +237,10 @@ public class SettingsActivity extends SettingsParentActivity
                 return true; // BUG: Why calling 'onPreferenceChange' if not changed?
 
             Settings.getInstance().mPosition = (boolean)newValue;
+            if (Settings.getInstance().mPosition) // Left camera
+                mPositionSwitch.setSummary(getResources().getString(R.string.left));
+            else // Right camera
+                mPositionSwitch.setSummary(getResources().getString(R.string.right));
             Connectivity.getInstance().addRequest(Settings.getInstance(),
                     Settings.REQ_TYPE_POSITION, null);
             return true;
@@ -244,6 +256,10 @@ public class SettingsActivity extends SettingsParentActivity
                 return true; // BUG: Why calling 'onPreferenceChange' if not changed?
 
             Settings.getInstance().mOrientation = (boolean)newValue;
+            if (Settings.getInstance().mOrientation) // Portrait
+                preference.setSummary(getResources().getString(R.string.portrait));
+            else // Landscape
+                preference.setSummary(getResources().getString(R.string.landscape));
             Connectivity.getInstance().addRequest(Settings.getInstance(),
                     Settings.REQ_TYPE_ORIENTATION, null);
 

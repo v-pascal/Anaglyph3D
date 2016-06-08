@@ -393,7 +393,7 @@ public class CameraView extends SurfaceView
                             Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX],
                             Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MAX_INDEX]);
                     mCamera.getParameters().setPreviewFrameRate(
-                            Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX]);
+                            Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000);
                 }
                 //else // Use default FPS when simulated 3D is requested (avoid start recorder failure)
 
