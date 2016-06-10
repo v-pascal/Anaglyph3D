@@ -1,5 +1,9 @@
 package com.studio.artaban.anaglyph3d.helpers;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
 import com.studio.artaban.anaglyph3d.data.Constants;
 
 import java.io.FileOutputStream;
@@ -22,15 +26,20 @@ public final class Internet {
 
     private static boolean mConnected; // Connected flag (see 'isOnline' method below)
 
-    public static boolean isOnline() { return isOnline(DEFAULT_ONLINE_TIMEOUT); }
-    public static boolean isOnline(final int timeOut) {
+    public static boolean isOnline(Context context) { return isOnline(context, DEFAULT_ONLINE_TIMEOUT); }
+    public static boolean isOnline(Context context, final int timeOut) {
         // Check Internet connection from any thread even UI thread (check INTERNET permission first)
+
+        mConnected = false;
+
+        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        if ((netInfo == null) || (!netInfo.isConnectedOrConnecting()))
+            return false;
 
         Runnable checkInternet = new Runnable() {
             @Override
             public void run() {
-
-                mConnected = false;
                 try {
 
                     URL url = new URL(DEFAULT_ONLINE_URL); // URL to check

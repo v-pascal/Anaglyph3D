@@ -396,6 +396,10 @@ public class CameraView extends SurfaceView
             mPreviewSize = getPreviewResolution();
             mCamera.getParameters().setPreviewSize(mPreviewSize.width, mPreviewSize.height);
             mCamera.getParameters().setPreviewFormat(ImageFormat.NV21);
+            mCamera.getParameters().setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
+            mCamera.getParameters().setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
+            mCamera.getParameters().setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+
             if (mTakePicture) { // Check to prepare recording
 
                 if (!Settings.getInstance().mSimulated) { // Real 3D (that needs a specific FPS)
@@ -408,20 +412,8 @@ public class CameraView extends SurfaceView
                 }
                 //else // Use default FPS when simulated 3D is requested (avoid start recorder failure)
 
-
-
-
-
-
-
                 mPreviewSize = mCamera.getParameters().getPreviewSize();
                 // NB: Needed in case where it failed to assign specific preview size
-
-
-
-
-
-
 
                 mRawPicture = new byte[(mPreviewSize.width * mPreviewSize.height * 3) >> 1]; // NV21 buffer size
                 mCamera.setPreviewCallback(new Camera.PreviewCallback() {

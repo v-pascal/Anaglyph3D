@@ -102,7 +102,10 @@ public class Video extends MediaProcess {
                         return false;
                     }
                 });
-                mTotalFrame = files.length;
+                mTotalFrame = (files != null)? files.length:0;
+                if (mTotalFrame == 0)
+                    return;
+
                 Arrays.sort(files); // Sort frame files
 
                 ////// Rename & remove frame files according files removal above

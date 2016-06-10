@@ -70,6 +70,9 @@ public final class Storage {
                 return filename.matches(regex);
             }
         });
+        if (filesToDelete == null)
+            return;
+
         for (File file : filesToDelete) {
             if (file.isFile())
                 file.delete();
@@ -91,6 +94,9 @@ public final class Storage {
         // Remove all temporary files from downloads or documents folder
 
         File storage = new File(ActivityWrapper.DOCUMENTS_FOLDER + ((downloads)? FOLDER_DOWNLOAD:""));
+        if (storage.listFiles() == null)
+            return;
+
         for (File file : storage.listFiles()) {
             if (file.isFile())
                 file.delete();
@@ -114,7 +120,7 @@ public final class Storage {
                 return false;
             }
         });
-        return files.length;
+        return (files != null)? files.length:0;
     }
 
     public static long isStorageEnough() { // Return if available storage space is enough to process

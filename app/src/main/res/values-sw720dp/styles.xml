@@ -3,12 +3,12 @@
 
     <!-- Position fragment text styles -->
     <style name="PositionTextStyle" parent="Base.TextAppearance.AppCompat">
-        <item name="android:textSize">26sp</item>
+        <item name="android:textSize">24sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
     <style name="SettingTextStyle" parent="Base.TextAppearance.AppCompat">
-        <item name="android:textSize">22sp</item>
+        <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textColor">@color/darker_white</item>
     </style>

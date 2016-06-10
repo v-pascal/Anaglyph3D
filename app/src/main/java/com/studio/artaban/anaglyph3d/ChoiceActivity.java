@@ -279,7 +279,7 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
             case R.id.menu_download: {
 
                 // Check Internet connection
-                if (!Internet.isOnline(1000)) {
+                if (!Internet.isOnline(this, 1500)) {
 
                     DisplayMessage.getInstance().toast(R.string.no_internet, Toast.LENGTH_LONG);
                     return true;
