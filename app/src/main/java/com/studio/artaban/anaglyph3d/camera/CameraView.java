@@ -21,6 +21,7 @@ import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.process.ProcessActivity;
+import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -178,7 +179,11 @@ public class CameraView extends SurfaceView
 
             Logs.add(Logs.Type.E, "Failed to start recorder");
 
-            // Force to quit application (after having displayed a message to user)
+            // Send cancel request to remote device
+            Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                    ActivityWrapper.REQ_TYPE_CANCEL, null);
+
+            // Inform user on recorder failure
             ActivityWrapper.stopActivity(ProcessActivity.class,
                     Constants.RESULT_FAILED_RECORDING, null);
             return false;
@@ -237,8 +242,8 @@ public class CameraView extends SurfaceView
         mMediaRecorder.setVideoSize(Settings.getInstance().mResolution.width,
                 Settings.getInstance().mResolution.height);
 
-        if ((!Settings.getInstance().mSimulated) && (!Settings.getInstance().isNoFps())) // Real 3D (that
-            mMediaRecorder.setVideoFrameRate(                                         // needs FPS setting)
+        if ((!Settings.getInstance().mSimulated) && (!Settings.getInstance().mNoFps)) // Real 3D with
+            mMediaRecorder.setVideoFrameRate(                                            // FPS setting
                     Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000);
         //else // Use default FPS when simulated 3D is requested or if user has confirmed a video
         //        recording without FPS setting applied (avoid start recorder failure)
@@ -305,6 +310,11 @@ public class CameraView extends SurfaceView
     }
     private void release() {
 
+        if (mMediaRecorder != null) {
+            mMediaRecorder.stop();
+            mMediaRecorder.reset();
+            mMediaRecorder.release();
+        }
         if (mCamera != null) {
             mCamera.release();
             mCamera = null;

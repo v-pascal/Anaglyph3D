@@ -344,12 +344,11 @@ public class MainActivity extends AppCompatActivity
             case Constants.RESULT_FAILED_RECORDING: {
 
                 DisplayMessage.getInstance().alert(R.string.title_error, R.string.error_start_recording,
-                        null, false, new DialogInterface.OnClickListener() {
+                        null, true, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-
-                                setResult(Constants.RESULT_QUIT_APPLICATION);
-                                finish();
+                                if (which == DialogInterface.BUTTON_POSITIVE)
+                                    Settings.getInstance().mNoFps = true;
                             }
                         });
                 break;

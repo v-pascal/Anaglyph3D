@@ -88,7 +88,6 @@ public class Settings implements IConnectRequest {
     public String getFpsRange() {
         return String.valueOf(mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000);
     }
-    public boolean isNoFps() { return mNoFps; }
 
     public int getResolutionWidth() { return (mOrientation)? mResolution.height:mResolution.width; }
     public int getResolutionHeight() { return (mOrientation)? mResolution.width:mResolution.height; }
