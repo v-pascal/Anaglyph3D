@@ -88,6 +88,7 @@ public class Settings implements IConnectRequest {
     public String getFpsRange() {
         return String.valueOf(mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000);
     }
+    public boolean isNoFps() { return mNoFps; }
 
     public int getResolutionWidth() { return (mOrientation)? mResolution.height:mResolution.width; }
     public int getResolutionHeight() { return (mOrientation)? mResolution.width:mResolution.height; }
@@ -115,6 +116,7 @@ public class Settings implements IConnectRequest {
         // Select default resolution & fps
         mResolution = mResolutions.get(0);
         mFps = mFpsRanges.get(0);
+        checkNoFps();
 
         return true;
     }
@@ -151,6 +153,11 @@ public class Settings implements IConnectRequest {
         return true;
     }
 
+    private void checkNoFps() { // Check if at least one valid FPS is available (!= 1)
+        if ((mFpsRanges.size() == 1) && (mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] == 1))
+            mNoFps = true;
+    }
+
     ////// Data
     private boolean mMaster; // Master device which has priority (false for slave device)
     private String mRemoteDevice; // Remote device info
@@ -167,6 +174,7 @@ public class Settings implements IConnectRequest {
     public boolean mOrientation = Constants.CONFIG_DEFAULT_ORIENTATION; // Portrait orientation (false for landscape orientation)
     public short mDuration = Constants.CONFIG_DEFAULT_DURATION; // Video duration (in seconds)
     public int[] mFps; // Frames per second range (scaled by 1000)
+    public boolean mNoFps = false; // FPS setting use flag
 
     // Request types (mask)
     public static final byte REQ_TYPE_INITIALIZE = 0x01;
@@ -415,6 +423,7 @@ public class Settings implements IConnectRequest {
                     // Select resolution & fps (default)
                     mResolution = mResolutions.get(0);
                     mFps = mFpsRanges.get(0);
+                    checkNoFps();
 
                     ////// Start main activity
                     ActivityWrapper.startActivity(MainActivity.class, null, 0);
@@ -582,6 +591,7 @@ public class Settings implements IConnectRequest {
                 // Select resolution & fps (default)
                 mResolution = mResolutions.get(0);
                 mFps = mFpsRanges.get(0);
+                checkNoFps();
 
                 ////// Start main activity
                 ActivityWrapper.startActivity(MainActivity.class, null, 0);

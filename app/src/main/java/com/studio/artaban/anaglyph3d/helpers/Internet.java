@@ -1,5 +1,9 @@
 package com.studio.artaban.anaglyph3d.helpers;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
 import com.studio.artaban.anaglyph3d.data.Constants;
 
 import java.io.FileOutputStream;
@@ -8,7 +12,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
 import java.net.URL;
 
 /**
@@ -17,48 +20,12 @@ import java.net.URL;
  */
 public final class Internet {
 
-    private static final int DEFAULT_ONLINE_TIMEOUT = 3000; // Default Internet connection check timeout (in millisecond)
-    private static final String DEFAULT_ONLINE_URL = "http://www.google.com"; // Default Internet connection check URL
+    public static boolean isOnline(Context context) {
+        // Check if Internet connection is available (check INTERNET permission first)
 
-    private static boolean mConnected; // Connected flag (see 'isOnline' method below)
-
-    public static boolean isOnline() { return isOnline(DEFAULT_ONLINE_TIMEOUT); }
-    public static boolean isOnline(final int timeOut) {
-        // Check Internet connection from any thread even UI thread (check INTERNET permission first)
-
-        Runnable checkInternet = new Runnable() {
-            @Override
-            public void run() {
-
-                mConnected = false;
-                try {
-
-                    URL url = new URL(DEFAULT_ONLINE_URL); // URL to check
-                    HttpURLConnection connURL = (HttpURLConnection)url.openConnection();
-                    connURL.setConnectTimeout(timeOut);
-                    connURL.connect();
-                    if (connURL.getResponseCode() == 200)
-                        mConnected = true;
-                }
-                catch (MalformedURLException e) { Logs.add(Logs.Type.F, e.getMessage()); }
-                catch (SocketTimeoutException e) { Logs.add(Logs.Type.F, e.getMessage()); }
-                catch (IOException e) { Logs.add(Logs.Type.F, e.getMessage()); }
-                finally {
-                    synchronized (this) { notify(); }
-                }
-            }
-        };
-        synchronized (checkInternet) {
-
-            new Thread(checkInternet).start();
-
-            // Wait Internet connection check
-            try { checkInternet.wait(); }
-            catch (InterruptedException e) {
-                Logs.add(Logs.Type.E, e.getMessage());
-            }
-        }
-        return mConnected;
+        ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return (netInfo != null) && (netInfo.isConnectedOrConnecting());
     }
 
     //////

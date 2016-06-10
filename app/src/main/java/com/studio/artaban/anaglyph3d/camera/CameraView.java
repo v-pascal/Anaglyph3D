@@ -237,10 +237,11 @@ public class CameraView extends SurfaceView
         mMediaRecorder.setVideoSize(Settings.getInstance().mResolution.width,
                 Settings.getInstance().mResolution.height);
 
-        if (!Settings.getInstance().mSimulated) // Real 3D (that needs a specific FPS)
-            mMediaRecorder.setVideoFrameRate(
+        if ((!Settings.getInstance().mSimulated) && (!Settings.getInstance().isNoFps())) // Real 3D (that
+            mMediaRecorder.setVideoFrameRate(                                         // needs FPS setting)
                     Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000);
-        //else // Use default FPS when simulated 3D is requested (avoid start recorder failure)
+        //else // Use default FPS when simulated 3D is requested or if user has confirmed a video
+        //        recording without FPS setting applied (avoid start recorder failure)
 
         // Set orientation
         if (Settings.getInstance().mOrientation) { // Portrait
