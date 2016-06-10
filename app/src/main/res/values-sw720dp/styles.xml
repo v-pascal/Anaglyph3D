@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources><!-- 10" -->
+
+    <!-- Position fragment text styles -->
+    <style name="PositionTextStyle" parent="Base.TextAppearance.AppCompat">
+        <item name="android:textSize">26sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+    <style name="SettingTextStyle" parent="Base.TextAppearance.AppCompat">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/darker_white</item>
+    </style>
+
+</resources>

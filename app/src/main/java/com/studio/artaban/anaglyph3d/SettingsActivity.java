@@ -110,6 +110,10 @@ public class SettingsActivity extends SettingsParentActivity
 
                 if (settings.has(Settings.DATA_KEY_FPS))
                     updateFpsRanges();
+
+                //
+                mPositionLock = false;
+                mOrientationLock = false;
             }
         });
     }
@@ -225,6 +229,10 @@ public class SettingsActivity extends SettingsParentActivity
         // BUG: Not working! 'onPreferenceChange' never called...
 
         preferenceCat.addPreference(mDurationPreference);
+
+        //
+        mPositionLock = false;
+        mOrientationLock = false;
     }
 
     @Override

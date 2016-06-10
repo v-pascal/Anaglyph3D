@@ -14,7 +14,7 @@
 
     <TextView
         android:id="@+id/frame_position"
-        android:textAppearance="@style/TextAppearancePosition"
+        android:textAppearance="@style/TextAppearanceRank"
         android:layout_centerInParent="true"
         android:alpha="0.5"
         android:layout_width="wrap_content"

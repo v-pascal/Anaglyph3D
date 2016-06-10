@@ -408,6 +408,21 @@ public class CameraView extends SurfaceView
                 }
                 //else // Use default FPS when simulated 3D is requested (avoid start recorder failure)
 
+
+
+
+
+
+
+                mPreviewSize = mCamera.getParameters().getPreviewSize();
+                // NB: Needed in case where it failed to assign specific preview size
+
+
+
+
+
+
+
                 mRawPicture = new byte[(mPreviewSize.width * mPreviewSize.height * 3) >> 1]; // NV21 buffer size
                 mCamera.setPreviewCallback(new Camera.PreviewCallback() {
 

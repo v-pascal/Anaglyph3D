@@ -116,14 +116,16 @@ public class PositionFragment extends Fragment {
         final Point screenSize = new Point();
         getActivity().getWindowManager().getDefaultDisplay().getSize(screenSize);
 
-        // Set up settings info
+        ////// Set up settings info
         final TextView textSetting = (TextView)rootView.findViewById(R.id.text_setting);
         textSetting.setText(getString(R.string.settings,
                 Settings.getInstance().getResolution(),
                 Settings.getInstance().mDuration,
                 Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000));
+        if (Settings.getInstance().mOrientation) // Portrait
+            ((LayoutParams)textSetting.getLayoutParams()).addRule(RelativeLayout.CENTER_HORIZONTAL);
 
-        // Set up back device image
+        ////// Set up back device image
         mBackImage = (ImageView)rootView.findViewById(R.id.back_device);
         if (mBackImage != null) {
 
@@ -148,8 +150,8 @@ public class PositionFragment extends Fragment {
                 params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
             }
 
-            // The back device image should take place in 40% of the screen height...
-            params.height = (int)(screenSize.y * 0.4f);
+            // The back device image should take place in 50% of the screen height...
+            params.height = (int)(screenSize.y * 0.5f);
             if (Settings.getInstance().mOrientation) // Portrait
                 params.width = (int)(((float)params.height * BACK_DEVICE_WIDTH) / BACK_DEVICE_HEIGHT);
             else // Landscape
@@ -163,48 +165,78 @@ public class PositionFragment extends Fragment {
             mBackImage.requestLayout();
         }
 
-        // Set up reverse image
+        ////// Set up reverse image
         final ImageView backReverse = (ImageView)rootView.findViewById(R.id.back_reverse);
+        int reverseMargin = 0;
         if (backReverse != null) {
 
             // Display the reverse image at the appropriate position...
             LayoutParams params = (LayoutParams)backReverse.getLayoutParams();
 
             // ...with a size of 25% of the screen width/height
-            int midPos;
             if (Settings.getInstance().mOrientation) { // Portrait
                 params.height = (int) (screenSize.x * 0.25f);
-                midPos = params.height >> 1;
+                reverseMargin = params.height >> 1;
             }
             else { // Landscape
+
+                if (Build.VERSION.SDK_INT >= 17)
+                    params.removeRule(RelativeLayout.CENTER_VERTICAL);
+                params.addRule(RelativeLayout.ALIGN_BOTTOM, R.id.back_device);
+
                 params.height = (int) (screenSize.y * 0.25f);
-                midPos = (screenSize.x >> 2) - (params.height >> 1);
+                reverseMargin = (screenSize.x >> 2) - (params.height >> 1);
             }
             params.width = params.height;
 
-            if (Settings.getInstance().mPosition) {
+            if (Settings.getInstance().mPosition) { // Left camera
 
                 if (Build.VERSION.SDK_INT >= 17)
                     params.addRule(RelativeLayout.ALIGN_PARENT_START);
                 params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-                params.setMargins(midPos, 0, 0, 0);
+                params.setMargins(reverseMargin, 0, 0, 0);
             }
-            else {
+            else { // Right camera
 
                 if (Build.VERSION.SDK_INT >= 17)
                     params.addRule(RelativeLayout.ALIGN_PARENT_END);
                 params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-                params.setMargins(0, 0, midPos, 0);
+                params.setMargins(0, 0, reverseMargin, 0);
             }
             backReverse.setLayoutParams(params);
             backReverse.requestLayout();
         }
+
+        ////// Set up device or 3D type info
+        final TextView textDistance = (TextView)rootView.findViewById(R.id.text_distance);
+        if (!Settings.getInstance().mOrientation) { // Landscape
+
+            if (Build.VERSION.SDK_INT >= 17)
+                ((LayoutParams)textDistance.getLayoutParams()).removeRule(RelativeLayout.ABOVE);
+            ((LayoutParams)textDistance.getLayoutParams()).addRule(RelativeLayout.ABOVE, R.id.back_reverse);
+
+            if (Settings.getInstance().mPosition) { // Left camera
+
+                ((LayoutParams)textDistance.getLayoutParams()).setMargins(reverseMargin, 0, 0, 0);
+                ((LayoutParams)textSetting.getLayoutParams()).setMargins(reverseMargin, 0, 0, 0);
+            }
+            else { // Right camera
+
+                if (Build.VERSION.SDK_INT >= 17) {
+                    ((LayoutParams) textDistance.getLayoutParams()).addRule(RelativeLayout.ALIGN_START, R.id.back_reverse);
+                    ((LayoutParams)textSetting.getLayoutParams()).addRule(RelativeLayout.ALIGN_START, R.id.back_reverse);
+                }
+                ((LayoutParams) textDistance.getLayoutParams()).addRule(RelativeLayout.ALIGN_LEFT, R.id.back_reverse);
+                ((LayoutParams)textSetting.getLayoutParams()).addRule(RelativeLayout.ALIGN_LEFT, R.id.back_reverse);
+            }
+        }
+        else // Portrait
+            ((LayoutParams)textDistance.getLayoutParams()).addRule(RelativeLayout.CENTER_HORIZONTAL);
+
         if (Settings.getInstance().mSimulated) { // Simulated 3D
 
             mBackImage.setImageDrawable(getResources().getDrawable(R.drawable.left_device));
             backReverse.setImageDrawable(getResources().getDrawable(R.drawable.simulated_device));
-
-            final TextView textDistance = (TextView)rootView.findViewById(R.id.text_distance);
             textDistance.setText(getString(R.string.simulated_3d));
         }
         rootView.invalidate();
