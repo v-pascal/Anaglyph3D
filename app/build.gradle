@@ -19,6 +19,11 @@ android {
             // buildConfigField "Boolean", "DEBUG_MODE", "false"
         }
     }
+    //sourceSets {
+    //    main {
+    //        jniLibs.srcDir 'jniLibs'
+    //    }
+    //}
     productFlavors {
     }
     //dataBinding {

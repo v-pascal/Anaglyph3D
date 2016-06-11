@@ -393,9 +393,25 @@ public class CameraView extends SurfaceView
             mPreviewSize = getPreviewResolution();
             mCamera.getParameters().setPreviewSize(mPreviewSize.width, mPreviewSize.height);
             mCamera.getParameters().setPreviewFormat(ImageFormat.NV21);
+
+
+
+
+
+
+
+
+
             mCamera.getParameters().setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
             mCamera.getParameters().setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
-            mCamera.getParameters().setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+            //mCamera.getParameters().setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+            //mCamera.getParameters().setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+            mCamera.getParameters().setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
+
+
+
+
+
 
             if (mTakePicture) { // Check to prepare recording
 
