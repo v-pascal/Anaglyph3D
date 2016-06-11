@@ -47,9 +47,7 @@ public class DownloadFragment extends Fragment {
         if (mDownloadTask != null)
             mDownloadTask.cancel(true);
     }
-    public boolean isDownloading() {
-        return mDownloading;
-    }
+    public boolean isDownloading() { return mDownloading; }
 
     //
     private boolean mDownloading;
