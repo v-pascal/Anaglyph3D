@@ -173,7 +173,7 @@ public class DownloadFragment extends Fragment {
                     // Download video file
                     JSONObject video = videoList.getJSONObject(i).getJSONObject(JSON_VIDEO);
                     resultId = getResultId(Internet.downloadHttpFile(video.getString(JSON_URL),
-                            ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD +
+                            ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD + File.separator +
                                     fileName + Constants.EXTENSION_WEBM, this));
                     if (resultId != Constants.NO_DATA)
                         return resultId; // Error or cancelled
@@ -181,7 +181,7 @@ public class DownloadFragment extends Fragment {
                     // Download thumbnail file
                     JSONObject thumbnail = videoList.getJSONObject(i).getJSONObject(JSON_THUMBNAIL);
                     resultId = getResultId(Internet.downloadHttpFile(thumbnail.getString(JSON_URL),
-                            ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD +
+                            ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD + File.separator +
                                     fileName + Constants.EXTENSION_JPEG, this));
                     if (resultId != Constants.NO_DATA)
                         return resultId; // Error or cancelled
