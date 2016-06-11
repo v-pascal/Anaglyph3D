@@ -12,6 +12,7 @@ public final class Constants {
     public static final short FAB_SIZE_DPI = 56; // Floating Actionbar Button size (in dpi)
     public static final short DRAWABLE_PLAY_SIZE = 256; // Drawable 'play' image size (in pixel)
     public static final String DATABASE_DATE_FORMAT = "yyyy-MM-dd hh:mm:ss.000"; // SQLite date format
+    public static final String FILENAME_DATE_FORMAT = "yyyy-MM-dd_hh#mm#ss.000"; // SQLite date format
 
 
     ////// Activity

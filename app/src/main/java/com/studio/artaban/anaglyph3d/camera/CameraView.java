@@ -261,7 +261,7 @@ public class CameraView extends SurfaceView
             mMediaRecorder.setOrientationHint(180);
 
         mMediaRecorder.setMaxDuration(Settings.getInstance().mDuration * 1000);
-        mMediaRecorder.setVideoEncodingBitRate(3000000);
+        mMediaRecorder.setVideoEncodingBitRate(15000000);
         mMediaRecorder.setOutputFile(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_LOCAL_VIDEO);
 
         try { mMediaRecorder.prepare(); }
@@ -394,24 +394,9 @@ public class CameraView extends SurfaceView
             mCamera.getParameters().setPreviewSize(mPreviewSize.width, mPreviewSize.height);
             mCamera.getParameters().setPreviewFormat(ImageFormat.NV21);
 
-
-
-
-
-
-
-
-
             mCamera.getParameters().setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
             mCamera.getParameters().setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
-            //mCamera.getParameters().setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
-            //mCamera.getParameters().setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-            mCamera.getParameters().setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
-
-
-
-
-
+            mCamera.getParameters().setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
 
             if (mTakePicture) { // Check to prepare recording
 

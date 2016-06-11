@@ -167,6 +167,7 @@ public class DownloadFragment extends Fragment {
 
                     JSONObject album = videoList.getJSONObject(i).getJSONObject(AlbumTable.TABLE_NAME);
                     String fileName = album.getString(AlbumTable.COLUMN_DATE); // Date is used as filename
+                    fileName = fileName.replace(' ', '_').replace(':', '#');
 
                     // Download video file
                     JSONObject video = videoList.getJSONObject(i).getJSONObject(JSON_VIDEO);
@@ -186,6 +187,7 @@ public class DownloadFragment extends Fragment {
 
                     // Fill videos DB info array
                     SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
+                    fileName = fileName.replace('_', ' ').replace('#', ':');
                     mDownloadedVideos[i] = new AlbumTable.Video(0,
                             album.getString(AlbumTable.COLUMN_TITLE), // Title
                             album.getString(AlbumTable.COLUMN_DESCRIPTION), // Description

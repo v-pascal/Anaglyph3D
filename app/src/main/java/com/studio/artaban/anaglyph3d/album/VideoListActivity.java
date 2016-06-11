@@ -331,12 +331,12 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             for (Parcelable download: downloadList) {
 
                 AlbumTable.Video video = (AlbumTable.Video)download;
-                String fileName = video.getDateString();
+                String fileName = video.getDateString(false);
 
                 // Move thumbnail & video files into expected storage folders
-                Storage.saveThumbnail(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD +
+                Storage.saveThumbnail(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD + File.separator +
                         fileName + Constants.EXTENSION_JPEG, AlbumTable.Video.getThumbnailFile(video.getDate()));
-                Storage.saveVideo(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD +
+                Storage.saveVideo(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD + File.separator +
                         fileName + Constants.EXTENSION_WEBM, AlbumTable.Video.getVideoFile(video.getDate()));
 
                 mDB.insert(AlbumTable.TABLE_NAME, new AlbumTable.Video[]{ video });

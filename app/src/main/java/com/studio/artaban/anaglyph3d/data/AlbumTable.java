@@ -31,13 +31,13 @@ public class AlbumTable implements IDataTable {
         private static final short FIELD_COUNT = 9;
         public static String getThumbnailFile(Date date) { // Return thumbnail file path based on a video date
 
-            DateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
+            DateFormat dateFormat = new SimpleDateFormat(Constants.FILENAME_DATE_FORMAT);
             return ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_THUMBNAILS + File.separator +
                     dateFormat.format(date) + Constants.EXTENSION_JPEG;
         }
         public static String getVideoFile(Date date) { // Return video file path based on a video date
 
-            DateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
+            DateFormat dateFormat = new SimpleDateFormat(Constants.FILENAME_DATE_FORMAT);
             return ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_VIDEOS + File.separator +
                     dateFormat.format(date) + Constants.EXTENSION_WEBM;
         }
@@ -126,7 +126,7 @@ public class AlbumTable implements IDataTable {
 
             dest.writeString(this.title);
             dest.writeString(this.description);
-            dest.writeString(getDateString());
+            dest.writeString(getDateString(true));
             dest.writeInt(this.duration);
             dest.writeBooleanArray(new boolean[]{this.location});
             dest.writeDouble(this.latitude);
@@ -150,9 +150,10 @@ public class AlbumTable implements IDataTable {
             return title + ((duration)? " (" + this.duration + " sec)":"");
         }
         public Date getDate() { return this.date; }
-        public String getDateString() {
+        public String getDateString(boolean db) {
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
+            SimpleDateFormat dateFormat = new SimpleDateFormat((db)?
+                    Constants.DATABASE_DATE_FORMAT:Constants.FILENAME_DATE_FORMAT);
             return dateFormat.format(this.date);
         }
         public String getDate(Context context) { // Video list date: MM/DD/yyyy - hh:mm
