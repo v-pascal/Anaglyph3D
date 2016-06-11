@@ -178,6 +178,8 @@ public class CameraView extends SurfaceView
         catch (Exception e) {
 
             Logs.add(Logs.Type.E, "Failed to start recorder");
+            mMediaRecorder.reset();
+            mMediaRecorder.release();
 
             // Send cancel request to remote device
             Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
@@ -310,11 +312,6 @@ public class CameraView extends SurfaceView
     }
     private void release() {
 
-        if (mMediaRecorder != null) {
-            mMediaRecorder.stop();
-            mMediaRecorder.reset();
-            mMediaRecorder.release();
-        }
         if (mCamera != null) {
             mCamera.release();
             mCamera = null;

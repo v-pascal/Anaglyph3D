@@ -30,8 +30,6 @@ public final class Internet {
     public static boolean isOnline(Context context, final int timeOut) {
         // Check Internet connection from any thread even UI thread (check INTERNET permission first)
 
-        mConnected = false;
-
         ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         if ((netInfo == null) || (!netInfo.isConnectedOrConnecting()))
@@ -41,6 +39,8 @@ public final class Internet {
             @Override
             public void run() {
                 try {
+
+                    mConnected = false;
 
                     URL url = new URL(DEFAULT_ONLINE_URL); // URL to check
                     HttpURLConnection connURL = (HttpURLConnection) url.openConnection();
