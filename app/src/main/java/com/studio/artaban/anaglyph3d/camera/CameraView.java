@@ -23,7 +23,6 @@ import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.process.ProcessActivity;
-import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -438,7 +437,7 @@ public class CameraView extends SurfaceView
             Logs.add(Logs.Type.W, "Try to stop a non-existent preview: " + e.getMessage());
         }
 
-        // Start preview with new settings
+        // Apply camera preview settings
         try {
 
             // set preview size and make any resize, rotate or
@@ -503,10 +502,17 @@ public class CameraView extends SurfaceView
                 // Prepare media recorder
                 prepareRecording();
             }
+        }
+        catch (Exception e) {
+            Logs.add(Logs.Type.E, "Error configuring camera preview: " + e.getMessage());
+        }
+
+        // Start camera preview
+        try {
             mCamera.setPreviewDisplay(mHolder);
             mCamera.startPreview();
         }
-        catch (Exception e) {
+        catch (IOException e) {
             Logs.add(Logs.Type.E, "Error starting camera preview: " + e.getMessage());
         }
     }
