@@ -192,9 +192,9 @@ public class SettingsActivity extends SettingsParentActivity
         mFpsList = (ListPreference)findPreference(Settings.DATA_KEY_FPS);
         mFpsList.setOnPreferenceChangeListener(this);
         updateFpsRanges();
-        if ((Settings.getInstance().mSimulated) || (Settings.getInstance().mNoFps))
-            mFpsList.setEnabled(false);
-            // Disable FPS if simulated 3D is requested or if no valid FPS is available
+
+        mFpsList.setEnabled(false);
+        // FPS setting removed
 
         mPositionSwitch = (SwitchPreference)findPreference(Settings.DATA_KEY_POSITION);
         mPositionSwitch.setChecked(Settings.getInstance().mPosition);
