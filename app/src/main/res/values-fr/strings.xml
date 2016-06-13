@@ -96,6 +96,7 @@
     <string name="confirm_delete">Etes-vous sûr de vouloir supprimer cette vidéo?</string>
     <string name="confirm_cancel_download">Etes-vous sûr de vouloir fermer l\'application et annuler ainsi le téléchargement?</string>
     <string name="confirm_download">Etes-vous sûr de vouloir télécharger les vidéos?</string>
+    <string name="confirm_cancel_process">Etes-vous sûr de vouloir annuler la création de la vidéo 3D anaglyphe?</string>
 
     <!-- Share to local folder activity -->
     <string name="my_files">Mes fichiers</string>

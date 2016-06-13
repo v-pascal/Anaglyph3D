@@ -1,6 +1,7 @@
 package com.studio.artaban.anaglyph3d.process;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
@@ -15,6 +16,7 @@ import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.process.configure.CorrectionActivity;
@@ -352,24 +354,22 @@ public class ProcessActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
 
+        // Confirm cancel by user
+        DisplayMessage.getInstance().alert(R.string.title_warning, R.string.confirm_cancel_process,
+                null, true, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == DialogInterface.BUTTON_POSITIVE) {
 
+                            // Send cancel request to remote device (this action will finish the activity)
+                            Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                                    ActivityWrapper.REQ_TYPE_CANCEL, null);
 
-
-
-
-
-        // Send cancel request to remote device (this action will finish the activity)
-        Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
-                ActivityWrapper.REQ_TYPE_CANCEL, null);
-
-
-
-
-
-
-
+                            finish();
+                        }
+                    }
+                });
     }
 
     @Override
