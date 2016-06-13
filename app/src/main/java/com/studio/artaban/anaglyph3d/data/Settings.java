@@ -403,23 +403,26 @@ public class Settings implements IConnectRequest {
 
         JSONObject reply = new JSONObject();
         if (type == REQ_TYPE_INITIALIZE) { // Initialize settings
-
             try {
+
                 mMaker = mPerformance < settings.getLong(DATA_KEY_PERFORMANCE);
 
                 // Update resolutions & fps ranges to merge available camera resolutions & fps of the
                 // remote device with the current ones.
                 final ArrayList<Size> mergedResolutions = getMergedResolutions(
                         settings.getJSONArray(DATA_KEY_RESOLUTIONS));
-                final ArrayList<int[]> mergedFpsRanges = getMergedFpsRanges(
-                        settings.getJSONArray(DATA_KEY_FPS));
+                //final ArrayList<int[]> mergedFpsRanges = getMergedFpsRanges(
+                //        settings.getJSONArray(DATA_KEY_FPS));
+                // NB: FPS setting removed
 
                 // Return maker flag & merged resolutions & fps ranges array (even if empties)
                 reply.put(DATA_KEY_PERFORMANCE, mMaker);
                 reply.put(DATA_KEY_RESOLUTIONS, getResolutionsArray(mergedResolutions));
-                reply.put(DATA_KEY_FPS, getFpsRangesArray(mergedFpsRanges));
+                //reply.put(DATA_KEY_FPS, getFpsRangesArray(mergedFpsRanges));
+                // NB: FPS setting removed
 
-                if ((!mergedResolutions.isEmpty()) && (!mergedFpsRanges.isEmpty())) {
+                //if ((!mergedResolutions.isEmpty()) && (!mergedFpsRanges.isEmpty())) { FPS setting removed
+                if (!mergedResolutions.isEmpty()) {
 
                     // Select resolution & fps (default)
                     mResolution = mResolutions.get(0);
@@ -567,13 +570,13 @@ public class Settings implements IConnectRequest {
 
         //
         if (type == REQ_TYPE_INITIALIZE) { // Initialization reply received
-
             try {
+
                 mMaker = !receive.getBoolean(DATA_KEY_PERFORMANCE);
 
                 JSONArray resolutions = receive.getJSONArray(DATA_KEY_RESOLUTIONS);
-                JSONArray fpsRanges = receive.getJSONArray(DATA_KEY_FPS);
-                //if ((resolutions.length() == 0) || (fpsRanges.length() == 0)) { // FPS setting removed
+                //JSONArray fpsRanges = receive.getJSONArray(DATA_KEY_FPS);
+                //if ((resolutions.length() == 0) || (fpsRanges.length() == 0)) { FPS setting removed
                 if (resolutions.length() == 0) {
 
                     // No available camera resolution or fps is matching between remote and local device
