@@ -117,11 +117,9 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
 
         //////
         mEditing = false;
-
-        if (isVideoCreation())
-            mNewVideoSaved = true;
-
+        mNewVideoSaved = isVideoCreation();
         mVideoSelected = 0;
+
         if ((fillVideoList()) && (mTwoPane)) {
 
             mDetailTag = DetailPlayerFragment.TAG;
@@ -188,9 +186,9 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
                 @Override
                 public void onClick(View sender) { // Change video selection
 
-                    mLastVideoSelected = mVideoSelected;
+                    int lastSelection = mVideoSelected;
                     mVideoSelected = holder.mPosition;
-                    notifyItemChanged(mLastVideoSelected);
+                    notifyItemChanged(lastSelection);
                     notifyItemChanged(mVideoSelected);
 
                     mDetailTag = DetailPlayerFragment.TAG;
@@ -241,7 +239,6 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
     }
 
     //
-    private int mLastVideoSelected = Constants.NO_DATA; // Previous selected video position
     private RecyclerView mVideosView; // Recycler view containing videos list
 
     private boolean fillVideoList() { // Fill video list recycler view
@@ -366,7 +363,6 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
                 (mVideoSelected != Constants.NO_DATA))) { // ...or a video that is already selected
 
             fillVideoList();
-            mLastVideoSelected = mVideoSelected;
             mDetailsDisplayed = true;
 
             // Display video details activity
@@ -386,7 +382,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             return;
         }
         if (mVideoSelected == Constants.NO_DATA)
-            mVideoSelected = mLastVideoSelected = 0;
+            mVideoSelected = 0;
 
         if (!fillVideoList())
             return; // No video to display

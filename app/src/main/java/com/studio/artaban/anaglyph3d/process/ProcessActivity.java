@@ -1,7 +1,6 @@
 package com.studio.artaban.anaglyph3d.process;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
@@ -16,7 +15,6 @@ import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
-import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.process.configure.CorrectionActivity;
@@ -55,7 +53,7 @@ public class ProcessActivity extends AppCompatActivity {
                         RecorderFragment.TAG).commit();
                 getSupportFragmentManager().executePendingTransactions();
 
-                // Wake lock during video recording
+                // Wake lock during video recording to avoid the screen off
                 mWakeLock = ((PowerManager)getSystemService(Context.POWER_SERVICE))
                         .newWakeLock(PowerManager.FULL_WAKE_LOCK, WAKE_LOCK_NAME);
                 mWakeLock.acquire();
@@ -77,8 +75,11 @@ public class ProcessActivity extends AppCompatActivity {
     private ProcessThread mProcessThread;
     public void startProcessing(Camera.Size picSize, byte[] picRaw) {
 
-        mWakeLock.release(); // Stop wake lock requested
-        mWakeLock = null;
+        // Restart wake lock to be able to run even if screen off
+        mWakeLock.release();
+        mWakeLock = ((PowerManager)getSystemService(Context.POWER_SERVICE))
+                .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_NAME);
+        mWakeLock.acquire();
 
         // Set unspecified orientation (default device orientation)
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
@@ -93,6 +94,10 @@ public class ProcessActivity extends AppCompatActivity {
         getSupportFragmentManager().executePendingTransactions();
     }
     public void finishProcessing() { // Called when video recorder failed to start
+
+        // Stop wake lock requested
+        mWakeLock.release();
+        mWakeLock = null;
 
         // Replace recorder with process fragment
         ProcessFragment process = new ProcessFragment();
@@ -355,7 +360,10 @@ public class ProcessActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        moveTaskToBack(true); // Put application into background (paused)
+        if (getSupportFragmentManager().findFragmentByTag(ProcessFragment.TAG) != null)
+            moveTaskToBack(true); // Put application into background (paused)
+        else
+            super.onBackPressed(); // Quit application
     }
 
     @Override

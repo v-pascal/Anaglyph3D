@@ -20,7 +20,7 @@ public final class Logs {
 
         final String caller = "[" + (new Exception().getStackTrace()[1].getClassName()) + "]" +
                               "{" + (new Exception().getStackTrace()[1].getMethodName()) + "} ";
-        final String msg = (message == null)? "":message;
+        final String msg = (message != null)? message:"";
         switch (type) {
             case V: Log.v(ANAGLYPH_3D_TAG, caller + msg); break;   // VERBOSE
             case I: Log.i(ANAGLYPH_3D_TAG, caller + msg); break;   // INFO

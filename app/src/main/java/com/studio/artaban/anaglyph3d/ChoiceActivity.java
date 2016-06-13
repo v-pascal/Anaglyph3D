@@ -54,6 +54,7 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
 
     public void onReal3D(View sender) {
 
+        Logs.add(Logs.Type.V, null);
         Settings.getInstance().mSimulated = false;
 
         ////// Start connect activity
@@ -62,6 +63,7 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
     }
     public void onSimulated3D(View sender) {
 
+        Logs.add(Logs.Type.V, null);
         Settings.getInstance().mSimulated = true;
 
         // Initialize camera settings
@@ -76,6 +78,7 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
     ////// Download videos
     @Override public void onPreExecute() {
 
+        Logs.add(Logs.Type.V, null);
         displayDownload(true);
         displayMenu();
 
@@ -93,6 +96,7 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
     @Override
     public void onPostExecute(int result, Parcelable[] videos) {
 
+        Logs.add(Logs.Type.V, "result: " + result);
         if (result != Constants.NO_DATA) { // Display error message
 
             displayDownload(false);
@@ -114,6 +118,8 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
 
     //
     private void displayDownload(boolean enable) { // Enable/Disable download videos UI components
+
+        Logs.add(Logs.Type.V, "enable: " + enable);
         if (enable) { // Enable download components
 
             final LinearLayout choice = (LinearLayout)findViewById(R.id.container_choice);
@@ -139,6 +145,7 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
     }
     public void displayMenu() { // Enable/Disable menu item according data
 
+        Logs.add(Logs.Type.V, null);
         assert mMenuOptions.getItem(0).getItemId() == R.id.menu_album;
         mMenuOptions.getItem(0).setEnabled(!mDownloadTask.isDownloading());
         assert mMenuOptions.getItem(1).getItemId() == R.id.menu_download;
@@ -149,6 +156,8 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null)?
+                savedInstanceState.toString():"null"));
         setContentView(R.layout.activity_choice);
 
         // Set current activity
@@ -221,6 +230,7 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
+        Logs.add(Logs.Type.V, "requestCode: " + requestCode + ", resultCode: " + resultCode);
         ActivityWrapper.set(this); // Set current activity
 
         if (requestCode == REQUEST_DOWNLOAD)
@@ -246,6 +256,8 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
 
     @Override
     public void onBackPressed() {
+
+        Logs.add(Logs.Type.V, null);
         if (mDownloadTask.isDownloading()) {
 
             moveTaskToBack(true); // Put application into background (paused)
@@ -258,6 +270,7 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
+        Logs.add(Logs.Type.V, null);
         getMenuInflater().inflate(R.menu.activity_connect, menu);
         mMenuOptions = menu;
 
@@ -267,6 +280,8 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+        Logs.add(Logs.Type.V, "item: " + ((item != null)? item.getItemId():"null"));
         switch (item.getItemId()) {
 
             case R.id.menu_album: {
@@ -325,9 +340,11 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
     protected void onStop(){
         super.onStop();
 
+        Logs.add(Logs.Type.V, null);
         SharedPreferences prefs = getSharedPreferences(PREFERENCE_NAME, 0);
         if (prefs != null) {
 
+            Logs.add(Logs.Type.I, null);
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean(PREFERENCE_DATA_DOWNLOADED, mDownloaded);
             editor.apply();
@@ -341,6 +358,7 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
         outState.putInt(DATA_KEY_PROGRESS_MAX, mProgressBar.getMax());
         outState.putString(DATA_KEY_INFO, mTextInfo.getText().toString());
 
+        Logs.add(Logs.Type.V, outState.toString());
         super.onSaveInstanceState(outState);
     }
 
@@ -348,8 +366,11 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
     protected void onDestroy() {
 
         super.onDestroy();
+        Logs.add(Logs.Type.V, null);
+
         if (isFinishing()) {
 
+            Logs.add(Logs.Type.I, null);
             Storage.removeTempFiles(false);
             if (mDownloadTask.isDownloading())
                 mDownloadTask.stop();
