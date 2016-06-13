@@ -299,7 +299,7 @@ public class CameraView extends SurfaceView
             else
                 mMediaRecorder.setVideoEncodingBitRate(3000000);
         }
-        //else // Use default FPS & Video Bit Rate or if user has confirmed a video recording
+        //else // Use default FPS & Video Bit Rate if user has confirmed a video recording
         //        without video quality setting applied (avoid start recorder failure)
 
         // Set orientation
