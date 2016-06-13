@@ -370,6 +370,44 @@ public class CameraView extends SurfaceView
         }
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public void stop() {
+
+        if (mCamera != null) {
+            mCamera.stopPreview();
+            mCamera.release();
+            mCamera = null;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     //
     public CameraView(Context context) {
         super(context);

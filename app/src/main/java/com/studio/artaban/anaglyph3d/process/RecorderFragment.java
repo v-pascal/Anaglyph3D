@@ -225,4 +225,27 @@ public class RecorderFragment extends Fragment {
 
         return rootView;
     }
+
+
+
+
+
+
+
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mCameraView.stop();
+    }
+
+
+
+
+
+
+
+
+
 }

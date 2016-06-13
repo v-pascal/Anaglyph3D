@@ -347,8 +347,28 @@ public class ProcessActivity extends AppCompatActivity {
         super.onPause();
 
         if ((!isFinishing()) &&
-                ((getSupportFragmentManager().findFragmentByTag(PositionFragment.TAG) != null) ||
-                 (getSupportFragmentManager().findFragmentByTag(RecorderFragment.TAG) != null))) {
+                (getSupportFragmentManager().findFragmentByTag(ProcessFragment.TAG) == null)) {
+
+
+
+
+
+
+
+
+
+
+            if (getSupportFragmentManager().findFragmentByTag(RecorderFragment.TAG) != null) {
+
+            }
+
+
+
+
+
+
+
+
 
             // Send cancel request to remote device
             Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
