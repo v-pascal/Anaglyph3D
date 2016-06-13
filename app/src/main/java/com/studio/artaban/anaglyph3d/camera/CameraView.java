@@ -275,44 +275,32 @@ public class CameraView extends SurfaceView
         mMediaRecorder.setCamera(mCamera);
         mMediaRecorder.setOnInfoListener(this);
 
+        // Set media sources
         mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.CAMERA);
         mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+
+        // Set video & audio encoder
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         mMediaRecorder.setVideoSize(Settings.getInstance().mResolution.width,
                 Settings.getInstance().mResolution.height);
 
+        // Attempt to apply best video quality such as FPS & Video Bit Rate according resolution
+        if (!Settings.getInstance().mNoFps) {
 
+            CamcorderProfile camProfile = getCameraProfile();
+            if (camProfile != null) {
 
-
-
-
-
-
-
-        CamcorderProfile camProfile = getCameraProfile();
-        if (camProfile != null) {
-
-            Logs.add(Logs.Type.I, "VBR: " + camProfile.videoBitRate + " FPS: " + camProfile.videoFrameRate);
-            mMediaRecorder.setVideoFrameRate(camProfile.videoFrameRate);
-            mMediaRecorder.setVideoEncodingBitRate(camProfile.videoBitRate);
+                Logs.add(Logs.Type.I, "VBR: " + camProfile.videoBitRate + " FPS: " + camProfile.videoFrameRate);
+                mMediaRecorder.setVideoFrameRate(camProfile.videoFrameRate);
+                mMediaRecorder.setVideoEncodingBitRate(camProfile.videoBitRate);
+            }
+            else
+                mMediaRecorder.setVideoEncodingBitRate(3000000);
         }
-        else
-            mMediaRecorder.setVideoEncodingBitRate(3000000);
-
-
-
-
-
-
-
-
-        /*
-        CamcorderProfile camProfile = getCameraProfile();
-        if (camProfile != null)
-            mMediaRecorder.setProfile(camProfile);
-
+        //else // Use default FPS & Video Bit Rate or if user has confirmed a video recording
+        //        without video quality setting applied (avoid start recorder failure)
 
         // Set orientation
         if (Settings.getInstance().mOrientation) { // Portrait
@@ -324,48 +312,7 @@ public class CameraView extends SurfaceView
         else if (Settings.getInstance().mReverse) // Landscape & reverse
             mMediaRecorder.setOrientationHint(180);
 
-        // Attempt to apply FPS setting (real 3D only)
-        if ((!Settings.getInstance().mSimulated) && (!Settings.getInstance().mNoFps))
-            mMediaRecorder.setVideoFrameRate(
-                    Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000);
-        //else // Use default FPS when simulated 3D is requested or if user has confirmed a video
-        //        recording without FPS setting applied (avoid start recorder failure)
-
-        mMediaRecorder.setVideoEncodingBitRate(3000000);
-        */
-
-
-
-
-
-        // Set orientation
-        if (Settings.getInstance().mOrientation) { // Portrait
-
-            mMediaRecorder.setOrientationHint(90);
-            if (Settings.getInstance().mReverse)
-                mMediaRecorder.setOrientationHint(270);
-        }
-        else if (Settings.getInstance().mReverse) // Landscape & reverse
-            mMediaRecorder.setOrientationHint(180);
-
-
-
-
-
-
-
-        // Attempt to apply FPS setting (real 3D only)
-        if ((!Settings.getInstance().mSimulated) && (!Settings.getInstance().mNoFps))
-            mMediaRecorder.setVideoFrameRate(
-                    Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000);
-        //else // Use default FPS when simulated 3D is requested or if user has confirmed a video
-        //        recording without FPS setting applied (avoid start recorder failure)
-
-
-
-
-
-
+        // Set duration & output file name
         mMediaRecorder.setMaxDuration(Settings.getInstance().mDuration * 1000);
         mMediaRecorder.setOutputFile(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_LOCAL_VIDEO);
 
@@ -505,32 +452,6 @@ public class CameraView extends SurfaceView
             mCamera.getParameters().setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
 
             if (mTakePicture) { // Check to prepare recording
-
-
-
-
-
-
-
-
-
-                if (!Settings.getInstance().mSimulated) { // Real 3D (that needs a specific FPS)
-
-                    mCamera.getParameters().setPreviewFpsRange(
-                            Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX],
-                            Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MAX_INDEX]);
-                    mCamera.getParameters().setPreviewFrameRate(
-                            Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000);
-                }
-                //else // Use default FPS when simulated 3D is requested (avoid start recorder failure)
-
-
-
-
-
-
-
-
 
                 mPreviewSize = mCamera.getParameters().getPreviewSize();
                 // NB: Needed in case where it failed to assign specific preview size

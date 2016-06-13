@@ -115,7 +115,7 @@
     <string name="picture_not_copied">WARNING: Failed to copy picture file into \'Pictures%1$s\' folder!</string>
 
     <!-- Process error -->
-    <string name="error_start_recording">Failed to start video recorder! Do you confirm disabling settings such as FPS to avoid this issue?</string>
+    <string name="error_start_recording">Failed to start video recorder! Do you confirm disabling settings such as the video quality to avoid this issue?</string>
     <string name="error_save_picture">Failed to save picture to set correction!</string>
     <string name="error_load_video">Failed to load local video!</string>
     <string name="error_correction_failed">WARNING: Failed to display correction image! Step cancelled.</string>

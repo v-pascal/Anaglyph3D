@@ -107,7 +107,7 @@
     <string name="picture_not_copied">ATTENTION: Echec durant la copie de l\'image vers le répertoire \'Pictures%1$s\'!</string>
 
     <!-- Process error -->
-    <string name="error_start_recording">Echec durant l\'enregistrement vidéo! Acceptez-vous de ne pas prendre en compte certains paramètres tel que le nombre de FPS afin d\'éviter cette erreur?</string>
+    <string name="error_start_recording">Echec durant l\'enregistrement vidéo! Acceptez-vous de ne pas prendre en compte certains paramètres tel que la qualité vidéo afin d\'éviter cette erreur?</string>
     <string name="error_save_picture">Impossible de sauvegarder l\'image de correction!</string>
     <string name="error_load_video">Impossible de charger la vidéo!</string>
     <string name="error_correction_failed">ATTENTION: Impossible d\'afficher les images de correction! Etape annulée.</string>
