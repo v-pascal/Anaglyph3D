@@ -1,6 +1,7 @@
 package com.studio.artaban.anaglyph3d.process;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.AudioManager;
@@ -14,6 +15,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.data.Constants;
+import com.studio.artaban.anaglyph3d.data.Settings;
+import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
+import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 /**
  * Created by pascal on 12/04/16.
@@ -22,6 +28,9 @@ import com.studio.artaban.anaglyph3d.R;
 public class ProcessFragment extends Fragment {
 
     public static final String TAG = "process";
+
+    // Data key
+    public static final String DATA_KEY_FAILED_RECORDING = "failedRecording";
 
     // Update progress bar, status text and step displayed
     public void updateProgress() {
@@ -106,6 +115,32 @@ public class ProcessFragment extends Fragment {
         updateProgress();
 
         return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Check if recorder has failed to start
+        if ((getArguments() != null) && (getArguments().getBoolean(DATA_KEY_FAILED_RECORDING, false))) {
+
+            // Send cancel request to remote device
+            Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                    ActivityWrapper.REQ_TYPE_CANCEL, null);
+
+            // Inform user on recorder failure
+            DisplayMessage.getInstance().alert(R.string.title_error, R.string.error_start_recording,
+                    null, true, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (which == DialogInterface.BUTTON_POSITIVE)
+                                Settings.getInstance().mNoFps = true;
+
+                            // Finish activity
+                            getActivity().finish();
+                        }
+                    });
+        }
     }
 
     @Override

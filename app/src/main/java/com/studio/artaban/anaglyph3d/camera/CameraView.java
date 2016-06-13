@@ -5,7 +5,9 @@ import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.content.Context;
+import android.media.CamcorderProfile;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.Surface;
@@ -36,10 +38,9 @@ import java.util.List;
 public class CameraView extends SurfaceView
         implements SurfaceHolder.Callback, MediaRecorder.OnInfoListener {
 
-    private static Camera getCamera() {
+    private static int getBackFacingCameraId() {
 
-        // Get back facing camera ID
-        int cameraId = -1;
+        int cameraId = Constants.NO_DATA;
         int cameraCount = Camera.getNumberOfCameras();
         for (int i = 0; i < cameraCount; ++i) {
             Camera.CameraInfo info = new Camera.CameraInfo();
@@ -49,6 +50,12 @@ public class CameraView extends SurfaceView
                 break;
             }
         }
+        return cameraId;
+    }
+    private static Camera getCamera() {
+
+        // Get back facing camera ID
+        int cameraId = getBackFacingCameraId();
         Camera camera = null;
         try {
             if (cameraId > 0)
@@ -122,6 +129,40 @@ public class CameraView extends SurfaceView
         camera.release();
         return true;
     }
+    private static CamcorderProfile getCameraProfile() {
+        // Find the best quality profile according resolution
+
+        int cameraId = getBackFacingCameraId();
+        int quality;
+        if (Build.VERSION.SDK_INT >= 21) {
+
+            if (Settings.getInstance().mResolution.height >= 2160)
+                quality = CamcorderProfile.QUALITY_HIGH_SPEED_2160P;
+            else if (Settings.getInstance().mResolution.height >= 1080)
+                quality = CamcorderProfile.QUALITY_HIGH_SPEED_1080P;
+            else if (Settings.getInstance().mResolution.height >= 720)
+                quality = CamcorderProfile.QUALITY_HIGH_SPEED_720P;
+            else if (Settings.getInstance().mResolution.height >= 480)
+                quality = CamcorderProfile.QUALITY_HIGH_SPEED_480P;
+            else
+                quality = CamcorderProfile.QUALITY_HIGH_SPEED_LOW;
+        }
+        else {
+
+            if (Settings.getInstance().mResolution.height >= 1080)
+                quality = CamcorderProfile.QUALITY_1080P;
+            else if (Settings.getInstance().mResolution.height >= 720)
+                quality = CamcorderProfile.QUALITY_720P;
+            else if (Settings.getInstance().mResolution.height >= 480)
+                quality = CamcorderProfile.QUALITY_480P;
+            else
+                quality = CamcorderProfile.QUALITY_LOW;
+        }
+        if (CamcorderProfile.hasProfile(cameraId, quality))
+            return CamcorderProfile.get(cameraId, quality);
+
+        return null;
+    }
 
     //////
     public Size getPreviewResolution() {
@@ -181,13 +222,10 @@ public class CameraView extends SurfaceView
             mMediaRecorder.reset();
             mMediaRecorder.release();
 
-            // Send cancel request to remote device
-            Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
-                    ActivityWrapper.REQ_TYPE_CANCEL, null);
-
-            // Inform user on recorder failure
-            ActivityWrapper.stopActivity(ProcessActivity.class,
-                    Constants.RESULT_FAILED_RECORDING, null);
+            try { ((ProcessActivity)ActivityWrapper.get()).finishProcessing(); }
+            catch (Exception e1) {
+                Logs.add(Logs.Type.F, "Unexpected activity reference");
+            }
             return false;
         }
         return true;
@@ -244,11 +282,18 @@ public class CameraView extends SurfaceView
         mMediaRecorder.setVideoSize(Settings.getInstance().mResolution.width,
                 Settings.getInstance().mResolution.height);
 
-        if ((!Settings.getInstance().mSimulated) && (!Settings.getInstance().mNoFps)) // Real 3D with
-            mMediaRecorder.setVideoFrameRate(                                            // FPS setting
-                    Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000);
-        //else // Use default FPS when simulated 3D is requested or if user has confirmed a video
-        //        recording without FPS setting applied (avoid start recorder failure)
+
+
+
+
+
+
+
+        /*
+        CamcorderProfile camProfile = getCameraProfile();
+        if (camProfile != null)
+            mMediaRecorder.setProfile(camProfile);
+
 
         // Set orientation
         if (Settings.getInstance().mOrientation) { // Portrait
@@ -260,8 +305,39 @@ public class CameraView extends SurfaceView
         else if (Settings.getInstance().mReverse) // Landscape & reverse
             mMediaRecorder.setOrientationHint(180);
 
+        // Attempt to apply FPS setting (real 3D only)
+        if ((!Settings.getInstance().mSimulated) && (!Settings.getInstance().mNoFps))
+            mMediaRecorder.setVideoFrameRate(
+                    Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000);
+        //else // Use default FPS when simulated 3D is requested or if user has confirmed a video
+        //        recording without FPS setting applied (avoid start recorder failure)
+
+        mMediaRecorder.setVideoEncodingBitRate(3000000);
+        */
+
+
+
+
+
+        // Set orientation
+        if (Settings.getInstance().mOrientation) { // Portrait
+
+            mMediaRecorder.setOrientationHint(90);
+            if (Settings.getInstance().mReverse)
+                mMediaRecorder.setOrientationHint(270);
+        }
+        else if (Settings.getInstance().mReverse) // Landscape & reverse
+            mMediaRecorder.setOrientationHint(180);
+
+        // Attempt to apply FPS setting (real 3D only)
+        if ((!Settings.getInstance().mSimulated) && (!Settings.getInstance().mNoFps))
+            mMediaRecorder.setVideoFrameRate(
+                    Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000);
+        //else // Use default FPS when simulated 3D is requested or if user has confirmed a video
+        //        recording without FPS setting applied (avoid start recorder failure)
+
+        mMediaRecorder.setVideoEncodingBitRate(5000000);
         mMediaRecorder.setMaxDuration(Settings.getInstance().mDuration * 1000);
-        mMediaRecorder.setVideoEncodingBitRate(15000000);
         mMediaRecorder.setOutputFile(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_LOCAL_VIDEO);
 
         try { mMediaRecorder.prepare(); }
@@ -362,7 +438,7 @@ public class CameraView extends SurfaceView
             Logs.add(Logs.Type.W, "Try to stop a non-existent preview: " + e.getMessage());
         }
 
-        // start preview with new settings
+        // Start preview with new settings
         try {
 
             // set preview size and make any resize, rotate or
@@ -393,7 +469,6 @@ public class CameraView extends SurfaceView
             mPreviewSize = getPreviewResolution();
             mCamera.getParameters().setPreviewSize(mPreviewSize.width, mPreviewSize.height);
             mCamera.getParameters().setPreviewFormat(ImageFormat.NV21);
-
             mCamera.getParameters().setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
             mCamera.getParameters().setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
             mCamera.getParameters().setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);

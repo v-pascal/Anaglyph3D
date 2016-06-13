@@ -50,7 +50,7 @@
                     android:layout_column="1"
                     android:layout_marginLeft="12dp"
                     android:layout_marginStart="12dp"
-                    android:textAppearance="@android:style/TextAppearance.Medium"
+                    android:textAppearance="@style/SettingTextStyle"
                     android:text="@string/step_correction" />
 
                 <!-- Video transfer & extraction -->
@@ -70,7 +70,7 @@
                     android:layout_column="1"
                     android:layout_marginLeft="12dp"
                     android:layout_marginStart="12dp"
-                    android:textAppearance="@android:style/TextAppearance.Medium"
+                    android:textAppearance="@style/SettingTextStyle"
                     android:text="@string/step_video" />
 
                 <!-- Frames conversion -->
@@ -90,7 +90,7 @@
                     android:layout_column="1"
                     android:layout_marginLeft="12dp"
                     android:layout_marginStart="12dp"
-                    android:textAppearance="@android:style/TextAppearance.Medium"
+                    android:textAppearance="@style/SettingTextStyle"
                     android:text="@string/step_frames" />
 
                 <!-- Make & transfer 3D video -->
@@ -110,7 +110,7 @@
                     android:layout_column="1"
                     android:layout_marginLeft="12dp"
                     android:layout_marginStart="12dp"
-                    android:textAppearance="@android:style/TextAppearance.Medium"
+                    android:textAppearance="@style/SettingTextStyle"
                     android:text="@string/step_anaglyph" />
 
             </GridLayout>
@@ -138,13 +138,13 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@android:style/TextAppearance.Medium"
+            android:textAppearance="@style/SettingTextStyle"
             android:text="@string/status_label" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="@android:style/TextAppearance.Medium"
+            android:textAppearance="@style/SettingTextStyle"
             android:id="@+id/status_text" />
 
     </LinearLayout>

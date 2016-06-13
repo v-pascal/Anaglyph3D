@@ -90,6 +90,18 @@ public class ProcessActivity extends AppCompatActivity {
         fragTransaction.replace(R.id.main_container, new ProcessFragment(), ProcessFragment.TAG).commit();
         getSupportFragmentManager().executePendingTransactions();
     }
+    public void finishProcessing() { // Called when video recorder failed to start
+
+        // Replace recorder with process fragment
+        ProcessFragment process = new ProcessFragment();
+        Bundle data = new Bundle();
+        data.putBoolean(ProcessFragment.DATA_KEY_FAILED_RECORDING, true);
+        process.setArguments(data);
+
+        FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
+        fragTransaction.replace(R.id.main_container, new ProcessFragment(), ProcessFragment.TAG).commit();
+        getSupportFragmentManager().executePendingTransactions();
+    }
 
     //
     public void onValidatePosition(View sender) {

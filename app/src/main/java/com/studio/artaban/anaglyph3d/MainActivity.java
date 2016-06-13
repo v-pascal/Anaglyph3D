@@ -2,6 +2,7 @@ package com.studio.artaban.anaglyph3d;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -224,6 +225,15 @@ public class MainActivity extends AppCompatActivity
         return false;
     }
 
+    private View mHeaderView; // Navigation header view
+    private void resizeHeader(int orientation) {
+
+        mHeaderView.getLayoutParams().height = getResources().getDimensionPixelSize(
+                (orientation == Configuration.ORIENTATION_LANDSCAPE)?
+                        R.dimen.header_height_land:
+                        R.dimen.header_height_port);
+    }
+
     //////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -266,6 +276,9 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         if (navigationView != null) {
 
+            mHeaderView = navigationView.getHeaderView(0);
+            resizeHeader(getResources().getConfiguration().orientation);
+
             navigationView.setNavigationItemSelectedListener(this);
             navigationView.setItemTextAppearance(R.style.NavDrawerTextStyle);
             if (Settings.getInstance().mSimulated) {
@@ -299,6 +312,12 @@ public class MainActivity extends AppCompatActivity
             assert imgGlass != null;
             imgGlass.startAnimation(anim);
         }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        resizeHeader(newConfig.orientation);
     }
 
     @Override
@@ -339,18 +358,6 @@ public class MainActivity extends AppCompatActivity
             case Constants.RESULT_NO_VIDEO: {
 
                 DisplayMessage.getInstance().toast(R.string.no_video, Toast.LENGTH_LONG);
-                break;
-            }
-            case Constants.RESULT_FAILED_RECORDING: {
-
-                DisplayMessage.getInstance().alert(R.string.title_error, R.string.error_start_recording,
-                        null, true, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (which == DialogInterface.BUTTON_POSITIVE)
-                                    Settings.getInstance().mNoFps = true;
-                            }
-                        });
                 break;
             }
         }
