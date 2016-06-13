@@ -342,34 +342,20 @@ public class ProcessActivity extends AppCompatActivity {
         super.onPause();
 
         if ((!isFinishing()) &&
-                (getSupportFragmentManager().findFragmentByTag(PositionFragment.TAG) != null)) {
-
-            finish(); // Finish activity when paused
+                ((getSupportFragmentManager().findFragmentByTag(PositionFragment.TAG) != null) ||
+                 (getSupportFragmentManager().findFragmentByTag(RecorderFragment.TAG) != null))) {
 
             // Send cancel request to remote device
             Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                     ActivityWrapper.REQ_TYPE_CANCEL, null);
+
+            finish(); // Finish activity when paused
         }
     }
 
     @Override
     public void onBackPressed() {
-
-        // Confirm cancel by user
-        DisplayMessage.getInstance().alert(R.string.title_warning, R.string.confirm_cancel_process,
-                null, true, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (which == DialogInterface.BUTTON_POSITIVE) {
-
-                            // Send cancel request to remote device (this action will finish the activity)
-                            Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
-                                    ActivityWrapper.REQ_TYPE_CANCEL, null);
-
-                            finish();
-                        }
-                    }
-                });
+        moveTaskToBack(true); // Put application into background (paused)
     }
 
     @Override
