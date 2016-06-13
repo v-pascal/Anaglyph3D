@@ -214,7 +214,13 @@ public class CameraView extends SurfaceView
     }
     private boolean startRecorder() {
 
-        try { mMediaRecorder.start(); }
+        try {
+            // Prepare media recorder
+            if (!prepareRecording())
+                throw new Exception();
+
+            mMediaRecorder.start();
+        }
         catch (Exception e) {
 
             Logs.add(Logs.Type.E, "Failed to start recorder");
@@ -255,10 +261,6 @@ public class CameraView extends SurfaceView
 
             mTakePicture = false;
             mCamera.stopPreview();
-            try { mCamera.setPreviewDisplay(null); }
-            catch (IOException e) {
-                Logs.add(Logs.Type.W, "Failed to remove preview display");
-            }
             mCamera.setPreviewCallback(null);
         }
         mCamera.unlock();
@@ -280,6 +282,24 @@ public class CameraView extends SurfaceView
         mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
         mMediaRecorder.setVideoSize(Settings.getInstance().mResolution.width,
                 Settings.getInstance().mResolution.height);
+
+
+
+
+
+
+
+
+
+        CamcorderProfile camProfile = getCameraProfile();
+        if (camProfile != null) {
+
+            Logs.add(Logs.Type.I, "VBR: " + camProfile.videoBitRate + " FPS: " + camProfile.videoFrameRate);
+            mMediaRecorder.setVideoFrameRate(camProfile.videoFrameRate);
+            mMediaRecorder.setVideoEncodingBitRate(camProfile.videoBitRate);
+        }
+        else
+            mMediaRecorder.setVideoEncodingBitRate(3000000);
 
 
 
@@ -328,6 +348,12 @@ public class CameraView extends SurfaceView
         else if (Settings.getInstance().mReverse) // Landscape & reverse
             mMediaRecorder.setOrientationHint(180);
 
+
+
+
+
+
+
         // Attempt to apply FPS setting (real 3D only)
         if ((!Settings.getInstance().mSimulated) && (!Settings.getInstance().mNoFps))
             mMediaRecorder.setVideoFrameRate(
@@ -335,7 +361,11 @@ public class CameraView extends SurfaceView
         //else // Use default FPS when simulated 3D is requested or if user has confirmed a video
         //        recording without FPS setting applied (avoid start recorder failure)
 
-        mMediaRecorder.setVideoEncodingBitRate(5000000);
+
+
+
+
+
         mMediaRecorder.setMaxDuration(Settings.getInstance().mDuration * 1000);
         mMediaRecorder.setOutputFile(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_LOCAL_VIDEO);
 
@@ -437,7 +467,7 @@ public class CameraView extends SurfaceView
             Logs.add(Logs.Type.W, "Try to stop a non-existent preview: " + e.getMessage());
         }
 
-        // Apply camera preview settings
+        // Apply camera preview settings and start it
         try {
 
             // set preview size and make any resize, rotate or
@@ -468,11 +498,21 @@ public class CameraView extends SurfaceView
             mPreviewSize = getPreviewResolution();
             mCamera.getParameters().setPreviewSize(mPreviewSize.width, mPreviewSize.height);
             mCamera.getParameters().setPreviewFormat(ImageFormat.NV21);
+
+            mCamera.getParameters().setRecordingHint(true);
             mCamera.getParameters().setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
             mCamera.getParameters().setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
             mCamera.getParameters().setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
 
             if (mTakePicture) { // Check to prepare recording
+
+
+
+
+
+
+
+
 
                 if (!Settings.getInstance().mSimulated) { // Real 3D (that needs a specific FPS)
 
@@ -483,6 +523,14 @@ public class CameraView extends SurfaceView
                             Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] / 1000);
                 }
                 //else // Use default FPS when simulated 3D is requested (avoid start recorder failure)
+
+
+
+
+
+
+
+
 
                 mPreviewSize = mCamera.getParameters().getPreviewSize();
                 // NB: Needed in case where it failed to assign specific preview size
@@ -498,17 +546,7 @@ public class CameraView extends SurfaceView
                         }
                     }
                 });
-
-                // Prepare media recorder
-                prepareRecording();
             }
-        }
-        catch (Exception e) {
-            Logs.add(Logs.Type.E, "Error configuring camera preview: " + e.getMessage());
-        }
-
-        // Start camera preview
-        try {
             mCamera.setPreviewDisplay(mHolder);
             mCamera.startPreview();
         }

@@ -235,7 +235,7 @@ public class ProcessThread extends Thread {
     //
     public static class ProgressStatus {
 
-        public String message = "";
+        public String message = "...";
         public int progress = 0;
         public int max = 1;
         public Step step = Step.CORRECTION;

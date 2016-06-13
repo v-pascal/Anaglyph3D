@@ -2,7 +2,6 @@ package com.studio.artaban.anaglyph3d.album.details;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,7 +17,6 @@ import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.album.AlbumActivity;
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
-import com.studio.artaban.anaglyph3d.data.Constants;
 
 import java.io.File;
 
@@ -55,7 +53,10 @@ public class DetailPlayerFragment extends Fragment {
         final ImageView thumbnail = (ImageView)rootView.findViewById(R.id.image_thumbnail);
         Uri thumbnailFile = Uri.fromFile(new File(mVideo.getThumbnailFile()));
         thumbnail.setImageURI(thumbnailFile);
-        thumbnail.setOnClickListener(new View.OnClickListener() {
+
+        // Add click listener on the play video image
+        final ImageView play = (ImageView)rootView.findViewById(R.id.image_play);
+        play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -66,20 +67,6 @@ public class DetailPlayerFragment extends Fragment {
                 startActivity(Intent.createChooser(intent, getContext().getString(R.string.chose_player)));
             }
         });
-
-        // Scale play image according panels displayed
-        final ImageView play = (ImageView)rootView.findViewById(R.id.image_play);
-        final Point screenSize = new Point();
-        getActivity().getWindowManager().getDefaultDisplay().getSize(screenSize);
-
-        float scale;
-        if (getResources().getBoolean(R.bool.w900dp))
-            scale = screenSize.y / 552f;
-        else // Portrait (50% of the screen width)
-            scale = screenSize.x / (float)(Constants.DRAWABLE_PLAY_SIZE << 1);
-
-        play.setScaleX(scale);
-        play.setScaleY(scale);
 
         // Fill video info
         TextView info = (TextView)rootView.findViewById(R.id.title);

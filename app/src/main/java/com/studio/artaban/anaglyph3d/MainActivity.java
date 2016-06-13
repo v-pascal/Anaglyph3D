@@ -20,6 +20,7 @@ import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -232,6 +233,11 @@ public class MainActivity extends AppCompatActivity
                 (orientation == Configuration.ORIENTATION_LANDSCAPE)?
                         R.dimen.header_height_land:
                         R.dimen.header_height_port);
+
+        ((LinearLayout)mHeaderView).setOrientation(
+                (orientation == Configuration.ORIENTATION_LANDSCAPE)?
+                        LinearLayout.HORIZONTAL:
+                        LinearLayout.VERTICAL);
     }
 
     //////

@@ -99,7 +99,7 @@ public class ProcessActivity extends AppCompatActivity {
         process.setArguments(data);
 
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
-        fragTransaction.replace(R.id.main_container, new ProcessFragment(), ProcessFragment.TAG).commit();
+        fragTransaction.replace(R.id.main_container, process, ProcessFragment.TAG).commit();
         getSupportFragmentManager().executePendingTransactions();
     }
 
@@ -354,9 +354,22 @@ public class ProcessActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
 
+
+
+
+
+
+
         // Send cancel request to remote device (this action will finish the activity)
         Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                 ActivityWrapper.REQ_TYPE_CANCEL, null);
+
+
+
+
+
+
+
     }
 
     @Override

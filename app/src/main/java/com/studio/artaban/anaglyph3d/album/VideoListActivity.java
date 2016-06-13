@@ -43,8 +43,11 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
     public static List<AlbumTable.Video> mVideos; // Album (videos list)
 
     //////
+    private static final String DATA_KEY_DETAILS = "details";
+
     private Database mDB; // Activity database (video add, delete or update is done in this activity)
     private boolean mTwoPane; // Flag to know if displaying both list & details panels
+    private boolean mDetailsDisplayed; // Detail activity displayed flag
 
     private boolean mLockMessage; // Flag to know if needed to display video saved message (see 'onSave' method)
 
@@ -202,6 +205,8 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
                     else {
 
                         // Display video details activity
+                        mDetailsDisplayed = true;
+
                         Intent intent = new Intent(VideoListActivity.this, VideoDetailActivity.class);
                         intent.putExtra(AlbumActivity.DATA_VIDEO_POSITION, mVideoSelected);
 
@@ -298,6 +303,8 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
 
         // Restore videos album (manage video selection & info), and check connection for default result
         restoreVideosAlbum(savedInstanceState);
+        if (savedInstanceState != null)
+            mDetailsDisplayed = savedInstanceState.getBoolean(DATA_KEY_DETAILS, false);
 
         // Open database & get video entries
         mDB = new Database(this);
@@ -355,11 +362,12 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             mDetailTag = DetailEditFragment.TAG;
 
         // Check if only videos list will be displayed with...
-        if ((!mTwoPane) && ((isVideoCreation()) || // ...a creation request...
+        if ((!mTwoPane) && (!mDetailsDisplayed) && ((isVideoCreation()) || // ...a creation request...
                 (mVideoSelected != Constants.NO_DATA))) { // ...or a video that is already selected
 
             fillVideoList();
             mLastVideoSelected = mVideoSelected;
+            mDetailsDisplayed = true;
 
             // Display video details activity
             Intent intent = new Intent(this, VideoDetailActivity.class);
@@ -405,6 +413,8 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             Logs.add(Logs.Type.F, "Unexpected request code");
             return;
         }
+        mDetailsDisplayed = false;
+
         switch (resultCode) {
             case Constants.RESULT_LOST_CONNECTION: {
 
@@ -449,6 +459,13 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
                 break;
             }
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+
+        outState.putBoolean(DATA_KEY_DETAILS, mDetailsDisplayed);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
