@@ -52,7 +52,7 @@
 
     <!-- User messages -->
     <string name="camera_disabled">Failed to acquire camera feature! It may be used by another application.</string>
-    <string name="warning_not_matching">The available camera resolutions &amp; FPS of the device you attempt to connect are not matching with your own device!\n\nRemote device:</string>
+    <string name="warning_not_matching">The available camera resolutions of the device you attempt to connect are not matching with your own device!\n\nRemote device:</string>
     <string name="connection_lost">WARNING: Connection lost!</string>
     <string name="connection_error">ERROR: Data transfer error! Connection closed.</string>
     <string name="not_discoverable">WARNING: Bluetooth discoverable permission has expired! Restart application to make it visible again.</string>

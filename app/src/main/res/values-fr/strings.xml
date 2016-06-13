@@ -52,7 +52,7 @@
 
     <!-- User messages -->
     <string name="camera_disabled">Impossible d\'accéder à la caméra! Celle-ci doit être utilisée par une autre application.</string>
-    <string name="warning_not_matching">Aucune des resolutions &amp; FPS de la caméra distante ne corresponde à l\'une des vôtres!\n\nPériphérique distant:</string>
+    <string name="warning_not_matching">Aucune des resolutions de la caméra distante ne corresponde à l\'une des vôtres!\n\nPériphérique distant:</string>
     <string name="connection_lost">ATTENTION: Connexion perdu!</string>
     <string name="connection_error">ATTENTION: Erreur durant le transfert de données! Connexion fermé.</string>
     <string name="not_discoverable">ATTENTION: L\'autorisation de visibilité Bluetooth a expiré! Redémarrez l\'application pour l\'autoriser à nouveau.</string>

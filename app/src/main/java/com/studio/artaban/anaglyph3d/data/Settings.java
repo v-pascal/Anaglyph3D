@@ -153,8 +153,10 @@ public class Settings implements IConnectRequest {
     }
 
     private void checkNoFps() { // Check if at least one valid FPS is available (!= 1)
-        if ((mFpsRanges.size() == 1) && (mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] == 1))
-            mNoFps = true;
+
+        //if ((mFpsRanges.size() == 1) && (mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] == 1))
+        //    mNoFps = true;
+        // NB: FPS setting removed
     }
 
     ////// Data
@@ -571,7 +573,8 @@ public class Settings implements IConnectRequest {
 
                 JSONArray resolutions = receive.getJSONArray(DATA_KEY_RESOLUTIONS);
                 JSONArray fpsRanges = receive.getJSONArray(DATA_KEY_FPS);
-                if ((resolutions.length() == 0) || (fpsRanges.length() == 0)) {
+                //if ((resolutions.length() == 0) || (fpsRanges.length() == 0)) { // FPS setting removed
+                if (resolutions.length() == 0) {
 
                     // No available camera resolution or fps is matching between remote and local device
                     Connectivity.getInstance().mNotMatchingDevices.add(mRemoteDevice);
@@ -585,7 +588,8 @@ public class Settings implements IConnectRequest {
 
                 // Remove resolutions & fps ranges that are not matching with the remote device
                 getMergedResolutions(resolutions);
-                getMergedFpsRanges(fpsRanges);
+                //getMergedFpsRanges(fpsRanges);
+                // NB: FPS setting removed
 
                 // Select resolution & fps (default)
                 mResolution = mResolutions.get(0);
