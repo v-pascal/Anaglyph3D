@@ -96,7 +96,7 @@ public class Settings implements IConnectRequest {
     public boolean initialize() { // Initialize camera settings
 
         // Set up default settings
-        mOrientation = Constants.CONFIG_DEFAULT_ORIENTATION;
+        mOrientation = !mSimulated;
         mDuration = Constants.CONFIG_DEFAULT_DURATION;
 
         mMaker = true;
@@ -172,7 +172,7 @@ public class Settings implements IConnectRequest {
     public boolean mPosition = true; // Left camera position (false for right position)
     public boolean mReverse = false; // Reverse device orientation flag (see 'onReversePosition' method)
     public Size mResolution; // Selected resolution
-    public boolean mOrientation = Constants.CONFIG_DEFAULT_ORIENTATION; // Portrait orientation (false for landscape orientation)
+    public boolean mOrientation = true; // Portrait orientation (false for landscape orientation)
     public short mDuration = Constants.CONFIG_DEFAULT_DURATION; // Video duration (in seconds)
     public int[] mFps; // Frames per second range (scaled by 1000)
     public boolean mNoFps = false; // FPS setting use flag
