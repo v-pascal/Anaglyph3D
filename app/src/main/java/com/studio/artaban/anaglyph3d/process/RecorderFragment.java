@@ -38,10 +38,21 @@ public class RecorderFragment extends Fragment {
     //////
     private CameraView mCameraView;
 
+    private boolean mCancelled;
+    public void cancel() {
+
+        mCancelled = true;
+        mCameraView.release();
+    }
+
+    //
     private ImageView mImageCounter;
     private int mCounter = MAX_COUNTER;
 
     private void downCount() { // Display down count update
+
+        if (mCancelled)
+            return;
 
         if (mCounter == 0) { // Finished to display down count...
 
@@ -83,6 +94,9 @@ public class RecorderFragment extends Fragment {
             @Override public void onAnimationRepeat(Animation animation) { }
             @Override
             public void onAnimationEnd(Animation animation) {
+
+                if (mCancelled)
+                    return;
 
                 if (Settings.getInstance().isMaker())
                     return; // ...only for device which is not the maker
@@ -158,7 +172,7 @@ public class RecorderFragment extends Fragment {
 
             mRecordingLayout.setVisibility(View.VISIBLE);
 
-            if (mProgress++ != Settings.getInstance().mDuration)
+            if ((mProgress++ != Settings.getInstance().mDuration) && (!mCancelled))
                 mRecordingHandler.postDelayed(this, 1000);
         }
     };
@@ -231,16 +245,14 @@ public class RecorderFragment extends Fragment {
 
 
 
-
-
-
+    /*
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mCameraView.stop();
+    public void onStop() {
+        super.onStop();
+        if (mCancelled)
+            mCameraView.release();
     }
-
-
+    */
 
 
 

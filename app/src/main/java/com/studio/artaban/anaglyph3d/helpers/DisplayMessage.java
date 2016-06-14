@@ -41,7 +41,7 @@ public class DisplayMessage {
                             dialog.setPositiveButton(ActivityWrapper.get().getResources().getString(android.R.string.ok),
                                             validListener)
                                     .setNegativeButton(ActivityWrapper.get().getResources().getString(android.R.string.cancel),
-                                            null)
+                                            validListener)
                                     .setCancelable(false);
 
                         // Display dialog

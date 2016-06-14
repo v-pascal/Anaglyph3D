@@ -12,8 +12,6 @@ import com.studio.artaban.anaglyph3d.MainActivity;
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.process.ProcessActivity;
-import com.studio.artaban.anaglyph3d.process.configure.CorrectionActivity;
-import com.studio.artaban.anaglyph3d.process.configure.SynchroActivity;
 import com.studio.artaban.anaglyph3d.transfer.IConnectRequest;
 
 import java.io.ByteArrayOutputStream;
@@ -36,11 +34,15 @@ public class ActivityWrapper implements IConnectRequest {
     public static final byte REQ_TYPE_CANCEL = 3; // Cancel recording command
     public static final byte REQ_TYPE_DOWNCOUNT = 4; // Update down count command
 
+    private boolean mCancelled; // Recording cancel flag (from remote device)
+
     private String replyRequest(byte type) {
         try {
-            if (type == REQ_TYPE_START)
-                ((ProcessActivity)get()).startRecording();
+            if (type == REQ_TYPE_START) {
 
+                mCancelled = false;
+                ((ProcessActivity) get()).startRecording();
+            }
             else // REQ_TYPE_DOWNCOUNT
                 ((ProcessActivity)get()).updateRecording();
 
@@ -52,7 +54,10 @@ public class ActivityWrapper implements IConnectRequest {
         catch (ClassCastException e) {
             Logs.add(Logs.Type.F, "Unexpected activity reference");
         }
-        return Constants.CONN_REQUEST_ANSWER_FALSE;
+
+        return (mCancelled)? Constants.CONN_REQUEST_ANSWER_TRUE:Constants.CONN_REQUEST_ANSWER_FALSE;
+        // NB: Needed when cancel command has been received with a down count pending request (this
+        //     avoid to close connection when occurred)
     }
 
     //
@@ -100,10 +105,18 @@ public class ActivityWrapper implements IConnectRequest {
 
             case REQ_TYPE_CANCEL: {
 
-                // Close process activity (after having close any descent activities if any)
-                stopActivity(CorrectionActivity.class, Constants.NO_DATA, null);
-                stopActivity(SynchroActivity.class, Constants.NO_DATA, null);
+                // Cancel recorder (if needed)
+                try { ((ProcessActivity)ActivityWrapper.get()).cancelRecorder(); }
+                catch (NullPointerException e1) {
+                    Logs.add(Logs.Type.F, "Wrong activity reference");
+                }
+                catch (ClassCastException e1) {
+                    Logs.add(Logs.Type.F, "Wrong activity class");
+                }
+
+                // Close process activity
                 stopActivity(ProcessActivity.class, Constants.NO_DATA, null);
+                mCancelled = true;
 
                 break; // Reply not considered (see below)
             }

@@ -23,6 +23,7 @@ import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.process.ProcessActivity;
+import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -213,8 +214,8 @@ public class CameraView extends SurfaceView
         }, Constants.CONN_WAIT_DELAY << 1);
     }
     private boolean startRecorder() {
-
         try {
+
             // Prepare media recorder
             if (!prepareRecording())
                 throw new Exception();
@@ -224,13 +225,33 @@ public class CameraView extends SurfaceView
         catch (Exception e) {
 
             Logs.add(Logs.Type.E, "Failed to start recorder");
-            mMediaRecorder.reset();
-            mMediaRecorder.release();
 
-            try { ((ProcessActivity)ActivityWrapper.get()).finishProcessing(); }
-            catch (Exception e1) {
-                Logs.add(Logs.Type.F, "Unexpected activity reference");
+            // Cancel recorder
+            try { ((ProcessActivity)ActivityWrapper.get()).cancelRecorder(); }
+            catch (NullPointerException e1) {
+                Logs.add(Logs.Type.F, "Wrong activity reference");
             }
+            catch (ClassCastException e1) {
+                Logs.add(Logs.Type.F, "Wrong activity class");
+            }
+
+            // Send cancel request to remote device
+            Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                    ActivityWrapper.REQ_TYPE_CANCEL, null);
+
+            // Inform user on recorder failure
+            DisplayMessage.getInstance().alert(R.string.title_error, R.string.error_start_recording,
+                    null, true, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (which == DialogInterface.BUTTON_POSITIVE)
+                                Settings.getInstance().mNoFps = true;
+
+                            // Finish activity
+                            ActivityWrapper.stopActivity(ProcessActivity.class, Constants.NO_DATA, null);
+                        }
+                    });
+
             return false;
         }
         return true;
@@ -333,6 +354,7 @@ public class CameraView extends SurfaceView
             // The video recording has finished
             mMediaRecorder.reset();
             mMediaRecorder.release();
+            mMediaRecorder = null;
 
             try { ((ProcessActivity)ActivityWrapper.get()).startProcessing(mPreviewSize, mRawPicture); }
             catch (Exception e) {
@@ -346,6 +368,7 @@ public class CameraView extends SurfaceView
     private Camera mCamera;
 
     private MediaRecorder mMediaRecorder;
+
     private Size mPreviewSize;
     private boolean mTakePicture;
     private byte[] mRawPicture;
@@ -362,51 +385,20 @@ public class CameraView extends SurfaceView
 
         // ...and needed during a lock/unlock screen operation
     }
-    private void release() {
+    public void release() {
 
-        if (mCamera != null) {
-            mCamera.release();
-            mCamera = null;
+        if (mMediaRecorder != null) {
+            mMediaRecorder.reset();
+            mMediaRecorder.release();
+            mMediaRecorder = null;
         }
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public void stop() {
-
         if (mCamera != null) {
             mCamera.stopPreview();
+            mCamera.setPreviewCallback(null);
             mCamera.release();
             mCamera = null;
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     //
     public CameraView(Context context) {
@@ -508,6 +500,9 @@ public class CameraView extends SurfaceView
             }
             mCamera.setPreviewDisplay(mHolder);
             mCamera.startPreview();
+        }
+        catch (NullPointerException e) {
+            Logs.add(Logs.Type.W, "Camera not ready: " + e.getMessage());
         }
         catch (IOException e) {
             Logs.add(Logs.Type.E, "Error starting camera preview: " + e.getMessage());

@@ -33,7 +33,9 @@ import com.studio.artaban.libGST.GstObject;
 public class ProcessActivity extends AppCompatActivity {
 
     private static final String WAKE_LOCK_NAME = "Anaglyph-3D";
+
     private WakeLock mWakeLock; // To avoid device in pause during video recording
+    private boolean mBackPressed; // Back pressed flag (to distinguish user and remote request operation)
 
     private static final int DOWNCOUNT_DELAY = 1000; // Delay between down count (simulated 3D only)
 
@@ -72,6 +74,7 @@ public class ProcessActivity extends AppCompatActivity {
             }
         });
     }
+
     private ProcessThread mProcessThread;
     public void startProcessing(Camera.Size picSize, byte[] picRaw) {
 
@@ -93,24 +96,26 @@ public class ProcessActivity extends AppCompatActivity {
         fragTransaction.replace(R.id.main_container, new ProcessFragment(), ProcessFragment.TAG).commit();
         getSupportFragmentManager().executePendingTransactions();
     }
-    public void finishProcessing() { // Called when video recorder failed to start
+    public boolean cancelRecorder() {
 
-        // Stop wake lock requested
-        mWakeLock.release();
-        mWakeLock = null;
+        // Stop wake lock requested (if needed)
+        if (mWakeLock != null) {
+            mWakeLock.release();
+            mWakeLock = null;
+        }
 
-        // Replace recorder with process fragment
-        ProcessFragment process = new ProcessFragment();
-        Bundle data = new Bundle();
-        data.putBoolean(ProcessFragment.DATA_KEY_FAILED_RECORDING, true);
-        process.setArguments(data);
+        RecorderFragment recorder = (RecorderFragment)getSupportFragmentManager()
+                .findFragmentByTag(RecorderFragment.TAG);
+        if (recorder != null) {
 
-        FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
-        fragTransaction.replace(R.id.main_container, process, ProcessFragment.TAG).commit();
-        getSupportFragmentManager().executePendingTransactions();
+            recorder.cancel();
+            return true;
+        }
+        Logs.add(Logs.Type.I, "No recorder fragment to cancel");
+        return false;
     }
 
-    //
+    //////
     public void onValidatePosition(View sender) {
         // User has confirmed to start video recorder
 
@@ -189,8 +194,8 @@ public class ProcessActivity extends AppCompatActivity {
 
         // Change orientation
         if (Settings.getInstance().mOrientation)
-            setRequestedOrientation((!Settings.getInstance().mReverse)?
-                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT:ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
+            setRequestedOrientation((!Settings.getInstance().mReverse) ?
+                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT : ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT);
         else
             setRequestedOrientation((!Settings.getInstance().mReverse)?
                     ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
@@ -238,6 +243,20 @@ public class ProcessActivity extends AppCompatActivity {
                 Logs.add(Logs.Type.E, e.getMessage());
             }
         }
+    }
+
+    //
+    private void cancelProcess() {
+        // Cancel any current operation due to an user action (pause or back pressed)
+
+        RecorderFragment recorder = (RecorderFragment)getSupportFragmentManager()
+                .findFragmentByTag(RecorderFragment.TAG);
+        if (recorder != null)
+            recorder.cancel();
+
+        // Send cancel request to remote device
+        Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
+                ActivityWrapper.REQ_TYPE_CANCEL, null);
     }
 
     //////
@@ -345,45 +364,31 @@ public class ProcessActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        Logs.add(Logs.Type.V, "isFinishing: " + ((isFinishing())? "true":"false"));
 
-        if ((!isFinishing()) &&
-                (getSupportFragmentManager().findFragmentByTag(ProcessFragment.TAG) == null)) {
+        if (!isFinishing()) { ////// Pause
 
+            if (getSupportFragmentManager().findFragmentByTag(ProcessFragment.TAG) == null) {
+                // Position or Recorder fragment displayed
 
-
-
-
-
-
-
-
-
-            if (getSupportFragmentManager().findFragmentByTag(RecorderFragment.TAG) != null) {
-
+                cancelProcess();
+                finish(); // Finish activity when paused
             }
-
-
-
-
-
-
-
-
-
-            // Send cancel request to remote device
-            Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
-                    ActivityWrapper.REQ_TYPE_CANCEL, null);
-
-            finish(); // Finish activity when paused
+            //else // Let's pause if process fragment is displayed
         }
+        else if (mBackPressed) ////// Finish
+            cancelProcess();
     }
 
     @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().findFragmentByTag(ProcessFragment.TAG) != null)
             moveTaskToBack(true); // Put application into background (paused)
-        else
+
+        else {
+            mBackPressed = true;
             super.onBackPressed(); // Quit application
+        }
     }
 
     @Override
