@@ -19,6 +19,7 @@ import android.widget.NumberPicker;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 import org.json.JSONObject;
@@ -38,13 +39,17 @@ public class SettingsActivity extends SettingsParentActivity
         private NumberPicker mNumberPicker;
 
         public NumberPickerPreference(Context context, AttributeSet attrs) {
+
             super(context, attrs);
+            Logs.add(Logs.Type.V, null);
+
             setDialogLayoutResource(R.layout.number_dialog);
             setPersistent(false); // Do not store preference (always use default)
         }
 
         @Override
         public void setDefaultValue(Object defaultValue) {
+            Logs.add(Logs.Type.V, "defaultValue: " + ((int)defaultValue));
 
             mNumberValue = (int)defaultValue;
             persistInt(mNumberValue);
@@ -54,6 +59,7 @@ public class SettingsActivity extends SettingsParentActivity
         @Override
         protected View onCreateDialogView() {
             View dialogView = super.onCreateDialogView();
+            Logs.add(Logs.Type.V, "dialogView: " + ((dialogView != null)? dialogView.toString():"null"));
 
             mNumberPicker = (NumberPicker)dialogView.findViewById(R.id.numberPicker);
             mNumberPicker.setMinValue(mMin);
@@ -66,6 +72,8 @@ public class SettingsActivity extends SettingsParentActivity
 
         @Override
         protected void onDialogClosed(boolean positiveResult) {
+
+            Logs.add(Logs.Type.V, "positiveResult: " + positiveResult);
             if (positiveResult) {
 
                 mNumberValue = mNumberPicker.getValue();
@@ -85,31 +93,38 @@ public class SettingsActivity extends SettingsParentActivity
     // Update settings preferences (used to apply remote device settings update)
     public void update(final JSONObject settings) {
 
+        Logs.add(Logs.Type.V, "settings: " + ((settings != null)? settings.toString():"null"));
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
 
                 if (settings.has(Settings.DATA_KEY_POSITION)) {
 
+                    Logs.add(Logs.Type.I, Settings.DATA_KEY_POSITION);
                     mPositionLock = true;
                     mPositionSwitch.setChecked(Settings.getInstance().mPosition);
                 }
                 if (settings.has(Settings.DATA_KEY_ORIENTATION)) {
 
+                    Logs.add(Logs.Type.I, Settings.DATA_KEY_ORIENTATION);
                     mOrientationLock = true;
                     mOrientationSwitch.setChecked(Settings.getInstance().mOrientation);
                     if (!settings.has(Settings.DATA_KEY_RESOLUTION))
                         updateResolutions();
                     //else // Done below
                 }
-                if (settings.has(Settings.DATA_KEY_RESOLUTION))
+                if (settings.has(Settings.DATA_KEY_RESOLUTION)) {
+                    Logs.add(Logs.Type.I, Settings.DATA_KEY_RESOLUTION);
                     updateResolutions();
-
-                if (settings.has(Settings.DATA_KEY_DURATION))
-                    mDurationPreference.setDefaultValue((int)Settings.getInstance().mDuration);
-
-                if (settings.has(Settings.DATA_KEY_FPS))
+                }
+                if (settings.has(Settings.DATA_KEY_DURATION)) {
+                    Logs.add(Logs.Type.I, Settings.DATA_KEY_DURATION);
+                    mDurationPreference.setDefaultValue((int) Settings.getInstance().mDuration);
+                }
+                if (settings.has(Settings.DATA_KEY_FPS)) {
+                    Logs.add(Logs.Type.I, Settings.DATA_KEY_FPS);
                     updateFpsRanges();
+                }
 
                 //
                 mPositionLock = false;
@@ -120,6 +135,7 @@ public class SettingsActivity extends SettingsParentActivity
 
     // Fill & Set resolutions preference list and value
     private void updateResolutions() {
+        Logs.add(Logs.Type.V, null);
 
         final String[] resolutions = Settings.getInstance().getResolutions();
         mResolutionList.setEntries(resolutions);
@@ -133,6 +149,7 @@ public class SettingsActivity extends SettingsParentActivity
 
     // Fill & Set fps ranges preference list and value
     private void updateFpsRanges() {
+        Logs.add(Logs.Type.V, null);
 
         final String[] fpsRanges = Settings.getInstance().getFpsRanges();
         mFpsList.setEntries(fpsRanges);
@@ -164,6 +181,8 @@ public class SettingsActivity extends SettingsParentActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null) ?
+                savedInstanceState.toString() : "null"));
         addPreferencesFromResource(R.xml.settings_preference);
 
         // Set current activity
@@ -238,10 +257,12 @@ public class SettingsActivity extends SettingsParentActivity
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         if (preference.getKey().equals(Settings.DATA_KEY_POSITION)) {
+            Logs.add(Logs.Type.I, Settings.DATA_KEY_POSITION);
             if (mPositionLock) {
                 mPositionLock = false;
                 return true;
             }
+            Logs.add(Logs.Type.D, null);
 
             // Avoid to send request to remote device if the setting has not changed
             if (Settings.getInstance().mPosition == (boolean)newValue)
@@ -257,10 +278,12 @@ public class SettingsActivity extends SettingsParentActivity
             return true;
         }
         else if (preference.getKey().equals(Settings.DATA_KEY_ORIENTATION)) {
+            Logs.add(Logs.Type.I, Settings.DATA_KEY_ORIENTATION);
             if (mOrientationLock) {
                 mOrientationLock = false;
                 return true;
             }
+            Logs.add(Logs.Type.D, null);
 
             // Avoid to send request to remote device if the setting has not changed
             if (Settings.getInstance().mOrientation == (boolean)newValue)
@@ -278,6 +301,7 @@ public class SettingsActivity extends SettingsParentActivity
             return true;
         }
         else if (preference.getKey().equals(Settings.DATA_KEY_RESOLUTION)) {
+            Logs.add(Logs.Type.I, Settings.DATA_KEY_RESOLUTION);
 
             preference.setSummary((String) newValue);
             Settings.getInstance().setResolution((String) newValue,
@@ -287,6 +311,7 @@ public class SettingsActivity extends SettingsParentActivity
             return true;
         }
         else if (preference.getKey().equals(Settings.DATA_KEY_FPS)) {
+            Logs.add(Logs.Type.I, Settings.DATA_KEY_FPS);
 
             preference.setSummary((String) newValue);
             Settings.getInstance().setFps((String) newValue,
@@ -303,8 +328,10 @@ public class SettingsActivity extends SettingsParentActivity
 
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
+
+        Logs.add(Logs.Type.V, "item: " + ((item != null)? item.getItemId():"null"));
+        if (item.getItemId() == android.R.id.home) {
+
             if (!super.onMenuItemSelected(featureId, item))
                 NavUtils.navigateUpFromSameTask(this);
 

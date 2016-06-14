@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity
     private int mNavItemSelected = Constants.NO_DATA; // Id of the selected navigation item (or -1 if none)
     private void onSelectNavItem() {
 
+        Logs.add(Logs.Type.V, "mNavItemSelected: " + mNavItemSelected);
         switch (mNavItemSelected) {
             case R.id.navAlbum: {
 
@@ -91,6 +92,7 @@ public class MainActivity extends AppCompatActivity
     }
     private boolean checkMemorySpace() { // Return if storage memory space is enough to process (maker)
 
+        Logs.add(Logs.Type.V, null);
         if (Settings.getInstance().isMaker()) {
             long storageNeed = Storage.isStorageEnough();
 
@@ -113,6 +115,7 @@ public class MainActivity extends AppCompatActivity
 
     private void positionGlass(ImageView glass) { // Position glass image according setting
 
+        Logs.add(Logs.Type.V, "glass: " + ((glass != null)? glass.toString():"null"));
         RelativeLayout.LayoutParams imgParams = new RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.WRAP_CONTENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -135,6 +138,7 @@ public class MainActivity extends AppCompatActivity
     }
     private void displayGlass(ImageView glass) { // Display animation glass
 
+        Logs.add(Logs.Type.V, "glass: " + ((glass != null)? glass.toString():"null"));
         positionGlass(glass);
 
         // Anim glass
@@ -147,6 +151,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void displayPosition(final boolean back) {
+
+        Logs.add(Logs.Type.V, "back: " + back);
 
         // Display remote device name into subtitle (with position)
         final StringBuilder subTitle = new StringBuilder();
@@ -180,6 +186,7 @@ public class MainActivity extends AppCompatActivity
                         }
                         else {
 
+                            Logs.add(Logs.Type.I, "Hide glass");
                             TranslateAnimation anim = new TranslateAnimation(
                                     Animation.RELATIVE_TO_SELF, 0f, Animation.RELATIVE_TO_SELF,
                                     (Settings.getInstance().mPosition)? -1f:1f,
@@ -209,6 +216,7 @@ public class MainActivity extends AppCompatActivity
     public boolean isReadySent() { return mReadySent; } // See comments when used...
     public boolean isReady() {
 
+        Logs.add(Logs.Type.V, null);
         if (mReadySent)
             return false; // Avoid to reopen process activity
 
@@ -220,6 +228,7 @@ public class MainActivity extends AppCompatActivity
         if ((drawer != null) && (!drawer.isDrawerOpen(GravityCompat.START)) &&
                 (!mInPause) && (checkMemorySpace())) {
 
+            Logs.add(Logs.Type.I, "Ready");
             mReadySent = true;
             return true; // ...will open process activity
         }
@@ -229,6 +238,7 @@ public class MainActivity extends AppCompatActivity
     private View mHeaderView; // Navigation header view
     private void resizeHeader(int orientation) {
 
+        Logs.add(Logs.Type.V, "orientation: " + orientation);
         mHeaderView.getLayoutParams().height = getResources().getDimensionPixelSize(
                 (orientation == Configuration.ORIENTATION_LANDSCAPE)?
                         R.dimen.header_height_land:
@@ -244,6 +254,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null) ?
+                savedInstanceState.toString() : "null"));
         setContentView(R.layout.activity_main);
 
         // Set current activity
@@ -323,6 +335,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        Logs.add(Logs.Type.V, "newConfig.orientation: " + newConfig.orientation);
         resizeHeader(newConfig.orientation);
     }
 
@@ -330,6 +343,7 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
+        Logs.add(Logs.Type.V, "requestCode: " + requestCode + ", resultCode: " + resultCode);
         ActivityWrapper.set(this); // Set current activity
 
         if (!Settings.getInstance().mSimulated)
@@ -372,17 +386,21 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        Logs.add(Logs.Type.V, null);
         mInPause = mReadySent = false;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        Logs.add(Logs.Type.V, null);
         mInPause = true;
     }
 
     @Override
     public void onBackPressed() {
+        Logs.add(Logs.Type.V, null);
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if ((drawer != null) && (drawer.isDrawerOpen(GravityCompat.START)))
             drawer.closeDrawer(GravityCompat.START);
@@ -396,6 +414,7 @@ public class MainActivity extends AppCompatActivity
     //////
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
+        Logs.add(Logs.Type.V, null);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer != null)
@@ -410,6 +429,8 @@ public class MainActivity extends AppCompatActivity
     //////
     @Override
     public void onClick(View view) { // Start recording
+        Logs.add(Logs.Type.V, null);
+
         if (checkMemorySpace()) {
 
             if (!Settings.getInstance().mSimulated) { // Real 3D
