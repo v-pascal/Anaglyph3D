@@ -12,6 +12,7 @@ import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 /**
  * Created by pascal on 16/05/16.
@@ -34,6 +35,7 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
     //////
     @Override
     public void onSave(int videoPosition) {
+        Logs.add(Logs.Type.V, "videoPosition: " + videoPosition);
 
         // Check if geolocation is available for a none located new video
         if ((isVideoCreation()) && (!mNewVideoLocated)) {
@@ -61,12 +63,14 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
     @Override
     public void onDelete() {
 
+        Logs.add(Logs.Type.V, "mVideoSelected: " + mVideoSelected);
         setResult(Constants.RESULT_DELETE_VIDEO);
         finish();
     }
     @Override
     protected void onClose() {
 
+        Logs.add(Logs.Type.V, null);
         saveEditingInfo();
 
         // Check if video details have been updated and must be updated into DB as well
@@ -80,6 +84,8 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null) ?
+                savedInstanceState.toString() : "null"));
         setContentView(R.layout.activity_video_detail);
 
         // Set current activity
@@ -104,6 +110,8 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
 
         // Check if orientation has changed with a large screen (check two panels expected)
         if (getResources().getBoolean(R.bool.w900dp)) {
+
+            Logs.add(Logs.Type.I, "Large screen found");
 
             // Force to display two panels in same activity (list & details)
             Intent intent = new Intent();
@@ -150,6 +158,8 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
     protected void onSaveInstanceState(Bundle outState) {
 
         outState.putBoolean(DATA_VIDEO_SAVED, mDetailSaved);
+
+        Logs.add(Logs.Type.V, outState.toString());
         super.onSaveInstanceState(outState);
     }
 }

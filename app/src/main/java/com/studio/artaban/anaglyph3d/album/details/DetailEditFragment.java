@@ -18,6 +18,7 @@ import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.tools.GrowthAnimation;
 
 /**
@@ -40,6 +41,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
     //
     public void saveInfo() {
+        Logs.add(Logs.Type.V, null);
 
         VideoListActivity.mVideos.get(mVideoPosition).setTitle(mEditTitle.getText().toString());
         VideoListActivity.mVideos.get(mVideoPosition).setDescription(mEditDescription.getText().toString());
@@ -49,6 +51,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     }
 
     private void fillTitle() {
+        Logs.add(Logs.Type.V, null);
 
         ActionBar appBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
         if (appBar != null)
@@ -56,6 +59,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     }
     private void fillInfo() {
 
+        Logs.add(Logs.Type.V, null);
         AlbumTable.Video video = VideoListActivity.mVideos.get(mVideoPosition);
 
         mEditTitle.setText(video.getTitle(getContext(), false, true));
@@ -63,6 +67,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     }
     private void setEditMode(boolean editable) { // Update UI components according edit mode
 
+        Logs.add(Logs.Type.V, "editable: " + editable);
         mVideoListener.setEditing(editable);
 
         mEditTitle.setFocusable(editable);
@@ -82,6 +87,8 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        Logs.add(Logs.Type.V, null);
+
         if (context instanceof AlbumActivity.OnVideoAlbumListener)
             mVideoListener = (AlbumActivity.OnVideoAlbumListener)context;
         else
@@ -91,6 +98,8 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null) ?
+                savedInstanceState.toString() : "null"));
 
         mVideoPosition = getArguments().getInt(AlbumActivity.DATA_VIDEO_POSITION, 0);
 
@@ -100,6 +109,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Logs.add(Logs.Type.V, null);
         View rootView = inflater.inflate(R.layout.video_detail_edit, container, false);
 
         mEditTitle = (EditText)rootView.findViewById(R.id.edit_title);
@@ -135,6 +145,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     @Override
     public void onPause() {
         super.onPause();
+        Logs.add(Logs.Type.V, null);
 
         if (mVideoListener.getEditing())
             mVideoListener.onStore(mEditTitle.getText().toString(), mEditDescription.getText().toString());
@@ -144,6 +155,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     @Override
     public void onDetach() {
         super.onDetach();
+        Logs.add(Logs.Type.V, null);
         mVideoListener = null;
     }
 
@@ -151,10 +163,14 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     @Override
     public void onClick(View v) {
 
+        Logs.add(Logs.Type.V, "mVideoListener: " + ((mVideoListener != null)?
+                mVideoListener.toString():"null"));
+
         assert mVideoListener != null;
         switch (v.getId()) {
 
             case R.id.image_edit: {
+                Logs.add(Logs.Type.I, "Edit");
                 final boolean editing = mVideoListener.getEditing();
 
                 v.clearAnimation();
@@ -185,6 +201,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
                 break;
             }
             case R.id.image_cancel: {
+                Logs.add(Logs.Type.I, "Cancel");
 
                 // Display user message according creation or cancel modifications
                 int messageId = ((mVideoListener.isVideoCreation()) && (!mVideoListener.isVideoSaved()))?

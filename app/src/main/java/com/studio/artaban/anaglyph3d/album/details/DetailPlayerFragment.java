@@ -17,6 +17,7 @@ import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.album.AlbumActivity;
 import com.studio.artaban.anaglyph3d.album.VideoListActivity;
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 import java.io.File;
 
@@ -35,6 +36,8 @@ public class DetailPlayerFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null) ?
+                savedInstanceState.toString() : "null"));
 
         // Get selected video
         mVideo = VideoListActivity.mVideos.get(getArguments().getInt(AlbumActivity.DATA_VIDEO_POSITION, 0));
@@ -47,6 +50,7 @@ public class DetailPlayerFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Logs.add(Logs.Type.V, null);
         View rootView = inflater.inflate(R.layout.video_detail_player, container, false);
 
         // Load thumbnail image from storage

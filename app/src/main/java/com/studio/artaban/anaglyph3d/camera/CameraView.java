@@ -39,6 +39,7 @@ public class CameraView extends SurfaceView
         implements SurfaceHolder.Callback, MediaRecorder.OnInfoListener {
 
     private static int getBackFacingCameraId() {
+        Logs.add(Logs.Type.V, null);
 
         int cameraId = Constants.NO_DATA;
         int cameraCount = Camera.getNumberOfCameras();
@@ -53,6 +54,7 @@ public class CameraView extends SurfaceView
         return cameraId;
     }
     private static Camera getCamera() {
+        Logs.add(Logs.Type.V, null);
 
         // Get back facing camera ID
         int cameraId = getBackFacingCameraId();
@@ -69,6 +71,7 @@ public class CameraView extends SurfaceView
         return camera;
     }
     public static boolean getAvailableSettings(ArrayList<Size> resolutions, ArrayList<int[]> fps) {
+        Logs.add(Logs.Type.V, null);
 
         Camera camera = getCamera();
         if (camera == null) {
@@ -85,6 +88,7 @@ public class CameraView extends SurfaceView
                             }
                         }
                     });
+
             return false;
         }
 
@@ -132,6 +136,8 @@ public class CameraView extends SurfaceView
     private static CamcorderProfile getCameraProfile() {
         // Find the best quality profile according resolution
 
+        Logs.add(Logs.Type.V, null);
+
         int cameraId = getBackFacingCameraId();
         int quality;
         if (Build.VERSION.SDK_INT >= 21) {
@@ -166,6 +172,7 @@ public class CameraView extends SurfaceView
 
     //////
     public Size getPreviewResolution() {
+        Logs.add(Logs.Type.V, null);
 
         // Set preview resolution according the video setting
         if (mCamera.getParameters().getSupportedVideoSizes() != null) {
@@ -203,6 +210,8 @@ public class CameraView extends SurfaceView
     }
 
     public void postRecording() {
+
+        Logs.add(Logs.Type.V, null);
         // ...only called by the device which is not the maker
 
         // Stop camera preview (in a few milliseconds)
@@ -214,6 +223,7 @@ public class CameraView extends SurfaceView
         }, Constants.CONN_WAIT_DELAY << 1);
     }
     private boolean startRecorder() {
+        Logs.add(Logs.Type.V, null);
         try {
 
             // Prepare media recorder
@@ -257,6 +267,8 @@ public class CameraView extends SurfaceView
         return true;
     }
     public void startRecording() {
+        Logs.add(Logs.Type.V, null);
+
         if (Settings.getInstance().isMaker()) {
 
             // Stop camera preview then start recording
@@ -276,6 +288,7 @@ public class CameraView extends SurfaceView
 
     //
     private void stopPreview() {
+        Logs.add(Logs.Type.V, null);
 
         // Stop camera preview
         synchronized (mRawPicture) {
@@ -287,6 +300,7 @@ public class CameraView extends SurfaceView
         mCamera.unlock();
     }
     private boolean prepareRecording() {
+        Logs.add(Logs.Type.V, null);
 
         // Prepare recording
         if(mMediaRecorder == null)
@@ -349,6 +363,8 @@ public class CameraView extends SurfaceView
     //////
     @Override
     public void onInfo(MediaRecorder mr, int what, int extra) {
+        Logs.add(Logs.Type.V, "what: " + what);
+
         if (what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED) {
 
             // The video recording has finished
@@ -375,6 +391,7 @@ public class CameraView extends SurfaceView
 
     private void create() {
 
+        Logs.add(Logs.Type.V, null);
         if (mCamera == null)
             mCamera = getCamera();
 
@@ -386,6 +403,7 @@ public class CameraView extends SurfaceView
         // ...and needed during a lock/unlock screen operation
     }
     public void release() {
+        Logs.add(Logs.Type.V, null);
 
         if (mMediaRecorder != null) {
             mMediaRecorder.reset();
@@ -403,11 +421,13 @@ public class CameraView extends SurfaceView
     //
     public CameraView(Context context) {
         super(context);
+        Logs.add(Logs.Type.V, null);
         mTakePicture = true;
         create();
     }
     public CameraView(Context context, AttributeSet attrs) {
         super(context);
+        Logs.add(Logs.Type.V, null);
         mTakePicture = false;
         create();
     }
@@ -415,6 +435,8 @@ public class CameraView extends SurfaceView
     //////
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+
+        Logs.add(Logs.Type.V, null);
         create();
 
         // The Surface has been created, now tell the camera where to draw the preview.
@@ -435,6 +457,7 @@ public class CameraView extends SurfaceView
         // If your preview can change or rotate, take care of those events here.
         // Make sure to stop the preview before resizing or reformatting it.
 
+        Logs.add(Logs.Type.V, null);
         if (mHolder.getSurface() == null)
             return;
 
@@ -510,5 +533,9 @@ public class CameraView extends SurfaceView
     }
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder) { release(); }
+    public void surfaceDestroyed(SurfaceHolder holder) {
+
+        Logs.add(Logs.Type.V, null);
+        release();
+    }
 }

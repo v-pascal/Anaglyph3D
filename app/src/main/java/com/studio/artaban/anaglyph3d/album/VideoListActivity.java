@@ -54,11 +54,15 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
     //
     @Override
     public void onSave(int videoPosition) { // Save video details (DB)
+
+        Logs.add(Logs.Type.V, "videoPosition: " + videoPosition);
         AlbumTable.Video video = mVideos.get(videoPosition);
         assert video != null;
 
         boolean messageDisplayed = false;
         if (isVideoCreation()) { // New video
+
+            Logs.add(Logs.Type.I, "New video");
 
             // Try to add video location (if needed)
             if (!video.isLocated()) {
@@ -100,6 +104,8 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
     //
     @Override
     public void onDelete() { // Delete video is requested (or cancel video creation)
+
+        Logs.add(Logs.Type.V, "mVideoSelected: " + mVideoSelected);
         AlbumTable.Video video = mVideos.get(mVideoSelected);
         assert video != null;
 
@@ -129,6 +135,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
     @Override
     protected void onClose() {
 
+        Logs.add(Logs.Type.V, null);
         saveEditingInfo();
         finish();
     }
@@ -185,6 +192,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
             holder.mRootView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View sender) { // Change video selection
+                    Logs.add(Logs.Type.V, "mVideoSelected: " + mVideoSelected);
 
                     int lastSelection = mVideoSelected;
                     mVideoSelected = holder.mPosition;
@@ -243,6 +251,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
 
     private boolean fillVideoList() { // Fill video list recycler view
 
+        Logs.add(Logs.Type.V, null);
         mVideos = mDB.getAllEntries(AlbumTable.TABLE_NAME);
 
         if (isVideoCreation())
@@ -260,6 +269,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
     }
     private void selectVideo(Intent data) {
 
+        Logs.add(Logs.Type.V, "data: " + ((data != null)? data.toString():"null"));
         mDetailTag = data.getExtras().getString(AlbumActivity.DATA_VIDEO_DETAIL,
                 DetailPlayerFragment.TAG);
         mEditing = data.getExtras().getBoolean(AlbumActivity.DATA_VIDEO_EDITING, false);
@@ -280,6 +290,8 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null) ?
+                savedInstanceState.toString() : "null"));
         setContentView(R.layout.activity_video_list);
 
         // Set current activity
@@ -310,6 +322,8 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         //////////////////////////////////// Check if new entry is requested (and not already added)
         if ((getIntent().getBooleanExtra(Constants.DATA_ADD_VIDEO, false)) && (!mNewVideoAdded)) {
 
+            Logs.add(Logs.Type.I, "Add entry");
+
             // Rename and move thumbnail & video files into expected storage folders
             Date date = new Date();
             Storage.saveThumbnail(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_THUMBNAIL_PICTURE,
@@ -330,6 +344,8 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         ///////////////////////////// Check if download entries is requested (and not already added)
         Parcelable[] downloadList = getIntent().getParcelableArrayExtra(AlbumActivity.DATA_VIDEOS_DOWNLOADED);
         if ((downloadList != null) && (downloadList.length > 0) && (!mDownloadAdded)) {
+
+            Logs.add(Logs.Type.I, "Add downloaded entries");
 
             // Loop in order to add downloaded videos into DB
             for (Parcelable download: downloadList) {
@@ -362,6 +378,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
         if ((!mTwoPane) && (!mDetailsDisplayed) && ((isVideoCreation()) || // ...a creation request...
                 (mVideoSelected != Constants.NO_DATA))) { // ...or a video that is already selected
 
+            Logs.add(Logs.Type.I, "Display detail activity");
             fillVideoList();
             mDetailsDisplayed = true;
 
@@ -403,6 +420,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
+        Logs.add(Logs.Type.V, "requestCode: " + requestCode + ", resultCode: " + resultCode);
         ActivityWrapper.set(this); // Set current activity
 
         if (requestCode != 0) {
@@ -461,12 +479,15 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
     protected void onSaveInstanceState(Bundle outState) {
 
         outState.putBoolean(DATA_KEY_DETAILS, mDetailsDisplayed);
+
+        Logs.add(Logs.Type.V, outState.toString());
         super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Logs.add(Logs.Type.V, null);
         mDB.close();
     }
 }

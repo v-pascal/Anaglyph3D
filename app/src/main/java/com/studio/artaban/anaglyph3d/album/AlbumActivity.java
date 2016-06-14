@@ -90,8 +90,11 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
     protected boolean saveEditingInfo() { // Save video detail if editing when user changes detail displayed
 
+        Logs.add(Logs.Type.V, null);
         if (!mEditing)
             return false; // No editing info to save
+
+        Logs.add(Logs.Type.I, "Save");
 
         ////// Save video detail changes B4:
         // _ Loading new detail fragment
@@ -112,6 +115,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
     protected void onStore(String title, String description) { // Store video detail (orientation change)
 
+        Logs.add(Logs.Type.V, "title: " + title + ", description: " + description);
         mEditTitle = title;
         mEditDescription = description;
     }
@@ -126,6 +130,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
     protected Location getGeolocation() {
 
+        Logs.add(Logs.Type.V, null);
         if (!mGoogleApiClient.isConnected())
             mGoogleApiClient.connect();
 
@@ -152,6 +157,8 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     protected boolean mDownloadAdded = false;
 
     protected void restoreVideosAlbum(Bundle state) { // Restore album (manage video selection)
+        Logs.add(Logs.Type.V, "state: " + ((state != null)? state.toString():"null"));
+
         if (state != null) {
 
             mVideoSelected = state.getInt(DATA_VIDEO_POSITION);
@@ -197,6 +204,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
                 .build();
     }
     protected void initializeDetailUI() { // Initialize detail UI
+        Logs.add(Logs.Type.V, null);
 
         // Set detail commands behavior
         ImageButton command = (ImageButton) findViewById(R.id.detail_player);
@@ -221,6 +229,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
         updateDetailUI();
     }
     protected void updateDetailUI() { // Update detail UI (according new video selection)
+        Logs.add(Logs.Type.V, null);
 
         // Get selected video
         mVideo = VideoListActivity.mVideos.get(mVideoSelected);
@@ -242,6 +251,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
         }
     }
     protected void displayVideoDetail() { // Display video detail fragment
+        Logs.add(Logs.Type.V, null);
 
         Bundle arguments = new Bundle();
         arguments.putInt(AlbumActivity.DATA_VIDEO_POSITION, mVideoSelected);
@@ -290,12 +300,14 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     //////
     @Override
     protected void onStart() {
+        Logs.add(Logs.Type.V, null);
         mGoogleApiClient.connect();
         super.onStart();
     }
 
     @Override
     protected void onStop() {
+        Logs.add(Logs.Type.V, null);
         mGoogleApiClient.disconnect();
         super.onStop();
     }
@@ -314,6 +326,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
         outState.putBoolean(DATA_DOWNLOAD_ADDED, mDownloadAdded);
 
+        Logs.add(Logs.Type.V, outState.toString());
         super.onSaveInstanceState(outState);
     }
 
@@ -338,6 +351,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
+        Logs.add(Logs.Type.V, "googleMap: " + ((googleMap != null)? googleMap.toString():"null"));
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
 
@@ -357,17 +371,23 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
             ////// Details
             case R.id.detail_player:
+                Logs.add(Logs.Type.I, "Player");
+
                 saveEditingInfo();
                 mDetailTag = DetailPlayerFragment.TAG;
                 displayVideoDetail();
                 break;
 
             case R.id.detail_edit:
+                Logs.add(Logs.Type.I, "Edit");
+
                 mDetailTag = DetailEditFragment.TAG;
                 displayVideoDetail();
                 break;
 
             case R.id.detail_location:
+                Logs.add(Logs.Type.I, "Location");
+
                 saveEditingInfo();
                 if (!mDetailTag.equals(TAG_FRAGMENT_LOCATION)) {
 
@@ -383,6 +403,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
                 break;
 
             case R.id.detail_share:
+                Logs.add(Logs.Type.I, "Share");
 
                 Intent intent = new Intent(Intent.ACTION_SEND);
                 Uri data = Uri.fromFile(new File(mVideo.getVideoFile()));
@@ -400,6 +421,8 @@ public abstract class AlbumActivity extends AppCompatActivity implements
                 break;
 
             case R.id.detail_trash:
+                Logs.add(Logs.Type.I, "Trash");
+
                 DisplayMessage.getInstance().alert(R.string.title_warning, R.string.confirm_delete,
                         null, true, new DialogInterface.OnClickListener() {
                             @Override
@@ -412,6 +435,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
             ////// Geolocation
             case R.id.locate_user:
+                Logs.add(Logs.Type.I, "Locate user");
 
                 // Display scale animation
                 mGeolocationImage.clearAnimation();
@@ -445,6 +469,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     }
     @Override public void onConnectionSuspended(int arg0) { }
     @Override public void onConnected(Bundle arg0) {
+        Logs.add(Logs.Type.V, null);
 
         LocationRequest locationRequest = new LocationRequest();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -461,6 +486,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
     @Override
     public void onLocationChanged(Location location) {
+        Logs.add(Logs.Type.V, "location: " + ((location != null)? location.toString():"null"));
         mLastLocation = location;
     }
 }
