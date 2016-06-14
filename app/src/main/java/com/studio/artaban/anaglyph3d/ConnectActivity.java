@@ -28,6 +28,8 @@ public class ConnectActivity extends AppCompatActivity {
 
     private void setDeviceAnimation(boolean right) {
 
+        Logs.add(Logs.Type.V, "right: " + right);
+
         // Display alpha animation on device glass image (according position)
         final ImageView deviceA = (ImageView)findViewById((right)? R.id.left_device:R.id.right_device);
         if (deviceA != null)
@@ -52,6 +54,8 @@ public class ConnectActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null) ?
+                savedInstanceState.toString() : "null"));
         setContentView(R.layout.activity_connect);
 
         // Set current activity
@@ -104,6 +108,7 @@ public class ConnectActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
+        Logs.add(Logs.Type.V, "requestCode: " + requestCode + ", resultCode: " + resultCode);
         ActivityWrapper.set(this); // Set current activity
 
         if (requestCode != 0) {
@@ -123,6 +128,8 @@ public class ConnectActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+        Logs.add(Logs.Type.V, "item: " + ((item != null)? item.getItemId():"null"));
         if (item.getItemId() == android.R.id.home) {
 
             finish();
@@ -134,18 +141,21 @@ public class ConnectActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Logs.add(Logs.Type.V, null);
         Connectivity.getInstance().resume(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        Logs.add(Logs.Type.V, null);
         Connectivity.getInstance().pause(this);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Logs.add(Logs.Type.V, null);
         Connectivity.getInstance().destroy();
     }
 }

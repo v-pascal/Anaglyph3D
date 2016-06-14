@@ -39,11 +39,13 @@ public class DownloadFragment extends Fragment {
     //
     public void start() {
 
+        Logs.add(Logs.Type.V, null);
         mDownloadTask = new DownloadVideosTask();
         mDownloadTask.execute();
     }
     public void stop() {
 
+        Logs.add(Logs.Type.V, null);
         if (mDownloadTask != null)
             mDownloadTask.cancel(true);
     }
@@ -72,6 +74,8 @@ public class DownloadFragment extends Fragment {
 
         private void getTotalSize(JSONArray list) throws JSONException {
 
+            Logs.add(Logs.Type.V, "list.length: " + ((list != null)? list.length():"null"));
+
             mTotalVideos = 0;
             mTotalSize = 0;
             for (short i = 0; i < list.length(); ++i) {
@@ -89,6 +93,8 @@ public class DownloadFragment extends Fragment {
         }
         private int getResultId(Internet.DownloadResult result) {
 
+            Logs.add(Logs.Type.V, "result: " + result.toString());
+
             // Return error string ID or Constants.NO_DATA if succeeded
             switch (result) {
 
@@ -105,6 +111,7 @@ public class DownloadFragment extends Fragment {
         //////
         @Override
         protected Integer doInBackground(Void... params) {
+            Logs.add(Logs.Type.V, null);
 
             // Empty downloads folder
             Storage.removeTempFiles(true);
@@ -117,6 +124,7 @@ public class DownloadFragment extends Fragment {
             if (resultId != Constants.NO_DATA)
                 return resultId; // Error or cancelled
 
+            Logs.add(Logs.Type.I, "JSON file downloaded");
             try {
 
                 // Extract videos attributes from JSON file...
@@ -164,6 +172,7 @@ public class DownloadFragment extends Fragment {
                 mDownloadedVideos = new Parcelable[mTotalVideos];
 
                 for (short i = 0; i < videoList.length(); ++i) {
+                    Logs.add(Logs.Type.I, "Download video: " + (i + 1));
 
                     JSONObject album = videoList.getJSONObject(i).getJSONObject(AlbumTable.TABLE_NAME);
                     String fileName = album.getString(AlbumTable.COLUMN_DATE); // Date is used as filename
@@ -224,6 +233,7 @@ public class DownloadFragment extends Fragment {
         @Override
         protected void onPreExecute() {
 
+            Logs.add(Logs.Type.V, null);
             mDownloading = true;
 
             assert mListener != null;
@@ -231,12 +241,15 @@ public class DownloadFragment extends Fragment {
         }
         @Override
         protected void onProgressUpdate(Integer... values) {
+
+            Logs.add(Logs.Type.V, "values[0]: " + values[0]);
             assert mListener != null;
             mListener.onProgressUpdate(values[0], mTotalSize, mCurVideo, mTotalVideos);
         }
         @Override
         protected void onPostExecute(Integer result) {
 
+            Logs.add(Logs.Type.V, null);
             mDownloading = false;
 
             assert mListener != null;
@@ -257,6 +270,7 @@ public class DownloadFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        Logs.add(Logs.Type.V, null);
 
         if (context instanceof OnInteractionListener)
             mListener = (OnInteractionListener)context;
@@ -268,12 +282,15 @@ public class DownloadFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null) ?
+                savedInstanceState.toString() : "null"));
         setRetainInstance(true); // Retain fragment instance
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        Logs.add(Logs.Type.V, null);
         mListener = null;
     }
 }

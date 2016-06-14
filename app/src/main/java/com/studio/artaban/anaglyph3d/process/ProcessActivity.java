@@ -364,7 +364,7 @@ public class ProcessActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Logs.add(Logs.Type.V, "isFinishing: " + ((isFinishing())? "true":"false"));
+        Logs.add(Logs.Type.V, "isFinishing: " + isFinishing());
 
         if (!isFinishing()) { ////// Pause
 
