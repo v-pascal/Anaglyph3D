@@ -107,6 +107,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
 
         Logs.add(Logs.Type.V, "mVideoSelected: " + mVideoSelected);
         AlbumTable.Video video = mVideos.get(mVideoSelected);
+        Logs.add(Logs.Type.I, "video: " + video);
         assert video != null;
 
         // Remove video & thumbnail files
@@ -269,7 +270,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
     }
     private void selectVideo(Intent data) {
 
-        Logs.add(Logs.Type.V, "data: " + ((data != null)? data.toString():"null"));
+        Logs.add(Logs.Type.V, "data: " + data);
         mDetailTag = data.getExtras().getString(AlbumActivity.DATA_VIDEO_DETAIL,
                 DetailPlayerFragment.TAG);
         mEditing = data.getExtras().getBoolean(AlbumActivity.DATA_VIDEO_EDITING, false);
@@ -290,8 +291,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null) ?
-                savedInstanceState.toString() : "null"));
+        Logs.add(Logs.Type.V, "savedInstanceState: " + savedInstanceState);
         setContentView(R.layout.activity_video_list);
 
         // Set current activity
@@ -480,7 +480,7 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
 
         outState.putBoolean(DATA_KEY_DETAILS, mDetailsDisplayed);
 
-        Logs.add(Logs.Type.V, outState.toString());
+        Logs.add(Logs.Type.V, "outState: " + outState);
         super.onSaveInstanceState(outState);
     }
 

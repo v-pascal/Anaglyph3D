@@ -31,12 +31,14 @@ public class AlbumTable implements IDataTable {
         private static final short FIELD_COUNT = 9;
         public static String getThumbnailFile(Date date) { // Return thumbnail file path based on a video date
 
+            Logs.add(Logs.Type.V, "date: " + date);
             DateFormat dateFormat = new SimpleDateFormat(Constants.FILENAME_DATE_FORMAT);
             return ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_THUMBNAILS + File.separator +
                     dateFormat.format(date) + Constants.EXTENSION_JPEG;
         }
         public static String getVideoFile(Date date) { // Return video file path based on a video date
 
+            Logs.add(Logs.Type.V, "date: " + date);
             DateFormat dateFormat = new SimpleDateFormat(Constants.FILENAME_DATE_FORMAT);
             return ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_VIDEOS + File.separator +
                     dateFormat.format(date) + Constants.EXTENSION_WEBM;
@@ -46,6 +48,7 @@ public class AlbumTable implements IDataTable {
         private String title;
         public void setTitle(String title) {
 
+            Logs.add(Logs.Type.V, "title: " + title);
             String titleToSave = title.trim();
             this.title = (!titleToSave.isEmpty())? titleToSave:null;
             mUpdated[COLUMN_INDEX_TITLE] = true;
@@ -53,6 +56,7 @@ public class AlbumTable implements IDataTable {
         private String description;
         public void setDescription(String description) {
 
+            Logs.add(Logs.Type.V, "description: " + description);
             String descToSave = description.trim();
             this.description = (!descToSave.isEmpty())? descToSave:null;
             mUpdated[COLUMN_INDEX_DESCRIPTION] = true;
@@ -64,9 +68,11 @@ public class AlbumTable implements IDataTable {
         private double longitude;
         public void setLocation(double latitude, double longitude) {
 
+            Logs.add(Logs.Type.V, "latitude: " + latitude + ", longitude: " + longitude);
             this.location = true;
             this.latitude = latitude;
             this.longitude = longitude;
+
             mUpdated[COLUMN_INDEX_LOCATION] = true;
             mUpdated[COLUMN_INDEX_LATITUDE] = true;
             mUpdated[COLUMN_INDEX_LONGITUDE] = true;
@@ -80,6 +86,10 @@ public class AlbumTable implements IDataTable {
                      double latitude, double longitude, int thumbnailWidth, int thumbnailHeight) {
 
             super(FIELD_COUNT, id);
+            Logs.add(Logs.Type.V, "title: " + title + ", description: " + description + ", date: " +
+                    date + ", duration: " + duration + ", location: " + location + ", latitude: " +
+                    latitude + ", longitude: " + longitude + ", thumbnailWidth: " +
+                    thumbnailWidth + ", thumbnailHeight: " + thumbnailHeight);
 
             this.title = title;
             this.description = description;
@@ -96,6 +106,7 @@ public class AlbumTable implements IDataTable {
         public Video(Parcel parcel) {
 
             super(parcel);
+            Logs.add(Logs.Type.V, "parcel: " + parcel);
 
             this.title = parcel.readString();
             this.description = parcel.readString();
@@ -123,6 +134,7 @@ public class AlbumTable implements IDataTable {
         public void writeToParcel(Parcel dest, int flags) {
 
             super.writeToParcel(dest, flags);
+            Logs.add(Logs.Type.V, "dest: " + dest + ", flags: " + flags);
 
             dest.writeString(this.title);
             dest.writeString(this.description);
@@ -138,11 +150,14 @@ public class AlbumTable implements IDataTable {
         //
         public String getTitle(Context context) { // Activity title
 
+            Logs.add(Logs.Type.V, "context: " + context);
             DateFormat dateFormat = new SimpleDateFormat(context.getString(R.string.title_detail_format));
             String title = (this.title != null)? this.title:context.getString(R.string.undefined);
             return title + " (" + dateFormat.format(this.date) + ")";
         }
         public String getTitle(Context context, boolean duration, boolean edit) { // Video title
+
+            Logs.add(Logs.Type.V, "context: " + context + ", duration: " + duration + ", edit: " + edit);
             if (edit)
                 return this.title;
 
@@ -152,17 +167,21 @@ public class AlbumTable implements IDataTable {
         public Date getDate() { return this.date; }
         public String getDateString(boolean db) {
 
+            Logs.add(Logs.Type.V, "db: " + db);
             SimpleDateFormat dateFormat = new SimpleDateFormat((db)?
                     Constants.DATABASE_DATE_FORMAT:Constants.FILENAME_DATE_FORMAT);
             return dateFormat.format(this.date);
         }
         public String getDate(Context context) { // Video list date: MM/DD/yyyy - hh:mm
 
+            Logs.add(Logs.Type.V, "context: " + context);
             DateFormat dateFormat = new SimpleDateFormat(context.getString(R.string.date_detail_format));
             return dateFormat.format(this.date);
         }
         public short getDuration() { return this.duration; }
         public String getDescription(Context context, boolean edit) {
+
+            Logs.add(Logs.Type.V, "context: " + context + ", edit: " + edit);
             if (edit)
                 return this.description;
 
@@ -184,6 +203,8 @@ public class AlbumTable implements IDataTable {
     //
     @Override
     public int insert(SQLiteDatabase db, Object[] data) {
+
+        Logs.add(Logs.Type.V, "db: " + db + ", data: " + ((data != null)? data.length:"null"));
 
         int insertCount = 0;
         SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
@@ -208,6 +229,8 @@ public class AlbumTable implements IDataTable {
     @Override
     public boolean update(SQLiteDatabase db, Object data) {
 
+        Logs.add(Logs.Type.V, "db: " + db + ", data: " + data);
+
         ContentValues values = new ContentValues();
         Video video = (Video)data;
         if (video.mUpdated[COLUMN_INDEX_TITLE])
@@ -230,6 +253,8 @@ public class AlbumTable implements IDataTable {
     @Override
     public int delete(SQLiteDatabase db, long[] keys) {
 
+        Logs.add(Logs.Type.V, "db: " + db + ", data: " + ((keys != null)? keys.length:"null"));
+
         int deleteCount = 0;
         if (keys == null) // Remove all entries
             deleteCount = db.delete(TABLE_NAME, "1", null);
@@ -245,6 +270,7 @@ public class AlbumTable implements IDataTable {
     @Override
     public int getEntryCount(SQLiteDatabase db) {
 
+        Logs.add(Logs.Type.V, "db: " + db);
         Cursor cursor = db.rawQuery("SELECT COUNT(*) FROM " + TABLE_NAME, null);
         cursor.moveToNext();
         return cursor.getInt(0);
@@ -252,6 +278,7 @@ public class AlbumTable implements IDataTable {
     @Override
     public <T> List<T> getAllEntries(SQLiteDatabase db) {
 
+        Logs.add(Logs.Type.V, "db: " + db);
         Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, DataField.COLUMN_ID);
         List<Video> videos = new ArrayList<>();
         try {
@@ -313,6 +340,7 @@ public class AlbumTable implements IDataTable {
     @Override
     public void create(SQLiteDatabase db) {
 
+        Logs.add(Logs.Type.V, "db: " + db);
         db.execSQL("CREATE TABLE " + TABLE_NAME + " (" +
                 DataField.COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
 
@@ -330,6 +358,7 @@ public class AlbumTable implements IDataTable {
     @Override
     public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
+        Logs.add(Logs.Type.V, "db: " + db);
         Logs.add(Logs.Type.W, "Upgrade '" + TABLE_NAME + "' table from " + oldVersion + " to " +
                 newVersion + " version: old data will be destroyed!");
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);

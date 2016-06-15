@@ -59,7 +59,7 @@ public class SettingsActivity extends SettingsParentActivity
         @Override
         protected View onCreateDialogView() {
             View dialogView = super.onCreateDialogView();
-            Logs.add(Logs.Type.V, "dialogView: " + ((dialogView != null)? dialogView.toString():"null"));
+            Logs.add(Logs.Type.V, "dialogView: " + dialogView);
 
             mNumberPicker = (NumberPicker)dialogView.findViewById(R.id.numberPicker);
             mNumberPicker.setMinValue(mMin);
@@ -93,7 +93,7 @@ public class SettingsActivity extends SettingsParentActivity
     // Update settings preferences (used to apply remote device settings update)
     public void update(final JSONObject settings) {
 
-        Logs.add(Logs.Type.V, "settings: " + ((settings != null)? settings.toString():"null"));
+        Logs.add(Logs.Type.V, "settings: " + settings);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -181,8 +181,7 @@ public class SettingsActivity extends SettingsParentActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null) ?
-                savedInstanceState.toString() : "null"));
+        Logs.add(Logs.Type.V, "savedInstanceState: " + savedInstanceState);
         addPreferencesFromResource(R.xml.settings_preference);
 
         // Set current activity
@@ -329,7 +328,7 @@ public class SettingsActivity extends SettingsParentActivity
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
 
-        Logs.add(Logs.Type.V, "item: " + ((item != null)? item.getItemId():"null"));
+        Logs.add(Logs.Type.V, "item: " + item);
         if (item.getItemId() == android.R.id.home) {
 
             if (!super.onMenuItemSelected(featureId, item))

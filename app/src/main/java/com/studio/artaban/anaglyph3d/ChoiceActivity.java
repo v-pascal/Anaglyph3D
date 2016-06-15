@@ -156,8 +156,7 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null)?
-                savedInstanceState.toString():"null"));
+        Logs.add(Logs.Type.V, "savedInstanceState: " + savedInstanceState);
         setContentView(R.layout.activity_choice);
 
         // Set current activity
@@ -281,7 +280,7 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        Logs.add(Logs.Type.V, "item: " + ((item != null)? item.getItemId():"null"));
+        Logs.add(Logs.Type.V, "item: " + item);
         switch (item.getItemId()) {
 
             case R.id.menu_album: {
@@ -358,7 +357,7 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
         outState.putInt(DATA_KEY_PROGRESS_MAX, mProgressBar.getMax());
         outState.putString(DATA_KEY_INFO, mTextInfo.getText().toString());
 
-        Logs.add(Logs.Type.V, outState.toString());
+        Logs.add(Logs.Type.V, "outState: " + outState);
         super.onSaveInstanceState(outState);
     }
 

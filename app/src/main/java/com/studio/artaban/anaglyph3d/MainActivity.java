@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity
 
     private void positionGlass(ImageView glass) { // Position glass image according setting
 
-        Logs.add(Logs.Type.V, "glass: " + ((glass != null)? glass.toString():"null"));
+        Logs.add(Logs.Type.V, "glass: " + glass);
         RelativeLayout.LayoutParams imgParams = new RelativeLayout.LayoutParams(
                 RelativeLayout.LayoutParams.WRAP_CONTENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity
     }
     private void displayGlass(ImageView glass) { // Display animation glass
 
-        Logs.add(Logs.Type.V, "glass: " + ((glass != null)? glass.toString():"null"));
+        Logs.add(Logs.Type.V, "glass: " + glass);
         positionGlass(glass);
 
         // Anim glass
@@ -254,8 +254,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null) ?
-                savedInstanceState.toString() : "null"));
+        Logs.add(Logs.Type.V, "savedInstanceState: " + savedInstanceState);
         setContentView(R.layout.activity_main);
 
         // Set current activity
@@ -335,7 +334,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        Logs.add(Logs.Type.V, "newConfig.orientation: " + newConfig.orientation);
+        Logs.add(Logs.Type.V, "newConfig: " + newConfig);
         resizeHeader(newConfig.orientation);
     }
 

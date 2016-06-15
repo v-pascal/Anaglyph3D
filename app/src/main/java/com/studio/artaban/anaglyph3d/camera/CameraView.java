@@ -478,20 +478,24 @@ public class CameraView extends SurfaceView
                 case Surface.ROTATION_0:
 
                     // Natural orientation (Portrait)
+                    Logs.add(Logs.Type.I, "ROTATION_0");
                     mCamera.setDisplayOrientation(90);
 
                     // TODO: Check if natural orientation is portrait
                     break;
 
                 case Surface.ROTATION_90:
+                    Logs.add(Logs.Type.I, "ROTATION_90");
                     mCamera.setDisplayOrientation(0); // Landscape (left)
                     break;
 
                 case Surface.ROTATION_180:
+                    Logs.add(Logs.Type.I, "ROTATION_180");
                     mCamera.setDisplayOrientation(270); // Portrait (upside down)
                     break;
 
                 case Surface.ROTATION_270:
+                    Logs.add(Logs.Type.I, "ROTATION_270");
                     mCamera.setDisplayOrientation(180); // Landscape (right)
                     break;
             }
@@ -503,6 +507,7 @@ public class CameraView extends SurfaceView
             mCamera.getParameters().setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
             mCamera.getParameters().setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
             mCamera.getParameters().setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+            Logs.add(Logs.Type.I, "Parameters set");
 
             if (mTakePicture) { // Check to prepare recording
 

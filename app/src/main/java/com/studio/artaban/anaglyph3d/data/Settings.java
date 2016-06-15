@@ -55,6 +55,7 @@ public class Settings implements IConnectRequest {
     public boolean isMaker() { return mMaker; }
     public String getRemoteDevice() { // Return remote device name
 
+        Logs.add(Logs.Type.V, null);
         if (mRemoteDevice != null)
             return mRemoteDevice.substring(0, mRemoteDevice.indexOf(Constants.BLUETOOTH_DEVICES_SEPARATOR));
 
@@ -63,6 +64,7 @@ public class Settings implements IConnectRequest {
 
     public String[] getResolutions() {
 
+        Logs.add(Logs.Type.V, null);
         String[] resolutions = new String[mResolutions.size()];
         for (int i = 0; i < mResolutions.size(); ++i)
             resolutions[i] = (!Settings.getInstance().mOrientation)?
@@ -78,6 +80,7 @@ public class Settings implements IConnectRequest {
     }
 
     public String[] getFpsRanges() {
+        Logs.add(Logs.Type.V, null);
 
         String[] ranges = new String[mFpsRanges.size()];
         for (int i = 0; i < mFpsRanges.size(); ++i)
@@ -94,6 +97,7 @@ public class Settings implements IConnectRequest {
 
     ////// Setter
     public boolean initialize() { // Initialize camera settings
+        Logs.add(Logs.Type.V, null);
 
         // Set up default settings
         mOrientation = !mSimulated;
@@ -121,6 +125,8 @@ public class Settings implements IConnectRequest {
     }
     public boolean setResolution(String resolution, String[] list) {
 
+        Logs.add(Logs.Type.V, "resolution: " + resolution + ", list: " + ((list != null)? list.length:"null"));
+
         int resolutionIndex = Constants.NO_DATA;
         for (int i = 0; i < list.length; ++i) {
             if (list[i].equals(resolution)) {
@@ -136,6 +142,8 @@ public class Settings implements IConnectRequest {
         return true;
     }
     public boolean setFps(String fps, String[] list) {
+
+        Logs.add(Logs.Type.V, "fps: " + fps + ", list: " + ((list != null)? list.length:"null"));
 
         int rangeIndex = Constants.NO_DATA;
         for (int i = 0; i < list.length; ++i) {
@@ -188,6 +196,7 @@ public class Settings implements IConnectRequest {
     //
     private static JSONArray getResolutionsArray(ArrayList<Size> resolutions) {
 
+        Logs.add(Logs.Type.V, "resolutions: " + resolutions);
         JSONArray resolutionsArray = new JSONArray();
         for (Size resolution : resolutions) {
 
@@ -208,6 +217,7 @@ public class Settings implements IConnectRequest {
     }
     private ArrayList<Size> getMergedResolutions(JSONArray resolutions) {
 
+        Logs.add(Logs.Type.V, "resolutions: " + resolutions);
         ArrayList<Size> mergedResolutions = new ArrayList<>();
         try {
             for (int i = 0; i < resolutions.length(); ++i) {
@@ -235,6 +245,7 @@ public class Settings implements IConnectRequest {
 
     private static JSONArray getFpsRangesArray(ArrayList<int[]> ranges) {
 
+        Logs.add(Logs.Type.V, "ranges: " + ranges);
         JSONArray rangesArray = new JSONArray();
         for (int[] range : ranges) {
 
@@ -255,6 +266,7 @@ public class Settings implements IConnectRequest {
     }
     private ArrayList<int[]> getMergedFpsRanges(JSONArray ranges) {
 
+        Logs.add(Logs.Type.V, "ranges: " + ranges);
         ArrayList<int[]> mergedRanges = new ArrayList<>();
         try {
             for (int i = 0; i < ranges.length(); ++i) {
@@ -293,6 +305,7 @@ public class Settings implements IConnectRequest {
     @Override
     public String getRequest(byte type, Bundle data) {
 
+        Logs.add(Logs.Type.V, "type: " + type + ", data: " + data);
         if (type == REQ_TYPE_INITIALIZE) {
 
             mMaster = data.getBoolean(DATA_KEY_POSITION);
@@ -393,6 +406,7 @@ public class Settings implements IConnectRequest {
     @Override
     public String getReply(byte type, String request, PreviousMaster previous) {
 
+        Logs.add(Logs.Type.V, "type: " + type + ", request: " + request + ", previous: " + previous);
         JSONObject settings;
         try { settings = new JSONObject(request); }
         catch (JSONException e) {
@@ -465,6 +479,8 @@ public class Settings implements IConnectRequest {
                                 Constants.CONFIG_RESOLUTION_SEPARATOR + size.getInt(DATA_KEY_WIDTH);
                     setResolution(resolution, getResolutions());
                     reply.put(DATA_KEY_RESOLUTION, true); // Ok
+
+                    Logs.add(Logs.Type.I, "REQ_TYPE_RESOLUTION");
                     messageIds.add(R.string.video_resolution);
                 }
                 catch (JSONException e) {
@@ -478,6 +494,8 @@ public class Settings implements IConnectRequest {
                 try {
                     mPosition = !settings.getBoolean(DATA_KEY_POSITION);
                     reply.put(DATA_KEY_POSITION, true); // Ok
+
+                    Logs.add(Logs.Type.I, "REQ_TYPE_POSITION");
                     messageIds.add(R.string.camera_position);
                 }
                 catch (JSONException e) {
@@ -491,6 +509,8 @@ public class Settings implements IConnectRequest {
                 try {
                     mOrientation = settings.getBoolean(DATA_KEY_ORIENTATION);
                     reply.put(DATA_KEY_ORIENTATION, true); // Ok
+
+                    Logs.add(Logs.Type.I, "REQ_TYPE_ORIENTATION");
                     messageIds.add(R.string.video_orientation);
                 }
                 catch (JSONException e) {
@@ -504,6 +524,8 @@ public class Settings implements IConnectRequest {
                 try {
                     mDuration = (short)settings.getInt(DATA_KEY_DURATION);
                     reply.put(DATA_KEY_DURATION, true); // Ok
+
+                    Logs.add(Logs.Type.I, "REQ_TYPE_DURATION");
                     messageIds.add(R.string.video_duration);
                 }
                 catch (JSONException e) {
@@ -519,6 +541,8 @@ public class Settings implements IConnectRequest {
                     String fps = String.valueOf(limits.getInt(DATA_KEY_MIN_FPS));
                     setFps(fps, getFpsRanges());
                     reply.put(DATA_KEY_FPS, true); // Ok
+
+                    Logs.add(Logs.Type.I, "REQ_TYPE_FPS");
                     messageIds.add(R.string.video_fps);
                 }
                 catch (JSONException e) {
@@ -560,6 +584,7 @@ public class Settings implements IConnectRequest {
     @Override
     public ReceiveResult receiveReply(byte type, String reply) {
 
+        Logs.add(Logs.Type.V, "type: " + type + ", reply: " + reply);
         JSONObject receive;
         try { receive = new JSONObject(reply); }
         catch (JSONException e) {

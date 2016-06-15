@@ -24,8 +24,7 @@ public abstract class SettingsParentActivity extends PreferenceActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null) ?
-                savedInstanceState.toString() : "null"));
+        Logs.add(Logs.Type.V, "savedInstanceState: " + savedInstanceState);
         getDelegate().installViewFactory();
         getDelegate().onCreate(savedInstanceState);
         super.onCreate(savedInstanceState);
@@ -34,8 +33,7 @@ public abstract class SettingsParentActivity extends PreferenceActivity {
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null) ?
-                savedInstanceState.toString() : "null"));
+        Logs.add(Logs.Type.V, "savedInstanceState: " + savedInstanceState);
         getDelegate().onPostCreate(savedInstanceState);
     }
 
@@ -45,7 +43,7 @@ public abstract class SettingsParentActivity extends PreferenceActivity {
     }
 
     public void setSupportActionBar(@Nullable Toolbar toolbar) {
-        Logs.add(Logs.Type.V, "toolbar: " + ((toolbar != null)? toolbar.toString():"null"));
+        Logs.add(Logs.Type.V, "toolbar: " + toolbar);
         getDelegate().setSupportActionBar(toolbar);
     }
 
@@ -63,19 +61,19 @@ public abstract class SettingsParentActivity extends PreferenceActivity {
 
     @Override
     public void setContentView(View view) {
-        Logs.add(Logs.Type.V, "view: " + ((view != null)? view.toString():"null"));
+        Logs.add(Logs.Type.V, "view: " + view);
         getDelegate().setContentView(view);
     }
 
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
-        Logs.add(Logs.Type.V, "view: " + ((view != null)? view.toString():"null"));
+        Logs.add(Logs.Type.V, "view: " + view);
         getDelegate().setContentView(view, params);
     }
 
     @Override
     public void addContentView(View view, ViewGroup.LayoutParams params) {
-        Logs.add(Logs.Type.V, "view: " + ((view != null)? view.toString():"null"));
+        Logs.add(Logs.Type.V, "view: " + view);
         getDelegate().addContentView(view, params);
     }
 

@@ -84,8 +84,7 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null) ?
-                savedInstanceState.toString() : "null"));
+        Logs.add(Logs.Type.V, "savedInstanceState: " + savedInstanceState);
         setContentView(R.layout.activity_video_detail);
 
         // Set current activity
@@ -159,7 +158,7 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
 
         outState.putBoolean(DATA_VIDEO_SAVED, mDetailSaved);
 
-        Logs.add(Logs.Type.V, outState.toString());
+        Logs.add(Logs.Type.V, "outState: " + outState);
         super.onSaveInstanceState(outState);
     }
 }

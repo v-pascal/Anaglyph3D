@@ -54,8 +54,7 @@ public class ConnectActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null) ?
-                savedInstanceState.toString() : "null"));
+        Logs.add(Logs.Type.V, "savedInstanceState: " + savedInstanceState);
         setContentView(R.layout.activity_connect);
 
         // Set current activity
@@ -129,7 +128,7 @@ public class ConnectActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        Logs.add(Logs.Type.V, "item: " + ((item != null)? item.getItemId():"null"));
+        Logs.add(Logs.Type.V, "item: " + item);
         if (item.getItemId() == android.R.id.home) {
 
             finish();

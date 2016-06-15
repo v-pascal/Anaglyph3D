@@ -4,6 +4,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.studio.artaban.anaglyph3d.helpers.Logs;
+
 import java.util.List;
 
 /**
@@ -27,6 +29,7 @@ public interface IDataTable {
         //////
         public DataField(short count, long id) {
 
+            Logs.add(Logs.Type.V, "count: " + count + ", id: " + id);
             mUpdated = new boolean[count];
             this.id = id;
         }
@@ -34,6 +37,7 @@ public interface IDataTable {
         //////
         public DataField(Parcel parcel) {
 
+            Logs.add(Logs.Type.V, "parcel: " + parcel);
             mUpdated = new boolean[parcel.readInt()];
             this.id = parcel.readLong();
         }
@@ -46,6 +50,7 @@ public interface IDataTable {
         @Override
         public void writeToParcel(Parcel dest, int flags) {
 
+            Logs.add(Logs.Type.V, "dest: " + dest + ", flags: " + flags);
             dest.writeInt(mUpdated.length);
             dest.writeLong(this.id);
         }

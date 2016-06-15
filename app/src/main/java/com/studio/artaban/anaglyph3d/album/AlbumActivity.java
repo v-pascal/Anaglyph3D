@@ -157,7 +157,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     protected boolean mDownloadAdded = false;
 
     protected void restoreVideosAlbum(Bundle state) { // Restore album (manage video selection)
-        Logs.add(Logs.Type.V, "state: " + ((state != null)? state.toString():"null"));
+        Logs.add(Logs.Type.V, "state: " + state);
 
         if (state != null) {
 
@@ -326,7 +326,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
         outState.putBoolean(DATA_DOWNLOAD_ADDED, mDownloadAdded);
 
-        Logs.add(Logs.Type.V, outState.toString());
+        Logs.add(Logs.Type.V, "outState: " + outState);
         super.onSaveInstanceState(outState);
     }
 
@@ -351,7 +351,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
-        Logs.add(Logs.Type.V, "googleMap: " + ((googleMap != null)? googleMap.toString():"null"));
+        Logs.add(Logs.Type.V, "googleMap: " + googleMap);
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
 
@@ -486,7 +486,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
 
     @Override
     public void onLocationChanged(Location location) {
-        Logs.add(Logs.Type.V, "location: " + ((location != null)? location.toString():"null"));
+        Logs.add(Logs.Type.V, "location: " + location);
         mLastLocation = location;
     }
 }

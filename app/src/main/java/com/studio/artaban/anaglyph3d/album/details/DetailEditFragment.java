@@ -98,8 +98,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null) ?
-                savedInstanceState.toString() : "null"));
+        Logs.add(Logs.Type.V, "savedInstanceState: " + savedInstanceState);
 
         mVideoPosition = getArguments().getInt(AlbumActivity.DATA_VIDEO_POSITION, 0);
 
@@ -163,8 +162,7 @@ public class DetailEditFragment extends Fragment implements View.OnClickListener
     @Override
     public void onClick(View v) {
 
-        Logs.add(Logs.Type.V, "mVideoListener: " + ((mVideoListener != null)?
-                mVideoListener.toString():"null"));
+        Logs.add(Logs.Type.V, "mVideoListener: " + mVideoListener);
 
         assert mVideoListener != null;
         switch (v.getId()) {

@@ -36,8 +36,7 @@ public class DetailPlayerFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null) ?
-                savedInstanceState.toString() : "null"));
+        Logs.add(Logs.Type.V, "savedInstanceState: " + savedInstanceState);
 
         // Get selected video
         mVideo = VideoListActivity.mVideos.get(getArguments().getInt(AlbumActivity.DATA_VIDEO_POSITION, 0));
@@ -63,6 +62,7 @@ public class DetailPlayerFragment extends Fragment {
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Logs.add(Logs.Type.V, null);
 
                 // Start activity that will display the video
                 Intent intent = new Intent(Intent.ACTION_VIEW);

@@ -74,7 +74,7 @@ public class DownloadFragment extends Fragment {
 
         private void getTotalSize(JSONArray list) throws JSONException {
 
-            Logs.add(Logs.Type.V, "list.length: " + ((list != null)? list.length():"null"));
+            Logs.add(Logs.Type.V, "list: " + list);
 
             mTotalVideos = 0;
             mTotalSize = 0;
@@ -93,7 +93,7 @@ public class DownloadFragment extends Fragment {
         }
         private int getResultId(Internet.DownloadResult result) {
 
-            Logs.add(Logs.Type.V, "result: " + result.toString());
+            Logs.add(Logs.Type.V, "result: " + result);
 
             // Return error string ID or Constants.NO_DATA if succeeded
             switch (result) {
@@ -282,8 +282,7 @@ public class DownloadFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        Logs.add(Logs.Type.V, "savedInstanceState: " + ((savedInstanceState != null) ?
-                savedInstanceState.toString() : "null"));
+        Logs.add(Logs.Type.V, "savedInstanceState: " + savedInstanceState);
         setRetainInstance(true); // Retain fragment instance
     }
 
