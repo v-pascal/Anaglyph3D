@@ -22,7 +22,10 @@ public class DisplayMessage {
                       final DialogInterface.OnClickListener validListener) {
 
         // Display alert dialog message
+        Logs.add(Logs.Type.V, "title: " + title + ", message1: " + message1 + ", message2: " + message2 +
+                ", confirm: " + confirm + ", validListener: " + validListener);
         try {
+
             ActivityWrapper.get().runOnUiThread(new Runnable() {
 
                 @Override
@@ -60,7 +63,9 @@ public class DisplayMessage {
     public void toast(final int message, final int duration) {
 
         // Display toast message
+        Logs.add(Logs.Type.V, "message: " + message + ", duration: " + duration);
         try {
+
             ActivityWrapper.get().runOnUiThread(new Runnable() {
 
                 @Override
@@ -79,7 +84,10 @@ public class DisplayMessage {
     public void snack(final int view, final int[] messages, final int duration) {
 
         // Display SnackBar message
+        Logs.add(Logs.Type.V, "view: " + view + ", messages: " + ((messages != null)? messages.length:"null") +
+                ", duration: " + duration);
         try {
+
             ActivityWrapper.get().runOnUiThread(new Runnable() {
 
                 @Override

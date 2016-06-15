@@ -24,6 +24,7 @@ import com.studio.artaban.anaglyph3d.camera.CameraView;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
 /**
@@ -51,10 +52,12 @@ public class RecorderFragment extends Fragment {
 
     private void downCount() { // Display down count update
 
+        Logs.add(Logs.Type.V, null);
         if (mCancelled)
             return;
 
         if (mCounter == 0) { // Finished to display down count...
+            Logs.add(Logs.Type.I, "Down count: 0");
 
             // Start recording
             mImageCounter.setVisibility(View.GONE);
@@ -69,18 +72,22 @@ public class RecorderFragment extends Fragment {
         mImageCounter.clearAnimation();
         switch (mCounter--) {
             case 4:
+                Logs.add(Logs.Type.I, "Down count: 4");
                 mImageCounter.setImageDrawable(getActivity().getResources().
                         getDrawable(R.drawable.counter_4));
                 break;
             case 3:
+                Logs.add(Logs.Type.I, "Down count: 3");
                 mImageCounter.setImageDrawable(getActivity().getResources().
                         getDrawable(R.drawable.counter_3));
                 break;
             case 2:
+                Logs.add(Logs.Type.I, "Down count: 2");
                 mImageCounter.setImageDrawable(getActivity().getResources().
                         getDrawable(R.drawable.counter_2));
                 break;
             case 1:
+                Logs.add(Logs.Type.I, "Down count: 1");
                 mImageCounter.setImageDrawable(getActivity().getResources().
                         getDrawable(R.drawable.counter_1));
                 break;
@@ -95,6 +102,7 @@ public class RecorderFragment extends Fragment {
             @Override
             public void onAnimationEnd(Animation animation) {
 
+                Logs.add(Logs.Type.V, null);
                 if (mCancelled)
                     return;
 
@@ -105,6 +113,7 @@ public class RecorderFragment extends Fragment {
                 Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                         ActivityWrapper.REQ_TYPE_DOWNCOUNT, null);
 
+                Logs.add(Logs.Type.I, "mCounter: " + mCounter);
                 if (mCounter == 0)
                     mCameraView.postRecording();
             }
@@ -115,6 +124,7 @@ public class RecorderFragment extends Fragment {
     }
     public void updateDownCount() { // Called by both devices until counter equal zero
 
+        Logs.add(Logs.Type.V, null);
         if (!Settings.getInstance().mSimulated) // Real 3D
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -129,6 +139,7 @@ public class RecorderFragment extends Fragment {
 
     private void playBip() { // Play a bip sound during the down count
 
+        Logs.add(Logs.Type.V, null);
         if (!Settings.getInstance().isMaker())
             return; // Only the maker will play sound (better performance)
 
@@ -144,6 +155,7 @@ public class RecorderFragment extends Fragment {
         private int mProgress = 0;
         private String getProgressText(int progress) {
 
+            Logs.add(Logs.Type.V, "progress: " + progress);
             int seconds = progress % 60;
             int minutes = progress / 60;
 
@@ -162,6 +174,7 @@ public class RecorderFragment extends Fragment {
         @Override
         public void run() {
 
+            Logs.add(Logs.Type.V, null);
             final SeekBar progress = (SeekBar)mRecordingLayout.findViewById(R.id.record_progress);
             progress.setProgress(mProgress);
 
@@ -180,6 +193,7 @@ public class RecorderFragment extends Fragment {
     //////
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Logs.add(Logs.Type.V, null);
 
         final View rootView = inflater.inflate(R.layout.fragment_recorder, container, false);
         mRecordingLayout = (RelativeLayout)rootView.findViewById(R.id.recording_layout);
@@ -228,6 +242,8 @@ public class RecorderFragment extends Fragment {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
+
+                    Logs.add(Logs.Type.V, null);
                     Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
                             ActivityWrapper.REQ_TYPE_DOWNCOUNT, null);
                 }
@@ -239,25 +255,4 @@ public class RecorderFragment extends Fragment {
 
         return rootView;
     }
-
-
-
-
-
-
-    /*
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (mCancelled)
-            mCameraView.release();
-    }
-    */
-
-
-
-
-
-
-
 }

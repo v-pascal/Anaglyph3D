@@ -37,6 +37,7 @@ public class Video extends MediaProcess {
     @Override
     public String getRequest(byte type, Bundle data) {
 
+        Logs.add(Logs.Type.V, "type: " + type + ", data: " + data);
         switch (type) {
             case REQ_TYPE_DOWNLOAD: break;
             case REQ_TYPE_UPLOAD: return Constants.CONN_REQUEST_TYPE_ASK;
@@ -46,6 +47,7 @@ public class Video extends MediaProcess {
         if (request != null)
             return request.toString();
 
+        Logs.add(Logs.Type.W, "No request");
         return null;
     }
     @Override
@@ -56,6 +58,7 @@ public class Video extends MediaProcess {
     //////
     public void mergeFrameFiles() {
 
+        Logs.add(Logs.Type.V, null);
         mProceedFrame = 0;
         mTotalFrame = 1;
 
@@ -66,6 +69,7 @@ public class Video extends MediaProcess {
                 ////// Get local & remote frame count
                 int localCount = Storage.getFrameFileCount(true);
                 int remoteCount = Storage.getFrameFileCount(false);
+                Logs.add(Logs.Type.I, "localCount: " + localCount + ", remoteCount: " + remoteCount);
 
                 // Check if needed to set FPS matching
                 if (localCount == remoteCount) {
@@ -146,6 +150,7 @@ public class Video extends MediaProcess {
     }
     public void convertFrames(final ConvertData data) {
 
+        Logs.add(Logs.Type.V, "data: " + data);
         mProceedFrame = 0;
         mTotalFrame = 1;
 
@@ -160,6 +165,7 @@ public class Video extends MediaProcess {
                 if (data.offset > 0) {
                     mTotalFrame += mFrameCount - data.offset;
 
+                    Logs.add(Logs.Type.I, "mFrameCount: " + mFrameCount + ", data.offset: " + data.offset);
                     String framePath = ActivityWrapper.DOCUMENTS_FOLDER + File.separator + ((data.localSync)?
                             Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX);
                     for (int i = 0; i < mFrameCount; ++i) {
@@ -191,12 +197,14 @@ public class Video extends MediaProcess {
                         (data.brightness < CorrectionActivity.DEFAULT_BRIGHTNESS) ||
                         (data.contrast > CorrectionActivity.DEFAULT_CONTRAST) ||
                         (data.contrast < CorrectionActivity.DEFAULT_CONTRAST); // ...compare float values
+                Logs.add(Logs.Type.I, "applyContrast: " + applyContrast);
 
                 byte[] buffer = new byte[localBitmap.getByteCount()];
                 for (int i = 0; i < mFrameCount; ++i) {
 
                     ++mProceedFrame;
                     String fileIndex = String.format("%04d", i);
+                    Logs.add(Logs.Type.D, "Process file index: " + fileIndex);
 
                     // Get local frame buffer
                     File localFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + File.separator +
@@ -294,6 +302,7 @@ public class Video extends MediaProcess {
     //////
     public static boolean extractFramesRGBA(String file, Frame.Orientation orientation, String frames) {
 
+        Logs.add(Logs.Type.V, "file: " + file + ", orientation: " + orientation + ", frames: " + frames);
         return ProcessThread.mGStreamer.launch("filesrc location=\"" + file + "\" ! decodebin" +
                         " ! videoflip method=" + orientation.getFlipMethod() + " ! videoconvert" +
                         " ! video/x-raw,format=RGBA ! multifilesink location=\"" + frames + "\"");
@@ -302,6 +311,7 @@ public class Video extends MediaProcess {
     private static final String AUDIO_WAV_FILENAME = "/audio.wav";
     public static boolean extractAudio(String file) {
 
+        Logs.add(Logs.Type.V, "file: " + file);
         return ProcessThread.mGStreamer.launch("filesrc location=\"" + file + "\" ! decodebin" +
                 " ! audioconvert ! wavenc ! filesink location=\"" + ActivityWrapper.DOCUMENTS_FOLDER +
                 AUDIO_WAV_FILENAME + "\"");
@@ -309,6 +319,9 @@ public class Video extends MediaProcess {
 
     public static boolean makeAnaglyphVideo(boolean jpegStep, int frameWidth, int frameHeight,
                                             int frameCount, String files) {
+
+        Logs.add(Logs.Type.V, "jpegStep: " + jpegStep + ", frameWidth: " + frameWidth + ", frameHeight: " +
+                frameHeight + ", frameCount: " + frameCount + ", files: " + files);
         if (jpegStep)
             return ProcessThread.mGStreamer.launch("multifilesrc location=\"" + files + "\" index=0" +
                     " caps=\"video/x-raw,format=RGBA,width=" + frameWidth + ",height=" + frameHeight +
@@ -326,6 +339,8 @@ public class Video extends MediaProcess {
     }
 
     public static boolean sendFile(String file) {
+
+        Logs.add(Logs.Type.V, "file: " + file);
         try {
 
             // Load video file buffer
@@ -334,6 +349,7 @@ public class Video extends MediaProcess {
             if (new FileInputStream(videoFile).read(videoBuffer) != videoBuffer.length)
                 return false;
 
+            Logs.add(Logs.Type.I, null);
             Bundle data = new Bundle();
             data.putByteArray(DATA_KEY_BUFFER, videoBuffer);
 

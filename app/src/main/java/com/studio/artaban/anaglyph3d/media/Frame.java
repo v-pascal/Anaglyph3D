@@ -40,6 +40,7 @@ public class Frame extends MediaProcess {
     @Override
     public String getRequest(byte type, Bundle data) {
 
+        Logs.add(Logs.Type.V, "type: " + type + ", data: " + data);
         switch (type) {
             case REQ_TYPE_DOWNLOAD: break;
             case REQ_TYPE_UPLOAD: return Constants.CONN_REQUEST_TYPE_ASK;
@@ -54,6 +55,7 @@ public class Frame extends MediaProcess {
         if (request != null) {
             try {
 
+                Logs.add(Logs.Type.I, "Assign data");
                 request.put(DATA_KEY_WIDTH, mWidth);
                 request.put(DATA_KEY_HEIGHT, mHeight);
                 request.put(DATA_KEY_REVERSE, mReverse);
@@ -71,10 +73,12 @@ public class Frame extends MediaProcess {
     @Override
     public String getReply(byte type, String request, PreviousMaster previous) {
 
+        Logs.add(Logs.Type.V, "type: " + type + ", request: " + request + ", previous: " + previous);
         String result = getBufferReply(type, request);
         if (type == REQ_TYPE_UPLOAD)
             return result;
 
+        Logs.add(Logs.Type.I, null);
         JSONObject picture;
         try { picture = new JSONObject(request); }
         catch (JSONException e) {
@@ -101,6 +105,7 @@ public class Frame extends MediaProcess {
     @Override
     public ReceiveResult receiveReply(byte type, String reply) {
 
+        Logs.add(Logs.Type.V, "type: " + type + ", reply: " + reply);
         mReverse = reply.equals(Constants.CONN_REQUEST_ANSWER_TRUE); // Receive remote reverse setting
 
         send();
@@ -119,6 +124,7 @@ public class Frame extends MediaProcess {
     //
     public void convertFrames(final float shift, final float gushing) {
         // Convert video frames by adding simulated 3D configured by the user
+        Logs.add(Logs.Type.V, "shift: " + shift + ", gushing: " + gushing);
 
         mProceedFrame = 0;
         mTotalFrame = 1;
@@ -197,6 +203,9 @@ public class Frame extends MediaProcess {
     public static boolean convertNV21toRGBA(String source, int width, int height,
                                             String destination, Orientation orientation) {
 
+        Logs.add(Logs.Type.V, "source: " + source + ", width: " + width + ", height: " +
+                height + ", destination: " + destination + ", orientation: " + orientation);
+
         int size = (width * height * 3) >> 1; // NV21 buffer size
         return ProcessThread.mGStreamer.launch("filesrc location=\"" + source + "\" blocksize=" + size +
                 " ! video/x-raw,format=NV21,width=" + width + ",height=" + height + ",framerate=1/1" +
@@ -205,6 +214,9 @@ public class Frame extends MediaProcess {
     }
 
     public static boolean convertRGBAtoJPEG(String source, int width, int height, String destination) {
+
+        Logs.add(Logs.Type.V, "source: " + source + ", width: " + width + ", height: " +
+                height + ", destination: " + destination);
 
         int size = (width * height) << 2; // RGBA buffer size
         return ProcessThread.mGStreamer.launch("filesrc location=\"" + source + "\" blocksize=" + size +

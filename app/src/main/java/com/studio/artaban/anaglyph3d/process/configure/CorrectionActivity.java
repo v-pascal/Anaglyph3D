@@ -61,6 +61,10 @@ public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnS
     public static Bitmap applyCorrection(Bitmap curBitmap, float contrast, float brightness,
                                          float red, float green, float blue) {
 
+        // Apply contrast, brightness and colors balance correction to current bitmap
+        Logs.add(Logs.Type.V, "curBitmap: " + curBitmap + ", contrast: " + contrast + ", brightness: " +
+                brightness + ", red: " + red + ", green: " + green + ", blue: " + blue);
+
         ColorMatrix matrix = new ColorMatrix(new float[] {
 
                 red * contrast, 0, 0, 0, brightness,
@@ -94,6 +98,7 @@ public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnS
 
     private boolean loadImagesFromFiles(ImageView compareImage) { // Load both images from RGBA files
 
+        Logs.add(Logs.Type.V, "compareImage: " + compareImage);
         File localFile = new File(ActivityWrapper.DOCUMENTS_FOLDER, Storage.FILENAME_LOCAL_PICTURE);
         File remoteFile = new File(ActivityWrapper.DOCUMENTS_FOLDER, Storage.FILENAME_REMOTE_PICTURE);
 
@@ -215,9 +220,13 @@ public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnS
     private ImageView mCorrectionIcon; // Icon of the correction type
 
     private boolean displayCorrection(short type) {
+
+        Logs.add(Logs.Type.V, "type: " + type);
         switch (type) {
 
             case CORRECTION_ID_CONTRAST:
+                Logs.add(Logs.Type.I, "CORRECTION_ID_CONTRAST");
+
                 mSeekBar.setMax(100);
                 if (mContrast < DEFAULT_CONTRAST) // Contrast [0;1] -> Progress [0;50]
                     mSeekBar.setProgress((int)(50f * mContrast));
@@ -229,6 +238,8 @@ public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnS
                 return true;
 
             case CORRECTION_ID_BRIGHTNESS:
+                Logs.add(Logs.Type.I, "CORRECTION_ID_BRIGHTNESS");
+
                 mSeekBar.setMax(510); // == 2 * 255
                 mSeekBar.setProgress((int) mBrightness + 255);
 
@@ -237,6 +248,8 @@ public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnS
                 return true;
 
             case CORRECTION_ID_RED_BALANCE:
+                Logs.add(Logs.Type.I, "CORRECTION_ID_RED_BALANCE");
+
                 mSeekBar.setMax(10);
                 mSeekBar.setProgress((int) (mRedBalance * 10f) - 5);
 
@@ -245,6 +258,8 @@ public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnS
                 return true;
 
             case CORRECTION_ID_GREEN_BALANCE:
+                Logs.add(Logs.Type.I, "CORRECTION_ID_GREEN_BALANCE");
+
                 mSeekBar.setMax(10);
                 mSeekBar.setProgress((int) (mGreenBalance * 10f) - 5);
 
@@ -253,6 +268,8 @@ public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnS
                 return true;
 
             case CORRECTION_ID_BLUE_BALANCE:
+                Logs.add(Logs.Type.I, "CORRECTION_ID_BLUE_BALANCE");
+
                 mSeekBar.setMax(10);
                 mSeekBar.setProgress((int) (mBlueBalance * 10f) - 5);
 
@@ -265,9 +282,12 @@ public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnS
 
     //
     private void onUpdateCorrection(SeekBar seekBar) {
+
+        Logs.add(Logs.Type.V, "seekBar: " + seekBar);
         switch (mCorrectionType) {
 
             case CORRECTION_ID_CONTRAST:
+                Logs.add(Logs.Type.I, "CORRECTION_ID_CONTRAST");
                 if (seekBar.getProgress() < 50)
                     mContrast = seekBar.getProgress() / (float)50;
                 else
@@ -278,18 +298,22 @@ public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnS
                 break;
 
             case CORRECTION_ID_BRIGHTNESS:
+                Logs.add(Logs.Type.I, "CORRECTION_ID_BRIGHTNESS");
                 mBrightness = seekBar.getProgress() - 255;
                 break;
 
             case CORRECTION_ID_RED_BALANCE:
+                Logs.add(Logs.Type.I, "CORRECTION_ID_RED_BALANCE");
                 mRedBalance = (seekBar.getProgress() + 5) / 10f;
                 break;
 
             case CORRECTION_ID_GREEN_BALANCE:
+                Logs.add(Logs.Type.I, "CORRECTION_ID_GREEN_BALANCE");
                 mGreenBalance = (seekBar.getProgress() + 5) / 10f;
                 break;
 
             case CORRECTION_ID_BLUE_BALANCE:
+                Logs.add(Logs.Type.I, "CORRECTION_ID_BLUE_BALANCE");
                 mBlueBalance = (seekBar.getProgress() + 5) / 10f;
                 break;
         }
@@ -297,12 +321,14 @@ public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnS
                 mRedBalance, mGreenBalance, mBlueBalance));
         if (!mChanged) {
 
+            Logs.add(Logs.Type.I, "Correction changed");
             mChanged = true;
             mCancelButton.setImageDrawable(getResources().getDrawable(
                     R.drawable.ic_invert_colors_off_white_48dp));
         }
     }
     public void onValidateContrast(View sender) { // Validate contrast & brightness settings
+        Logs.add(Logs.Type.V, null);
 
         Intent intent = new Intent();
         intent.putExtra(DATA_KEY_CONTRAST, mContrast);
@@ -316,6 +342,7 @@ public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnS
         finish();
     }
     private void onCancel() {
+        Logs.add(Logs.Type.V, null);
 
         // Ask user to skip contrast & brightness step
         DisplayMessage.getInstance().alert(R.string.title_warning, R.string.ask_skip_step, null,
@@ -332,6 +359,7 @@ public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnS
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Logs.add(Logs.Type.V, "savedInstanceState: " + savedInstanceState);
         setContentView(R.layout.activity_correction);
 
         // Set current activity
@@ -364,10 +392,14 @@ public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnS
 
         // Set layout to display according orientation
         final ViewStub stubView = (ViewStub) findViewById(R.id.layout_container);
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT)
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Logs.add(Logs.Type.I, "Portrait");
             stubView.setLayoutResource(R.layout.correction_portrait);
-        else
+        }
+        else {
+            Logs.add(Logs.Type.I, "Landscape");
             stubView.setLayoutResource(R.layout.correction_landscape);
+        }
 
         final View rootView = stubView.inflate();
         mCorrectionImage = (ImageView)rootView.findViewById(R.id.image_contrast);
@@ -388,6 +420,7 @@ public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnS
             @Override
             public void onClick(View v) {
 
+                Logs.add(Logs.Type.V, null);
                 mCancelButton.setImageDrawable(getResources().getDrawable(
                         R.drawable.ic_invert_colors_white_48dp));
 
@@ -451,6 +484,8 @@ public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnS
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
+        Logs.add(Logs.Type.V, "menu: " + menu);
         getMenuInflater().inflate(R.menu.activity_correction, menu);
         return true;
     }
@@ -467,12 +502,15 @@ public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnS
         outState.putBoolean(DATA_KEY_CHANGED, mChanged);
         outState.putShort(DATA_KEY_CORRECTION, mCorrectionType);
 
+        Logs.add(Logs.Type.V, "outState: " + outState);
         super.onSaveInstanceState(outState);
     }
 
     @Override public void onBackPressed() { onCancel(); }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Logs.add(Logs.Type.V, "item: " + item);
+
         short correction = 0;
         switch (item.getItemId()) {
 

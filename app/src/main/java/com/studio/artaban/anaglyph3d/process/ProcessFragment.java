@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.studio.artaban.anaglyph3d.R;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 /**
  * Created by pascal on 12/04/16.
@@ -25,6 +26,8 @@ public class ProcessFragment extends Fragment {
 
     // Update progress bar, status text and step displayed
     public void updateProgress() {
+
+        Logs.add(Logs.Type.V, null);
         synchronized (ProcessThread.mProgress) {
 
             switch (ProcessThread.mProgress.step) {
@@ -55,6 +58,7 @@ public class ProcessFragment extends Fragment {
     private ImageView mClapPortrait, mClapLandscape;
     private void displayClapImage(int orientation) { // Display clap image according orientation
 
+        Logs.add(Logs.Type.V, "orientation: " + orientation);
         if (orientation == Configuration.ORIENTATION_PORTRAIT) { // Portrait
 
             mClapLandscape.setVisibility(View.GONE);
@@ -70,6 +74,7 @@ public class ProcessFragment extends Fragment {
     //////
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Logs.add(Logs.Type.V, null);
 
         // Restore system sound (disabled to avoid sound when start and stop recording)
         ((AudioManager)getContext().getSystemService(Context.AUDIO_SERVICE)).
@@ -112,6 +117,7 @@ public class ProcessFragment extends Fragment {
     public void onConfigurationChanged(Configuration newConfig) {
 
         super.onConfigurationChanged(newConfig);
+        Logs.add(Logs.Type.V, "newConfig: " + newConfig);
         displayClapImage(newConfig.orientation);
     }
 }

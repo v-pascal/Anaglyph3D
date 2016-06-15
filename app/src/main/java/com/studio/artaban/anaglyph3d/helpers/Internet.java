@@ -28,7 +28,9 @@ public final class Internet {
 
     public static boolean isOnline(Context context) { return isOnline(context, DEFAULT_ONLINE_TIMEOUT); }
     public static boolean isOnline(Context context, final int timeOut) {
+
         // Check Internet connection from any thread even UI thread (check INTERNET permission first)
+        Logs.add(Logs.Type.V, "context: " + context + ", timeOut: " + timeOut);
 
         ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
@@ -47,8 +49,11 @@ public final class Internet {
                     connURL.setConnectTimeout(timeOut);
                     connURL.connect();
 
-                    if (connURL.getResponseCode() == 200)
+                    if (connURL.getResponseCode() == 200) {
+
+                        Logs.add(Logs.Type.I, "Connected");
                         mConnected = true;
+                    }
                 }
                 catch (MalformedURLException e) { Logs.add(Logs.Type.F, e.getMessage()); }
                 catch (SocketTimeoutException e) { Logs.add(Logs.Type.F, e.getMessage()); }
@@ -92,6 +97,8 @@ public final class Internet {
     //
     public static DownloadResult downloadHttpFile(String url, String file, OnDownloadListener listener) {
 
+        Logs.add(Logs.Type.V, "url: " + url + ", file: " + file + ", listener: " + listener);
+
         InputStream is = null;
         OutputStream os = null;
         HttpURLConnection httpConnection = null;
@@ -105,6 +112,7 @@ public final class Internet {
                 throw new IOException();
 
             // Save reply into expected file
+            Logs.add(Logs.Type.I, "Save reply into expected file");
             is = httpConnection.getInputStream();
             os = new FileOutputStream(file);
 

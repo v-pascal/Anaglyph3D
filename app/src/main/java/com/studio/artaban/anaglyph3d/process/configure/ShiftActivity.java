@@ -48,12 +48,14 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
     private static final float MAX_GUSHING_RATIO = 1.1f; // Maximum gushing ratio (image scale)
 
     public static Bitmap applySimulation(Bitmap curBitmap, float shift, float gushing) {
+        // Apply bitmap correction to simulate 3D
         // NB: Need large heap memory coz three bitmaps are opened simultaneously to make simulated 3D frame
 
         // With:
         // _ shift in [-MAX_SHIFT_RATIO;MAX_SHIFT_RATIO] with default 0 (minimum shift to apply)
         // _ gushing in [-MAX_GUSHING_RATIO;-1] and [1;MAX_GUSHING_RATIO] with default 0 (nothing to apply)
 
+        Logs.add(Logs.Type.V, "curBitmap: " + curBitmap + ", shift: " + shift + ", gushing: " + gushing);
         int offsetX = 0, offsetY = 0;
 
         Bitmap gushingBitmap = null;
@@ -126,6 +128,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
     private Bitmap mBitmap;
 
     private boolean loadFrame() { // Load frame file to define 3D simulation
+        Logs.add(Logs.Type.V, null);
 
         File imageFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_LOCAL_PICTURE);
         Bundle data = getIntent().getBundleExtra(Constants.DATA_ACTIVITY);
@@ -157,13 +160,17 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
     private boolean mChanged = false; // User configuration flag
 
     private void onUpdateSettings(SeekBar seekBar) {
+
+        Logs.add(Logs.Type.V, "seekBar: " + seekBar);
         switch (seekBar.getId()) {
 
             case R.id.seek_shift:
+                Logs.add(Logs.Type.I, "seek_shift");
                 mShift = ((seekBar.getProgress() - 50) * MAX_SHIFT_RATIO) / 50f;
                 break;
 
             case R.id.seek_gushing:
+                Logs.add(Logs.Type.I, "seek_gushing");
                 if (((seekBar.getProgress() >= 50) && ((seekBar.getProgress() - 50) < MIN_GUSHING)) ||
                         ((seekBar.getProgress() < 50) && ((50 - seekBar.getProgress()) < MIN_GUSHING))) {
 
@@ -183,12 +190,14 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
 
         if (!mChanged) {
 
+            Logs.add(Logs.Type.I, "Correction changed");
             mChanged = true;
             mCancelButton.setImageDrawable(getResources().getDrawable(
                     R.drawable.ic_invert_colors_off_white_48dp));
         }
     }
     public void onValidateContrast(View sender) { // Validate contrast & brightness settings
+        Logs.add(Logs.Type.V, null);
 
         Intent intent = new Intent();
         intent.putExtra(DATA_KEY_SHIFT, mShift);
@@ -198,6 +207,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
         finish();
     }
     private void onCancel() {
+        Logs.add(Logs.Type.V, null);
 
         // Ask user to confirm shift & gushing step skip
         DisplayMessage.getInstance().alert(R.string.title_warning, R.string.ask_skip_step, null,
@@ -214,6 +224,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Logs.add(Logs.Type.V, "savedInstanceState: " + savedInstanceState);
         setContentView(R.layout.activity_shift);
 
         // Set current activity
@@ -259,6 +270,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
             @Override
             public void onClick(View v) {
 
+                Logs.add(Logs.Type.V, null);
                 mCancelButton.setImageDrawable(getResources().getDrawable(
                         R.drawable.ic_invert_colors_white_48dp));
 
@@ -296,12 +308,16 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
         outState.putFloat(DATA_KEY_SHIFT, mShift);
         outState.putFloat(DATA_KEY_GUSHING, mGushing);
         outState.putBoolean(DATA_KEY_CHANGED, mChanged);
+
+        Logs.add(Logs.Type.V, "outState: " + outState);
         super.onSaveInstanceState(outState);
     }
 
     @Override public void onBackPressed() { onCancel(); }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+        Logs.add(Logs.Type.V, "item: " + item);
         if (item.getItemId() == android.R.id.home) {
 
             onCancel();

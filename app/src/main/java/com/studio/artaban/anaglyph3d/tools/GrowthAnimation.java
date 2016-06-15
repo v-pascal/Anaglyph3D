@@ -3,6 +3,8 @@ package com.studio.artaban.anaglyph3d.tools;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 
+import com.studio.artaban.anaglyph3d.helpers.Logs;
+
 /**
  * Created by pascal on 23/05/16.
  * Scale animation (goings and comings)
@@ -30,6 +32,9 @@ public class GrowthAnimation extends ScaleAnimation {
                 Animation.RELATIVE_TO_SELF, 0.5f,
                 Animation.RELATIVE_TO_SELF, 0.5f);
 
+        Logs.add(Logs.Type.V, "scaleOrigin: " + scaleOrigin + ", scaleLarge: " +
+                scaleLarge + ", listener: " + listener);
+
         mTerminateListener = listener;
         mReverseAnim = false;
 
@@ -56,12 +61,15 @@ public class GrowthAnimation extends ScaleAnimation {
 
     ////// Constructors factory
     public static GrowthAnimation create() {
+        Logs.add(Logs.Type.V, null);
         return new GrowthAnimation(DEFAULT_SCALE_ORIGIN, DEFAULT_SCALE_LARGE, null);
     }
     public static GrowthAnimation create(OnTerminateListener listener) {
+        Logs.add(Logs.Type.V, "listener: " + listener);
         return new GrowthAnimation(DEFAULT_SCALE_ORIGIN, DEFAULT_SCALE_LARGE, listener);
     }
     public static GrowthAnimation create(float scaleOrigin, float scaleLarge) {
+        Logs.add(Logs.Type.V, "scaleOrigin: " + scaleOrigin + ", scaleLarge: " + scaleLarge);
         return new GrowthAnimation(scaleOrigin, scaleLarge, null);
     }
     public static GrowthAnimation create(float scaleOrigin, float scaleLarge, OnTerminateListener listener) {

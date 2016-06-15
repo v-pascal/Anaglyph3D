@@ -37,7 +37,10 @@ public class ActivityWrapper implements IConnectRequest {
     private boolean mCancelled; // Recording cancel flag (from remote device)
 
     private String replyRequest(byte type) {
+
+        Logs.add(Logs.Type.V, "type: " + type);
         try {
+
             if (type == REQ_TYPE_START) {
 
                 mCancelled = false;
@@ -72,13 +75,16 @@ public class ActivityWrapper implements IConnectRequest {
     @Override
     public String getReply(byte type, String request, PreviousMaster previous) {
 
+        Logs.add(Logs.Type.V, "type: " + type + ", request: " + request + ", previous: " + previous);
         switch (type) {
+
             case REQ_TYPE_READY: {
                 try {
 
                     Activity curActivity = get();
                     if (curActivity.getClass().equals(MainActivity.class)) {
                         if (((MainActivity)curActivity).isReady()) {
+                            Logs.add(Logs.Type.I, "Is ready");
 
                             ////// Start process activity
                             startActivity(ProcessActivity.class, null, 0);
@@ -127,7 +133,9 @@ public class ActivityWrapper implements IConnectRequest {
     @Override
     public ReceiveResult receiveReply(byte type, String reply) {
 
+        Logs.add(Logs.Type.V, "type: " + type + ", reply: " + reply);
         switch (type) {
+
             case REQ_TYPE_READY: {
 
                 if (reply.equals(Constants.CONN_REQUEST_ANSWER_TRUE)) {
@@ -143,6 +151,7 @@ public class ActivityWrapper implements IConnectRequest {
                 }
                 else
                     DisplayMessage.getInstance().toast(R.string.device_not_ready, Toast.LENGTH_LONG);
+
                 return ReceiveResult.SUCCESS;
             }
             case REQ_TYPE_START:
@@ -173,6 +182,9 @@ public class ActivityWrapper implements IConnectRequest {
     public static Activity get() throws NullPointerException { return mCurActivity.get(); }
 
     public static void startActivity(final Class activity, final Bundle data, final int request) {
+        // Start activity from current activity using parameters
+
+        Logs.add(Logs.Type.V, "activity: " + activity + ", data: " + data + ", request: " + request);
         try {
 
             Activity curActivity = get();
@@ -187,7 +199,10 @@ public class ActivityWrapper implements IConnectRequest {
         }
     }
     public static boolean stopActivity(final Class activity, final int result, final Bundle data) {
-        try { // Stop expected activity (if active)
+        // Stop expected activity (if active)
+
+        Logs.add(Logs.Type.V, "activity: " + activity + ", result: " + result + ", data: " + data);
+        try {
 
             Activity curActivity = get();
             if (curActivity.getClass().equals(activity)) {
@@ -214,7 +229,10 @@ public class ActivityWrapper implements IConnectRequest {
 
     //
     public static void hideSoftKeyboard() {
-        try { // Hide soft keyboard if displayed (according activity)
+        // Hide soft keyboard if displayed (according activity)
+
+        Logs.add(Logs.Type.V, null);
+        try {
 
             InputMethodManager inputManager = (InputMethodManager)get().
                     getSystemService(Context.INPUT_METHOD_SERVICE);

@@ -37,6 +37,7 @@ public final class Storage {
 
     //
     public static void copyFile(File src, File dst) throws IOException {
+        Logs.add(Logs.Type.V, "src: " + src + ", dst: " + dst);
 
         FileChannel inChannel = new FileInputStream(src).getChannel();
         FileChannel outChannel = new FileOutputStream(dst).getChannel();
@@ -48,6 +49,7 @@ public final class Storage {
         }
     }
     public static String readFile(File file) throws IOException {
+        Logs.add(Logs.Type.V, "file: " + file);
 
         FileInputStream fin = new FileInputStream(file);
         BufferedReader reader = new BufferedReader(new InputStreamReader(fin));
@@ -62,6 +64,7 @@ public final class Storage {
         return content.toString();
     }
     public static void removeFiles(final String regex) {
+        Logs.add(Logs.Type.V, "regex: " + regex);
 
         File files = new File(ActivityWrapper.DOCUMENTS_FOLDER);
         File[] filesToDelete = files.listFiles(new FilenameFilter() {
@@ -79,6 +82,7 @@ public final class Storage {
         }
     }
     public static boolean createFolder(String folder) {
+        Logs.add(Logs.Type.V, "folder: " + folder);
 
         File directory = new File(folder);
         if ((!directory.exists()) && (!directory.mkdir())) {
@@ -92,6 +96,7 @@ public final class Storage {
     //////
     public static void removeTempFiles(boolean downloads) {
         // Remove all temporary files from downloads or documents folder
+        Logs.add(Logs.Type.V, "downloads: " + downloads);
 
         File storage = new File(ActivityWrapper.DOCUMENTS_FOLDER + ((downloads)? FOLDER_DOWNLOAD:""));
         if (storage.listFiles() == null)
@@ -105,6 +110,7 @@ public final class Storage {
 
     public static int getFrameFileCount(final boolean local) {
         // Return the number of frame files contained in documents folder (local or remote frame files)
+        Logs.add(Logs.Type.V, "local: " + local);
 
         File frames = new File(ActivityWrapper.DOCUMENTS_FOLDER);
         File[] files = frames.listFiles(new FilenameFilter() {
@@ -124,6 +130,7 @@ public final class Storage {
     }
 
     public static long isStorageEnough() { // Return if available storage space is enough to process
+        Logs.add(Logs.Type.V, null);
 
         // Get storage space need (according settings)
         long need = Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] * // FPS
@@ -151,6 +158,7 @@ public final class Storage {
 
     public static boolean saveThumbnail(String src, String dst) {
         // Rename and move thumbnail file into appropriate folder
+        Logs.add(Logs.Type.V, "src: " + src + ", dst: " + dst);
 
         if (!createFolder(ActivityWrapper.DOCUMENTS_FOLDER + FOLDER_THUMBNAILS))
             return false;
@@ -165,6 +173,7 @@ public final class Storage {
     }
     public static boolean saveVideo(String src, String dst) {
         // Rename and move video file into appropriate folder
+        Logs.add(Logs.Type.V, "src: " + src + ", dst: " + dst);
 
         if (!createFolder(ActivityWrapper.DOCUMENTS_FOLDER + FOLDER_VIDEOS))
             return false;

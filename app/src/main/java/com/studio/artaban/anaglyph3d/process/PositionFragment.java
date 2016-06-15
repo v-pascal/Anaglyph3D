@@ -24,6 +24,7 @@ import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
+import com.studio.artaban.anaglyph3d.helpers.Logs;
 
 /**
  * Created by pascal on 13/04/16.
@@ -38,6 +39,7 @@ public class PositionFragment extends Fragment {
 
     private static Bitmap flip(Bitmap source, boolean vertical) {
 
+        Logs.add(Logs.Type.V, "source: " + source + ", vertical: " + vertical);
         Matrix matrix = new Matrix();
         if (vertical)
             matrix.preScale(1.0f, -1.0f);
@@ -52,6 +54,7 @@ public class PositionFragment extends Fragment {
 
     //
     public void reverse() {
+        Logs.add(Logs.Type.V, null);
 
         // Check if orientation has changed as expected
         // -> Some phone such as the 'Samsung Galaxy Trend Lite' do not apply orientation changes
@@ -75,6 +78,7 @@ public class PositionFragment extends Fragment {
                 orientation = Constants.NO_DATA; // Not in landscape
         }
         // TODO: Manage landscape natural orientation devices
+        Logs.add(Logs.Type.I, "orientation: " + orientation);
 
         if (orientation == Constants.NO_DATA) {
 
@@ -112,6 +116,7 @@ public class PositionFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+        Logs.add(Logs.Type.V, null);
         final View rootView = inflater.inflate(R.layout.fragment_position, container, false);
         final Point screenSize = new Point();
         getActivity().getWindowManager().getDefaultDisplay().getSize(screenSize);
@@ -210,6 +215,7 @@ public class PositionFragment extends Fragment {
         ////// Set up device or 3D type info
         final TextView textDistance = (TextView)rootView.findViewById(R.id.text_distance);
         if (!Settings.getInstance().mOrientation) { // Landscape
+            Logs.add(Logs.Type.I, "Landscape");
 
             if (Build.VERSION.SDK_INT >= 17)
                 ((LayoutParams)textDistance.getLayoutParams()).removeRule(RelativeLayout.ABOVE);
@@ -234,6 +240,7 @@ public class PositionFragment extends Fragment {
             ((LayoutParams)textDistance.getLayoutParams()).addRule(RelativeLayout.CENTER_HORIZONTAL);
 
         if (Settings.getInstance().mSimulated) { // Simulated 3D
+            Logs.add(Logs.Type.I, "Simulated");
 
             mBackImage.setImageDrawable(getResources().getDrawable(R.drawable.left_device));
             backReverse.setImageDrawable(getResources().getDrawable(R.drawable.simulated_device));

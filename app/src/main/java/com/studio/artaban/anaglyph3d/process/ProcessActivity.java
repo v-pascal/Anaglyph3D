@@ -42,6 +42,7 @@ public class ProcessActivity extends AppCompatActivity {
     //
     public void startRecording() {
 
+        Logs.add(Logs.Type.V, null);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -56,7 +57,7 @@ public class ProcessActivity extends AppCompatActivity {
                 getSupportFragmentManager().executePendingTransactions();
 
                 // Wake lock during video recording to avoid the screen off
-                mWakeLock = ((PowerManager)getSystemService(Context.POWER_SERVICE))
+                mWakeLock = ((PowerManager) getSystemService(Context.POWER_SERVICE))
                         .newWakeLock(PowerManager.FULL_WAKE_LOCK, WAKE_LOCK_NAME);
                 mWakeLock.acquire();
             }
@@ -64,6 +65,7 @@ public class ProcessActivity extends AppCompatActivity {
     }
     public void updateRecording() {
 
+        Logs.add(Logs.Type.V, null);
         runOnUiThread(new Runnable() {
             @Override
             public void run() { // Update down count
@@ -77,6 +79,7 @@ public class ProcessActivity extends AppCompatActivity {
 
     private ProcessThread mProcessThread;
     public void startProcessing(Camera.Size picSize, byte[] picRaw) {
+        Logs.add(Logs.Type.V, "picSize: " + picSize + ", picRaw: " + ((picRaw != null)? picRaw.length:"null"));
 
         // Restart wake lock to be able to run even if screen off
         mWakeLock.release();
@@ -97,6 +100,7 @@ public class ProcessActivity extends AppCompatActivity {
         getSupportFragmentManager().executePendingTransactions();
     }
     public boolean cancelRecorder() {
+        Logs.add(Logs.Type.V, null);
 
         // Stop wake lock requested (if needed)
         if (mWakeLock != null) {
@@ -118,6 +122,7 @@ public class ProcessActivity extends AppCompatActivity {
     //////
     public void onValidatePosition(View sender) {
         // User has confirmed to start video recorder
+        Logs.add(Logs.Type.V, null);
 
         if (!Settings.getInstance().mSimulated) // Real 3D
             Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
@@ -187,6 +192,7 @@ public class ProcessActivity extends AppCompatActivity {
         // -> When cameras cannot be placed at the expected distance due to the location of the camera
         //    on a particular device (often the case for landscape orientation), this option allows the
         //    user to reverse it in order to place the camera as the expected distance
+        Logs.add(Logs.Type.V, null);
         if (Settings.getInstance().mSimulated)
             return; // Option only available for real 3D
 
@@ -205,6 +211,7 @@ public class ProcessActivity extends AppCompatActivity {
 
     public void onUpdateProgress() {
 
+        Logs.add(Logs.Type.V, null);
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -221,6 +228,7 @@ public class ProcessActivity extends AppCompatActivity {
     }
     public void onInitialize() { // Initialize GStreamer library on UI thread
 
+        Logs.add(Logs.Type.V, null);
         Runnable initRunnable = new Runnable() {
             @Override
             public void run() {
@@ -248,6 +256,7 @@ public class ProcessActivity extends AppCompatActivity {
     //
     private void cancelProcess() {
         // Cancel any current operation due to an user action (pause or back pressed)
+        Logs.add(Logs.Type.V, null);
 
         RecorderFragment recorder = (RecorderFragment)getSupportFragmentManager()
                 .findFragmentByTag(RecorderFragment.TAG);
@@ -263,6 +272,7 @@ public class ProcessActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Logs.add(Logs.Type.V, "savedInstanceState: " + savedInstanceState);
         setContentView(R.layout.activity_process);
 
         // Set current activity
@@ -285,6 +295,7 @@ public class ProcessActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         super.onActivityResult(requestCode, resultCode, data);
+        Logs.add(Logs.Type.V, "requestCode: " + requestCode + ", resultCode: " + resultCode);
         ActivityWrapper.set(this); // Set current activity
 
         switch (requestCode) {
@@ -371,6 +382,7 @@ public class ProcessActivity extends AppCompatActivity {
             if (getSupportFragmentManager().findFragmentByTag(ProcessFragment.TAG) == null) {
                 // Position or Recorder fragment displayed
 
+                Logs.add(Logs.Type.I, "No process fragment displayed");
                 cancelProcess();
                 finish(); // Finish activity when paused
             }
@@ -395,6 +407,7 @@ public class ProcessActivity extends AppCompatActivity {
     protected void onDestroy() {
 
         super.onDestroy();
+        Logs.add(Logs.Type.V, null);
         if ((mProcessThread != null) && (mProcessThread.isAlive())) {
 
             mProcessThread.release();

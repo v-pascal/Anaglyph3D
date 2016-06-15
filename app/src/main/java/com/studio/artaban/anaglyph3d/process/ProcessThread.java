@@ -31,7 +31,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Set;
 
 /**
  * Created by pascal on 23/04/16.
@@ -40,6 +39,8 @@ import java.util.Set;
 public class ProcessThread extends Thread {
 
     public ProcessThread(Camera.Size size, byte[] raw) {
+
+        Logs.add(Logs.Type.V, "size: " + size + ", raw: " + ((raw != null)? raw.length:"null"));
         mPictureSize = size;
         mPictureRaw = raw;
     }
@@ -51,6 +52,7 @@ public class ProcessThread extends Thread {
     private volatile boolean mAbort = false;
     public void release() { // Stop thread
 
+        Logs.add(Logs.Type.V, null);
         mAbort = true;
 
         try { join(); }
@@ -122,6 +124,8 @@ public class ProcessThread extends Thread {
     private float mGushing = ShiftActivity.DEFAULT_GUSHING; // 3D gushing configured by the user
 
     private Frame.Orientation getOrientation(boolean local) { // Return frame orientation
+
+        Logs.add(Logs.Type.V, "local: " + local);
         if (local) {
 
             if (Settings.getInstance().mOrientation) // Portrait
@@ -146,6 +150,8 @@ public class ProcessThread extends Thread {
 
     //////
     public void applySynchronization(short offset, boolean local) {
+
+        Logs.add(Logs.Type.V, "offset: " + offset + ", local: " + local);
         mSynchroOffset = offset;
         mLocalSync = local;
 
@@ -153,6 +159,10 @@ public class ProcessThread extends Thread {
     }
     public static void applyCorrection(float contrast, float brightness, float red, float green,
                                        float blue, boolean local) {
+
+        Logs.add(Logs.Type.V, "contrast: " + contrast + ", brightness: " + brightness + ", red: " +
+                red + ", blue: " + blue + ", green: " + green + ", local: " + local);
+
         mContrast = contrast;
         mBrightness = brightness;
         mRedBalance = red;
@@ -185,6 +195,8 @@ public class ProcessThread extends Thread {
         @Override public short getMaxWaitReply(byte type) { return Constants.CONN_MAXWAIT_DEFAULT; }
         @Override
         public String getRequest(byte type, Bundle data) {
+
+            Logs.add(Logs.Type.V, "type: " + type + ", data: " + data);
             try {
 
                 JSONObject request = new JSONObject();
@@ -204,6 +216,8 @@ public class ProcessThread extends Thread {
         }
         @Override
         public String getReply(byte type, String request, PreviousMaster previous) {
+
+            Logs.add(Logs.Type.V, "type: " + type + ", request: " + request + ", previous: " + previous);
             try {
 
                 JSONObject config = new JSONObject(request);
@@ -224,6 +238,8 @@ public class ProcessThread extends Thread {
 
         @Override
         public ReceiveResult receiveReply(byte type, String reply) {
+
+            Logs.add(Logs.Type.V, "type: " + type + ", reply: " + reply);
             return (reply.equals(Constants.CONN_REQUEST_ANSWER_TRUE))?
                     ReceiveResult.SUCCESS:ReceiveResult.ERROR;
         }
@@ -244,7 +260,10 @@ public class ProcessThread extends Thread {
     public static final ProgressStatus mProgress = new ProgressStatus();
 
     private void publishProgress(int progress, int max) {
+
+        Logs.add(Logs.Type.V, "progress: " + progress + ", max: " + max);
         try {
+
             synchronized (mProgress) {
 
                 mProgress.message = ActivityWrapper.get().getResources().getString(mStatus.getStringId());
@@ -324,13 +343,17 @@ public class ProcessThread extends Thread {
     @Override
     public void run() {
 
-        Logs.add(Logs.Type.V, "Process thread started");
+        Logs.add(Logs.Type.V, "########################################## Process thread started");
+        Logs.add(Logs.Type.V, "maker: " + Settings.getInstance().isMaker() + ", simulated: " +
+                Settings.getInstance().mSimulated);
+
         boolean local = true; // To define which picture/video to process (local or remote)
                               // ...and more
         while (!mAbort) {
             switch (mStatus) {
 
                 case INITIALIZATION: {
+                    Logs.add(Logs.Type.I, "INITIALIZATION");
 
                     if (!Settings.getInstance().mSimulated) publishProgress(1, 5);
                     else publishProgress(1, 3);
@@ -366,6 +389,8 @@ public class ProcessThread extends Thread {
 
                     //////
                     if (Frame.getInstance().getTransferSize() == Frame.getInstance().getBufferSize()) {
+                        Logs.add(Logs.Type.I, "Wait or transfer picture done");
+
                         if (!Settings.getInstance().isMaker()) {
 
                             local = false;
@@ -382,6 +407,7 @@ public class ProcessThread extends Thread {
 
                 ////// Called twice for both local and remote pictures (!maker only)
                 case SAVE_PICTURE: {
+                    Logs.add(Logs.Type.I, "SAVE_PICTURE");
 
                     if (!Settings.getInstance().mSimulated) publishProgress(2 + ((local)? 0:2), 5);
                     else publishProgress(2, 3);
@@ -422,6 +448,7 @@ public class ProcessThread extends Thread {
                     break;
                 }
                 case CONVERT_PICTURE: {
+                    Logs.add(Logs.Type.I, "CONVERT_PICTURE");
 
                     if (!Settings.getInstance().mSimulated) publishProgress(3 + ((local)? 0:2), 5);
                     else publishProgress(3, 3);
@@ -523,6 +550,7 @@ public class ProcessThread extends Thread {
                             data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
                             data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
 
+                            Logs.add(Logs.Type.I, "Start shift activity");
                             ActivityWrapper.startActivity(ShiftActivity.class, data,
                                     Constants.PROCESS_REQUEST_SHIFT);
                         }
@@ -540,6 +568,8 @@ public class ProcessThread extends Thread {
 
                     //////
                     if (Video.getInstance().getTransferSize() == Video.getInstance().getBufferSize()) {
+                        Logs.add(Logs.Type.I, "Wait or transfer video done");
+
                         if (Settings.getInstance().isMaker())
                             mStatus = Status.SAVE_VIDEO;
 
@@ -552,6 +582,7 @@ public class ProcessThread extends Thread {
                             data.putInt(Frame.DATA_KEY_WIDTH, mPictureSize.width);
                             data.putInt(Frame.DATA_KEY_HEIGHT, mPictureSize.height);
 
+                            Logs.add(Logs.Type.I, "Start correction activity");
                             ActivityWrapper.startActivity(CorrectionActivity.class, data,
                                     Constants.PROCESS_REQUEST_CORRECTION);
                         }
@@ -565,6 +596,8 @@ public class ProcessThread extends Thread {
                     publishProgress(0, 1);
 
                     if (mStatus == Status.TRANSFER_CORRECTION) {
+                        Logs.add(Logs.Type.I, "Transfer correction");
+
                         if (Settings.getInstance().isMaker()) {
 
                             // Contrast & brightness configuration has been received
@@ -603,6 +636,8 @@ public class ProcessThread extends Thread {
                     // ...Nothing else to do (status will be updated 'applyCorrection' via code below)
                     // }
                     if (mConfigured) {
+
+                        Logs.add(Logs.Type.I, "Correction configured");
                         mConfigured = false;
                         mStatus = Status.TRANSFER_CORRECTION;
                     }
@@ -610,6 +645,7 @@ public class ProcessThread extends Thread {
                 }
                 case SAVE_3D_VIDEO:
                 case SAVE_VIDEO: {
+                    Logs.add(Logs.Type.I, ((mStatus == Status.SAVE_VIDEO)? "SAVE_VIDEO":"SAVE_3D_VIDEO"));
 
                     sleep();
                     publishProgress(0, 1);
@@ -654,6 +690,8 @@ public class ProcessThread extends Thread {
                 }
                 case EXTRACT_FRAMES_LEFT:
                 case EXTRACT_FRAMES_RIGHT: {
+                    Logs.add(Logs.Type.I, ((mStatus == Status.EXTRACT_FRAMES_LEFT)?
+                            "EXTRACT_FRAMES_LEFT":"EXTRACT_FRAMES_RIGHT"));
 
                     sleep();
                     publishProgress(0, 1);
@@ -714,6 +752,7 @@ public class ProcessThread extends Thread {
 
                     //////
                     if (Video.getInstance().getProceedFrame() == Video.getInstance().getTotalFrame()) {
+                        Logs.add(Logs.Type.I, "Merge FPS done");
 
                         // Load synchronization activity ///////////////////////////////////////////
                         Bundle data = new Bundle();
@@ -736,6 +775,7 @@ public class ProcessThread extends Thread {
                 }
                 case EXTRACT_AUDIO: {
 
+                    Logs.add(Logs.Type.I, "EXTRACT_AUDIO");
                     publishProgress(0, 1);
 
                     if (!Video.extractAudio(ActivityWrapper.DOCUMENTS_FOLDER +
@@ -785,6 +825,7 @@ public class ProcessThread extends Thread {
 
                     //////
                     if (media.getProceedFrame() == media.getTotalFrame()) {
+                        Logs.add(Logs.Type.I, "Frame conversion done");
 
                         local = true; // 'jpegStep' step
                         mStep = Step.MAKE;
@@ -794,6 +835,7 @@ public class ProcessThread extends Thread {
                 }
                 case MAKE_3D_VIDEO: {
 
+                    Logs.add(Logs.Type.I, "MAKE_3D_VIDEO");
                     publishProgress(0, 1);
 
                     boolean made;
@@ -889,11 +931,15 @@ public class ProcessThread extends Thread {
                             Video.getInstance().getBufferSize());
 
                     //////
-                    if (Video.getInstance().getTransferSize() == Video.getInstance().getBufferSize())
-                        mStatus = (Settings.getInstance().isMaker())? Status.TERMINATION:Status.SAVE_3D_VIDEO;
+                    if (Video.getInstance().getTransferSize() == Video.getInstance().getBufferSize()) {
+
+                        Logs.add(Logs.Type.I, "3D video transferred");
+                        mStatus = (Settings.getInstance().isMaker()) ? Status.TERMINATION : Status.SAVE_3D_VIDEO;
+                    }
                     break;
                 }
                 case TERMINATION: {
+                    Logs.add(Logs.Type.I, "TERMINATION");
 
                     sleep();
                     publishProgress(0, 1);
@@ -936,6 +982,6 @@ public class ProcessThread extends Thread {
             if ((!mAbort) && (!Settings.getInstance().mSimulated))
                 mAbort = !Connectivity.getInstance().isConnected();
         }
-        Logs.add(Logs.Type.I, "Process thread stopped");
+        Logs.add(Logs.Type.I, "########################################## Process thread stopped");
     }
 }

@@ -269,7 +269,7 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
-        Logs.add(Logs.Type.V, null);
+        Logs.add(Logs.Type.V, "menu: " + menu);
         getMenuInflater().inflate(R.menu.activity_connect, menu);
         mMenuOptions = menu;
 

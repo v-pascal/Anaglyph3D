@@ -60,6 +60,7 @@ public class SynchroActivity extends AppCompatActivity {
 
     private static Bitmap openBitmapFile(int position, boolean local) { // Return bitmap from RGBA file
 
+        Logs.add(Logs.Type.V, "position: " + position + ", local: " + local);
         File bmpFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + File.separator + ((local)?
                         Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX) +
                 String.format("%04d", position) + Constants.EXTENSION_RGBA);
@@ -106,6 +107,7 @@ public class SynchroActivity extends AppCompatActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
 
+            Logs.add(Logs.Type.V, null);
             View rootView = inflater.inflate(R.layout.fragment_synchro, container, false);
             TextView framePosition = (TextView) rootView.findViewById(R.id.frame_position);
             framePosition.setText("#" + getArguments().getInt(DATA_KEY_SYNCHRO_OFFSET));
@@ -116,6 +118,7 @@ public class SynchroActivity extends AppCompatActivity {
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             super.onActivityCreated(savedInstanceState);
+            Logs.add(Logs.Type.V, null);
 
             Bitmap bitmap = openBitmapFile(getArguments().getInt(DATA_KEY_SYNCHRO_OFFSET),
                     getArguments().getBoolean(DATA_KEY_SYNCHRO_LOCAL));
@@ -135,6 +138,7 @@ public class SynchroActivity extends AppCompatActivity {
 
     //
     public void onValidateSynchro(View sender) { // Validate synchronization setting
+        Logs.add(Logs.Type.V, null);
 
         Intent intent = new Intent();
         intent.putExtra(DATA_KEY_SYNCHRO_OFFSET, mOffset);
@@ -144,6 +148,7 @@ public class SynchroActivity extends AppCompatActivity {
         finish();
     }
     public void onChangeFrame(View sender) {
+        Logs.add(Logs.Type.V, null);
 
         mLocalVideo = !mLocalVideo;
         mOffset = 0;
@@ -160,6 +165,7 @@ public class SynchroActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Logs.add(Logs.Type.V, "savedInstanceState: " + savedInstanceState);
         setContentView(R.layout.activity_synchro);
 
         // Set current activity
@@ -209,6 +215,7 @@ public class SynchroActivity extends AppCompatActivity {
         int frameWidth = Settings.getInstance().getResolutionWidth();
         int frameHeight = Settings.getInstance().getResolutionHeight();
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Logs.add(Logs.Type.I, "Portrait");
 
             ////// Portrait
             if (getResources().getBoolean(R.bool.w480dp)) // Large screen device
@@ -227,6 +234,7 @@ public class SynchroActivity extends AppCompatActivity {
             }
         }
         else { ////// Landscape
+            Logs.add(Logs.Type.I, "Landscape");
 
             if (Settings.getInstance().mOrientation) // Portrait
                 params.height = (screenSize.y - ActivityWrapper.ACTION_BAR_HEIGHT) >> 1;
@@ -273,11 +281,14 @@ public class SynchroActivity extends AppCompatActivity {
         outState.putShort(DATA_KEY_SYNCHRO_OFFSET, mOffset);
         outState.putBoolean(DATA_KEY_SYNCHRO_LOCAL, mLocalVideo);
 
+        Logs.add(Logs.Type.V, "outState: " + outState);
         super.onSaveInstanceState(outState);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
+        Logs.add(Logs.Type.V, "item: " + item);
         if (item.getItemId() == android.R.id.home) {
 
             finish();
