@@ -326,9 +326,9 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
 
             // Rename and move thumbnail & video files into expected storage folders
             Date date = new Date();
-            Storage.saveThumbnail(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_THUMBNAIL_PICTURE,
+            Storage.moveFile(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_THUMBNAIL_PICTURE,
                     AlbumTable.Video.getThumbnailFile(date));
-            Storage.saveVideo(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_3D_VIDEO,
+            Storage.moveFile(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_3D_VIDEO,
                     AlbumTable.Video.getVideoFile(date));
 
             ////// Add new video into the album
@@ -354,9 +354,9 @@ public class VideoListActivity extends AlbumActivity implements AlbumActivity.On
                 String fileName = video.getDateString(false);
 
                 // Move thumbnail & video files into expected storage folders
-                Storage.saveThumbnail(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD + File.separator +
+                Storage.moveFile(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD + File.separator +
                         fileName + Constants.EXTENSION_JPEG, AlbumTable.Video.getThumbnailFile(video.getDate()));
-                Storage.saveVideo(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD + File.separator +
+                Storage.moveFile(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD + File.separator +
                         fileName + Constants.EXTENSION_WEBM, AlbumTable.Video.getVideoFile(video.getDate()));
 
                 mDB.insert(AlbumTable.TABLE_NAME, new AlbumTable.Video[]{ video });

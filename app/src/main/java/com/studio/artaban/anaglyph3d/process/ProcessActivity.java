@@ -79,16 +79,13 @@ public class ProcessActivity extends AppCompatActivity {
 
     private ProcessThread mProcessThread;
     public void startProcessing(Camera.Size picSize, byte[] picRaw) {
-        Logs.add(Logs.Type.V, "picSize: " + picSize + ", picRaw: " + ((picRaw != null)? picRaw.length:"null"));
+        Logs.add(Logs.Type.V, "picSize: " + picSize + ", picRaw: " + ((picRaw != null) ? picRaw.length : "null"));
 
         // Restart wake lock to be able to run even if screen off
         mWakeLock.release();
         mWakeLock = ((PowerManager)getSystemService(Context.POWER_SERVICE))
                 .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_NAME);
         mWakeLock.acquire();
-
-        // Set unspecified orientation (default device orientation)
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
 
         // Start process thread
         mProcessThread = new ProcessThread(picSize, picRaw);
@@ -98,6 +95,9 @@ public class ProcessActivity extends AppCompatActivity {
         FragmentTransaction fragTransaction = getSupportFragmentManager().beginTransaction();
         fragTransaction.replace(R.id.main_container, new ProcessFragment(), ProcessFragment.TAG).commit();
         getSupportFragmentManager().executePendingTransactions();
+
+        // Set unspecified orientation (default device orientation)
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
     public boolean cancelRecorder() {
         Logs.add(Logs.Type.V, null);
@@ -278,6 +278,14 @@ public class ProcessActivity extends AppCompatActivity {
         // Set current activity
         ActivityWrapper.set(this);
 
+        // Remove all temporary files from storage
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Storage.removeTempFiles(false);
+            }
+        }).start();
+
         // Set orientation
         Settings.getInstance().mReverse = false;
         if (Settings.getInstance().mOrientation)
@@ -415,8 +423,5 @@ public class ProcessActivity extends AppCompatActivity {
         }
         if (mWakeLock != null)
             mWakeLock.release();
-
-        // Remove all temporary files from storage
-        Storage.removeTempFiles(false);
     }
 }

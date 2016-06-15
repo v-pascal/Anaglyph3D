@@ -6,7 +6,6 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -304,14 +303,6 @@ public class MainActivity extends AppCompatActivity
                 navigationView.getMenu().getItem(2).setEnabled(false);
             }
         }
-
-        // Remove all temporary files from storage
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                Storage.removeTempFiles(false);
-            }
-        });
 
         // Display remote device name into subtitle with initial position (if needed)
         if (!Settings.getInstance().mSimulated)

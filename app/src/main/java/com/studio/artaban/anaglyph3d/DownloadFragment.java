@@ -175,8 +175,8 @@ public class DownloadFragment extends Fragment {
                     Logs.add(Logs.Type.I, "Download video: " + (i + 1));
 
                     JSONObject album = videoList.getJSONObject(i).getJSONObject(AlbumTable.TABLE_NAME);
-                    String fileName = album.getString(AlbumTable.COLUMN_DATE); // Date is used as filename
-                    fileName = fileName.replace(' ', '_').replace(':', '#');
+                    String fileName = album.getString(AlbumTable.COLUMN_DATE); // Date is used as filename...
+                    fileName = fileName.replace(' ', '_').replace(':', '-'); // ...FAT32 compatible
 
                     // Download video file
                     JSONObject video = videoList.getJSONObject(i).getJSONObject(JSON_VIDEO);
@@ -196,11 +196,10 @@ public class DownloadFragment extends Fragment {
 
                     // Fill videos DB info array
                     SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATABASE_DATE_FORMAT);
-                    fileName = fileName.replace('_', ' ').replace('#', ':');
                     mDownloadedVideos[i] = new AlbumTable.Video(0,
                             album.getString(AlbumTable.COLUMN_TITLE), // Title
                             album.getString(AlbumTable.COLUMN_DESCRIPTION), // Description
-                            dateFormat.parse(fileName), // Date
+                            dateFormat.parse(album.getString(AlbumTable.COLUMN_DATE)), // Date
                             (short)album.getInt(AlbumTable.COLUMN_DURATION), // Duration
                             album.getBoolean(AlbumTable.COLUMN_LOCATION), // Location flag
                             album.getDouble(AlbumTable.COLUMN_LATITUDE), // Latitude

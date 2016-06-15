@@ -10,7 +10,7 @@ public final class Constants {
 
     public static final int NO_DATA = -1; // No value (integer)
     public static final String DATABASE_DATE_FORMAT = "yyyy-MM-dd hh:mm:ss.000"; // SQLite date format
-    public static final String FILENAME_DATE_FORMAT = "yyyy-MM-dd_hh#mm#ss.000"; // SQLite date format
+    public static final String FILENAME_DATE_FORMAT = "yyyy-MM-dd_hh-mm-ss.000"; // Date format used for filename (FAT32 compatible)
 
 
     ////// Activity

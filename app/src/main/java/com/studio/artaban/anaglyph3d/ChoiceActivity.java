@@ -167,7 +167,14 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
         if (documents != null) {
 
             ActivityWrapper.DOCUMENTS_FOLDER = documents.getAbsolutePath();
-            Storage.createFolder(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD);
+
+            // Create folders
+            if (!Storage.createFolder(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD))
+                Logs.add(Logs.Type.E, "Failed to create 'Downloads' folder");
+            if (!Storage.createFolder(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_THUMBNAILS))
+                Logs.add(Logs.Type.E, "Failed to create 'Thumbnails' folder");
+            if (!Storage.createFolder(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_VIDEOS))
+                Logs.add(Logs.Type.E, "Failed to create 'Videos' folder");
         }
         else {
 

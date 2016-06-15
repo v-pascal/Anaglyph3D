@@ -36,6 +36,26 @@ public final class Storage {
     public static final String FOLDER_DOWNLOAD = File.separator + "Downloads";
 
     //
+    public static boolean moveFile(String src, String dst) {
+
+        Logs.add(Logs.Type.V, "src: " + src + ", dst: " + dst);
+        File sourceFile = new File(src);
+        File destinationFile = new File(dst);
+
+        if (!sourceFile.renameTo(destinationFile)) {
+            try { // Try to copy it then delete
+
+                copyFile(sourceFile, destinationFile);
+                sourceFile.delete();
+            }
+            catch (IOException e) {
+
+                Logs.add(Logs.Type.E, "Failed to move file from '" + src + "' to '" + dst + "'");
+                return false;
+            }
+        }
+        return true;
+    }
     public static void copyFile(File src, File dst) throws IOException {
         Logs.add(Logs.Type.V, "src: " + src + ", dst: " + dst);
 
@@ -154,36 +174,5 @@ public final class Storage {
 
         Logs.add(Logs.Type.W, "Not enough storage space available (" + need + "/" + available + ")");
         return need; // Bad: not enough memory space to process (return memory space need)
-    }
-
-    public static boolean saveThumbnail(String src, String dst) {
-        // Rename and move thumbnail file into appropriate folder
-        Logs.add(Logs.Type.V, "src: " + src + ", dst: " + dst);
-
-        if (!createFolder(ActivityWrapper.DOCUMENTS_FOLDER + FOLDER_THUMBNAILS))
-            return false;
-
-        File thumbnailFile = new File(src);
-        if (!thumbnailFile.renameTo(new File(dst))) {
-
-            Logs.add(Logs.Type.E, "Failed to rename thumbnail file");
-            return false;
-        }
-        return true;
-    }
-    public static boolean saveVideo(String src, String dst) {
-        // Rename and move video file into appropriate folder
-        Logs.add(Logs.Type.V, "src: " + src + ", dst: " + dst);
-
-        if (!createFolder(ActivityWrapper.DOCUMENTS_FOLDER + FOLDER_VIDEOS))
-            return false;
-
-        File videoFile = new File(src);
-        if (!videoFile.renameTo(new File(dst))) {
-
-            Logs.add(Logs.Type.E, "Failed to rename video file");
-            return false;
-        }
-        return true;
     }
 }

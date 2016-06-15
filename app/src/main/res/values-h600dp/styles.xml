@@ -2,7 +2,7 @@
 <resources>
 
     <!-- Synchronization rank text appearance -->
-    <style name="TextAppearanceRank" parent="@android:style/TextAppearance.Large">
+    <style name="TextAppearanceRank" parent="Base.TextAppearance.AppCompat">
         <item name="android:textSize">64sp</item>
         <item name="android:textStyle">bold</item>
     </style>
