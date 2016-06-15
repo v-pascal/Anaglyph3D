@@ -87,6 +87,10 @@ public class Connectivity {
         public IConnectRequest handler;
         public byte type;
         public String message;
+
+        public String toString() {
+            return "{handler: '" + handler + "', type: " + type + ", message: '" + message + "'}";
+        }
     }
     private final List<TransferElement> mRequests = new ArrayList<>();
     private TransferElement mRequestBuffer;
@@ -94,6 +98,7 @@ public class Connectivity {
     //
     public boolean addRequest(IConnectRequest handler, byte type, Bundle data) {
 
+        Logs.add(Logs.Type.V, "handler: " + handler + ", type: " + type + ", data: " + data);
         if (!isConnected())
             return false;
 
@@ -118,9 +123,10 @@ public class Connectivity {
             return false;
 
         // Check if the current request cannot be merged
+        Logs.add(Logs.Type.V, null);
         if (!mRequests.get(0).handler.getRequestMerge()) {
 
-            Logs.add(Logs.Type.V, "ID: " + mRequests.get(0).handler.getRequestId() + " Type: " +
+            Logs.add(Logs.Type.I, "ID: " + mRequests.get(0).handler.getRequestId() + " Type: " +
                     mRequests.get(0).type);
             return true; // Send request
         }
@@ -146,11 +152,12 @@ public class Connectivity {
         while (removeCount-- != 0)
             mRequests.remove(0);
 
-        Logs.add(Logs.Type.V, "ID: " + mRequests.get(0).handler.getRequestId() + " Type: " +
+        Logs.add(Logs.Type.I, "ID: " + mRequests.get(0).handler.getRequestId() + " Type: " +
                 mRequests.get(0).type);
         return true; // Send request
     }
     private boolean processRequest(String request) {
+        Logs.add(Logs.Type.V, "request: " + request);
 
         ////// Request received while waiting reply
         IConnectRequest.PreviousMaster previousRequest = null;
@@ -207,7 +214,11 @@ public class Connectivity {
         return true;
     }
 
-    public void disconnect() { mDisconnectRequest = true; }
+    public void disconnect() {
+
+        Logs.add(Logs.Type.V, null);
+        mDisconnectRequest = true;
+    }
     public boolean isConnected() {
 
         return (!mDisconnectRequest) && (!mDisconnectError) &&
@@ -275,6 +286,7 @@ public class Connectivity {
                 return null;
             }
             if (size >= sizeMessage) {
+                Logs.add(Logs.Type.I, "Message received");
 
                 // Purge message received
                 if (size == sizeMessage)
@@ -297,7 +309,9 @@ public class Connectivity {
 
                 // Return result according what is expected
                 switch (message.charAt(4)) {
+
                     case ELEMENT_FLAG_REPLY: {
+                        Logs.add(Logs.Type.I, "ELEMENT_FLAG_REPLY");
                         if (reply)
                             return message.substring(6); // Format: A:CC_*
 
@@ -308,6 +322,7 @@ public class Connectivity {
                         break;
                     }
                     case ELEMENT_FLAG_REQUEST: {
+                        Logs.add(Logs.Type.I, "ELEMENT_FLAG_REQUEST");
                         if (!reply)
                             return message.substring(6);
 
@@ -323,6 +338,7 @@ public class Connectivity {
     // Send request or reply
     private boolean send(boolean request, TransferElement element) {
 
+        Logs.add(Logs.Type.V, "request: " + request + ", element: " + element);
         Integer byteCount = element.message.length() + 11;
         ByteBuffer buffer = ByteBuffer.allocate(byteCount);
 
@@ -373,6 +389,8 @@ public class Connectivity {
     // Send buffer
     public boolean send(byte[] buffer, int start, int len) {
 
+        //Logs.add(Logs.Type.V, "buffer: " + ((buffer != null)? buffer.length:"null") + ", start: " +
+        //        start + ", len: " + len);
         mDisconnectError = !mBluetooth.write(buffer, start, len);
         return !mDisconnectError;
     }
@@ -384,6 +402,7 @@ public class Connectivity {
         // Initialize connection
         private void initialize(boolean position) {
 
+            Logs.add(Logs.Type.V, "position: " + position);
             synchronized (mRequests) { mRequests.clear(); }
             mRead.reset();
 
@@ -391,15 +410,19 @@ public class Connectivity {
             final Bundle connInfo = new Bundle();
             connInfo.putString(Settings.DATA_KEY_REMOTE_DEVICE, mBluetooth.getRemoteDevice());
             connInfo.putBoolean(Settings.DATA_KEY_POSITION, position);
+
             Connectivity.getInstance().addRequest(Settings.getInstance(),
                     Settings.REQ_TYPE_INITIALIZE, connInfo);
         }
 
         // Close connection
         private void close() {
+            Logs.add(Logs.Type.V, "mDisconnectRequest: " + mDisconnectRequest + ", " +
+                                  "mDisconnectError: " + mDisconnectError);
 
             ////////////// Close current activity (back to connect activity if not already the case)
             try {
+
                 Activity curActivity = ActivityWrapper.get();
                 if (!curActivity.getClass().equals(ConnectActivity.class)) { // Not connect activity
 
@@ -579,7 +602,7 @@ public class Connectivity {
         //////
         @Override
         public void run() {
-            Logs.add(Logs.Type.I, "Connectivity thread started");
+            Logs.add(Logs.Type.V, "################################# Connectivity thread started");
 
             boolean waitBuffer = false;
             short devIndex = 0;
@@ -723,13 +746,14 @@ public class Connectivity {
                     Logs.add(Logs.Type.W, "Unable to sleep: " + e.getMessage());
                 }
             }
-            Logs.add(Logs.Type.I, "Connectivity thread stopped");
+            Logs.add(Logs.Type.I, "################################# Connectivity thread stopped");
         }
     }
 
     //////
     public boolean start(Context context) {
 
+        Logs.add(Logs.Type.V, "context: " + context);
         if ((mBluetooth.getStatus() == Bluetooth.Status.DISABLED) && (!mBluetooth.initialize(context)))
             return false;
 
@@ -745,6 +769,7 @@ public class Connectivity {
     }
     public void stop() {
 
+        Logs.add(Logs.Type.V, null);
         if ((mAbort) || (mBluetooth.getStatus() == Bluetooth.Status.DISABLED))
             return;
 
@@ -762,11 +787,17 @@ public class Connectivity {
     //
     public void resume(Context context) {
 
+        Logs.add(Logs.Type.V, "context: " + context);
         mBluetooth.enable(); // Enable bluetooth (in case it has been disabled during the pause)
         mBluetooth.register(context);
     }
-    public void pause(Context context) { mBluetooth.unregister(context); }
+    public void pause(Context context) {
+
+        Logs.add(Logs.Type.V, "context: " + context);
+        mBluetooth.unregister(context);
+    }
     public void destroy() {
+        Logs.add(Logs.Type.V, null);
 
         stop();
         mBluetooth.release();

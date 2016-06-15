@@ -43,6 +43,8 @@ public class Bluetooth {
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
         @Override public void onReceive(Context context, Intent intent) {
+            Logs.add(Logs.Type.V, "context: " + context + ", intent: " + intent);
+
             if (BluetoothDevice.ACTION_FOUND.equals(intent.getAction())) {
 
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
@@ -76,6 +78,7 @@ public class Bluetooth {
 
         public ListenThread(boolean secure, String uuid, String name) {
 
+            Logs.add(Logs.Type.V, "secure: " + secure + ", name: " + name);
             mSecure = secure;
             BluetoothServerSocket socket = null;
             try {
@@ -91,9 +94,11 @@ public class Bluetooth {
 
         @Override public void run() {
 
+            Logs.add(Logs.Type.V, null);
             if (mSocket == null)
                 return;
 
+            Logs.add(Logs.Type.I, "mStatus: " + mStatus);
             while (mStatus == Status.LISTENING) {
 
                 try {
@@ -124,7 +129,9 @@ public class Bluetooth {
         }
         public void cancel() {
 
+            Logs.add(Logs.Type.V, null);
             try {
+
                 if (mSocket != null)
                     mSocket.close();
             }
@@ -141,6 +148,7 @@ public class Bluetooth {
 
         public ConnectThread(BluetoothDevice device, boolean secure, String uuid) {
 
+            Logs.add(Logs.Type.V, "device: " + device + ", secure: " + secure);
             mSecure = secure;
             BluetoothSocket socket = null;
             try {
@@ -157,11 +165,13 @@ public class Bluetooth {
 
         @Override public void run() {
 
+            Logs.add(Logs.Type.V, null);
             if (mSocket == null)
                 return;
 
             mAdapter.cancelDiscovery();
             try {
+
                 mSocket.connect();
                 if (mProcessing != null) {
 
@@ -181,7 +191,9 @@ public class Bluetooth {
         }
         public void cancel() {
 
+            Logs.add(Logs.Type.V, null);
             try {
+
                 if (mSocket != null)
                     mSocket.close();
             }
@@ -198,6 +210,7 @@ public class Bluetooth {
         private final OutputStream mOutStream;
 
         public ProcessThread(BluetoothSocket socket) {
+            Logs.add(Logs.Type.V, "socket: " + socket);
 
             mSocket = socket;
             InputStream in = null;
@@ -214,10 +227,12 @@ public class Bluetooth {
         }
 
         @Override public void run() {
+            Logs.add(Logs.Type.V, "mStatus: " + mStatus);
 
             byte[] buffer = new byte[MAX_RECEIVE_BUFFER];
             while (mStatus == Status.CONNECTED) {
                 try {
+
                     int bytes = mInStream.read(buffer);
                     if (bytes > 0)
                         synchronized (mReceived) { mReceived.write(buffer, 0, bytes); }
@@ -231,6 +246,7 @@ public class Bluetooth {
             }
         }
         public void cancel() {
+            Logs.add(Logs.Type.V, "mSocket: " + mSocket);
 
             try { mSocket.close(); }
             catch (IOException e) {
@@ -239,6 +255,8 @@ public class Bluetooth {
         }
 
         public boolean write(byte[] buffer, int start, int len) {
+            //Logs.add(Logs.Type.V, "buffer: " + ((buffer != null)? buffer.length:"null") + ", start: " +
+            //        start + ", len: " + len);
 
             if (mOutStream == null)
                 return false;
@@ -262,6 +280,7 @@ public class Bluetooth {
     //
     public void discover() {
 
+        Logs.add(Logs.Type.V, null);
         if (mStatus == Status.DISABLED)
             return;
 
@@ -280,10 +299,13 @@ public class Bluetooth {
         }
         if (mAdapter.isDiscovering())
             mAdapter.cancelDiscovery();
+
         mAdapter.startDiscovery();
     }
     public boolean isDiscovering() { return (mAdapter != null) && (mAdapter.isDiscovering()); }
     public String getDevice(short index) {
+
+        Logs.add(Logs.Type.V, "index: " + index);
         synchronized (mDevices) {
 
             if ((mStatus == Status.DISABLED) || (index >= mDevices.size()))
@@ -299,6 +321,7 @@ public class Bluetooth {
     private ProcessThread mProcessing;
 
     public boolean listen(boolean secure, String uuid, String name) {
+        Logs.add(Logs.Type.V, "secure: " + secure + ", name: " + name);
 
         if (mStatus != Status.READY) {
             Logs.add(Logs.Type.W, "Failed to listen: Wrong " + mStatus + " status");
@@ -317,6 +340,7 @@ public class Bluetooth {
         return true;
     }
     public boolean connect(boolean secure, String uuid, String address) {
+        Logs.add(Logs.Type.V, "secure: " + secure + ", address: " + address);
 
         if (mStatus != Status.READY) {
             Logs.add(Logs.Type.W, "Failed to connect: Wrong " + mStatus + " status");
@@ -336,7 +360,9 @@ public class Bluetooth {
     }
     public void reset() {
 
+        Logs.add(Logs.Type.V, null);
         switch (mStatus) {
+
             case LISTENING: {
 
                 mStatus = Status.READY;
@@ -369,6 +395,8 @@ public class Bluetooth {
 
     //
     public boolean write(byte[] buffer, int start, int len) {
+        //Logs.add(Logs.Type.V, "buffer: " + ((buffer != null)? buffer.length:"null") + ", start: " +
+        //        start + ", len: " + len);
 
         if (mStatus != Status.CONNECTED) {
             Logs.add(Logs.Type.W, "Failed to write: Wrong " + mStatus + " status");
@@ -379,6 +407,7 @@ public class Bluetooth {
         }
     }
     public synchronized int read(ByteArrayOutputStream buffer) {
+        //Logs.add(Logs.Type.V, "buffer: " + buffer);
 
         if (mStatus != Status.CONNECTED) {
             Logs.add(Logs.Type.W, "Failed to read: Wrong " + mStatus + " status");
@@ -403,6 +432,7 @@ public class Bluetooth {
 
     //
     public boolean initialize(Context context) {
+        Logs.add(Logs.Type.V, "context: " + context);
 
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mAdapter == null) {
@@ -422,6 +452,8 @@ public class Bluetooth {
         return true;
     }
     public boolean enable() {
+
+        Logs.add(Logs.Type.V, null);
         if (mAdapter == null)
             return false; // Not initialized
 
@@ -432,14 +464,22 @@ public class Bluetooth {
         return true;
     }
     public void register(Context context) {
+        Logs.add(Logs.Type.V, "context: " + context);
+
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
         filter.addAction(BluetoothDevice.ACTION_FOUND);
 
         context.registerReceiver(mReceiver, filter);
     }
-    public void unregister(Context context) { context.unregisterReceiver(mReceiver); }
+    public void unregister(Context context) {
+
+        Logs.add(Logs.Type.V, "context: " + context);
+        context.unregisterReceiver(mReceiver);
+    }
     public void release() {
+
+        Logs.add(Logs.Type.V, null);
         if (mStatus == Status.DISABLED)
             return;
 

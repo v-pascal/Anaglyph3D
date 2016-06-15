@@ -32,6 +32,8 @@ public abstract class BufferRequest implements IConnectRequest {
     @Override public final char getRequestId() { return mRequestId; }
     @Override public final boolean getRequestMerge() { return false; }
     @Override public final BufferType getRequestBuffer(byte type) {
+
+        Logs.add(Logs.Type.V, "type: " + type);
         switch (type) {
 
             case REQ_TYPE_DOWNLOAD: return BufferType.TO_RECEIVE;
@@ -48,18 +50,20 @@ public abstract class BufferRequest implements IConnectRequest {
 
     @Override
     public ReceiveResult receiveReply(byte type, String reply) {
+        Logs.add(Logs.Type.V, "type: " + type + ", reply: " + reply);
 
         send();
         return ReceiveResult.SUCCESS;
     }
     @Override
     public final ReceiveResult receiveBuffer(ByteArrayOutputStream buffer) {
+        //Logs.add(Logs.Type.V, "buffer: " + buffer);
 
         if (buffer.size() == 0)
             return ReceiveResult.NONE; // Nothing has been received
 
-        // Fill buffer received
-        try {
+        try { // Fill buffer received
+
             System.arraycopy(buffer.toByteArray(), 0, mBuffer, mTransferSize, buffer.size());
             mTransferSize += buffer.size();
             buffer.reset();
@@ -90,6 +94,7 @@ public abstract class BufferRequest implements IConnectRequest {
         @Override
         public void run() { // ...via UI thread
 
+            //Logs.add(Logs.Type.V, null);
             int toSend = ((mBufferSent + Bluetooth.MAX_SEND_BUFFER) < mBuffer.length)?
                     Bluetooth.MAX_SEND_BUFFER:mBuffer.length - mBufferSent;
 
@@ -104,11 +109,14 @@ public abstract class BufferRequest implements IConnectRequest {
     };
     protected void send() { // Send buffer...
 
+        Logs.add(Logs.Type.V, null);
         mTransferSize = 0;
+
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
+                    Logs.add(Logs.Type.V, null);
 
                     int waitEvery = 0;
                     for (mBufferSent = 0; mBufferSent < mBuffer.length;
@@ -144,6 +152,7 @@ public abstract class BufferRequest implements IConnectRequest {
 
     public final JSONObject getBufferRequest(byte type, Bundle data) {
 
+        Logs.add(Logs.Type.V, "type: " + type + ", data: " + data);
         switch (type) {
             case REQ_TYPE_DOWNLOAD: break;
             case REQ_TYPE_UPLOAD: return null;
@@ -159,13 +168,13 @@ public abstract class BufferRequest implements IConnectRequest {
             return request;
         }
         catch (JSONException e) {
-
             Logs.add(Logs.Type.E, e.getMessage());
-            return null;
         }
+        return null;
     }
     public final String getBufferReply(byte type, String request) {
 
+        Logs.add(Logs.Type.V, "type: " + type + ", request: " + request);
         switch (type) {
             case REQ_TYPE_DOWNLOAD: break;
             case REQ_TYPE_UPLOAD: {
