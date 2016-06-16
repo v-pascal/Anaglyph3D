@@ -42,12 +42,20 @@ public final class Storage {
         File sourceFile = new File(src);
         File destinationFile = new File(dst);
 
-        // Check if file exist
+        // Check if file exists
         if (!sourceFile.exists()) {
 
-            Logs.add(Logs.Type.E, "Source file '" + src + "' does not exist");
+            Logs.add(Logs.Type.W, "Source file '" + src + "' does not exist");
             return false;
         }
+
+        // Check if the source is a file
+        if (!sourceFile.isFile()) {
+
+            Logs.add(Logs.Type.W, "The source '" + src + "' is not a file");
+            return false;
+        }
+
         if (!sourceFile.renameTo(destinationFile)) {
             try { // Try to copy it then delete
 
