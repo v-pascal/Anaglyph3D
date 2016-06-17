@@ -38,15 +38,17 @@ import java.util.List;
 public class CameraView extends SurfaceView
         implements SurfaceHolder.Callback, MediaRecorder.OnInfoListener {
 
-    private static int getBackFacingCameraId() {
-        Logs.add(Logs.Type.V, null);
+    private static int getCameraId(boolean backFacing) {
+        Logs.add(Logs.Type.V, "backFacing: " + backFacing);
 
         int cameraId = Constants.NO_DATA;
         int cameraCount = Camera.getNumberOfCameras();
+        int facing = (backFacing)?
+                Camera.CameraInfo.CAMERA_FACING_BACK:Camera.CameraInfo.CAMERA_FACING_FRONT;
         for (int i = 0; i < cameraCount; ++i) {
             Camera.CameraInfo info = new Camera.CameraInfo();
             Camera.getCameraInfo(i, info);
-            if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
+            if (info.facing == facing) {
                 cameraId = i;
                 break;
             }
@@ -57,13 +59,15 @@ public class CameraView extends SurfaceView
         Logs.add(Logs.Type.V, null);
 
         // Get back facing camera ID
-        int cameraId = getBackFacingCameraId();
+        int cameraId = getCameraId(true);
+        if (cameraId < 0)
+            cameraId = getCameraId(false);
         Camera camera = null;
         try {
-            if (cameraId > 0)
-                camera = Camera.open(cameraId);
-            else
+            if (cameraId < 0)
                 camera = Camera.open(); // Attempt to get a default camera instance
+            else
+                camera = Camera.open(cameraId);
         }
         catch (Exception e) {
             Logs.add(Logs.Type.E, "Camera is not available (in use or does not exist)");
@@ -138,7 +142,10 @@ public class CameraView extends SurfaceView
 
         Logs.add(Logs.Type.V, null);
 
-        int cameraId = getBackFacingCameraId();
+        int cameraId = getCameraId(true);
+        if (cameraId < 0)
+            cameraId = getCameraId(false);
+
         int quality;
         if (Build.VERSION.SDK_INT >= 21) {
 
