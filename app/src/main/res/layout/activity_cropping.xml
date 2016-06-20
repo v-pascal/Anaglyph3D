@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".process.configure.CroppingActivity">
+
+    <include layout="@layout/content_cropping" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        app:backgroundTint="@android:color/black"
+        android:src="@drawable/ic_invert_colors_white_48dp"
+        android:id="@+id/fab_cancel" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:onClick="onValidateCropping"
+        app:backgroundTint="@android:color/white"
+        android:src="@drawable/ic_done_black_48dp"
+        android:id="@+id/fab_apply" />
+
+</android.support.design.widget.CoordinatorLayout>

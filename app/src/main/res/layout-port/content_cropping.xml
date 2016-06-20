@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@android:color/black"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_gravity="center">
+
+            <ImageView
+                android:layout_centerInParent="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:id="@+id/frame_left"/>
+
+            <ImageView
+                android:id="@+id/left_LT"
+                android:src="@drawable/crop"
+                android:layout_alignLeft="@id/frame_left"
+                android:layout_alignStart="@id/frame_left"
+                android:layout_alignTop="@id/frame_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <ImageView
+                android:id="@+id/left_LB"
+                android:src="@drawable/crop"
+                android:rotation="-90"
+                android:layout_alignLeft="@id/frame_left"
+                android:layout_alignStart="@id/frame_left"
+                android:layout_alignBottom="@id/frame_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <ImageView
+                android:id="@+id/left_RT"
+                android:src="@drawable/crop"
+                android:rotation="90"
+                android:layout_alignRight="@id/frame_left"
+                android:layout_alignEnd="@id/frame_left"
+                android:layout_alignTop="@id/frame_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <ImageView
+                android:id="@+id/left_RB"
+                android:src="@drawable/crop"
+                android:rotation="180"
+                android:layout_alignRight="@id/frame_left"
+                android:layout_alignEnd="@id/frame_left"
+                android:layout_alignBottom="@id/frame_left"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_gravity="center">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitXY"
+                android:adjustViewBounds="true"
+                android:id="@+id/frame_right"/>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="46dp"
+            android:layout_height="46dp"
+            android:layout_marginLeft="@dimen/contrast_margin"
+            android:layout_marginStart="@dimen/contrast_margin"
+            android:layout_marginRight="@dimen/contrast_icon_margin"
+            android:layout_marginEnd="@dimen/contrast_icon_margin"
+            android:padding="5dp"
+            android:id="@+id/zoom_icon"
+            android:src="@drawable/zoom_in"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="-"/>
+
+        <SeekBar
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:id="@+id/seek_zoom"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/contrast_margin"
+            android:layout_marginEnd="@dimen/contrast_margin"
+            android:layout_gravity="center_vertical"
+            android:text="+"/>
+
+    </LinearLayout>
+
+</LinearLayout>

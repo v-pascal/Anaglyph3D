@@ -86,6 +86,7 @@
     <string name="title_activity_correction">Frames correction</string>
     <string name="title_activity_synchro">Synchronization (optional)</string>
     <string name="title_activity_shift">3D simulation</string>
+    <string name="title_activity_cropping">Cropping</string>
 
     <!-- Menus -->
     <string name="nav_album">Videos album</string>

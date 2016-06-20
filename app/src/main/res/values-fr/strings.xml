@@ -78,6 +78,7 @@
     <string name="title_activity_correction">Correction des images</string>
     <string name="title_activity_synchro">Synchronisation (optionnel)</string>
     <string name="title_activity_shift">Simulation 3D</string>
+    <string name="title_activity_cropping">Recadrage</string>
 
     <!-- Menus -->
     <string name="nav_album">Album vidéos</string>
