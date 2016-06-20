@@ -460,14 +460,17 @@ public class CroppingActivity extends AppCompatActivity implements SeekBar.OnSee
 
 
 
-                float newX = 0f, newY = 0f;
+
                 switch (event.getActionMasked()) {
 
-                    case MotionEvent.ACTION_DOWN:
-                        if (mPointerId == Constants.NO_DATA)
-                            mPointerId = event.getPointerId(0);
-                        break;
+                    case MotionEvent.ACTION_DOWN: {
+                        if (mPointerId == Constants.NO_DATA) {
 
+                            mPointerId = event.getPointerId(0);
+                            return true;
+                        }
+                        break;
+                    }
                     case MotionEvent.ACTION_UP:
 
                         // Always stop when any action up is found
@@ -479,24 +482,28 @@ public class CroppingActivity extends AppCompatActivity implements SeekBar.OnSee
                             for (int i = 0; i < event.getPointerCount(); ++i) {
                                 if (event.getPointerId(i) == mPointerId) {
 
-                                    newX = event.getX(i);
-                                    newY = event.getY(i);
+
+
+
+
+
+
+                                    event.getX(i);
+                                    event.getY(i);
+
+
+
+
+
+
+
                                     break;
                                 }
                             }
                         }
-                        break;
+                        return true;
                 }
-
-
-
-
-
-
-
-
-
-                return true;
+                return false;
             }
         });
         remoteFrame.setImageBitmap(openBitmapFile(false));
