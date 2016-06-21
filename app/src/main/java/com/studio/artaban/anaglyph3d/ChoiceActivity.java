@@ -184,7 +184,7 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
             return;
         }
 
-        // Get action bar height
+        // Get action & status bar height
         TypedValue typedValue = new TypedValue();
         if (getTheme().resolveAttribute(android.R.attr.actionBarSize, typedValue, true))
             ActivityWrapper.ACTION_BAR_HEIGHT = TypedValue.complexToDimensionPixelSize(typedValue.data,
@@ -193,6 +193,15 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
 
             ActivityWrapper.ACTION_BAR_HEIGHT = 0;
             Logs.add(Logs.Type.W, "'android.R.attr.actionBarSize' attribute not found");
+        }
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0)
+            ActivityWrapper.STATUS_BAR_HEIGHT = getResources().getDimensionPixelSize(resourceId);
+
+        else {
+
+            ActivityWrapper.STATUS_BAR_HEIGHT = 0;
+            Logs.add(Logs.Type.W, "'status_bar_height' dimension not found");
         }
 
         // Update toolbar

@@ -10,6 +10,7 @@ import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.process.ProcessThread;
 import com.studio.artaban.anaglyph3d.process.configure.CorrectionActivity;
+import com.studio.artaban.anaglyph3d.process.configure.CroppingActivity;
 import com.studio.artaban.anaglyph3d.transfer.IConnectRequest;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 
@@ -144,8 +145,10 @@ public class Video extends MediaProcess {
         public float blue; // Blue balance
         public boolean local; // Flag to define on which frames to apply contrast & brightness
 
-        public short offset; // Configured synchronization
-        public boolean localSync; // Flag to define on which frames to apply synchronization
+        public float zoom; // Configured zoom
+        public int originX; // X origin coordinate from which the zoom starts
+        public int originY; // Y origin coordinate from which the zoom starts
+        public boolean localCrop; // Flag to define on which frames to apply cropping
 
     }
     public void convertFrames(final ConvertData data) {
@@ -161,30 +164,6 @@ public class Video extends MediaProcess {
                 // Define progress bounds
                 mTotalFrame = mFrameCount + 1; // + 1 -> for removing files step (last operation)
 
-                ////// Rename frame files to apply synchronization (if needed)
-                if (data.offset > 0) {
-                    mTotalFrame += mFrameCount - data.offset;
-
-                    Logs.add(Logs.Type.I, "mFrameCount: " + mFrameCount + ", data.offset: " + data.offset);
-                    String framePath = ActivityWrapper.DOCUMENTS_FOLDER + File.separator + ((data.localSync)?
-                            Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX);
-                    for (int i = 0; i < mFrameCount; ++i) {
-
-                        File frame = new File(framePath + String.format("%04d", i) +
-                                Constants.EXTENSION_RGBA);
-                        if (data.offset > i)
-                            frame.delete();
-                        else
-                            frame.renameTo(new File(framePath + String.format("%04d", i - data.offset) +
-                                    Constants.EXTENSION_RGBA));
-
-                        ++mProceedFrame;
-                    }
-
-                    // Apply conversion to synchronized frames
-                    mFrameCount -= data.offset;
-                }
-
                 ////// Apply conversion on frame files
                 int frameWidth = Settings.getInstance().getResolutionWidth();
                 int frameHeight = Settings.getInstance().getResolutionHeight();
@@ -192,12 +171,14 @@ public class Video extends MediaProcess {
                 Bitmap localBitmap = Bitmap.createBitmap(frameWidth, frameHeight, Bitmap.Config.ARGB_8888);
                 Bitmap remoteBitmap = Bitmap.createBitmap(frameWidth, frameHeight, Bitmap.Config.ARGB_8888);
 
-                boolean applyContrast =
+                boolean applyCorrection =
                         (data.brightness > CorrectionActivity.DEFAULT_BRIGHTNESS) ||
                         (data.brightness < CorrectionActivity.DEFAULT_BRIGHTNESS) ||
                         (data.contrast > CorrectionActivity.DEFAULT_CONTRAST) ||
                         (data.contrast < CorrectionActivity.DEFAULT_CONTRAST); // ...compare float values
-                Logs.add(Logs.Type.I, "applyContrast: " + applyContrast);
+                boolean applyCropping = (data.originX != 0) || (data.originY != 0);
+                Logs.add(Logs.Type.I, "applyCorrection: " + applyCorrection + ", applyCropping: " +
+                        applyCropping);
 
                 byte[] buffer = new byte[localBitmap.getByteCount()];
                 for (int i = 0; i < mFrameCount; ++i) {
@@ -232,44 +213,55 @@ public class Video extends MediaProcess {
                         continue;
                     }
 
-                    // Apply contrast & brightness (if requested)
-                    Bitmap bmpContrastLocal, bmpContrastRemote;
-                    if (applyContrast) {
+                    ////// Apply contrast & brightness (if requested)
+                    Bitmap bmpCorrectionLocal, bmpCorrectionRemote;
+                    if (applyCorrection) {
 
                         if (!data.local) {
                             // -> '!data.local' instead of 'data.local' coz a local frame on the remote
                             //    device == local frame on current device
-                            bmpContrastLocal = CorrectionActivity.applyCorrection(localBitmap,
+                            bmpCorrectionLocal = CorrectionActivity.applyCorrection(localBitmap,
                                     data.contrast, data.brightness, data.red, data.green, data.blue);
-                            bmpContrastRemote = remoteBitmap;
+                            bmpCorrectionRemote = remoteBitmap;
                         }
                         else {
-                            bmpContrastLocal = localBitmap;
-                            bmpContrastRemote = CorrectionActivity.applyCorrection(remoteBitmap,
+                            bmpCorrectionLocal = localBitmap;
+                            bmpCorrectionRemote = CorrectionActivity.applyCorrection(remoteBitmap,
                                     data.contrast, data.brightness, data.red, data.green, data.blue);
                         }
                     }
                     else {
-                        bmpContrastLocal = localBitmap;
-                        bmpContrastRemote = remoteBitmap;
+                        bmpCorrectionLocal = localBitmap;
+                        bmpCorrectionRemote = remoteBitmap;
                     }
 
-                    // Merge frame buffer (according camera position)
+                    ////// Apply cropping (if requested)
+                    if (applyCropping) {
+
+                        if (data.localCrop)
+                            bmpCorrectionLocal = CroppingActivity.applyCropping(bmpCorrectionLocal,
+                                    data.zoom, data.originX, data.originY);
+                        else
+                            bmpCorrectionRemote = CroppingActivity.applyCropping(bmpCorrectionRemote,
+                                    data.zoom, data.originX, data.originY);
+                    }
+
+                    ////// Merge frame buffer (according camera position)
                     // - Left camera will be red
                     // - Right camera will be blue
                     if (!Settings.getInstance().mPosition) { // Here is the condition to define which
                                                              // camera to apply anaglyph color
                         // Swap local & remote bitmap frame
-                        Bitmap swap = bmpContrastLocal;
-                        bmpContrastLocal = bmpContrastRemote;
-                        bmpContrastRemote = swap;
+                        Bitmap swap = bmpCorrectionLocal;
+                        bmpCorrectionLocal = bmpCorrectionRemote;
+                        bmpCorrectionRemote = swap;
                     }
                     for (int height = 0; height < frameHeight; ++height) {
                         for (int width = 0; width < frameWidth; ++width) {
 
                             int pixel = (width + (height * frameWidth)) << 2;
-                            int localPixel = bmpContrastLocal.getPixel(width, height);
-                            int remotePixel = bmpContrastRemote.getPixel(width, height);
+                            int localPixel = bmpCorrectionLocal.getPixel(width, height);
+                            int remotePixel = bmpCorrectionRemote.getPixel(width, height);
 
                             // Here is code to apply anaglyph color!
                             buffer[pixel + 0] = (byte)((localPixel  & 0x00ff0000) >> 16); // R
@@ -278,20 +270,17 @@ public class Video extends MediaProcess {
                         }
                     }
 
-                    // Save converted frame file
-                    File syncFile = (data.localSync)? localFile:remoteFile;
-
-                    try { new FileOutputStream(syncFile).write(buffer); }
+                    // Save converted frame file (local)
+                    try { new FileOutputStream(localFile).write(buffer); }
                     catch (IOException e) {
                         Logs.add(Logs.Type.F, "Failed to save anaglyph frame file: " +
-                                syncFile.getAbsolutePath());
+                                localFile.getAbsolutePath());
                     }
                 }
 
-                ////// Remove remaining frame files
-                Storage.removeFiles("^" + ((!data.localSync)?
-                        Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX) +
-                        "+[0-9]*[0-9]\\" + Constants.EXTENSION_RGBA + "$");
+                ////// Remove remaining frame files (remote)
+                Storage.removeFiles("^" + Constants.PROCESS_REMOTE_PREFIX + "+[0-9]*[0-9]\\" +
+                        Constants.EXTENSION_RGBA + "$");
 
                 ++mProceedFrame;
 
@@ -317,13 +306,13 @@ public class Video extends MediaProcess {
                 AUDIO_WAV_FILENAME + "\"");
     }
 
-    public static boolean makeAnaglyphVideo(boolean jpegStep, int frameWidth, int frameHeight,
-                                            int frameCount, String files) {
+    public static boolean makeAnaglyphVideo(boolean jpegStep, int frameWidth, int frameHeight, int frameCount) {
 
         Logs.add(Logs.Type.V, "jpegStep: " + jpegStep + ", frameWidth: " + frameWidth + ", frameHeight: " +
-                frameHeight + ", frameCount: " + frameCount + ", files: " + files);
+                frameHeight + ", frameCount: " + frameCount);
         if (jpegStep)
-            return ProcessThread.mGStreamer.launch("multifilesrc location=\"" + files + "\" index=0" +
+            return ProcessThread.mGStreamer.launch("multifilesrc location=\"" +
+                    ActivityWrapper.DOCUMENTS_FOLDER + Constants.PROCESS_LOCAL_FRAMES + "\" index=0" +
                     " caps=\"video/x-raw,format=RGBA,width=" + frameWidth + ",height=" + frameHeight +
                     ",framerate=1/1\" ! decodebin ! videoconvert ! jpegenc ! multifilesink" +
                     " location=\"" + ActivityWrapper.DOCUMENTS_FOLDER + "/img%d.jpg\"");

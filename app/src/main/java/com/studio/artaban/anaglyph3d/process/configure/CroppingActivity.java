@@ -11,7 +11,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,7 +18,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
-import android.widget.Toast;
 
 import com.studio.artaban.anaglyph3d.R;
 import com.studio.artaban.anaglyph3d.data.Constants;
@@ -27,7 +25,6 @@ import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
-import com.studio.artaban.anaglyph3d.helpers.Storage;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -55,7 +52,23 @@ public class CroppingActivity extends AppCompatActivity implements SeekBar.OnSee
 
     private static final float MAX_ZOOM = 3f / 4f;
 
-    //
+    //////
+    public static Bitmap applyCropping(Bitmap curBitmap, float zoom, int originX, int originY) {
+        // Apply cropping configuration on current bitmap
+        // NB: Can need a large heap memory
+
+        Logs.add(Logs.Type.V, "curBitmap: " + curBitmap + ", zoom: " + zoom + ", originX: " +
+                originX + ", originY: " + originY);
+        Bitmap cropBitmap = Bitmap.createBitmap(curBitmap, originX, originY,
+                (int) (curBitmap.getWidth() * zoom), (int) (curBitmap.getHeight() * zoom));
+
+        int width = curBitmap.getWidth();
+        int height = curBitmap.getHeight();
+        curBitmap.recycle();
+        // Try to avoid out of memory error
+
+        return Bitmap.createScaledBitmap(cropBitmap, width, height, false);
+    }
     private static Bitmap openBitmapFile(boolean local) { // Return bitmap from RGBA file
 
         Logs.add(Logs.Type.V, "local: " + local);
@@ -192,6 +205,7 @@ public class CroppingActivity extends AppCompatActivity implements SeekBar.OnSee
             mImageHeight = parentHeight;
             mImageWidth = (int)(mFrameWidth * parentHeight / mFrameHeight);
         }
+        Logs.add(Logs.Type.I, "mImageWidth: " + mImageWidth + ", mImageHeight: " + mImageHeight);
     }
     private void updateZoom(boolean display) {
         // Position images that show the zoom according current configuration
@@ -213,11 +227,11 @@ public class CroppingActivity extends AppCompatActivity implements SeekBar.OnSee
         leftTop.setTranslationX(originX);
         leftTop.setTranslationY(originY);
 
-        float transX = -(mFrameWidth - (mZoom * mFrameWidth) - originX);
+        float transX = -(mImageWidth - (mZoom * mImageWidth) - originX);
         rightTop.setTranslationX(transX);
         rightTop.setTranslationY(originY);
 
-        float transY = -(mFrameHeight - (mZoom * mFrameHeight) - originY);
+        float transY = -(mImageHeight - (mZoom * mImageHeight) - originY);
         rightBottom.setTranslationX(transX);
         rightBottom.setTranslationY(transY);
 
@@ -339,7 +353,7 @@ public class CroppingActivity extends AppCompatActivity implements SeekBar.OnSee
 
                         updateOrigin((int)(event.getX(i) - mPrevX), (int)(event.getY(i) - mPrevY));
                         updateZoom(false);
-                        // TODO: Add landscape natural orientation management
+                        // TODO: Add landscape natural orientation devices management
 
                         mPrevX = event.getX(i);
                         mPrevY = event.getY(i);
@@ -355,33 +369,34 @@ public class CroppingActivity extends AppCompatActivity implements SeekBar.OnSee
         // Update origin values according new configuration
 
         //Logs.add(Logs.Type.V, null);
-        int originX = (int)(mFrameWidth - (mZoom * mFrameWidth)) >> 1;
-        int originY = (int)(mFrameHeight - (mZoom * mFrameHeight)) >> 1;
+        int originX = (int)(mFrameWidth - (mZoom * mFrameWidth));
+        int originY = (int)(mFrameHeight - (mZoom * mFrameHeight));
 
+        int newOrigin = (originX >> 1) + mTransX + deltaX;
+        if (newOrigin >= 0) {
+            if (newOrigin <= originX) {
 
+                mTransX += deltaX;
+                mOriginX = newOrigin;
+            }
+            else
+                mOriginX = originX;
+        }
+        else
+            mOriginX = 0;
 
+        newOrigin = (originY >> 1) + mTransY + deltaY;
+        if (newOrigin >= 0) {
+            if (newOrigin <= originY) {
 
-
-
-
-
-        if (((originX + mTransX + deltaX) >= 0) && ((originX + mTransX + deltaX) <= (originX << 1)))
-            mTransX += deltaX;
-        if (((originY + mTransY + deltaY) >= 0) && ((originY + mTransY + deltaY) <= (originY << 1)))
-            mTransY += deltaY;
-
-        mOriginX = ((originX + mTransX) < 0)? 0: (((originX + mTransX) > (originX << 1))? originX << 1: originX + mTransX);
-        mOriginY = ((originY + mTransY) < 0)? 0: (((originY + mTransY) > (originY << 1))? originY << 1: originY + mTransY);
-
-
-
-
-
-
-
-
-
-
+                mTransY += deltaY;
+                mOriginY = newOrigin;
+            }
+            else
+                mOriginY = originY;
+        }
+        else
+            mOriginY = 0;
     }
 
     //////
@@ -419,81 +434,6 @@ public class CroppingActivity extends AppCompatActivity implements SeekBar.OnSee
 
             mChanged = savedInstanceState.getBoolean(DATA_KEY_CHANGED);
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        File documents = getExternalFilesDir(null);
-        if (documents != null) {
-
-            ActivityWrapper.DOCUMENTS_FOLDER = documents.getAbsolutePath();
-
-            // Create folders
-            if (!Storage.createFolder(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD))
-                Logs.add(Logs.Type.E, "Failed to create 'Downloads' folder");
-            if (!Storage.createFolder(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_THUMBNAILS))
-                Logs.add(Logs.Type.E, "Failed to create 'Thumbnails' folder");
-            if (!Storage.createFolder(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_VIDEOS))
-                Logs.add(Logs.Type.E, "Failed to create 'Videos' folder");
-        }
-        else {
-
-            Logs.add(Logs.Type.F, "Failed to get documents folder");
-            DisplayMessage.getInstance().toast(R.string.no_storage, Toast.LENGTH_LONG);
-            finish();
-            return;
-        }
-        TypedValue typedValue = new TypedValue();
-        if (getTheme().resolveAttribute(android.R.attr.actionBarSize, typedValue, true))
-            ActivityWrapper.ACTION_BAR_HEIGHT = TypedValue.complexToDimensionPixelSize(typedValue.data,
-                    getResources().getDisplayMetrics());
-        else {
-
-            ActivityWrapper.ACTION_BAR_HEIGHT = 0;
-            Logs.add(Logs.Type.W, "'android.R.attr.actionBarSize' attribute not found");
-        }
-        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0)
-            ActivityWrapper.STATUS_BAR_HEIGHT = getResources().getDimensionPixelSize(resourceId);
-
-        else {
-
-            ActivityWrapper.STATUS_BAR_HEIGHT = 0;
-            Logs.add(Logs.Type.W, "'status_bar_height' dimension not found");
-        }
-        Settings.getInstance().initResolutions();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         // Get frame resolution
         if (Settings.getInstance().mOrientation) { // Portrait
@@ -549,7 +489,7 @@ public class CroppingActivity extends AppCompatActivity implements SeekBar.OnSee
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
-                //Logs.add(Logs.Type.V, "event: " + event);
+                Logs.add(Logs.Type.V, "event: " + event);
                 return moveOrigin(true, event);
             }
         });
@@ -558,7 +498,7 @@ public class CroppingActivity extends AppCompatActivity implements SeekBar.OnSee
             @Override
             public boolean onTouch(View v, MotionEvent event) {
 
-                //Logs.add(Logs.Type.V, "event: " + event);
+                Logs.add(Logs.Type.V, "event: " + event);
                 return moveOrigin(false, event);
             }
         });

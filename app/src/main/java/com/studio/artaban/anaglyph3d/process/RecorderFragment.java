@@ -201,13 +201,13 @@ public class RecorderFragment extends Fragment {
 
         // Avoid the user to change recorder progression (which is displayed in a 'SeekBar')
         final SeekBar progress = (SeekBar)mRecordingLayout.findViewById(R.id.record_progress);
+        progress.setMax(Settings.getInstance().mDuration);
         progress.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 return true;
             }
         });
-        progress.setMax(Settings.getInstance().mDuration);
 
         // Create & Position preview camera surface
         mCameraView = new CameraView(getContext());

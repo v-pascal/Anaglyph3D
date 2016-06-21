@@ -36,7 +36,6 @@
         android:theme="@style/Theme.AppCompat.NoActionBar">
         <!-- See large heap memory need in 'ShiftActivity.applySimulation' method -->
 
-        <!--
         <activity
             android:name=".ChoiceActivity"
             android:theme="@style/Theme.AppCompat">
@@ -46,12 +45,10 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        -->
         <activity
             android:name=".ConnectActivity"
             android:configChanges="orientation|screenSize"
-            android:label="@string/title_activity_connect">
-        </activity>
+            android:label="@string/title_activity_connect"/>
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize"
@@ -99,32 +96,10 @@
             android:name=".process.configure.CorrectionActivity"
             android:label="@string/title_activity_correction"
             android:theme="@style/Theme.AppCompat"/>
-
-
-
-
-
-        <activity
-            android:name=".process.configure.SynchroActivity"
-            android:label="@string/title_activity_synchro"
-            android:theme="@style/Theme.AppCompat"/>
-
         <activity
             android:name=".process.configure.CroppingActivity"
             android:label="@string/title_activity_cropping"
-            android:theme="@style/Theme.AppCompat">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
-
-
-
-
-
-
+            android:theme="@style/Theme.AppCompat"/>
         <activity
             android:name=".process.configure.ShiftActivity"
             android:label="@string/title_activity_shift"

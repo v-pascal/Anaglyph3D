@@ -18,6 +18,7 @@ import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.process.configure.CorrectionActivity;
+import com.studio.artaban.anaglyph3d.process.configure.CroppingActivity;
 import com.studio.artaban.anaglyph3d.process.configure.ShiftActivity;
 import com.studio.artaban.anaglyph3d.process.configure.SynchroActivity;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
@@ -338,18 +339,23 @@ public class ProcessActivity extends AppCompatActivity {
                 }
                 break;
             }
-            case Constants.PROCESS_REQUEST_SYNCHRO: {
+            case Constants.PROCESS_REQUEST_CROPPING: {
 
                 if (resultCode == RESULT_OK)
-                    mProcessThread.applySynchronization(
-                            data.getShortExtra(SynchroActivity.DATA_KEY_SYNCHRO_OFFSET,
-                                    SynchroActivity.DEFAULT_OFFSET),
-                            data.getBooleanExtra(SynchroActivity.DATA_KEY_SYNCHRO_LOCAL,
-                                    SynchroActivity.DEFAULT_LOCAL));
+                    mProcessThread.applyCropping(
+                            data.getBooleanExtra(CroppingActivity.DATA_KEY_LOCAL,
+                                    CroppingActivity.DEFAULT_LOCAL),
+                            data.getFloatExtra(CroppingActivity.DATA_KEY_ZOOM,
+                                    CroppingActivity.DEFAULT_ZOOM),
+                            data.getIntExtra(CroppingActivity.DATA_KEY_ORIGIN_X,
+                                    CroppingActivity.DEFAULT_X),
+                            data.getIntExtra(CroppingActivity.DATA_KEY_ORIGIN_Y,
+                                    CroppingActivity.DEFAULT_Y));
 
                 else if (resultCode != Constants.RESULT_LOST_CONNECTION)
-                    mProcessThread.applySynchronization(SynchroActivity.DEFAULT_OFFSET,
-                            SynchroActivity.DEFAULT_LOCAL);
+                    mProcessThread.applyCropping(CroppingActivity.DEFAULT_LOCAL,
+                            CroppingActivity.DEFAULT_ZOOM, CroppingActivity.DEFAULT_X,
+                            CroppingActivity.DEFAULT_Y);
                 else {
 
                     setResult(Constants.RESULT_LOST_CONNECTION);
