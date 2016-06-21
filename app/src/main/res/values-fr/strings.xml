@@ -3,7 +3,7 @@
     <string name="app_name">3D Anaglyphe</string>
     <string name="company_name">Par STUDIO Artaban</string>
 
-    <string name="find_camera">Sélectionnez la caméra recherché...</string>
+    <string name="find_camera">Sélectionnez la caméra recherchée...</string>
     <string name="no_bluetooth">Bluetooth non disponible!</string>
     <string name="camera_left">Caméra gauche</string>
     <string name="camera_right">Caméra droite</string>
