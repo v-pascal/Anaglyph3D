@@ -99,8 +99,8 @@ public class CorrectionActivity extends AppCompatActivity implements SeekBar.OnS
     private boolean loadImagesFromFiles(ImageView compareImage) { // Load both images from RGBA files
 
         Logs.add(Logs.Type.V, "compareImage: " + compareImage);
-        File localFile = new File(ActivityWrapper.DOCUMENTS_FOLDER, Storage.FILENAME_LOCAL_PICTURE);
-        File remoteFile = new File(ActivityWrapper.DOCUMENTS_FOLDER, Storage.FILENAME_REMOTE_PICTURE);
+        File localFile = new File(Storage.DOCUMENTS_FOLDER, Storage.FILENAME_LOCAL_PICTURE);
+        File remoteFile = new File(Storage.DOCUMENTS_FOLDER, Storage.FILENAME_REMOTE_PICTURE);
 
         Bundle data = getIntent().getExtras().getBundle(Constants.DATA_ACTIVITY);
         if (data == null) {

@@ -94,7 +94,7 @@ public class Video extends MediaProcess {
                     mFrameCount = localCount;
                 }
 
-                File frames = new File(ActivityWrapper.DOCUMENTS_FOLDER);
+                File frames = new File(Storage.DOCUMENTS_FOLDER);
                 File[] files = frames.listFiles(new FilenameFilter() {
                     @Override
                     public boolean accept(File dir, String filename) {
@@ -125,7 +125,7 @@ public class Video extends MediaProcess {
                         ++removed;
                     }
                     else if (removed != 0) // Rename file in order to keep file index name valid
-                        file.renameTo(new File(ActivityWrapper.DOCUMENTS_FOLDER + File.separator + prefix +
+                        file.renameTo(new File(Storage.DOCUMENTS_FOLDER + File.separator + prefix +
                                 String.format("%04d", frameCount - removed - 1) +
                                 Constants.EXTENSION_RGBA));
 
@@ -172,7 +172,7 @@ public class Video extends MediaProcess {
                     mTotalFrame += mFrameCount - data.offset;
 
                     Logs.add(Logs.Type.I, "mFrameCount: " + mFrameCount + ", data.offset: " + data.offset);
-                    String framePath = ActivityWrapper.DOCUMENTS_FOLDER + File.separator + ((data.localSync)?
+                    String framePath = Storage.DOCUMENTS_FOLDER + File.separator + ((data.localSync)?
                             Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX);
                     for (int i = 0; i < mFrameCount; ++i) {
 
@@ -215,7 +215,7 @@ public class Video extends MediaProcess {
                     Logs.add(Logs.Type.D, "Process file index: " + fileIndex);
 
                     // Get local frame buffer
-                    File localFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + File.separator +
+                    File localFile = new File(Storage.DOCUMENTS_FOLDER + File.separator +
                             Constants.PROCESS_LOCAL_PREFIX + fileIndex + Constants.EXTENSION_RGBA);
                     try {
                         if (new FileInputStream(localFile).read(buffer) != buffer.length)
@@ -228,7 +228,7 @@ public class Video extends MediaProcess {
                     }
 
                     // Get remote frame buffer
-                    File remoteFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + File.separator +
+                    File remoteFile = new File(Storage.DOCUMENTS_FOLDER + File.separator +
                             Constants.PROCESS_REMOTE_PREFIX + fileIndex + Constants.EXTENSION_RGBA);
                     try {
                         if (new FileInputStream(remoteFile).read(buffer) != buffer.length)
@@ -332,7 +332,7 @@ public class Video extends MediaProcess {
 
         Logs.add(Logs.Type.V, "file: " + file);
         return ProcessThread.mGStreamer.launch("filesrc location=\"" + file + "\" ! decodebin" +
-                " ! audioconvert ! wavenc ! filesink location=\"" + ActivityWrapper.DOCUMENTS_FOLDER +
+                " ! audioconvert ! wavenc ! filesink location=\"" + Storage.DOCUMENTS_FOLDER +
                 AUDIO_WAV_FILENAME + "\"");
     }
 
@@ -345,15 +345,15 @@ public class Video extends MediaProcess {
             return ProcessThread.mGStreamer.launch("multifilesrc location=\"" + files + "\" index=0" +
                     " caps=\"video/x-raw,format=RGBA,width=" + frameWidth + ",height=" + frameHeight +
                     ",framerate=1/1\" ! decodebin ! videoconvert ! jpegenc ! multifilesink" +
-                    " location=\"" + ActivityWrapper.DOCUMENTS_FOLDER + "/img%d.jpg\"");
+                    " location=\"" + Storage.DOCUMENTS_FOLDER + "/img%d.jpg\"");
         else
             return ProcessThread.mGStreamer.launch("webmmux name=mux ! filesink" +
-                    " location=\"" + ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_3D_VIDEO +
-                    "\" multifilesrc location=\"" + ActivityWrapper.DOCUMENTS_FOLDER + "/img%d.jpg\" index=0" +
+                    " location=\"" + Storage.DOCUMENTS_FOLDER + Storage.FILENAME_3D_VIDEO +
+                    "\" multifilesrc location=\"" + Storage.DOCUMENTS_FOLDER + "/img%d.jpg\" index=0" +
                     " caps=\"image/jpeg,width=" + frameWidth + ",height=" + frameHeight +
                     ",framerate=" + frameCount + "/" + Settings.getInstance().mDuration +
                     "\" ! jpegdec ! videoconvert ! vp8enc ! queue ! mux.video_0 filesrc" +
-                    " location=\"" + ActivityWrapper.DOCUMENTS_FOLDER + AUDIO_WAV_FILENAME +
+                    " location=\"" + Storage.DOCUMENTS_FOLDER + AUDIO_WAV_FILENAME +
                     "\" ! decodebin ! audioconvert ! vorbisenc ! queue ! mux.audio_0");
     }
 

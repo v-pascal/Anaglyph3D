@@ -356,7 +356,7 @@ public class CameraView extends SurfaceView
 
         // Set duration & output file name
         mMediaRecorder.setMaxDuration(Settings.getInstance().mDuration * 1000);
-        mMediaRecorder.setOutputFile(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_LOCAL_VIDEO);
+        mMediaRecorder.setOutputFile(Storage.DOCUMENTS_FOLDER + Storage.FILENAME_LOCAL_VIDEO);
 
         try { mMediaRecorder.prepare(); }
         catch (IOException e) {

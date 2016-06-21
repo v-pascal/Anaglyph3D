@@ -25,6 +25,7 @@ import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.DisplayMessage;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
+import com.studio.artaban.anaglyph3d.helpers.Storage;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -72,7 +73,7 @@ public class CroppingActivity extends AppCompatActivity implements SeekBar.OnSee
     private static Bitmap openBitmapFile(boolean local) { // Return bitmap from RGBA file
 
         Logs.add(Logs.Type.V, "local: " + local);
-        File bmpFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + File.separator + ((local)?
+        File bmpFile = new File(Storage.DOCUMENTS_FOLDER + File.separator + ((local)?
                         Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX) + "0000" +
                         Constants.EXTENSION_RGBA);
 
@@ -503,8 +504,8 @@ public class CroppingActivity extends AppCompatActivity implements SeekBar.OnSee
             }
         });
 
-        getFrameImageSize(params.height + ActivityWrapper.ACTION_BAR_HEIGHT +
-                ActivityWrapper.STATUS_BAR_HEIGHT);
+        getFrameImageSize(params.height + Constants.DIMEN_ACTION_BAR_HEIGHT +
+                Constants.DIMEN_STATUS_BAR_HEIGHT);
         ((RelativeLayout.LayoutParams)localFrame.getLayoutParams()).height = mImageHeight;
         ((RelativeLayout.LayoutParams)remoteFrame.getLayoutParams()).height = mImageHeight;
         ((RelativeLayout.LayoutParams)localFrame.getLayoutParams()).width = mImageWidth;

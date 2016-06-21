@@ -5,7 +5,6 @@ import android.os.Bundle;
 
 import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
-import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 import com.studio.artaban.anaglyph3d.process.ProcessThread;
@@ -151,7 +150,7 @@ public class Frame extends MediaProcess {
                     String fileIndex = String.format("%04d", i);
 
                     // Get local frame buffer
-                    File localFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + File.separator +
+                    File localFile = new File(Storage.DOCUMENTS_FOLDER + File.separator +
                             Constants.PROCESS_LOCAL_PREFIX + fileIndex + Constants.EXTENSION_RGBA);
                     try {
                         if (new FileInputStream(localFile).read(buffer) != buffer.length)

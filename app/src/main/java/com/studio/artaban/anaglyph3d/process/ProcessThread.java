@@ -442,8 +442,7 @@ public class ProcessThread extends Thread {
                     // Save NV21 local/remote raw picture file
                     try {
                         byte[] raw = (local)? mPictureRaw:Frame.getInstance().getBuffer();
-                        File rawFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
-                                Storage.FILENAME_RAW_PICTURE);
+                        File rawFile = new File(Storage.DOCUMENTS_FOLDER, Storage.FILENAME_RAW_PICTURE);
 
                         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(rawFile));
                         bos.write(raw);
@@ -486,11 +485,10 @@ public class ProcessThread extends Thread {
                     int height = (local)? mPictureSize.height:Frame.getInstance().getHeight();
                     // -> Raw picture always in landscape orientation
 
-                    if (!Frame.convertNV21toRGBA(ActivityWrapper.DOCUMENTS_FOLDER +
-                                    Storage.FILENAME_RAW_PICTURE,
-                            width, height, ActivityWrapper.DOCUMENTS_FOLDER +
-                                    ((local) ?
-                                            Storage.FILENAME_LOCAL_PICTURE :
+                    if (!Frame.convertNV21toRGBA(Storage.DOCUMENTS_FOLDER + Storage.FILENAME_RAW_PICTURE,
+                            width, height, Storage.DOCUMENTS_FOLDER +
+                                    ((local)?
+                                            Storage.FILENAME_LOCAL_PICTURE:
                                             Storage.FILENAME_REMOTE_PICTURE), getOrientation(local))) {
 
                         Logs.add(Logs.Type.E, "Failed to convert correction picture");
@@ -524,8 +522,7 @@ public class ProcessThread extends Thread {
                             mStatus = Status.TRANSFER_VIDEO;
 
                             // Send local video file to remote device
-                            if (!Video.sendFile(ActivityWrapper.DOCUMENTS_FOLDER +
-                                    Storage.FILENAME_LOCAL_VIDEO)) {
+                            if (!Video.sendFile(Storage.DOCUMENTS_FOLDER + Storage.FILENAME_LOCAL_VIDEO)) {
 
                                 Logs.add(Logs.Type.E, "Failed to load video file");
                                 mAbort = true;
@@ -684,9 +681,9 @@ public class ProcessThread extends Thread {
                     // Save transferred video file
                     try {
                         byte[] raw = Video.getInstance().getBuffer();
-                        File videoFile = new File(ActivityWrapper.DOCUMENTS_FOLDER,
+                        File videoFile = new File(Storage.DOCUMENTS_FOLDER,
                                 (mStatus == Status.SAVE_VIDEO)?
-                                Storage.FILENAME_REMOTE_VIDEO:Storage.FILENAME_3D_VIDEO);
+                                    Storage.FILENAME_REMOTE_VIDEO:Storage.FILENAME_3D_VIDEO);
 
                         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(videoFile));
                         bos.write(raw);
@@ -727,10 +724,10 @@ public class ProcessThread extends Thread {
                     sleep();
                     publishProgress(0, 1);
 
-                    if (!Video.extractFramesRGBA(ActivityWrapper.DOCUMENTS_FOLDER + ((local)?
+                    if (!Video.extractFramesRGBA(Storage.DOCUMENTS_FOLDER + ((local)?
                                     Storage.FILENAME_LOCAL_VIDEO:
                                     Storage.FILENAME_REMOTE_VIDEO),
-                            getOrientation(local), ActivityWrapper.DOCUMENTS_FOLDER + ((local)?
+                            getOrientation(local), Storage.DOCUMENTS_FOLDER + ((local)?
                                     Constants.PROCESS_LOCAL_FRAMES:
                                     Constants.PROCESS_REMOTE_FRAMES))) {
 
@@ -806,7 +803,7 @@ public class ProcessThread extends Thread {
                     Logs.add(Logs.Type.I, "EXTRACT_AUDIO");
                     publishProgress(0, 1);
 
-                    if (!Video.extractAudio(ActivityWrapper.DOCUMENTS_FOLDER +
+                    if (!Video.extractAudio(Storage.DOCUMENTS_FOLDER +
                             ((!mLocalSync)? // Extract sound from '!mLocalSync' coz if shift frames
                                 Storage.FILENAME_LOCAL_VIDEO: // from local video, remote video sound will
                                 Storage.FILENAME_REMOTE_VIDEO))) { // be synchronized!
@@ -871,7 +868,7 @@ public class ProcessThread extends Thread {
                         made = Video.makeAnaglyphVideo(local,
                                 Settings.getInstance().getResolutionWidth(),
                                 Settings.getInstance().getResolutionHeight(),
-                                Video.getInstance().getFrameCount(), ActivityWrapper.DOCUMENTS_FOLDER +
+                                Video.getInstance().getFrameCount(), Storage.DOCUMENTS_FOLDER +
                                         ((mLocalSync)?
                                                 Constants.PROCESS_LOCAL_FRAMES:
                                                 Constants.PROCESS_REMOTE_FRAMES));
@@ -879,7 +876,7 @@ public class ProcessThread extends Thread {
                         made = Video.makeAnaglyphVideo(local,
                                 Frame.getInstance().getWidth(),
                                 Frame.getInstance().getHeight(),
-                                Frame.getInstance().getFrameCount(), ActivityWrapper.DOCUMENTS_FOLDER +
+                                Frame.getInstance().getFrameCount(), Storage.DOCUMENTS_FOLDER +
                                     Constants.PROCESS_LOCAL_FRAMES);
 
                     if (!made) {
@@ -918,7 +915,7 @@ public class ProcessThread extends Thread {
                     }
 
                     // Send 3D video to remote device
-                    if (!Video.sendFile(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_3D_VIDEO)) {
+                    if (!Video.sendFile(Storage.DOCUMENTS_FOLDER + Storage.FILENAME_3D_VIDEO)) {
 
                         Logs.add(Logs.Type.E, "Failed to load 3D anaglyph video file");
                         mAbort = true;
@@ -984,9 +981,9 @@ public class ProcessThread extends Thread {
                         width = mPictureSize.width;
                         height = mPictureSize.height;
                     }
-                    if (!Frame.convertRGBAtoJPEG(ActivityWrapper.DOCUMENTS_FOLDER +
+                    if (!Frame.convertRGBAtoJPEG(Storage.DOCUMENTS_FOLDER +
                                     Storage.FILENAME_LOCAL_PICTURE, width, height,
-                            ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_THUMBNAIL_PICTURE)) {
+                                    Storage.DOCUMENTS_FOLDER + Storage.FILENAME_THUMBNAIL_PICTURE)) {
 
                         Logs.add(Logs.Type.E, "Failed to convert thumbnail picture");
 

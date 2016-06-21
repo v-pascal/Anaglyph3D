@@ -166,14 +166,14 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
         File documents = getExternalFilesDir(null);
         if (documents != null) {
 
-            ActivityWrapper.DOCUMENTS_FOLDER = documents.getAbsolutePath();
+            Storage.DOCUMENTS_FOLDER = documents.getAbsolutePath();
 
             // Create folders
-            if (!Storage.createFolder(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD))
+            if (!Storage.createFolder(Storage.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD))
                 Logs.add(Logs.Type.E, "Failed to create 'Downloads' folder");
-            if (!Storage.createFolder(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_THUMBNAILS))
+            if (!Storage.createFolder(Storage.DOCUMENTS_FOLDER + Storage.FOLDER_THUMBNAILS))
                 Logs.add(Logs.Type.E, "Failed to create 'Thumbnails' folder");
-            if (!Storage.createFolder(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_VIDEOS))
+            if (!Storage.createFolder(Storage.DOCUMENTS_FOLDER + Storage.FOLDER_VIDEOS))
                 Logs.add(Logs.Type.E, "Failed to create 'Videos' folder");
         }
         else {
@@ -187,20 +187,20 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
         // Get action & status bar height
         TypedValue typedValue = new TypedValue();
         if (getTheme().resolveAttribute(android.R.attr.actionBarSize, typedValue, true))
-            ActivityWrapper.ACTION_BAR_HEIGHT = TypedValue.complexToDimensionPixelSize(typedValue.data,
+            Constants.DIMEN_ACTION_BAR_HEIGHT = TypedValue.complexToDimensionPixelSize(typedValue.data,
                     getResources().getDisplayMetrics());
         else {
 
-            ActivityWrapper.ACTION_BAR_HEIGHT = 0;
+            Constants.DIMEN_ACTION_BAR_HEIGHT = 0;
             Logs.add(Logs.Type.W, "'android.R.attr.actionBarSize' attribute not found");
         }
         int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
         if (resourceId > 0)
-            ActivityWrapper.STATUS_BAR_HEIGHT = getResources().getDimensionPixelSize(resourceId);
+            Constants.DIMEN_STATUS_BAR_HEIGHT = getResources().getDimensionPixelSize(resourceId);
 
         else {
 
-            ActivityWrapper.STATUS_BAR_HEIGHT = 0;
+            Constants.DIMEN_STATUS_BAR_HEIGHT = 0;
             Logs.add(Logs.Type.W, "'status_bar_height' dimension not found");
         }
 

@@ -36,6 +36,9 @@ public final class Storage {
     public static final String FOLDER_DOWNLOAD = File.separator + "Downloads";
 
     //
+    public static String DOCUMENTS_FOLDER; // Application folder path
+
+    //////
     public static boolean moveFile(String src, String dst) {
 
         Logs.add(Logs.Type.V, "src: " + src + ", dst: " + dst);
@@ -100,7 +103,7 @@ public final class Storage {
     public static void removeFiles(final String regex) {
         Logs.add(Logs.Type.V, "regex: " + regex);
 
-        File files = new File(ActivityWrapper.DOCUMENTS_FOLDER);
+        File files = new File(DOCUMENTS_FOLDER);
         File[] filesToDelete = files.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String filename) {
@@ -132,7 +135,7 @@ public final class Storage {
         // Remove all temporary files from downloads or documents folder
         Logs.add(Logs.Type.V, "downloads: " + downloads);
 
-        File storage = new File(ActivityWrapper.DOCUMENTS_FOLDER + ((downloads)? FOLDER_DOWNLOAD:""));
+        File storage = new File(DOCUMENTS_FOLDER + ((downloads)? FOLDER_DOWNLOAD:""));
         if (storage.listFiles() == null)
             return;
 
@@ -146,7 +149,7 @@ public final class Storage {
         // Return the number of frame files contained in documents folder (local or remote frame files)
         Logs.add(Logs.Type.V, "local: " + local);
 
-        File frames = new File(ActivityWrapper.DOCUMENTS_FOLDER);
+        File frames = new File(DOCUMENTS_FOLDER);
         File[] files = frames.listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String filename) {
@@ -180,7 +183,7 @@ public final class Storage {
         need += 4000000; // Add video & picture files size
 
         // Get available storage space
-        StatFs stat = new StatFs(ActivityWrapper.DOCUMENTS_FOLDER);
+        StatFs stat = new StatFs(DOCUMENTS_FOLDER);
         long available = (long)stat.getBlockSize() * (long)stat.getAvailableBlocks();
 
         if (available > need)

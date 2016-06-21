@@ -8,7 +8,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.studio.artaban.anaglyph3d.R;
-import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
 
@@ -33,14 +32,14 @@ public class AlbumTable implements IDataTable {
 
             Logs.add(Logs.Type.V, "date: " + date);
             DateFormat dateFormat = new SimpleDateFormat(Constants.FILENAME_DATE_FORMAT);
-            return ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_THUMBNAILS + File.separator +
+            return Storage.DOCUMENTS_FOLDER + Storage.FOLDER_THUMBNAILS + File.separator +
                     dateFormat.format(date) + Constants.EXTENSION_JPEG;
         }
         public static String getVideoFile(Date date) { // Return video file path based on a video date
 
             Logs.add(Logs.Type.V, "date: " + date);
             DateFormat dateFormat = new SimpleDateFormat(Constants.FILENAME_DATE_FORMAT);
-            return ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_VIDEOS + File.separator +
+            return Storage.DOCUMENTS_FOLDER + Storage.FOLDER_VIDEOS + File.separator +
                     dateFormat.format(date) + Constants.EXTENSION_WEBM;
         }
 

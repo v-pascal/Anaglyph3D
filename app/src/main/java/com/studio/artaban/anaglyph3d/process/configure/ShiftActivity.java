@@ -130,7 +130,7 @@ public class ShiftActivity extends AppCompatActivity implements SeekBar.OnSeekBa
     private boolean loadFrame() { // Load frame file to define 3D simulation
         Logs.add(Logs.Type.V, null);
 
-        File imageFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + Storage.FILENAME_LOCAL_PICTURE);
+        File imageFile = new File(Storage.DOCUMENTS_FOLDER + Storage.FILENAME_LOCAL_PICTURE);
         Bundle data = getIntent().getBundleExtra(Constants.DATA_ACTIVITY);
         int width = data.getInt(Frame.DATA_KEY_WIDTH);
         int height = data.getInt(Frame.DATA_KEY_HEIGHT);

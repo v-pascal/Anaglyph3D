@@ -30,6 +30,7 @@ import com.studio.artaban.anaglyph3d.data.Constants;
 import com.studio.artaban.anaglyph3d.data.Settings;
 import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
+import com.studio.artaban.anaglyph3d.helpers.Storage;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -61,7 +62,7 @@ public class SynchroActivity extends AppCompatActivity {
     private static Bitmap openBitmapFile(int position, boolean local) { // Return bitmap from RGBA file
 
         Logs.add(Logs.Type.V, "position: " + position + ", local: " + local);
-        File bmpFile = new File(ActivityWrapper.DOCUMENTS_FOLDER + File.separator + ((local)?
+        File bmpFile = new File(Storage.DOCUMENTS_FOLDER + File.separator + ((local)?
                         Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX) +
                 String.format("%04d", position) + Constants.EXTENSION_RGBA);
 
@@ -222,11 +223,11 @@ public class SynchroActivity extends AppCompatActivity {
                 params.width = (screenSize.x >> 1) - (margin << 1);
                 // == 50% of the screen width
             else // Normal screen device
-                params.width = screenSize.x - ActivityWrapper.FAB_SIZE - (margin << 2);
+                params.width = screenSize.x - Constants.DIMEN_FAB_SIZE - (margin << 2);
                 // == screen width less 'fab' size
 
             params.height = (int)(params.width * frameHeight / (float)frameWidth);
-            int screenHeight = screenSize.y - ActivityWrapper.ACTION_BAR_HEIGHT;
+            int screenHeight = screenSize.y - Constants.DIMEN_ACTION_BAR_HEIGHT;
             if ((3 * (params.height + (margin << 1))) > screenHeight) { // Maximum 1/3 of the screen height
 
                 params.height = (int)((screenHeight / 3.0f) - (margin << 1));
@@ -237,10 +238,10 @@ public class SynchroActivity extends AppCompatActivity {
             Logs.add(Logs.Type.I, "Landscape");
 
             if (Settings.getInstance().mOrientation) // Portrait
-                params.height = (screenSize.y - ActivityWrapper.ACTION_BAR_HEIGHT) >> 1;
+                params.height = (screenSize.y - Constants.DIMEN_ACTION_BAR_HEIGHT) >> 1;
                 // 50% of screen height
             else // Landscape
-                params.height = (int)((screenSize.y - ActivityWrapper.ACTION_BAR_HEIGHT) / 3f);
+                params.height = (int)((screenSize.y - Constants.DIMEN_ACTION_BAR_HEIGHT) / 3f);
                 // 1/3 of the screen height
 
             params.width = (int)(params.height * frameWidth / (float)frameHeight);

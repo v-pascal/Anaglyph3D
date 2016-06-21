@@ -8,7 +8,6 @@ import android.support.v4.app.Fragment;
 
 import com.studio.artaban.anaglyph3d.data.AlbumTable;
 import com.studio.artaban.anaglyph3d.data.Constants;
-import com.studio.artaban.anaglyph3d.helpers.ActivityWrapper;
 import com.studio.artaban.anaglyph3d.helpers.Internet;
 import com.studio.artaban.anaglyph3d.helpers.Logs;
 import com.studio.artaban.anaglyph3d.helpers.Storage;
@@ -119,7 +118,7 @@ public class DownloadFragment extends Fragment {
             // Download JSON videos attributes under a web service
             mPublishProgress = false;
             int resultId = getResultId(Internet.downloadHttpFile(Constants.DOWNLOAD_URL,
-                    ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD +
+                    Storage.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD +
                             Storage.FILENAME_DOWNLOAD_JSON, this));
             if (resultId != Constants.NO_DATA)
                 return resultId; // Error or cancelled
@@ -128,7 +127,7 @@ public class DownloadFragment extends Fragment {
             try {
 
                 // Extract videos attributes from JSON file...
-                String attributes = Storage.readFile(new File(ActivityWrapper.DOCUMENTS_FOLDER +
+                String attributes = Storage.readFile(new File(Storage.DOCUMENTS_FOLDER +
                     Storage.FOLDER_DOWNLOAD + Storage.FILENAME_DOWNLOAD_JSON));
                 JSONObject videos = new JSONObject(attributes);
 
@@ -181,7 +180,7 @@ public class DownloadFragment extends Fragment {
                     // Download video file
                     JSONObject video = videoList.getJSONObject(i).getJSONObject(JSON_VIDEO);
                     resultId = getResultId(Internet.downloadHttpFile(video.getString(JSON_URL),
-                            ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD + File.separator +
+                            Storage.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD + File.separator +
                                     fileName + Constants.EXTENSION_WEBM, this));
                     if (resultId != Constants.NO_DATA)
                         return resultId; // Error or cancelled
@@ -189,7 +188,7 @@ public class DownloadFragment extends Fragment {
                     // Download thumbnail file
                     JSONObject thumbnail = videoList.getJSONObject(i).getJSONObject(JSON_THUMBNAIL);
                     resultId = getResultId(Internet.downloadHttpFile(thumbnail.getString(JSON_URL),
-                            ActivityWrapper.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD + File.separator +
+                            Storage.DOCUMENTS_FOLDER + Storage.FOLDER_DOWNLOAD + File.separator +
                                     fileName + Constants.EXTENSION_JPEG, this));
                     if (resultId != Constants.NO_DATA)
                         return resultId; // Error or cancelled

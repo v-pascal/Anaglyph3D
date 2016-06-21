@@ -13,6 +13,12 @@ public final class Constants {
     public static final String FILENAME_DATE_FORMAT = "yyyy-MM-dd_hh-mm-ss.000"; // Date format used for filename (FAT32 compatible)
 
 
+    ////// Dimension
+    public static int DIMEN_ACTION_BAR_HEIGHT; // Action bar height (in pixel)
+    public static int DIMEN_STATUS_BAR_HEIGHT; // Status bar height (in pixel)
+    public static int DIMEN_FAB_SIZE; // Floating Action Button size (in pixel)
+
+
     ////// Activity
     public static final int RESULT_QUIT_APPLICATION = 300; // Quit application requested result
     public static final int RESULT_LOST_CONNECTION = 301; // Connection lost result
