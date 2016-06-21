@@ -121,9 +121,15 @@ public class ProcessActivity extends AppCompatActivity {
     }
 
     //////
-    public void onValidatePosition(View sender) {
-        // User has confirmed to start video recorder
+    private boolean mValidated = false; // Avoid calling 'onValidatePosition' several times (waiting
+                                        // remote device reply)
+
+    public void onValidatePosition(View sender) { // User has confirmed to start video recorder
         Logs.add(Logs.Type.V, null);
+
+        if (mValidated)
+            return;
+        mValidated = true;
 
         if (!Settings.getInstance().mSimulated) // Real 3D
             Connectivity.getInstance().addRequest(ActivityWrapper.getInstance(),
