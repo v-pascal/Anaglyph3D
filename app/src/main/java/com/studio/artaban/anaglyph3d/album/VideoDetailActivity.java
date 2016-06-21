@@ -151,6 +151,9 @@ public class VideoDetailActivity extends AlbumActivity implements AlbumActivity.
         // Create the detail fragment and add it to the activity (if needed)
         if (getSupportFragmentManager().findFragmentById(R.id.video_detail_container) == null)
             displayVideoDetail();
+
+        else if (mDetailTag.equals(TAG_FRAGMENT_LOCATION))
+            restoreMapLocation(); // ...see comments in method declaration
     }
 
     @Override

@@ -122,7 +122,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     }
 
     ////// Location detail
-    private static final String TAG_FRAGMENT_LOCATION = "location";
+    public static final String TAG_FRAGMENT_LOCATION = "location";
     private AlbumTable.Video mVideo; // Selected video from database
 
     private GoogleApiClient mGoogleApiClient; // Google API client
@@ -201,19 +201,25 @@ public abstract class AlbumActivity extends AppCompatActivity implements
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
-        if ((state != null) && (mDetailTag.equals(TAG_FRAGMENT_LOCATION))) {
+    }
+    protected boolean restoreMapLocation() {
+        Logs.add(Logs.Type.V, null);
+        try {
 
-            Fragment mapFragment = getSupportFragmentManager().findFragmentById(R.id.video_detail_container);
-            if (mapFragment != null) {
-
-                try { ((SupportMapFragment)mapFragment).getMapAsync(this); }
-                catch (ClassCastException e) {
-                    Logs.add(Logs.Type.F, "Unexpected fragment displayed");
-                }
-            }
-            // NB: Needed to call 'getMapAsync' to the 'SupportMapFragment' when location detail is
-            //     displayed (force calling 'onMapReady' callback method)
+            ((SupportMapFragment)getSupportFragmentManager()
+                .findFragmentById(R.id.video_detail_container)).getMapAsync(this);
+            return true;
         }
+        catch (NullPointerException e) {
+            Logs.add(Logs.Type.F, "No fragment displayed");
+        }
+        catch (ClassCastException e) {
+            Logs.add(Logs.Type.F, "Unexpected fragment displayed");
+        }
+
+        // NB: Needed to call 'getMapAsync' to the 'SupportMapFragment' when location detail is
+        //     displayed (otherwise the 'onMapReady' callback method is never called)
+        return false;
     }
     protected void initializeDetailUI() { // Initialize detail UI
         Logs.add(Logs.Type.V, null);
