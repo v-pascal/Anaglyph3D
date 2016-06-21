@@ -25,6 +25,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -151,9 +152,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
     //
     protected boolean mNewVideoAdded = false; // Flag to know if the new video has been added into the DB
     protected boolean mNewVideoSaved = false; // Flag to know if the new video has been saved or deleted (geolocation)
-    protected boolean isVideoCreation() {
-        return (mNewVideoAdded && !mNewVideoSaved);
-    }
+    protected boolean isVideoCreation() { return (mNewVideoAdded && !mNewVideoSaved); }
     protected boolean mDownloadAdded = false;
 
     protected void restoreVideosAlbum(Bundle state) { // Restore album (manage video selection)
@@ -193,7 +192,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
             if (getIntent().getExtras().containsKey(DATA_DOWNLOAD_ADDED))
                 mDownloadAdded = getIntent().getBooleanExtra(DATA_DOWNLOAD_ADDED, false);
 
-            // Needed with detail activity child
+            // NB: Needed with detail activity child
         }
 
         // Prepare geolocation using Google API services
@@ -202,6 +201,19 @@ public abstract class AlbumActivity extends AppCompatActivity implements
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
+        if ((state != null) && (mDetailTag.equals(TAG_FRAGMENT_LOCATION))) {
+
+            Fragment mapFragment = getSupportFragmentManager().findFragmentById(R.id.video_detail_container);
+            if (mapFragment != null) {
+
+                try { ((SupportMapFragment)mapFragment).getMapAsync(this); }
+                catch (ClassCastException e) {
+                    Logs.add(Logs.Type.F, "Unexpected fragment displayed");
+                }
+            }
+            // NB: Needed to call 'getMapAsync' to the 'SupportMapFragment' when location detail is
+            //     displayed (force calling 'onMapReady' callback method)
+        }
     }
     protected void initializeDetailUI() { // Initialize detail UI
         Logs.add(Logs.Type.V, null);
@@ -394,7 +406,7 @@ public abstract class AlbumActivity extends AppCompatActivity implements
                     mDetailTag = TAG_FRAGMENT_LOCATION;
                     displayVideoDetail();
                 }
-                else {
+                else if (mMap != null) {
 
                     // Location fragment already displayed so move camera to video location
                     LatLng video = new LatLng(mVideo.getLatitude(), mVideo.getLongitude());
