@@ -48,16 +48,26 @@ public class AlbumTable implements IDataTable {
         public void setTitle(String title) {
 
             Logs.add(Logs.Type.V, "title: " + title);
-            String titleToSave = title.trim();
-            this.title = (!titleToSave.isEmpty())? titleToSave:null;
+            if (title != null) {
+
+                String titleToSave = title.trim();
+                this.title = (!titleToSave.isEmpty())? titleToSave:null;
+            }
+            else
+                this.title = null;
             mUpdated[COLUMN_INDEX_TITLE] = true;
         }
         private String description;
         public void setDescription(String description) {
 
             Logs.add(Logs.Type.V, "description: " + description);
-            String descToSave = description.trim();
-            this.description = (!descToSave.isEmpty())? descToSave:null;
+            if (description != null) {
+
+                String descToSave = description.trim();
+                this.description = (!descToSave.isEmpty())? descToSave:null;
+            }
+            else
+                this.description = null;
             mUpdated[COLUMN_INDEX_DESCRIPTION] = true;
         }
         private Date date;
