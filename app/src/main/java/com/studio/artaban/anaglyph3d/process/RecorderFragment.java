@@ -211,6 +211,7 @@ public class RecorderFragment extends Fragment {
 
         // Create & Position preview camera surface
         mCameraView = new CameraView(getContext());
+        mCameraView.release();
 
         Point screenSize = new Point();
         getActivity().getWindowManager().getDefaultDisplay().getSize(screenSize);
