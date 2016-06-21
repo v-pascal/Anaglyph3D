@@ -145,6 +145,9 @@ public class Video extends MediaProcess {
         public float blue; // Blue balance
         public boolean local; // Flag to define on which frames to apply contrast & brightness
 
+        public short offset; // Configured synchronization
+        public boolean localSync; // Flag to define on which frames to apply synchronization
+
         public float zoom; // Configured zoom
         public int originX; // X origin coordinate from which the zoom starts
         public int originY; // Y origin coordinate from which the zoom starts
@@ -163,6 +166,30 @@ public class Video extends MediaProcess {
 
                 // Define progress bounds
                 mTotalFrame = mFrameCount + 1; // + 1 -> for removing files step (last operation)
+
+                ////// Rename frame files to apply synchronization (if needed)
+                if (data.offset > 0) {
+                    mTotalFrame += mFrameCount - data.offset;
+
+                    Logs.add(Logs.Type.I, "mFrameCount: " + mFrameCount + ", data.offset: " + data.offset);
+                    String framePath = ActivityWrapper.DOCUMENTS_FOLDER + File.separator + ((data.localSync)?
+                            Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX);
+                    for (int i = 0; i < mFrameCount; ++i) {
+
+                        File frame = new File(framePath + String.format("%04d", i) +
+                                Constants.EXTENSION_RGBA);
+                        if (data.offset > i)
+                            frame.delete();
+                        else
+                            frame.renameTo(new File(framePath + String.format("%04d", i - data.offset) +
+                                    Constants.EXTENSION_RGBA));
+
+                        ++mProceedFrame;
+                    }
+
+                    // Apply conversion to synchronized frames
+                    mFrameCount -= data.offset;
+                }
 
                 ////// Apply conversion on frame files
                 int frameWidth = Settings.getInstance().getResolutionWidth();
@@ -270,17 +297,20 @@ public class Video extends MediaProcess {
                         }
                     }
 
-                    // Save converted frame file (local)
-                    try { new FileOutputStream(localFile).write(buffer); }
+                    // Save converted frame file
+                    File syncFile = (data.localSync)? localFile:remoteFile;
+
+                    try { new FileOutputStream(syncFile).write(buffer); }
                     catch (IOException e) {
                         Logs.add(Logs.Type.F, "Failed to save anaglyph frame file: " +
-                                localFile.getAbsolutePath());
+                                syncFile.getAbsolutePath());
                     }
                 }
 
-                ////// Remove remaining frame files (remote)
-                Storage.removeFiles("^" + Constants.PROCESS_REMOTE_PREFIX + "+[0-9]*[0-9]\\" +
-                        Constants.EXTENSION_RGBA + "$");
+                ////// Remove remaining frame files
+                Storage.removeFiles("^" + ((!data.localSync)?
+                        Constants.PROCESS_LOCAL_PREFIX:Constants.PROCESS_REMOTE_PREFIX) +
+                        "+[0-9]*[0-9]\\" + Constants.EXTENSION_RGBA + "$");
 
                 ++mProceedFrame;
 
@@ -306,13 +336,13 @@ public class Video extends MediaProcess {
                 AUDIO_WAV_FILENAME + "\"");
     }
 
-    public static boolean makeAnaglyphVideo(boolean jpegStep, int frameWidth, int frameHeight, int frameCount) {
+    public static boolean makeAnaglyphVideo(boolean jpegStep, int frameWidth, int frameHeight,
+                                            int frameCount, String files) {
 
         Logs.add(Logs.Type.V, "jpegStep: " + jpegStep + ", frameWidth: " + frameWidth + ", frameHeight: " +
-                frameHeight + ", frameCount: " + frameCount);
+                frameHeight + ", frameCount: " + frameCount + ", files: " + files);
         if (jpegStep)
-            return ProcessThread.mGStreamer.launch("multifilesrc location=\"" +
-                    ActivityWrapper.DOCUMENTS_FOLDER + Constants.PROCESS_LOCAL_FRAMES + "\" index=0" +
+            return ProcessThread.mGStreamer.launch("multifilesrc location=\"" + files + "\" index=0" +
                     " caps=\"video/x-raw,format=RGBA,width=" + frameWidth + ",height=" + frameHeight +
                     ",framerate=1/1\" ! decodebin ! videoconvert ! jpegenc ! multifilesink" +
                     " location=\"" + ActivityWrapper.DOCUMENTS_FOLDER + "/img%d.jpg\"");

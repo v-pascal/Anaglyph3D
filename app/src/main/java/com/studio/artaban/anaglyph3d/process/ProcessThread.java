@@ -19,6 +19,7 @@ import com.studio.artaban.anaglyph3d.media.Video;
 import com.studio.artaban.anaglyph3d.process.configure.CorrectionActivity;
 import com.studio.artaban.anaglyph3d.process.configure.CroppingActivity;
 import com.studio.artaban.anaglyph3d.process.configure.ShiftActivity;
+import com.studio.artaban.anaglyph3d.process.configure.SynchroActivity;
 import com.studio.artaban.anaglyph3d.transfer.IConnectRequest;
 import com.studio.artaban.anaglyph3d.transfer.Connectivity;
 import com.studio.artaban.libGST.GstObject;
@@ -86,6 +87,7 @@ public class ProcessThread extends Thread {
         EXTRACT_FRAMES_RIGHT (R.string.status_extract_right), // Extract ARGB pictures from right camera
         MERGE_FPS (R.string.status_merge_fps), // Remove the too many RGB pictures from camera video with bigger FPS
         WAIT_CROPPING (Constants.NO_DATA), // Wait cropping configuration
+        WAIT_SYNCHRO (Constants.NO_DATA), // Wait synchro configuration
         EXTRACT_AUDIO (R.string.status_extract_audio), // Extract audio from one of the videos
         TRANSFER_CORRECTION (R.string.status_transfer_correction), // Transfer frames correction (from device which is not the maker)
         WAIT_CORRECTION (R.string.status_wait_correction), // Wait until frames correction has been received
@@ -116,6 +118,9 @@ public class ProcessThread extends Thread {
     private static float mGreenBalance = CorrectionActivity.DEFAULT_BALANCE; // Green balance configured by the user
     private static float mBlueBalance = CorrectionActivity.DEFAULT_BALANCE; // Blue balance configured by the user
     private static boolean mLocalFrame = CorrectionActivity.DEFAULT_LOCAL_FRAME; // Flag to know on which frames to apply correction
+
+    private short mSynchroOffset = SynchroActivity.DEFAULT_OFFSET; // Synchronization offset configured by the user
+    private boolean mLocalSync = SynchroActivity.DEFAULT_LOCAL; // To define from which video to extract the audio (after synchronization)
 
     private float mZoom = CroppingActivity.DEFAULT_ZOOM; // Zoom configured by the user
     private int mOriginX = CroppingActivity.DEFAULT_X; // X origin coordinate from which the zoom starts
@@ -159,6 +164,23 @@ public class ProcessThread extends Thread {
         mOriginX = originX;
         mOriginY = originY;
         mLocalCrop = local;
+
+        // Start synchronization activity //////////////////////////////////////////////////////////
+        Bundle data = new Bundle();
+        data.putInt(SynchroActivity.DATA_KEY_FRAME_COUNT,
+                Video.getInstance().getFrameCount());
+
+        ActivityWrapper.startActivity(SynchroActivity.class, data,
+                Constants.PROCESS_REQUEST_SYNCHRO);
+
+        //////
+        mStatus = Status.WAIT_SYNCHRO;
+    }
+    public void applySynchronization(short offset, boolean local) {
+
+        Logs.add(Logs.Type.V, "offset: " + offset + ", local: " + local);
+        mSynchroOffset = offset;
+        mLocalSync = local;
 
         mStatus = Status.EXTRACT_AUDIO;
     }
@@ -614,6 +636,8 @@ public class ProcessThread extends Thread {
                             data.green = mGreenBalance;
                             data.blue = mBlueBalance;
                             data.local = mLocalFrame;
+                            data.offset = mSynchroOffset;
+                            data.localSync = mLocalSync;
                             data.zoom = mZoom;
                             data.originX = mOriginX;
                             data.originY = mOriginY;
@@ -737,8 +761,11 @@ public class ProcessThread extends Thread {
                             local = false; // Extract right video frames
                             mStatus = Status.EXTRACT_FRAMES_RIGHT;
                         }
-                        else // Simulated 3D
+                        else { // Simulated 3D
+
+                            mLocalSync = false; // Needed to extract sound from local video (not remote)
                             mStatus = Status.EXTRACT_AUDIO;
+                        }
                     }
                     else {
 
@@ -768,7 +795,8 @@ public class ProcessThread extends Thread {
                     break;
                 }
                 case WAIT_SHIFT: // Wait simulated 3D configuration (waiting 'applySimulation' call)
-                case WAIT_CROPPING: { // Wait cropping configuration (real 3D with maker only)
+                case WAIT_CROPPING: // Wait cropping configuration (real 3D with maker only)
+                case WAIT_SYNCHRO: { // Wait synchro configuration (real 3D with maker only)
 
                     sleep();
                     break;
@@ -778,9 +806,10 @@ public class ProcessThread extends Thread {
                     Logs.add(Logs.Type.I, "EXTRACT_AUDIO");
                     publishProgress(0, 1);
 
-                    // Extract sound from local video (available for both simulated & real 3D)
                     if (!Video.extractAudio(ActivityWrapper.DOCUMENTS_FOLDER +
-                            Storage.FILENAME_LOCAL_VIDEO)) {
+                            ((!mLocalSync)? // Extract sound from '!mLocalSync' coz if shift frames
+                                Storage.FILENAME_LOCAL_VIDEO: // from local video, remote video sound will
+                                Storage.FILENAME_REMOTE_VIDEO))) { // be synchronized!
 
                         Logs.add(Logs.Type.E, "Failed to extract video audio");
                         mAbort = true;
@@ -842,12 +871,16 @@ public class ProcessThread extends Thread {
                         made = Video.makeAnaglyphVideo(local,
                                 Settings.getInstance().getResolutionWidth(),
                                 Settings.getInstance().getResolutionHeight(),
-                                Video.getInstance().getFrameCount());
+                                Video.getInstance().getFrameCount(), ActivityWrapper.DOCUMENTS_FOLDER +
+                                        ((mLocalSync)?
+                                                Constants.PROCESS_LOCAL_FRAMES:
+                                                Constants.PROCESS_REMOTE_FRAMES));
                     else // Simulated
                         made = Video.makeAnaglyphVideo(local,
                                 Frame.getInstance().getWidth(),
                                 Frame.getInstance().getHeight(),
-                                Frame.getInstance().getFrameCount());
+                                Frame.getInstance().getFrameCount(), ActivityWrapper.DOCUMENTS_FOLDER +
+                                    Constants.PROCESS_LOCAL_FRAMES);
 
                     if (!made) {
 

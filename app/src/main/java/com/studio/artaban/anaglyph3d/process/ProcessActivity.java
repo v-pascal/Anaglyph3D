@@ -363,6 +363,25 @@ public class ProcessActivity extends AppCompatActivity {
                 }
                 break;
             }
+            case Constants.PROCESS_REQUEST_SYNCHRO: {
+
+                if (resultCode == RESULT_OK)
+                    mProcessThread.applySynchronization(
+                            data.getShortExtra(SynchroActivity.DATA_KEY_SYNCHRO_OFFSET,
+                                    SynchroActivity.DEFAULT_OFFSET),
+                            data.getBooleanExtra(SynchroActivity.DATA_KEY_SYNCHRO_LOCAL,
+                                    SynchroActivity.DEFAULT_LOCAL));
+
+                else if (resultCode != Constants.RESULT_LOST_CONNECTION)
+                    mProcessThread.applySynchronization(SynchroActivity.DEFAULT_OFFSET,
+                            SynchroActivity.DEFAULT_LOCAL);
+                else {
+
+                    setResult(Constants.RESULT_LOST_CONNECTION);
+                    finish();
+                }
+                break;
+            }
             case Constants.PROCESS_REQUEST_SHIFT: {
 
                 if (resultCode == RESULT_OK)

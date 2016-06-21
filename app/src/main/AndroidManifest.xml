@@ -101,6 +101,10 @@
             android:label="@string/title_activity_cropping"
             android:theme="@style/Theme.AppCompat"/>
         <activity
+            android:name=".process.configure.SynchroActivity"
+            android:label="@string/title_activity_synchro"
+            android:theme="@style/Theme.AppCompat"/>
+        <activity
             android:name=".process.configure.ShiftActivity"
             android:label="@string/title_activity_shift"
             android:theme="@style/Theme.AppCompat"/>
