@@ -93,9 +93,10 @@ public class MainActivity extends AppCompatActivity
 
         Logs.add(Logs.Type.V, null);
         if (Settings.getInstance().isMaker()) {
-            long storageNeed = Storage.isStorageEnough();
 
+            long storageNeed = Storage.isStorageEnough();
             if (storageNeed != 0) {
+
                 // Inform user
                 DisplayMessage.getInstance().alert(R.string.title_warning, R.string.error_storage_available,
                         String.format("%.2f Go", storageNeed / (float)1000000000), false, null);

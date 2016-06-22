@@ -283,10 +283,10 @@ public class Video extends MediaProcess {
                     }
 
                     ////// Merge frame buffer (according camera position)
-                    // - Left camera will be red
-                    // - Right camera will be blue
-                    if (!Settings.getInstance().mPosition) { // Here is the condition to define which
-                                                             // camera to apply anaglyph color
+                    // - Left camera will be blue
+                    // - Right camera will be red
+                    if (Settings.getInstance().mPosition) { // Here is the condition to define which
+                                                            // camera to apply anaglyph color
                         // Swap local & remote bitmap frame
                         Bitmap swap = bmpCorrectionLocal;
                         bmpCorrectionLocal = bmpCorrectionRemote;

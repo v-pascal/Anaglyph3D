@@ -170,7 +170,7 @@ public final class Storage {
         Logs.add(Logs.Type.V, null);
 
         // Get storage space need (according settings)
-        long need = Settings.getInstance().mFps[Camera.Parameters.PREVIEW_FPS_MIN_INDEX] * // FPS
+        long need = Constants.CONFIG_DEFAULT_FPS * // FPS (default)
                 Settings.getInstance().mDuration * // Video duration (in second)
                 Settings.getInstance().mResolution.height * // Video height (in pixel)
                 Settings.getInstance().mResolution.width * // Video width (in pixel)

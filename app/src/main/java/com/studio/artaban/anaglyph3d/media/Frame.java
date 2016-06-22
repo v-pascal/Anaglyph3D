@@ -155,6 +155,13 @@ public class Frame extends MediaProcess {
                     try {
                         if (new FileInputStream(localFile).read(buffer) != buffer.length)
                             throw new IOException();
+
+                        if (frameBitmap.isRecycled())
+                            frameBitmap = Bitmap.createBitmap(
+                                Settings.getInstance().getResolutionWidth(),
+                                Settings.getInstance().getResolutionHeight(), Bitmap.Config.ARGB_8888);
+                        // Avoid garbage collector to recycle bitmap
+
                         frameBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(buffer));
                     }
                     catch (IOException e) {
