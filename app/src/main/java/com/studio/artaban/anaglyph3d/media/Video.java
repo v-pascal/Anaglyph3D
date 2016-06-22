@@ -219,6 +219,11 @@ public class Video extends MediaProcess {
                     try {
                         if (new FileInputStream(localFile).read(buffer) != buffer.length)
                             throw new IOException();
+
+                        if (localBitmap.isRecycled())
+                            localBitmap = Bitmap.createBitmap(frameWidth, frameHeight, Bitmap.Config.ARGB_8888);
+                        // Avoid garbage collector to recycle bitmap
+
                         localBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(buffer));
                     }
                     catch (IOException e) {
@@ -232,6 +237,11 @@ public class Video extends MediaProcess {
                     try {
                         if (new FileInputStream(remoteFile).read(buffer) != buffer.length)
                             throw new IOException();
+
+                        if (remoteBitmap.isRecycled())
+                            remoteBitmap = Bitmap.createBitmap(frameWidth, frameHeight, Bitmap.Config.ARGB_8888);
+                        // Avoid garbage collector to recycle bitmap
+
                         remoteBitmap.copyPixelsFromBuffer(ByteBuffer.wrap(buffer));
                     }
                     catch (IOException e) {
