@@ -178,7 +178,7 @@ public class CameraView extends SurfaceView
     }
 
     //////
-    public Size getPreviewResolution() {
+    public Size getPreviewResolution() throws RuntimeException {
         Logs.add(Logs.Type.V, null);
 
         // Set preview resolution according the video setting
