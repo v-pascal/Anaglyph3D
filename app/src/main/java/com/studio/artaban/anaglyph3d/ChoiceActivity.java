@@ -149,7 +149,7 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
         assert mMenuOptions.getItem(0).getItemId() == R.id.menu_album;
         mMenuOptions.getItem(0).setEnabled(!mDownloadTask.isDownloading());
         assert mMenuOptions.getItem(1).getItemId() == R.id.menu_download;
-        mMenuOptions.getItem(1).setEnabled(!mDownloadTask.isDownloading() & !mDownloaded);
+        mMenuOptions.getItem(1).setEnabled(!mDownloadTask.isDownloading() && !mDownloaded);
     }
 
     //////
@@ -259,6 +259,12 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
             case Constants.RESULT_NO_VIDEO: {
 
                 mDownloaded = false; // Allow user to download videos if already done
+                if (mMenuOptions != null) {
+
+                    assert mMenuOptions.getItem(1).getItemId() == R.id.menu_download;
+                    mMenuOptions.getItem(1).setEnabled(true);
+                }
+                //else // Let's 'onCreateOptionsMenu' method enable download menu
                 DisplayMessage.getInstance().toast(R.string.no_video, Toast.LENGTH_LONG);
                 break;
             }
@@ -359,10 +365,13 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
         SharedPreferences prefs = getSharedPreferences(PREFERENCE_NAME, 0);
         if (prefs != null) {
 
-            Logs.add(Logs.Type.I, null);
+            Logs.add(Logs.Type.I, "mDownloaded: " + mDownloaded);
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean(PREFERENCE_DATA_DOWNLOADED, mDownloaded);
-            editor.apply();
+
+            editor.commit();
+            // NB: Do not use 'apply' method here coz the activity will finish soon (avoid finish
+            //     B4 preference changes have been saved)
         }
     }
 
