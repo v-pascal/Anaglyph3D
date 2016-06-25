@@ -25,6 +25,13 @@ android {
         }
     }
     productFlavors {
+        beta {
+            minSdkVersion 16
+            applicationId 'com.studio.artaban.anaglyph3d'
+            targetSdkVersion 23
+            versionCode 1
+            versionName '1.0'
+        }
     }
     //dataBinding {
     //    enabled = true

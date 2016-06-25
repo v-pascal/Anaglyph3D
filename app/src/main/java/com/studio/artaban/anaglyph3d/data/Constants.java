@@ -61,7 +61,7 @@ public final class Constants {
     public static final short CONFIG_DEFAULT_DURATION = 30; // Default duration (in seconds)
     public static final int CONFIG_MIN_DURATION = 10; // Minimum duration (in seconds)
     public static final int CONFIG_MAX_DURATION = 180; // Maximum duration (in seconds)
-    public static final short CONFIG_DEFAULT_FPS = 15; // Default FPS used to know memory space available
+    public static final short CONFIG_DEFAULT_FPS = 20; // Default FPS used to know memory space available
 
     ////// Extensions
     public static final String EXTENSION_RGBA = ".rgba";
