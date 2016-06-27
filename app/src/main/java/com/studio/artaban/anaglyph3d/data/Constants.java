@@ -58,7 +58,7 @@ public final class Constants {
     public static final String CONFIG_RESOLUTION_SEPARATOR = " x "; // Separator between with and height
     public static final int CONFIG_PERFORMANCE_LOOP = 4096; // Loop count for performance calculation
 
-    public static final short CONFIG_DEFAULT_DURATION = 30; // Default duration (in seconds)
+    public static final short CONFIG_DEFAULT_DURATION = 20; // Default duration (in seconds)
     public static final int CONFIG_MIN_DURATION = 10; // Minimum duration (in seconds)
     public static final int CONFIG_MAX_DURATION = 180; // Maximum duration (in seconds)
     public static final short CONFIG_DEFAULT_FPS = 20; // Default FPS used to know memory space available

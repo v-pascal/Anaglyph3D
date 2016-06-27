@@ -513,7 +513,7 @@ public class CameraView extends SurfaceView
             mCamera.getParameters().setRecordingHint(true);
             mCamera.getParameters().setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
             mCamera.getParameters().setWhiteBalance(Camera.Parameters.WHITE_BALANCE_AUTO);
-            mCamera.getParameters().setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+            mCamera.getParameters().setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
             Logs.add(Logs.Type.I, "Parameters set");
 
             if (mTakePicture) { // Check to prepare recording
