@@ -33,6 +33,14 @@ public class ShareLocalActivity extends Activity {
 
     private enum FolderId { NONE, MOVIES, PICTURES }
 
+    private void displayErrorMessage(boolean movies) {
+
+        int error = (movies)? R.string.movie_not_copied:R.string.picture_not_copied;
+        String message = getString(error, (getIntent().hasExtra(EXTRA_SUBFOLDER))? File.separator +
+                        getIntent().getStringExtra(EXTRA_SUBFOLDER):"");
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
     //////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +59,7 @@ public class ShareLocalActivity extends Activity {
 
             Log.e(LOG_TAG, "Wrong intent data!\nExpected: 'video/*' or 'image/*' MIME" +
                     " type with a valid URI data file");
+            displayErrorMessage(folder == FolderId.MOVIES);
             finish();
             return;
         }
@@ -58,6 +67,14 @@ public class ShareLocalActivity extends Activity {
         String folderPath = (folder == FolderId.MOVIES)?
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES).getAbsolutePath():
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath();
+        File directory = new File(folderPath);
+        if ((!directory.exists()) && (!directory.mkdir())) {
+
+            Log.e(LOG_TAG, "Failed to create folder: " + directory.getAbsolutePath());
+            displayErrorMessage(folder == FolderId.MOVIES);
+            finish();
+            return;
+        }
 
         // Add sub folder (if expected)
         if (getIntent().hasExtra(EXTRA_SUBFOLDER)) {
@@ -65,14 +82,19 @@ public class ShareLocalActivity extends Activity {
             folderPath += (getIntent().getStringExtra(EXTRA_SUBFOLDER) != null)?
                     File.separator + getIntent().getStringExtra(EXTRA_SUBFOLDER):"";
 
-            File directory = new File(folderPath);
-            if (!directory.exists())
-                directory.mkdir();
+            directory = new File(folderPath);
+            if ((!directory.exists()) && (!directory.mkdir())) {
+
+                Log.e(LOG_TAG, "Failed to create subfolder: " + directory.getAbsolutePath());
+                displayErrorMessage(folder == FolderId.MOVIES);
+                finish();
+                return;
+            }
         }
         File localFile = new File(folderPath + dataUri.getPath().substring(
                 dataUri.getPath().lastIndexOf(File.separator)));
-
         try {
+
             // Check if local file already exists
             if (localFile.exists()) {
                 if (getIntent().getBooleanExtra(EXTRA_OVERWRITE, false)) // Overwrite requested
@@ -96,12 +118,7 @@ public class ShareLocalActivity extends Activity {
 
             Log.e(LOG_TAG, "Failed to copy file '" + dataFile.getAbsolutePath() + "' to '" +
                     localFile.getAbsolutePath() + "'");
-
-            int error = (folder == FolderId.MOVIES)? R.string.movie_not_copied:R.string.picture_not_copied;
-            String message = getString(error,
-                    (getIntent().hasExtra(EXTRA_SUBFOLDER))? File.separator +
-                            getIntent().getStringExtra(EXTRA_SUBFOLDER):"");
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            displayErrorMessage(folder == FolderId.MOVIES);
         }
         finish();
     }

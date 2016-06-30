@@ -1,6 +1,5 @@
 package com.studio.artaban.anaglyph3d.helpers;
 
-import android.hardware.Camera;
 import android.os.StatFs;
 
 import com.studio.artaban.anaglyph3d.data.Constants;
