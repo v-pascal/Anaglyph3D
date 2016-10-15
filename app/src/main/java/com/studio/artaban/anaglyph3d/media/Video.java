@@ -331,18 +331,30 @@ public class Video extends MediaProcess {
     public static boolean extractFramesRGBA(String file, Frame.Orientation orientation, String frames) {
 
         Logs.add(Logs.Type.V, "file: " + file + ", orientation: " + orientation + ", frames: " + frames);
-        return ProcessThread.mGStreamer.launch("filesrc location=\"" + file + "\" ! decodebin" +
-                        " ! videoflip method=" + orientation.getFlipMethod() + " ! videoconvert" +
-                        " ! video/x-raw,format=RGBA ! multifilesink location=\"" + frames + "\"");
+        try {
+            return ProcessThread.mGStreamer.launch("filesrc location=\"" + file + "\" ! decodebin" +
+                            " ! videoflip method=" + orientation.getFlipMethod() + " ! videoconvert" +
+                            " ! video/x-raw,format=RGBA ! multifilesink location=\"" + frames + "\"");
+
+        } catch (UnsatisfiedLinkError e) {
+            Logs.add(Logs.Type.F, "No implementation found for: GstObject.gstLaunch (extractFramesRGBA)");
+            return false;
+        }
     }
 
     private static final String AUDIO_WAV_FILENAME = "/audio.wav";
     public static boolean extractAudio(String file) {
 
         Logs.add(Logs.Type.V, "file: " + file);
-        return ProcessThread.mGStreamer.launch("filesrc location=\"" + file + "\" ! decodebin" +
-                " ! audioconvert ! wavenc ! filesink location=\"" + Storage.DOCUMENTS_FOLDER +
-                AUDIO_WAV_FILENAME + "\"");
+        try {
+            return ProcessThread.mGStreamer.launch("filesrc location=\"" + file + "\" ! decodebin" +
+                    " ! audioconvert ! wavenc ! filesink location=\"" + Storage.DOCUMENTS_FOLDER +
+                    AUDIO_WAV_FILENAME + "\"");
+
+        } catch (UnsatisfiedLinkError e) {
+            Logs.add(Logs.Type.F, "No implementation found for: GstObject.gstLaunch (extractAudio)");
+            return false;
+        }
     }
 
     public static boolean makeAnaglyphVideo(boolean jpegStep, int frameWidth, int frameHeight,
@@ -350,20 +362,26 @@ public class Video extends MediaProcess {
 
         Logs.add(Logs.Type.V, "jpegStep: " + jpegStep + ", frameWidth: " + frameWidth + ", frameHeight: " +
                 frameHeight + ", frameCount: " + frameCount + ", files: " + files);
-        if (jpegStep)
-            return ProcessThread.mGStreamer.launch("multifilesrc location=\"" + files + "\" index=0" +
-                    " caps=\"video/x-raw,format=RGBA,width=" + frameWidth + ",height=" + frameHeight +
-                    ",framerate=1/1\" ! decodebin ! videoconvert ! jpegenc ! multifilesink" +
-                    " location=\"" + Storage.DOCUMENTS_FOLDER + "/img%d.jpg\"");
-        else
-            return ProcessThread.mGStreamer.launch("webmmux name=mux ! filesink" +
-                    " location=\"" + Storage.DOCUMENTS_FOLDER + Storage.FILENAME_3D_VIDEO +
-                    "\" multifilesrc location=\"" + Storage.DOCUMENTS_FOLDER + "/img%d.jpg\" index=0" +
-                    " caps=\"image/jpeg,width=" + frameWidth + ",height=" + frameHeight +
-                    ",framerate=" + frameCount + "/" + Settings.getInstance().mDuration +
-                    "\" ! jpegdec ! videoconvert ! vp8enc ! queue ! mux.video_0 filesrc" +
-                    " location=\"" + Storage.DOCUMENTS_FOLDER + AUDIO_WAV_FILENAME +
-                    "\" ! decodebin ! audioconvert ! vorbisenc ! queue ! mux.audio_0");
+        try {
+            if (jpegStep)
+                return ProcessThread.mGStreamer.launch("multifilesrc location=\"" + files + "\" index=0" +
+                        " caps=\"video/x-raw,format=RGBA,width=" + frameWidth + ",height=" + frameHeight +
+                        ",framerate=1/1\" ! decodebin ! videoconvert ! jpegenc ! multifilesink" +
+                        " location=\"" + Storage.DOCUMENTS_FOLDER + "/img%d.jpg\"");
+            else
+                return ProcessThread.mGStreamer.launch("webmmux name=mux ! filesink" +
+                        " location=\"" + Storage.DOCUMENTS_FOLDER + Storage.FILENAME_3D_VIDEO +
+                        "\" multifilesrc location=\"" + Storage.DOCUMENTS_FOLDER + "/img%d.jpg\" index=0" +
+                        " caps=\"image/jpeg,width=" + frameWidth + ",height=" + frameHeight +
+                        ",framerate=" + frameCount + "/" + Settings.getInstance().mDuration +
+                        "\" ! jpegdec ! videoconvert ! vp8enc ! queue ! mux.video_0 filesrc" +
+                        " location=\"" + Storage.DOCUMENTS_FOLDER + AUDIO_WAV_FILENAME +
+                        "\" ! decodebin ! audioconvert ! vorbisenc ! queue ! mux.audio_0");
+
+        } catch (UnsatisfiedLinkError e) {
+            Logs.add(Logs.Type.F, "No implementation found for: GstObject.gstLaunch (makeAnaglyphVideo)");
+            return false;
+        }
     }
 
     public static boolean sendFile(String file) {

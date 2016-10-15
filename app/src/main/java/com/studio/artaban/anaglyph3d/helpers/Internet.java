@@ -109,7 +109,7 @@ public final class Internet {
             httpConnection.connect();
 
             if (httpConnection.getResponseCode() != HttpURLConnection.HTTP_OK)
-                throw new IOException();
+                throw new IOException(" #" + httpConnection.getResponseCode());
 
             // Save reply into expected file
             Logs.add(Logs.Type.I, "Save reply into expected file");

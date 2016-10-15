@@ -213,10 +213,16 @@ public class Frame extends MediaProcess {
                 height + ", destination: " + destination + ", orientation: " + orientation);
 
         int size = (width * height * 3) >> 1; // NV21 buffer size
-        return ProcessThread.mGStreamer.launch("filesrc location=\"" + source + "\" blocksize=" + size +
-                " ! video/x-raw,format=NV21,width=" + width + ",height=" + height + ",framerate=1/1" +
-                " ! videoflip method=" + orientation.getFlipMethod() + " ! videoconvert" +
-                " ! video/x-raw,format=RGBA ! filesink location=\"" + destination + "\"");
+        try {
+            return ProcessThread.mGStreamer.launch("filesrc location=\"" + source + "\" blocksize=" + size +
+                    " ! video/x-raw,format=NV21,width=" + width + ",height=" + height + ",framerate=1/1" +
+                    " ! videoflip method=" + orientation.getFlipMethod() + " ! videoconvert" +
+                    " ! video/x-raw,format=RGBA ! filesink location=\"" + destination + "\"");
+
+        } catch (UnsatisfiedLinkError e) {
+            Logs.add(Logs.Type.F, "No implementation found for: GstObject.gstLaunch (convertNV21toRGBA)");
+            return false;
+        }
     }
 
     public static boolean convertRGBAtoJPEG(String source, int width, int height, String destination) {
@@ -225,8 +231,14 @@ public class Frame extends MediaProcess {
                 height + ", destination: " + destination);
 
         int size = (width * height) << 2; // RGBA buffer size
-        return ProcessThread.mGStreamer.launch("filesrc location=\"" + source + "\" blocksize=" + size +
-                " ! video/x-raw,format=RGBA,width=" + width + ",height=" + height + ",framerate=1/1" +
-                " ! videoconvert ! jpegenc ! filesink location=\"" + destination + "\"");
+        try {
+            return ProcessThread.mGStreamer.launch("filesrc location=\"" + source + "\" blocksize=" + size +
+                    " ! video/x-raw,format=RGBA,width=" + width + ",height=" + height + ",framerate=1/1" +
+                    " ! videoconvert ! jpegenc ! filesink location=\"" + destination + "\"");
+
+        } catch (UnsatisfiedLinkError e) {
+            Logs.add(Logs.Type.F, "No implementation found for: GstObject.gstLaunch (convertRGBAtoJPEG)");
+            return false;
+        }
     }
 }

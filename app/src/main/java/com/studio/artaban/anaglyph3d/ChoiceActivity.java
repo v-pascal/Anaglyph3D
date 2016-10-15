@@ -146,10 +146,15 @@ public class ChoiceActivity extends AppCompatActivity implements DownloadFragmen
     public void displayMenu() { // Enable/Disable menu item according data
 
         Logs.add(Logs.Type.V, null);
-        assert mMenuOptions.getItem(0).getItemId() == R.id.menu_album;
-        mMenuOptions.getItem(0).setEnabled(!mDownloadTask.isDownloading());
-        assert mMenuOptions.getItem(1).getItemId() == R.id.menu_download;
-        mMenuOptions.getItem(1).setEnabled(!mDownloadTask.isDownloading() && !mDownloaded);
+        try {
+            assert mMenuOptions.getItem(0).getItemId() == R.id.menu_album;
+            mMenuOptions.getItem(0).setEnabled(!mDownloadTask.isDownloading());
+            assert mMenuOptions.getItem(1).getItemId() == R.id.menu_download;
+            mMenuOptions.getItem(1).setEnabled(!mDownloadTask.isDownloading() && !mDownloaded);
+
+        } catch (NullPointerException e) {
+            Logs.add(Logs.Type.W, "Unexpected menu options");
+        }
     }
 
     //////

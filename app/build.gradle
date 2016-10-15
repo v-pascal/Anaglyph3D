@@ -29,8 +29,8 @@ android {
             minSdkVersion 16
             applicationId 'com.studio.artaban.anaglyph3d'
             targetSdkVersion 23
-            versionCode 1
-            versionName '1.0'
+            versionCode 2
+            versionName '1.1'
         }
     }
     //dataBinding {
@@ -39,7 +39,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     // provided files('assets')
     // compile files('libs/libgst.jar')
     testCompile 'junit:junit:4.12'

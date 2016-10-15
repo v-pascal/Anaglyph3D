@@ -28,7 +28,7 @@
     <string name="video_resolution">Video resolution</string>
     <string name="devices_distance">Cameras distance: 6cm - 7cm</string>
     <string name="status_label">Status:</string>
-    <string name="title_detail_format">MMM d, \'yy - hh:mm</string>
+    <string name="title_detail_format">MMM d, \'\'yy - hh:mm</string>
     <string name="date_detail_format">MM/dd/yyyy - hh:mm</string>
     <string name="chose_player">Select the video player</string>
     <string name="title">Title :</string>

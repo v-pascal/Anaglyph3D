@@ -496,7 +496,11 @@ public abstract class AlbumActivity extends AppCompatActivity implements
                 PackageManager.PERMISSION_GRANTED ||
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED);
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
+        try {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
+        } catch (SecurityException e) {
+            Logs.add(Logs.Type.W, "Location permission not granted");
+        }
     }
 
     //////
