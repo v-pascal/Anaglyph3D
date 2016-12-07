@@ -250,9 +250,12 @@ public class RecorderFragment extends Fragment {
             }, 1000);
 
         // Disable sound that is played when recording
-        ((AudioManager)getContext().getSystemService(Context.AUDIO_SERVICE)).
-                setStreamMute(AudioManager.STREAM_SYSTEM, true);
-
+        try {
+            ((AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE)).
+                    setStreamMute(AudioManager.STREAM_SYSTEM, true);
+        } catch (NullPointerException e) {
+            Logs.add(Logs.Type.E, "Failed to disable down count sound");
+        }
         return rootView;
     }
 }
